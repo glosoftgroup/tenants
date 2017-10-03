@@ -1,0 +1,71 @@
+from django.http import HttpResponse
+from django.template.response import TemplateResponse
+from saleor.dashboard.views import staff_member_required
+from django.core.paginator import Paginator, EmptyPage, InvalidPage, PageNotAnInteger
+from django.shortcuts import get_object_or_404
+from .models import SalePoint
+import logging
+
+debug_logger = logging.getLogger('debug_logger')
+info_logger = logging.getLogger('info_logger')
+error_logger = logging.getLogger('error_logger')
+
+
+@staff_member_required
+def points(request):
+    try:
+        points = SalePoint.objects.all().order_by('-id')
+        page = request.GET.get('page', 1)
+        paginator = Paginator(points, 10)
+        try:
+            points = paginator.page(page)
+        except PageNotAnInteger:
+            points = paginator.page(1)
+        except InvalidPage:
+            points = paginator.page(1)
+        except EmptyPage:
+            points = paginator.page(paginator.num_pages)
+        data = {
+            "points": points,
+            "pn": paginator.num_pages
+        }
+        info_logger.info('User: ' + str(request.user.name) + 'accessed points page')
+        return TemplateResponse(request, 'dashboard/salepoints/points.html', data)
+    except TypeError as e:
+        error_logger.error(e)
+        return HttpResponse('error accessing points')
+
+
+@staff_member_required
+def add_point(request):
+    name = request.POST.get('name')
+    description = request.POST.get('description')
+    sale_point = SalePoint(name=name, description=description)
+
+    try:
+        sale_point.save()
+        info_logger.info('User: ' + str(request.user.name) + 'created point sale:' + str(name))
+        return HttpResponse('success')
+    except Exception as e:
+        error_logger.info('Error when adding sale point')
+        return HttpResponse(e)
+
+
+@staff_member_required
+def edit_point(request, pk):
+    return HttpResponse('hello')
+
+
+@staff_member_required
+def delete_point(request, pk):
+    expense = get_object_or_404(SalePoint, pk=pk)
+    if request.method == 'POST':
+        try:
+            expense.delete()
+            info_logger.info('deleted sale point: '+ str(expense.expense_type))
+            return HttpResponse('success')
+        except Exception, e:
+            error_logger.error(e)
+            return HttpResponse(e)
+
+

@@ -150,29 +150,19 @@ def add(request):
     return TemplateResponse(request, 'dashboard/accounts/expenses/expenses.html', data)
 
 def add_process(request):
-    # voucher = request.POST.get('voucher')
     expense_type = request.POST.get('expense_type')
-    # expense_date = request.POST.get('expense_date')
     expense_date = DateFormat(datetime.datetime.today()).format('Y-m-d')
     amount = request.POST.get('amount')
-    # authorized_by = request.POST.get('authorized_by')
     if request.user.name:
         authorized_by = request.user.name
     else:
         authorized_by = request.user.email
 
     paid_to  = request.POST.get('paid_to')
-    # received_by = request.POST.get('received_by')
-    # phone = request.POST.get('phone')
     description = request.POST.get('description')
-    # new_expense = Expenses(voucher=voucher, expense_type=expense_type, expense_date=expense_date,
-    #                     amount=amount, authorized_by=authorized_by, paid_to=paid_to,
-    #                     received_by=received_by, phone=phone,
-    #                     description=description)
     new_expense = Expenses(expense_type=expense_type, expense_date=expense_date,
                            amount=amount, authorized_by=authorized_by, paid_to=paid_to,
                            description=description)
-
 
     petty_cash = PettyCash.objects.latest('id')
     petty_cash_amount = petty_cash.closing
