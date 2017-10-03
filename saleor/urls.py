@@ -29,6 +29,7 @@ from .product.urls import urlpatterns as product_urls
 from .registration.urls import urlpatterns as registration_urls
 from .search.urls import urlpatterns as search_urls
 from .userprofile.urls import urlpatterns as userprofile_urls
+from .salepoints.urls import urlpatterns as salepoints_urls
 import notifications.urls
 from .api.product import views as api_views
 from .api.login import ObtainJSONWebToken
@@ -62,6 +63,7 @@ urlpatterns = [
     url(r'^feeds/', include(feed_urls, namespace='data_feeds')),
     url(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps},
         name='django.contrib.sitemaps.views.sitemap'),
+    url(r'^sale/points/', include(salepoints_urls, namespace='salepoints')),
     url(r'', include('payments.urls')),
     url('', include('social_django.urls', namespace='social')),
     #jwt post token code url

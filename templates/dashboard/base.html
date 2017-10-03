@@ -450,10 +450,17 @@
                   <ul>                 
                     
                     <li class="{% block menu_settings_class %}{% endblock %}">
-                    <a href="{% url 'dashboard:site-index' %}">
-                        <i class=" icon-earth"></i>
-                         {% trans "System Settings" context "system settings" %}
-                    </a>
+                        <a href="{% url 'dashboard:site-index' %}">
+                            <i class=" icon-earth"></i>
+                             {% trans "System Settings" context "system settings" %}
+                        </a>
+                    </li>
+
+                   <li class="{% block menu_salepoints_class %}{% endblock %}">
+                        <a href="{% url 'salepoints:salepoints' %}">
+                            <i class=" icon-earth"></i>
+                             Sales Points
+                        </a>
                     </li>
                   </ul>
                 </li>

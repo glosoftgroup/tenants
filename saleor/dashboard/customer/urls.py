@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import permission_required
 
 from . import views, sales
 from django.conf import settings
