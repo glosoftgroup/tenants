@@ -49,7 +49,7 @@ if os.environ.get('REDIS_URL'):
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='postgres://saleor:saleor@localhost:5432/saleor',
+        default='postgres://restaurant:restaurant@localhost:5432/restaurant',
         conn_max_age=600)}
 
 TIME_ZONE = 'Africa/Nairobi'
