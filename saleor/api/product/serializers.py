@@ -58,6 +58,7 @@ class TrackSerializer(serializers.ModelSerializer):
                 'discount'
                  )
 
+
 class ItemsSerializer(serializers.ModelSerializer):
     available_stock = SerializerMethodField()
     class Meta:

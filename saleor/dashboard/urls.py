@@ -19,9 +19,8 @@ from .search.urls import urlpatterns as search_urls
 from .sites.urls import urlpatterns as site_urls
 from .shipping.urls import urlpatterns as shipping_urls
 from .supplier.urls import urlpatterns as supplier_urls
+from .table.urls import urlpatterns as table_urls
 from .users.urls import urlpatterns as users_urls
-
-
 
 
 urlpatterns = [
@@ -46,6 +45,7 @@ urlpatterns = [
     url(r'^shipping/', include(shipping_urls)),
     url(r'^style-guide/', core_views.styleguide, name='styleguide'),
     url(r'^supplier/', include(supplier_urls)),
+    url(r'^table/', include(table_urls)),
     url(r'^users/', include(users_urls)),
     
 ]

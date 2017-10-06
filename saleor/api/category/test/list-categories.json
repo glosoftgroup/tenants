@@ -1,0 +1,26 @@
+// Category List Api
+//
+// Category List Api
+//
+// GET /api/category/
+//
+// HTTP 200 OK
+// Allow: GET, HEAD, OPTIONS
+// Content-Type: application/json
+// Vary: Accept
+
+{
+    "count": 1,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "name": "BreakFase",
+            "description": "",
+            "product_variants_url": "http://192.168.0.16:8000/api/variant/category/1",
+            "total_products": 2
+        }
+    ]
+}
+
