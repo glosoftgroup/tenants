@@ -11,4 +11,4 @@ class TableListSerializer(serializers.ModelSerializer):
         model = Table
         fields = ('id',
                  'name',
-                 'number')
+                 )
