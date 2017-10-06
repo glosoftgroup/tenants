@@ -1,4 +1,3 @@
-from django.conf import settings
 from datetime import date
 from rest_framework.serializers import (
                 ModelSerializer,
@@ -19,7 +18,6 @@ from ...sale.models import (
             SoldItem,
             Terminal,
             PaymentOption)
-from ...site.models import SiteSettings
 from ...product.models import (
             Product,
             ProductVariant,

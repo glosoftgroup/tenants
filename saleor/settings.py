@@ -187,6 +187,7 @@ INSTALLED_APPS = [
     'saleor.core',
     'saleor.graphql',
     'saleor.order',
+    'saleor.orders',
     'saleor.dashboard',
     'saleor.shipping',
     'saleor.search',

@@ -13,6 +13,7 @@ User = get_user_model()
 class CategoryListSerializer(serializers.ModelSerializer):
     product_variants_url = HyperlinkedIdentityField(view_name='variant-api:api-variant-list')
     total_products = SerializerMethodField()
+
     class Meta:
         model = Category
         fields = ('id',
@@ -20,5 +21,6 @@ class CategoryListSerializer(serializers.ModelSerializer):
                  'description',
                  'product_variants_url',
                  'total_products' ,)
+
     def get_total_products(self,obj):
         return len(ProductVariant.objects.filter(product__categories__pk=obj.pk))
