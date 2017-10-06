@@ -107,6 +107,7 @@ class SalesUpdateAPIView(generics.RetrieveUpdateAPIView):
 
 class SalesListAPIView(generics.ListAPIView):    
     serializer_class = SalesListSerializer
+
     def get_queryset(self, *args, **kwargs):        
         queryset_list = Sales.objects.all()
         query = self.request.GET.get('q')
