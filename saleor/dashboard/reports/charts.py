@@ -1,22 +1,20 @@
 import logging
 import random
-from decimal import Decimal
 from calendar import monthrange
 import calendar
 import re
 from django.template.response import TemplateResponse
 from django.http import HttpResponse, JsonResponse
-from django.db.models import Q, Count, Min, Sum, Avg, Max
+from django.db.models import Count, Sum
 from django.core import serializers
-from django.core.paginator import Paginator, EmptyPage, InvalidPage, PageNotAnInteger
+from django.core.paginator import Paginator
 from django.db.models import Q
-from django.core.exceptions import ObjectDoesNotExist
-from  datetime import *
+from datetime import *
 from django.utils.dateformat import DateFormat
 
 from ..views import staff_member_required
 from ...credit.models import Credit
-from ...sale.models import Sales, SoldItem, Terminal
+from ...sale.models import *
 from ...product.models import Category
 from ...decorators import permission_decorator
 from ...utils import render_to_pdf
@@ -30,7 +28,7 @@ error_logger = logging.getLogger('error_logger')
 @staff_member_required
 def sales_category_chart(request, image=None):
 	get_date = request.GET.get('date')
-	today = datetime.datetime.now()
+	today = datetime.now()
 	if get_date:
 		date = get_date
 	else:
@@ -38,7 +36,7 @@ def sales_category_chart(request, image=None):
 			last_sale = Sales.objects.latest('id')
 			date = DateFormat(last_sale.created).format('Y-m-d')
 		except:
-			date = DateFormat(datetime.datetime.today()).format('Y-m-d')
+			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	if image:
 		dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
@@ -118,6 +116,7 @@ def sales_category_chart(request, image=None):
 		except IndexError as e:
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/category.html', {"e":e, "date":date})
 
+
 def sales_category_chart_paginate(request):
 	get_date = request.GET.get('date')
 	page = request.GET.get('page', 1)
@@ -133,8 +132,8 @@ def sales_category_chart_paginate(request):
 			last_sale = Sales.objects.latest('id')
 			date = DateFormat(last_sale.created).format('Y-m-d')
 		except:
-			today = datetime.datetime.now()
-			date = DateFormat(datetime.datetime.today()).format('Y-m-d')
+			today = datetime.now()
+			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	try:
 		sales_by_category = SoldItem.objects.filter(sales__created__contains=date).values('product_category').annotate(
@@ -153,12 +152,11 @@ def sales_category_chart_paginate(request):
 		return TemplateResponse(request, 'dashboard/reports/sales/ajax/cat_paginate.html', {"e": e, "date": date})
 
 
-
 @staff_member_required
 @permission_decorator('reports.view_sales_reports')
 def get_category_sale_details(request):
 	get_categ = request.GET.get('category')
-	today = datetime.datetime.now()
+	today = datetime.now()
 	if get_categ:
 		try:
 			""" this year """
@@ -229,9 +227,11 @@ def get_category_sale_details(request):
 		except ObjectDoesNotExist as e:
 			return TemplateResponse(request, 'dashboard/reports/sales/charts/by_category.html',{})
 
+
 @staff_member_required
 @permission_decorator('reports.view_sales_reports')
-def sales_date_chart(request, image=None):
+def sales_date_chart(request):
+	image = request.GET.get('image')
 	get_date = request.GET.get('date')
 	if get_date:
 		date = get_date
@@ -240,37 +240,7 @@ def sales_date_chart(request, image=None):
 			last_sale = Sales.objects.latest('id')
 			date = DateFormat(last_sale.created).format('Y-m-d')
 		except:
-			date = DateFormat(datetime.datetime.today()).format('Y-m-d')
-
-	if image:
-		dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
-		ImageData = image
-		ImageData = dataUrlPattern.match(ImageData).group(2)
-
-		date_total_sales = Sales.objects.filter(created__contains=date).aggregate(Sum('total_net'))['total_net__sum']
-		date_total_discount = Sales.objects.filter(created__contains=date).aggregate(Sum('discount_amount'))[
-			'discount_amount__sum']
-		date_total_tax = Sales.objects.filter(created__contains=date).aggregate(Sum('total_tax'))[
-			'total_tax__sum']
-		try:
-			date_gross_sales = date_total_discount + date_total_tax + date_total_sales
-		except:
-			date_gross_sales = 0
-		users = Sales.objects.values('user__email', 'user__name', 'terminal__terminal_name').annotate(Count('user')).annotate(
-			Sum('total_net')).order_by().filter(created__contains=date)
-
-		data = {
-			'today': last_sale.created,
-			'users': users,
-			'puller': request.user,
-			'image': ImageData,
-			"date_total_sales": date_total_sales,
-			"date_gross_sales": date_gross_sales,
-			"date_total_tax": date_total_tax,
-			"date_total_discount": date_total_discount,
-		}
-		pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/pdf.html', data)
-		return HttpResponse(pdf, content_type='application/pdf')
+			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	if date:
 		try:
@@ -327,7 +297,48 @@ def sales_date_chart(request, image=None):
 				date_gross_sales = date_total_discount + date_total_tax + date_total_sales
 			except:
 				date_gross_sales = 0
+
+			try:
+				broughtdown = DrawerCash.objects.filter(created__lte=date).last().amount
+				if broughtdown is None:
+					broughtdown = 0
+			except:
+				broughtdown = 0
+
+			try:
+				drawerdeposit = DrawerCash.objects.filter(created__contains=date, trans_type__icontains='deposit').aggregate(Sum('amount'))['amount__sum']
+				if drawerdeposit is None:
+					drawerdeposit = 0
+			except:
+				drawerdeposit = 0
+
+			try:
+				drawerwithdraw = DrawerCash.objects.filter(created__contains=date, trans_type__icontains='withdraw').aggregate(Sum('amount'))['amount__sum']
+				if drawerwithdraw is None:
+					drawerwithdraw = 0
+			except:
+				drawerwithdraw = 0
+
+			try:
+				drawersales = DrawerCash.objects.filter(created__contains=date, trans_type__icontains='sale').aggregate(Sum('amount'))['amount__sum']
+				if drawersales is None:
+					drawersales = 0
+			except:
+				drawersales = 0
+
+			try:
+				carriedforward = DrawerCash.objects.filter(created__contains=date).last().amount
+				if carriedforward is None:
+					carriedforward = 0
+			except:
+				carriedforward = 0
 			data = {
+				"balanceBroughtDown":broughtdown,
+				"drawerDeposit":drawerdeposit,
+				"drawerWithdraw":drawerwithdraw,
+				"drawerSales":drawersales,
+				"balanceCarriedForward":carriedforward,
+
 				"no_of_customers":no_of_customers,
 				"date_total_sales":date_total_sales,
 				"date_gross_sales":date_gross_sales,
@@ -344,6 +355,35 @@ def sales_date_chart(request, image=None):
 				"prevdate_total_sales":prev_sales,
 				"previous_sales":prevdate_total_sales,
 			}
+			if image:
+				dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
+				ImageData = image
+				ImageData = dataUrlPattern.match(ImageData).group(2)
+
+				data = {
+					"no_of_customers": no_of_customers,
+					"date_total_sales": date_total_sales,
+					"date_gross_sales": date_gross_sales,
+					"date_total_tax": date_total_tax,
+					"date_total_discount": date_total_discount,
+					"date": selected_sales_date,
+					"prevdate": previous_sales_date,
+					"default": default,
+					"labels2": labels,
+					"cashiers": users_that_day,
+					"users": users,
+					"sales_percent": sales_diff,
+					"customer_percent": customer_diff,
+					"prevdate_total_sales": prev_sales,
+					"previous_sales": prevdate_total_sales,
+
+					'today': datetime.today(),
+					'puller': request.user,
+					'image': ImageData,
+				}
+				pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/pdf.html', data)
+				return HttpResponse(pdf, content_type='application/pdf')
+
 			if get_date:
 				return TemplateResponse(request, 'dashboard/reports/sales/charts/by_date.html', data)
 			else:
@@ -354,6 +394,7 @@ def sales_date_chart(request, image=None):
 			else:
 				return TemplateResponse(request, 'dashboard/reports/sales/charts/by_date.html',
 										{"error": e, "date": date})
+
 
 @staff_member_required
 @permission_decorator('reports.view_sales_reports')
@@ -373,9 +414,11 @@ def get_sales_charts(request):
 	}
 	return JsonResponse(data)
 
+
 @staff_member_required
 @permission_decorator('reports.view_sales_reports')
 def get_sales_by_week(request):
+	image = request.GET.get('image')
 	date_from = request.GET.get('from')
 	d_to = request.GET.get('to')
 
@@ -390,11 +433,17 @@ def get_sales_by_week(request):
 	first_range_date = datetime.strptime(date_from, '%Y-%m-%d')
 	second_range_date = datetime.strptime(d_to, '%Y-%m-%d')
 
+	print first_range_date
+	print second_range_date
+
 	default3 = []
 	labels3 = []
-	drf = (second_range_date - first_range_date) / 7
+	second_range_date1 = second_range_date + timedelta(days=1)
+	second_range_date2 = second_range_date + timedelta(days=2)
+	drf = (second_range_date1 - first_range_date) / 7
+	drf2 = (second_range_date2 - first_range_date) / 7
 	for i in range(7):
-		amount = get_date_results_range(DateFormat(i * drf + first_range_date).format('Y-m-d'), DateFormat((i+1)*drf+first_range_date).format('Y-m-d'))
+		amount = get_date_results_range(DateFormat(i * drf2 + first_range_date).format('Y-m-d'), DateFormat((i+1)*drf2+first_range_date).format('Y-m-d'))
 		r = str((DateFormat(i * drf + first_range_date).format('d/m'))) + ' - ' + str(DateFormat((i+1)*drf+first_range_date).format('d/m'))
 		labels3.append(r)
 		default3.append(amount)
@@ -434,7 +483,7 @@ def get_sales_by_week(request):
 			"no_of_customers":no_of_customers,
 			"date_total_sales":sales_that_day,
 			"date_from":date_from,
-			"date_to":date_to,
+			"date_to":d_to,
 			"labels3":labels3,
 			"default3":default3,
 			"cashiers":users_that_day,
@@ -443,17 +492,36 @@ def get_sales_by_week(request):
 			"date_total_tax": date_total_tax,
 			"date_total_discount": date_total_discount,
 		}
+		if image:
+			dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
+			ImageData = image
+			ImageData = dataUrlPattern.match(ImageData).group(2)
+
+			data = {
+				"no_of_customers": no_of_customers,
+				"date_total_sales": sales_that_day,
+				"date_gross_sales": date_gross_sales,
+				"date_total_tax": date_total_tax,
+				"date_total_discount": date_total_discount,
+				"cashiers": users_that_day,
+				"users": users,
+
+				'today': datetime.today(),
+				'puller': request.user,
+				'image': ImageData,
+			}
+			pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/pdf.html', data)
+			return HttpResponse(pdf, content_type='application/pdf')
 		return TemplateResponse(request, 'dashboard/reports/sales/charts/by_date_range.html',data)
 	except ObjectDoesNotExist as e:
 		return TemplateResponse(request, 'dashboard/reports/sales/charts/by_date_range.html',{"error":e, "date":date})
-
 
 
 @staff_member_required
 @permission_decorator('reports.view_sale_reports')
 def sales_user_chart(request):
 	image = request.POST.get('img')
-	today = datetime.datetime.now()
+	today = datetime.now()
 	get_date = request.GET.get('date')
 	if get_date:
 		date = get_date
@@ -462,7 +530,7 @@ def sales_user_chart(request):
 			last_sale = Sales.objects.latest('id')
 			date = DateFormat(last_sale.created).format('Y-m-d')
 		except:
-			date = DateFormat(datetime.datetime.today()).format('Y-m-d')
+			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	if image:
 		dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
@@ -491,7 +559,6 @@ def sales_user_chart(request):
 		}
 		pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/user_pdf.html', data)
 		return HttpResponse(pdf, content_type='application/pdf')
-
 
 	if date:
 		try:
@@ -547,6 +614,7 @@ def sales_user_chart(request):
 		except IndexError:
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/user.html',{"sales_date":date})
 
+
 def sales_user_chart_paginate(request):
 	get_date = request.GET.get('date')
 	page = request.GET.get('page', 1)
@@ -562,8 +630,8 @@ def sales_user_chart_paginate(request):
 			last_sale = Sales.objects.latest('id')
 			date = DateFormat(last_sale.created).format('Y-m-d')
 		except:
-			today = datetime.datetime.now()
-			date = DateFormat(datetime.datetime.today()).format('Y-m-d')
+			today = datetime.now()
+			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	try:
 		users = Sales.objects.values('user__email', 'user__name', 'terminal').annotate(Count('user')).annotate(
@@ -586,7 +654,7 @@ def sales_user_chart_paginate(request):
 @permission_decorator('reports.view_sales_reports')
 def get_user_sale_details(request):
 	get_categ = request.GET.get('user')
-	today = datetime.datetime.now()
+	today = datetime.now()
 	if get_categ:
 		try:
 			""" this year """
@@ -655,13 +723,13 @@ def get_user_sale_details(request):
 			return TemplateResponse(request, 'dashboard/reports/sales/charts/by_user.html', data)
 		except ObjectDoesNotExist as e:
 			return TemplateResponse(request, 'dashboard/reports/sales/charts/by_user.html',{})
-			# return HttpResponse(e)
+
 
 @staff_member_required
 @permission_decorator('reports.view_sale_reports')
 def sales_terminal_chart(request):
 	image = request.POST.get('img')
-	today = datetime.datetime.now()
+	today = datetime.now()
 	get_date = request.GET.get('date')
 	if get_date:
 		date = get_date
@@ -670,7 +738,7 @@ def sales_terminal_chart(request):
 			last_sale = Sales.objects.latest('id')
 			date = DateFormat(last_sale.created).format('Y-m-d')
 		except:
-			date = DateFormat(datetime.datetime.today()).format('Y-m-d')
+			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	if image:
 		dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
@@ -699,7 +767,6 @@ def sales_terminal_chart(request):
 		}
 		pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/terminal_pdf.html', data)
 		return HttpResponse(pdf, content_type='application/pdf')
-
 
 	if date:
 		try:
@@ -743,12 +810,12 @@ def sales_terminal_chart(request):
 				"pn": paginator.num_pages,
 				"count": terminals.count()
 			}
-			# return TemplateResponse(request, 'dashboard/reports/sales/charts/sales_by_teller.html', data)
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/till.html', data)
 		except ObjectDoesNotExist:
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/till.html',{"sales_date":date})
 		except IndexError:
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/till.html',{"sales_date":date})
+
 
 def sales_till_chart_paginate(request):
 	get_date = request.GET.get('date')
@@ -765,8 +832,7 @@ def sales_till_chart_paginate(request):
 			last_sale = Sales.objects.latest('id')
 			date = DateFormat(last_sale.created).format('Y-m-d')
 		except:
-			today = datetime.datetime.now()
-			date = DateFormat(datetime.datetime.today()).format('Y-m-d')
+			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	try:
 		terminals = Sales.objects.values('terminal__terminal_name', 'terminal').annotate(Count('terminal')).annotate(
@@ -789,7 +855,7 @@ def sales_till_chart_paginate(request):
 @permission_decorator('reports.view_sales_reports')
 def get_terminal_sale_details(request):
 	get_categ = request.GET.get('terminal')
-	today = datetime.datetime.now()
+	today = datetime.now()
 	if get_categ:
 		try:
 			""" this year """
@@ -859,12 +925,13 @@ def get_terminal_sale_details(request):
 		except ObjectDoesNotExist as e:
 			return TemplateResponse(request, 'dashboard/reports/sales/charts/by_terminal.html',{})
 
+
 @staff_member_required
 @permission_decorator('reports.view_products_reports')
 def sales_product_chart(request):
 	get_date = request.GET.get('date')
 	image = request.POST.get('img')
-	today = datetime.datetime.now()
+	today = datetime.now()
 	if get_date:
 		date = get_date
 	else:
@@ -872,7 +939,7 @@ def sales_product_chart(request):
 			last_sale = Sales.objects.latest('id')
 			date = DateFormat(last_sale.created).format('Y-m-d')
 		except:
-			date = DateFormat(datetime.datetime.today()).format('Y-m-d')
+			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	if image:
 		dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
@@ -946,12 +1013,13 @@ def sales_product_chart(request):
 				"pn":paginator.num_pages,
 				"count":sales_by_category.count()
 			}
-			# return TemplateResponse(request, 'dashboard/reports/sales/charts/sales_by_product.html', data)
+
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/items.html', data)
 		except ObjectDoesNotExist as e:
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/items.html',{'sales_date':date})
 		except IndexError as e:
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/items.html',{'sales_date':date})
+
 
 def sales_product_chart_paginate(request):
 	get_date = request.GET.get('date')
@@ -968,8 +1036,7 @@ def sales_product_chart_paginate(request):
 			last_sale = Sales.objects.latest('id')
 			date = DateFormat(last_sale.created).format('Y-m-d')
 		except:
-			today = datetime.datetime.now()
-			date = DateFormat(datetime.datetime.today()).format('Y-m-d')
+			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	try:
 		sales_by_category = SoldItem.objects.filter(sales__created__contains=date).values('product_name').annotate(
@@ -992,7 +1059,7 @@ def sales_product_chart_paginate(request):
 @permission_decorator('reports.view_sales_reports')
 def get_product_sale_details(request):
 	get_categ = request.GET.get('item')
-	today = datetime.datetime.now()
+	today = datetime.now()
 	if get_categ:
 		try:
 			""" this year """
@@ -1062,7 +1129,6 @@ def get_product_sale_details(request):
 			return TemplateResponse(request, 'dashboard/reports/sales/charts/by_product.html', data)
 		except ObjectDoesNotExist as e:
 			return TemplateResponse(request, 'dashboard/reports/sales/charts/by_product.html',{})
-			# return HttpResponse(e)
 
 
 # discount
@@ -1071,7 +1137,7 @@ def get_product_sale_details(request):
 def sales_discount_chart(request):
 	get_date = request.GET.get('date')
 	image = request.POST.get('img')
-	today = datetime.datetime.now()
+	today = datetime.now()
 	if get_date:
 		date = get_date
 	else:
@@ -1079,7 +1145,7 @@ def sales_discount_chart(request):
 			last_sale = Sales.objects.filter(~Q(discount_amount = 0.00)).latest('id')
 			date = DateFormat(last_sale.created).format('Y-m-d')
 		except:
-			date = DateFormat(datetime.datetime.today()).format('Y-m-d')
+			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	if image:
 		dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
@@ -1153,12 +1219,13 @@ def sales_discount_chart(request):
 				"pn":paginator.num_pages,
 				"count":sales_by_category.count()
 			}
-			
+
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/discount.html', data)
 		except ObjectDoesNotExist as e:
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/discount.html',{'sales_date':date})
 		except IndexError as e:
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/items.html',{'sales_date':date})
+
 
 def sales_discount_chart_paginate(request):
 	get_date = request.GET.get('date')
@@ -1175,8 +1242,7 @@ def sales_discount_chart_paginate(request):
 			last_sale = Sales.objects.filter(~Q(discount_amount = 0.00)).latest('id')
 			date = DateFormat(last_sale.created).format('Y-m-d')
 		except:
-			today = datetime.datetime.now()
-			date = DateFormat(datetime.datetime.today()).format('Y-m-d')
+			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	try:
 		sales_by_category = SoldItem.objects.filter(sales__created__contains=date).filter(~Q(discount = 0.00)).values('product_name','discount').annotate(
