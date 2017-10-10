@@ -102,10 +102,9 @@ class SalesUpdateAPIView(generics.RetrieveUpdateAPIView):
                                            terminal=terminal,
                                            amount=serializer.data['amount_paid'],
                                            trans_type='credit paid')
-        
 
 
-class SalesListAPIView(generics.ListAPIView):    
+class SalesListAPIView(generics.ListAPIView):
     serializer_class = SalesListSerializer
 
     def get_queryset(self, *args, **kwargs):        

@@ -59,6 +59,7 @@ class TrackSerializer(serializers.ModelSerializer):
 
 class ItemsSerializer(serializers.ModelSerializer):
     available_stock = SerializerMethodField()
+
     class Meta:
         model = SoldItem
         fields = (
@@ -73,6 +74,7 @@ class ItemsSerializer(serializers.ModelSerializer):
                 'tax',
                 'discount',
                  )
+
     def get_available_stock(self,obj):
         try:
             stock = ProductVariant.objects.get(sku=obj.sku)

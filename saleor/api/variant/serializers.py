@@ -1,5 +1,6 @@
 # variant rest api serializers.py
 from datetime import date
+from decimal import Decimal
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from ...product.models import ProductVariant
@@ -12,8 +13,8 @@ User = get_user_model()
 
 
 class VariantListSerializer(serializers.ModelSerializer):
-    productName = SerializerMethodField()
-    price = SerializerMethodField()
+    product_name = SerializerMethodField()
+    unit_cost = SerializerMethodField()
     quantity = SerializerMethodField()
     tax = SerializerMethodField()
     discount = SerializerMethodField()
@@ -23,9 +24,9 @@ class VariantListSerializer(serializers.ModelSerializer):
         model = ProductVariant
         fields = (
             'id',
-            'productName',
+            'product_name',
             'sku',
-            'price',
+            'unit_cost',
             'tax',
             'discount',
             'quantity',
@@ -42,7 +43,7 @@ class VariantListSerializer(serializers.ModelSerializer):
             try:
                 discount = discount.factor
                 discount = (Decimal(discount) * Decimal(price))
-            except:
+            except Exception as e:
                 discount = discount.amount.gross
 
         return discount
@@ -51,13 +52,11 @@ class VariantListSerializer(serializers.ModelSerializer):
         quantity = obj.get_stock_quantity()
         return quantity
 
-    def get_productName(self, obj):
-        productName = obj.display_product()
-        return productName
+    def get_product_name(self, obj):
+        product_name = obj.display_product()
+        return product_name
 
-    # def get_description(self,obj):
-    #     return self.products.description
-    def get_price(self, obj):
+    def get_unit_cost(self, obj):
         price = obj.get_price_per_item().gross
         return price
 

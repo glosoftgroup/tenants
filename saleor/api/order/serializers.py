@@ -1,6 +1,7 @@
 from rest_framework.serializers import (
                 HyperlinkedIdentityField,
                 ValidationError,
+                JSONField
                 )
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
@@ -26,7 +27,7 @@ class ItemSerializer(serializers.ModelSerializer):
         model = OrderedItem
         fields = (
                 'id',
-                'order',
+                #'order',
                 'sku',
                 'quantity',
                 'unit_cost',
@@ -38,8 +39,7 @@ class ItemSerializer(serializers.ModelSerializer):
                  )
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    url = HyperlinkedIdentityField(view_name='product-api:sales-details')
+class ListOrderSerializer(serializers.ModelSerializer):
     ordered_items = ItemSerializer(many=True)
 
     class Meta:
@@ -47,9 +47,10 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = ('id',
                   'user',
                   'invoice_number',
+                  'table',
+                  'sale_point',
                   'total_net',
                   'sub_total',
-                  'url',
                   'balance',
                   'terminal',
                   'amount_paid',
@@ -57,6 +58,32 @@ class OrderSerializer(serializers.ModelSerializer):
                   'customer',
                   'mobile',
                   'customer_name',
+                  'payment_data',
+                  'status',
+                  'total_tax',
+                  'discount_amount'
+                  )
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    url = HyperlinkedIdentityField(view_name='product-api:sales-details')
+    ordered_items = ItemSerializer(many=True)
+    payment_data = JSONField()
+    class Meta:
+        model = Orders
+        fields = ('id',
+                  'user',
+                  'invoice_number',
+                  'table',
+                  'sale_point',
+                  'total_net',
+                  'sub_total',
+                  'url',
+                  'balance',
+                  'terminal',
+                  'amount_paid',
+                  'ordered_items',
+                  'payment_data',
                   'status',
                   'total_tax',
                   'discount_amount'
@@ -123,20 +150,6 @@ class OrderSerializer(serializers.ModelSerializer):
         order = Orders()
 
         try:
-            if validated_data.get('customer'):
-                customer = Customer.objects.get(name=validated_data.get('customer'))
-            else:
-                customer = Customer.objects.get(name=validated_data.get('customer_name'))
-                order.customer = customer
-        except Exception as e:
-            name = validated_data.get('customer_name')
-            if validated_data.get('mobile'):
-                mobile = validated_data.get('mobile')
-                customer = Customer.objects.create(name=name, mobile=mobile)
-                order.customer = customer
-            else:
-                pass
-        try:
             ordered_items_data = validated_data.pop('ordered_items')
         except:
             raise ValidationError('Ordered items field should not be empty')
@@ -148,35 +161,24 @@ class OrderSerializer(serializers.ModelSerializer):
         order.sub_total = validated_data.get('sub_total')
         order.balance = validated_data.get('balance')
         order.terminal = validated_data.get('terminal')
+        order.table = validated_data.get('table')
+        order.sale_point = validated_data.get('sale_point')
         order.amount_paid = validated_data.get('amount_paid')
         order.status = status
         order.payment_data = validated_data.get('payment_data')
         order.total_tax = total_tax
         order.mobile = validated_data.get('mobile')
         order.discount_amount = validated_data.get('discount_amount')
-        order.customer_name = validated_data.get('customer_name')
+
         order.save()
         # add payment options
-        payment_data = validated_data.get('payment_data')
-        for option in payment_data:
-            pay_opt = PaymentOption.objects.get(pk=int(option['payment_id']))
-            order.payment_options.add(pay_opt)
-            points_eq = pay_opt.loyalty_point_equiv
-            if points_eq == 0:
-                loyalty_points = 0
-            else:
-                loyalty_points = int(option['value']) / points_eq
-            try:
-                Customer.objects.gain_points(customer, loyalty_points)
-            except Exception as e:
-                print 'customer details provided dont meet adding customer criteria'
 
         for ordered_item_data in ordered_items_data:
-            OrderedItem.objects.create(order=order, **solditem_data)
+            OrderedItem.objects.create(orders=order, **ordered_item_data)
             try:
-                stock = Stock.objects.get(variant__sku=solditem_data['sku'])
+                stock = Stock.objects.get(variant__sku=ordered_item_data['sku'])
                 if stock:
-                    Stock.objects.decrease_stock(stock, solditem_data['quantity'])
+                    Stock.objects.decrease_stock(stock, ordered_item_data['quantity'])
                 else:
                     print 'stock not found'
             except Exception as e:

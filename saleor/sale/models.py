@@ -29,6 +29,7 @@ from ..site.models import SiteSettings
 from . import OrderStatus
 from . import TransactionStatus
 
+
 class PaymentOption(models.Model):
     name = models.CharField(
         pgettext_lazy('Payment option field', 'payment option name'),
@@ -177,9 +178,10 @@ class Sales(models.Model):
         return self.invoice_number
     def __unicode__(self):
         return unicode(self.invoice_number)
-                                
+
+
 class SoldItem(models.Model):
-    sales = models.ForeignKey(Sales,related_name='solditems',on_delete=models.CASCADE)
+    sales = models.ForeignKey(Sales, related_name='solditems', on_delete=models.CASCADE)
     order = models.IntegerField(default=Decimal(1))
     sku = models.CharField(
         pgettext_lazy('SoldItem field', 'SKU'), max_length=32)    

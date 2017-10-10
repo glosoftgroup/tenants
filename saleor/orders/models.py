@@ -3,19 +3,29 @@ from __future__ import unicode_literals
 from decimal import Decimal
 
 from django.conf import settings
+from django.utils.encoding import python_2_unicode_compatible
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import pgettext_lazy
 from django_prices.models import PriceField
-
-from ..userprofile.models import Address
+from jsonfield import JSONField
+from ..table.models import Table
+from ..salepoints.models import SalePoint
 from ..customer.models import Customer
-from ..sale.models import Terminal
-
+from ..sale.models import Terminal, PaymentOption
 from . import OrderStatus
 
 
+class OrdersManager(models.Manager):
+
+    def get_table_orders(self,table_pk):
+
+        return self.get_queryset().filter(
+            models.Q(table=table_pk), models.Q(status='fully-paid'))
+
+
+#@python_2_unicode_compatible
 class Orders(models.Model):
     status = models.CharField(
         pgettext_lazy('Orders field', 'Invoice status'),
@@ -42,7 +52,13 @@ class Orders(models.Model):
         blank=True, default='', editable=False)
     terminal = models.ForeignKey(
         Terminal, related_name='terminal_orders',blank=True, default='',
-        verbose_name=pgettext_lazy('Orders field', 'order'))
+        verbose_name=pgettext_lazy('Orders field', 'terminal'))
+    table = models.ForeignKey(
+        Table, related_name='table_orders', blank=True, default='',
+        verbose_name=pgettext_lazy('Orders field', 'table'))
+    sale_point = models.ForeignKey(
+        SalePoint, related_name='sale_point', blank=True, default='',
+        verbose_name=pgettext_lazy('Orders field', 'Sale point'))
     invoice_number = models.CharField(
         pgettext_lazy('Orders field', 'invoice_number'), unique=True, null=True, max_length=36,)
     
@@ -60,13 +76,19 @@ class Orders(models.Model):
     balance = models.DecimalField(
         pgettext_lazy('Orders field', 'balance'), default=Decimal(0), max_digits=100, decimal_places=2)
     
-    discount_amount = PriceField(
-        verbose_name=pgettext_lazy('Orders field', 'discount amount'),
-        currency=settings.DEFAULT_CURRENCY, max_digits=12, decimal_places=2,
-        blank=True, null=True)
+    discount_amount = models.DecimalField(
+        pgettext_lazy('Orders field', 'discount'), default=Decimal(0), max_digits=100, decimal_places=2)
+
     discount_name = models.CharField(
         verbose_name=pgettext_lazy('Orders field', 'discount name'),
         max_length=255, default='', blank=True)
+    payment_options = models.ManyToManyField(
+        PaymentOption, related_name='order_payment_option', blank=True,
+        verbose_name=pgettext_lazy('Sales field',
+                                   'sales options'))
+    payment_data = JSONField(null=True, blank=True)
+
+    objects = OrdersManager()
 
     class Meta:
         ordering = ('-last_status_change',)
@@ -80,8 +102,10 @@ class Orders(models.Model):
         return unicode(self.invoice_number)
 
 
+
+@python_2_unicode_compatible
 class OrderedItem(models.Model):
-    order = models.ForeignKey(Orders, related_name='ordered_items',on_delete=models.CASCADE)
+    orders = models.ForeignKey(Orders, related_name='ordered_items', on_delete=models.CASCADE, null=True)
     order = models.IntegerField(default=Decimal(1))
     sku = models.CharField(
         pgettext_lazy('OrderdItem field', 'SKU'), max_length=32)
