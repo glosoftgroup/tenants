@@ -103,6 +103,9 @@ class Orders(models.Model):
     def __unicode__(self):
         return unicode(self.invoice_number)
 
+    def items(self):
+        return self.ordered_items.all()
+
 
 @python_2_unicode_compatible
 class OrderedItem(models.Model):
@@ -134,6 +137,5 @@ class OrderedItem(models.Model):
     def __str__(self):
         return self.product_name
 
-    def items(self):
-        return self.ordered_items.all()
+
 
