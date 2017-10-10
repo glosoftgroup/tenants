@@ -203,6 +203,7 @@ INSTALLED_APPS = [
     'saleor.credit',
     'saleor.salepoints',
     'saleor.table',
+    'saleor.orders',
 
     # External apps
     'versatileimagefield',

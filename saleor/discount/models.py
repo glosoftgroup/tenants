@@ -12,9 +12,10 @@ from django_prices.models import PriceField
 from django_prices.templatetags.prices_i18n import net
 from prices import FixedDiscount, percentage_discount, Price
 
-from ..cart.utils import (
+from utils import (
     get_product_variants_and_prices, get_category_variants_and_prices)
 from ..customer.models import Customer
+
 
 class NotApplicable(ValueError):
     pass

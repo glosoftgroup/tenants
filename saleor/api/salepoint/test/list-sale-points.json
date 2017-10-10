@@ -1,0 +1,30 @@
+/*
+    Sale Point List Api
+
+    Sale Point List Api
+    GET /api/sale-point/
+
+    HTTP 200 OK
+    Allow: GET, HEAD, OPTIONS
+    Content-Type: application/json
+    Vary: Accept
+*/
+
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "name": "Restaurant",
+            "orders_url": "http://127.0.0.1:8000/api/order/sale-point/1"
+        },
+        {
+            "id": 2,
+            "name": "Bar",
+            "orders_url": "http://127.0.0.1:8000/api/order/sale-point/2"
+        }
+    ]
+}
+

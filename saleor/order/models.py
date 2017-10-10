@@ -91,6 +91,8 @@ class Order(models.Model, ItemSet, index.Indexed):
     discount_name = models.CharField(
         verbose_name=pgettext_lazy('Order field', 'discount name'),
         max_length=255, default='', blank=True)
+    debt = models.DecimalField(
+        pgettext_lazy('Order field', 'debt'), default=Decimal(0), max_digits=100, decimal_places=2)
 
     objects = OrderManager()
 

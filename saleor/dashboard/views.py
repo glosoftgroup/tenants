@@ -2,8 +2,8 @@ from django.contrib.admin.views.decorators import \
     staff_member_required as _staff_member_required
 from django.template.response import TemplateResponse
 from payments import PaymentStatus
-from ..order.models import Order, Payment
-from ..order import OrderStatus
+#from ..order.models import Order, Payment
+#from ..order import OrderStatus
 from ..sale.models import Sales, SoldItem
 from ..product.models import Category, Stock
 from ..credit.models import Credit
@@ -37,10 +37,7 @@ def index(request):
         date = DateFormat(datetime.datetime.today()).format('Y-m-d')
 
     try:
-        orders_to_ship = Order.objects.filter(status=OrderStatus.FULLY_PAID)
-        orders_to_ship = (orders_to_ship
-                          .select_related('user')
-                          .prefetch_related('groups', 'groups__items', 'payments'))
+        #orders_to_ship = Order.objects.filter(status=OrderStatus.FULLY_PAID)
         payments = Payment.objects.filter(
             status=PaymentStatus.PREAUTH).order_by('-created')
         payments = payments.select_related('order', 'order__user')
@@ -50,7 +47,6 @@ def index(request):
         low_stock_order = dashbord_get_low_stock_products()
 
         ctx = {'preauthorized_payments': payments,
-               'orders_to_ship': orders_to_ship,
                'low_stock': low_stock_order['low_stock'],
                'pn':low_stock_order['pn'],
                'sz': low_stock_order['sz'],

@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from decimal import Decimal
 from django.db import models
-
+#from ..orders.models import Orders
 from django.utils.timezone import now
 from django.utils.translation import pgettext_lazy
 
@@ -23,5 +23,4 @@ class Table(models.Model):
 
     def __str__(self):
         return str(self.name) + ' #' + str(self.number)
-
 
