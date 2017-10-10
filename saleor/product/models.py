@@ -104,6 +104,7 @@ class ProductClass(models.Model):
         return '<%s.%s(pk=%r, name=%r)>' % (
             class_.__module__, class_.__name__, self.pk, self.name)
 
+
 class ProductTax(models.Model):    
     tax_name = models.CharField(
         pgettext_lazy('Tax name', 'Tax name (optional)'),

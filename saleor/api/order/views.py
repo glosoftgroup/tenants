@@ -18,10 +18,19 @@ from .serializers import (
      )
 from ...decorators import user_trail
 import logging
+from rest_framework.request import Request
+from rest_framework.test import APIRequestFactory
 User = get_user_model()
 debug_logger = logging.getLogger('debug_logger')
 info_logger = logging.getLogger('info_logger')
 error_logger = logging.getLogger('error_logger')
+
+factory = APIRequestFactory()
+request = factory.get('/')
+serializer_context = {
+    'request': Request(request),
+}
+# context=serializer_context
 
 
 class OrderDetailAPIView(generics.RetrieveAPIView):
@@ -79,17 +88,20 @@ class SalePointOrdersListAPIView(generics.ListAPIView):
 
 
 class TableOrdersListAPIView(generics.ListAPIView):
-    serializer_class = ListOrderSerializer
     queryset = Orders.objects.all()
+    serializer_class = ListOrderSerializer(instance=queryset, context=serializer_context)
 
     def list(self, request, pk=None):
+        serializer_context = {
+            'request': Request(request),
+        }
         # Note the use of `get_queryset()` instead of `self.queryset`
         query = self.request.GET.get('q')
         if query:
             queryset = self.get_queryset().filter(table__pk=pk).filter(status=query)
         else:
             queryset = self.get_queryset().filter(table__pk=pk)
-        serializer = ListOrderSerializer(queryset, many=True)
+        serializer = ListOrderSerializer(queryset, context=serializer_context, many=True)
         return Response(serializer.data)
 
 

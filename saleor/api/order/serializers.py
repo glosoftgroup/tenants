@@ -68,7 +68,6 @@ class ListOrderSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    url = HyperlinkedIdentityField(view_name='product-api:sales-details')
     ordered_items = ItemSerializer(many=True)
     payment_data = JSONField()
 
@@ -81,7 +80,6 @@ class OrderSerializer(serializers.ModelSerializer):
                   'sale_point',
                   'total_net',
                   'sub_total',
-                  'url',
                   'balance',
                   'terminal',
                   'amount_paid',
