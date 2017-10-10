@@ -88,7 +88,7 @@
               </div>
             </div>
             <div class="col-md-6">
-              <label>select a date range and click search button for results</label>
+              <label>select a date range</label>
               <div class="form-group">
                  <div class="col-md-8">
                     <div class="input-group">
@@ -96,6 +96,8 @@
                         <i class="icon-calendar22"></i>
                       </span>
                       <input class="form-control daterange-to to" type="text" placeholder="to">
+                        <input class="frm" type="hidden" val="">
+                        <input class="trm" type="hidden" val="">
                     </div>
                  </div>
               </div>
@@ -186,7 +188,9 @@
   </div>
 </div>
 
+<div class="row">
   <div class="col-md-12">
+      <div class="col-md-6">
       <div class="panel panel-flat" id="ss">
         <div class="panel-heading">
           <h6 class="panel-title">Sales Summary</h6>
@@ -211,10 +215,8 @@
                         <th>
                         </th>
                         <th class="right-align">
-                          Sales
+                            <span class="pull-right">Sales</span>
                         </th>
-                        <th> Refund </th>
-                        <th> Net </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -223,57 +225,34 @@
                             <span style="font-weight: bold;">Gross Sales</span>
                           </td>
                           <td class="right-align">
-                            <div style="font-weight: bold;"><span style="font-size: 0.7em;">Ksh.</span>
-                              {{ date_gross_sales }}
-                            </div>
-                          </td>
-                          <td class="right-align">
-                            <span style="font-weight: bold;">0.00</span>
-                          </td>
-                          <td>
-                            <div style="font-weight: bold;"><span style="font-size: 0.7em;">Ksh.</span>
-                              {{ date_gross_sales }}
+                            <div style="font-weight: bold;">
+                                <span class="pull-right">{{ date_gross_sales }}</span>
                             </div>
                           </td>
                         </tr>
                         <tr>
                           <td>Discounts</td>
                           <td class="right-align">
-                              <div style="font-weight: bold;"><span style="font-size: 0.7em;">Ksh.</span>
-                              {{ date_total_discount }}
+                              <div style="font-weight: bold;">
+                                  <span class="pull-right">{{ date_total_discount }}</span>
                             </div>
                           </td>
-                          <td>0.00</td>
-                          <td><div style="font-weight: bold;"><span style="font-size: 0.7em;">Ksh.</span>
-                              {{ date_total_discount }}</div></td>
                         </tr>
                         <tr>
                           <td>Tax</td>
                           <td class="right-align">
-                              <div style="font-weight: bold;"><span style="font-size: 0.7em;">Ksh.</span>
-                              {{ date_total_tax }}
+                              <div style="font-weight: bold;">
+                                  <span class="pull-right">{{ date_total_tax }}</span>
                             </div>
                           </td>
-                          <td>0.00</td>
-                          <td><div style="font-weight: bold;"><span style="font-size: 0.7em;">Ksh.</span>
-                              {{ date_total_tax }}
-                            </div></td>
                         </tr>
                         <tr data-action-go="">
                           <td>
                             <span style="font-weight: bold;">Net Sales</span>
                           </td>
                           <td class="right-align">
-                            <div style="font-weight: bold;"><span style="font-size: 0.7em;">Ksh.</span>
-                              {{ date_total_sales }}
-                            </div>
-                          </td>
-                          <td class="right-align">
-                            <span style="font-weight: bold;">0.00</span>
-                          </td>
-                          <td>
-                            <div style="font-weight: bold;"><span style="font-size: 0.7em;">Ksh.</span>
-                              {{ date_total_sales }}
+                            <div style="font-weight: bold;">
+                                <span class="pull-right">{{ date_total_sales }}</span>
                             </div>
                           </td>
                         </tr>
@@ -283,7 +262,7 @@
               {% else %}
                 <div class="card-content card-content--no-data not-found">
                   <p class="grey-text">
-                    {% trans "No products are low in stock." context "Empty low stock table message" %}
+                    No Sales Summary Available
                   </p>
                 </div>
               {% endif %}
@@ -292,6 +271,90 @@
         </div>
 
     </div>
+      <div class="col-md-6">
+      <div class="panel panel-flat" id="ss2">
+        <div class="panel-heading">
+          <h6 class="panel-title">Cash Drawer Summary</h6>
+          <div class="heading-elements">
+            <ul class="icons-list">
+              <li><a data-action="collapse"></a></li>
+              <li><a data-action="reload"></a></li>
+              <li><a data-action="close"></a></li>
+            </ul>
+          </div>
+        <a class="heading-elements-toggle"><i class="icon-more"></i></a></div>
+
+        <div class="panel-body">
+
+            <div class="card">
+
+              {% if cashiers %}
+                <div class="data-table-container">
+                  <table class="table bordered highlight responsive data-table">
+                    <thead style="border-top:1px solid #ddd;">
+                      <tr class="bg-primary">
+                        <th class="right-align">
+                            <span style="font-weight: bold;">Sales</span>
+                        </th>
+                          <th class="right-align">
+                              <span class="pull-right">{{ drawerSales }}</span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Balance Brought Down</td>
+                          <td class="right-align">
+                              <div >
+                                  <span class="pull-right">{{ balanceBroughtDown }}</span>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                            <td>Deposit</td>
+                          <td class="right-align">
+                              <div>
+                                  <span class="pull-right">{{ drawerDeposit }}</span>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr data-action-go="">
+                          <td>
+                            <span>Withdrawals</span>
+                          </td>
+                          <td class="right-align">
+                            <div>
+                              <span class="pull-right">{{ drawerWithdraw }}</span>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr data-action-go="">
+                          <td>
+                            <span>Balance Carried Forward</span>
+                          </td>
+                          <td class="right-align">
+                            <div>
+                              <span class="pull-right">{{ balanceCarriedForward }}</span>
+                            </div>
+                          </td>
+                        </tr>
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <div class="card-content card-content--no-data not-found">
+                  <p class="grey-text">
+                    No Cash Drawer Summary Available
+                  </p>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+    </div>
+  </div>
+</div>
 
   <div class="col-md-12">
       <div class="panel panel-flat" id="ct">
@@ -375,6 +438,7 @@
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/ui/chart.js/utils.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/ui/html2canvas.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/ui/dom-to-image-master/dom-to-image.min.js' %}"></script>
 <script type="text/javascript">
 $(document).ready(function(){
 
@@ -382,13 +446,17 @@ $(document).ready(function(){
         singleDatePicker: true,
         locale:{format: 'YYYY-MM-DD'},
         showDropdowns:true,
-        maxDate: new Date()
-    }).on('change',function(){
-      var date = $(this).val();
+        maxDate: new Date(),
+        autoUpdateInput: false
+    }, function(dt){
+     $('.daterange-single').val(dt.format('YYYY-MM-DD'));
+      var date = $('.daterange-single').val();
         $.ajax({ url: "{% url 'dashboard:sales_date_chart' %}",type: 'GET',data: {date:date },success: function(data){
               $('.p-sales').html(data);
         }});
+
     });
+
   $('.sales-category').selectpicker().on('change', function(){
         var sv = $(this).val();
         if(sv == 'list'){
@@ -415,10 +483,28 @@ $(document).ready(function(){
          $('.setValue').val($(this).val());
          $('.setName').val('export');
 
+         var singledate = $('.daterange-single').val()
+         var frmdate = $('.frm').val();
+         var trmdate = $('.trm').val();
+         var img = document.getElementById('chart1').toDataURL("image/png");
+         var url2 = "{% url 'dashboard:sales_date_chart' %}";
+
          if($(this).val() == 'pdf'){
-            var img = document.getElementById('chart1').toDataURL("image/png");
-            var url = "/dashboard/reports/datechartimage/"+img;
-            window.open(url, '_blank');
+            if(singledate){
+                $.get(url2,{image:img, date:singledate}, function(data){
+                      window.open("data:application/pdf," + escape(data));
+                });
+
+            }else if(frmdate && trmdate){
+                $.get("{% url 'dashboard:get_sales_by_week' %}",{image:img, from:frmdate, to:trmdate }, function(data){
+                      window.open("data:application/pdf," + escape(data));
+                });
+            }else{
+                $.get(url2,{image:img}, function(data){
+                      window.open("data:application/pdf," + escape(data));
+                });
+            }
+
          }
     });
     //**@ daterange from
@@ -443,6 +529,8 @@ $(document).ready(function(){
     });
     $('.daterange-to').on('apply.daterangepicker', function(ev, picker) {
       var from = picker.startDate.format('YYYY-MM-DD'), to = picker.endDate.format('YYYY-MM-DD');
+      $('.frm').val(from);
+      $('.trm').val(to);
         if(from == to ){
             $(this).val(from);
             $.ajax({ url: "{% url 'dashboard:sales_date_chart' %}",type: 'GET',data: {date:from },success: function(data){

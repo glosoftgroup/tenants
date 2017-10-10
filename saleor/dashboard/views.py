@@ -2,21 +2,22 @@ from django.contrib.admin.views.decorators import \
     staff_member_required as _staff_member_required
 from django.template.response import TemplateResponse
 from payments import PaymentStatus
-#from ..order.models import Order, Payment
-#from ..order import OrderStatus
+from ..order.models import Order, Payment
+from ..order import OrderStatus
 from ..sale.models import Sales, SoldItem
 from ..product.models import Category, Stock
 from ..credit.models import Credit
 from django.db.models import Count, Sum
 from django.core.paginator import Paginator, EmptyPage, InvalidPage, PageNotAnInteger
 from django.core.exceptions import ObjectDoesNotExist
+from .reports.hours_chart import get_item_results, get_category_results
 from django.utils.dateformat import DateFormat
 from decimal import Decimal
-from .reports.hours_chart import get_item_results, get_category_results
 import datetime
-import calendar
 import logging
 import random
+import calendar
+
 
 debug_logger = logging.getLogger('debug_logger')
 info_logger = logging.getLogger('info_logger')
@@ -26,10 +27,8 @@ error_logger = logging.getLogger('error_logger')
 def staff_member_required(f):
     return _staff_member_required(f, login_url='home')
 
-
 @staff_member_required
 def index(request):
-    today = datetime.datetime.now()
     try:
         last_sale = Sales.objects.latest('id')
         date = DateFormat(last_sale.created).format('Y-m-d')
@@ -37,7 +36,10 @@ def index(request):
         date = DateFormat(datetime.datetime.today()).format('Y-m-d')
 
     try:
-        #orders_to_ship = Order.objects.filter(status=OrderStatus.FULLY_PAID)
+        orders_to_ship = Order.objects.filter(status=OrderStatus.FULLY_PAID)
+        orders_to_ship = (orders_to_ship
+                          .select_related('user')
+                          .prefetch_related('groups', 'groups__items', 'payments'))
         payments = Payment.objects.filter(
             status=PaymentStatus.PREAUTH).order_by('-created')
         payments = payments.select_related('order', 'order__user')
@@ -47,6 +49,7 @@ def index(request):
         low_stock_order = dashbord_get_low_stock_products()
 
         ctx = {'preauthorized_payments': payments,
+               'orders_to_ship': orders_to_ship,
                'low_stock': low_stock_order['low_stock'],
                'pn':low_stock_order['pn'],
                'sz': low_stock_order['sz'],
@@ -79,13 +82,10 @@ def index(request):
     except KeyError as e:
         return TemplateResponse(request, 'dashboard/index.html', {"e":e, "date":date})
 
-
 @staff_member_required
 def landing_page(request):
     ctx = {}
     return TemplateResponse(request, 'dashboard/landing-page.html', ctx)
-
-
 def top_categories():
     today = datetime.datetime.now()
     try:
@@ -163,7 +163,6 @@ def top_categories():
             }
             return data
 
-
 def top_items():
     today = datetime.datetime.now()
     try:
@@ -179,7 +178,7 @@ def top_items():
             highest_item = SoldItem.objects.filter(sales__created__contains=date).values('product_name').annotate(
                 c=Count('product_name', distinct=False)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by('-quantity__sum')[:1]
             lowest_item = SoldItem.objects.filter(sales__created__contains=date).values('product_name').annotate(
-                c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by('quantity__sum')[:1]
+                c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by('quantity__sum', 'total_cost__sum')[:1]
             sales_by_category_totals = sales_by_category.aggregate(Sum('quantity__sum'))['quantity__sum__sum']
             new_sales = []
             for sales in sales_by_category:
@@ -236,7 +235,6 @@ def top_items():
 def styleguide(request):
     return TemplateResponse(request, 'dashboard/styleguide/index.html', {})
 
-
 def dashbord_get_low_stock_products():
     products = Stock.objects.get_low_stock()
     paginator = Paginator(products, 10)
@@ -251,9 +249,7 @@ def dashbord_get_low_stock_products():
     data = {'low_stock': low_stock, 'pn': paginator.num_pages, 'sz': 10, 'gid': 0}
     return data
 
-
 def get_low_stock_products():
     products = Stock.objects.get_low_stock()
     return products
-
 
