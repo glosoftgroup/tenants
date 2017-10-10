@@ -270,6 +270,5 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
             instance.status = 'fully-paid'
         else:
             instance.status = validated_data.get('status', instance.status)
-        instance.mobile = validated_data.get('mobile', instance.mobile)
         instance.save()
         return instance
