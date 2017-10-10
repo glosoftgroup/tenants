@@ -41,6 +41,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
 class ListOrderSerializer(serializers.ModelSerializer):
     ordered_items = ItemSerializer(many=True)
+    update_url = HyperlinkedIdentityField(view_name='order-api:update-order')
 
     class Meta:
         model = Orders
@@ -54,6 +55,7 @@ class ListOrderSerializer(serializers.ModelSerializer):
                   'balance',
                   'terminal',
                   'amount_paid',
+                  'update_url',
                   'ordered_items',
                   'customer',
                   'mobile',
@@ -69,6 +71,7 @@ class OrderSerializer(serializers.ModelSerializer):
     url = HyperlinkedIdentityField(view_name='product-api:sales-details')
     ordered_items = ItemSerializer(many=True)
     payment_data = JSONField()
+
     class Meta:
         model = Orders
         fields = ('id',
@@ -137,7 +140,7 @@ class OrderSerializer(serializers.ModelSerializer):
         # add sold amount to drawer
         try:
             total_net = Decimal(validated_data.get('total_net'))
-        except Exception as e:
+        except:
             total_net = Decimal(0)
         try:
             total_tax = Decimal(validated_data.get('total_tax'))
@@ -186,3 +189,87 @@ class OrderSerializer(serializers.ModelSerializer):
 
         return order
 
+
+class OrderUpdateSerializer(serializers.ModelSerializer):
+    ordered_items = ItemSerializer(many=True)
+
+    class Meta:
+        model = Orders
+        fields = ('id',
+                  'invoice_number',
+                  'total_net',
+                  'sub_total',
+                  'balance',
+                  'terminal',
+                  'amount_paid',
+                  'status',
+                  'total_tax',
+                  'discount_amount',
+                  'debt',
+                  'ordered_items',
+                  )
+
+    def validate_status(self, value):
+        data = self.get_initial()
+        status = str(data.get('status'))
+        if status == 'fully-paid' or status == 'payment-pending':
+            status = status
+            amount_paid = Decimal(data.get('amount_paid'))
+            sale = Orders.objects.get(invoice_number=str(data.get('invoice_number')))
+            if status == 'fully-paid' and sale.balance > amount_paid:
+                print 'balance ' + str(sale.balance)
+                print 'amount ' + str(amount_paid)
+                raise ValidationError("Status error. Amount paid is less than balance.")
+            else:
+                return value
+        else:
+            raise ValidationError('Enter correct Status. Expecting either fully-paid/payment-pending')
+
+    def validate_total_net(self, value):
+        data = self.get_initial()
+        try:
+            Decimal(data.get('total_net'))
+            return value
+        except Exception as e:
+            raise ValidationError('Total Net should be a decimal/integer')
+
+    def validate_debt(self, value):
+        data = self.get_initial()
+        try:
+            Decimal(data.get('debt'))
+        except Exception as e:
+            raise ValidationError('Debt should be a decimal/integer')
+        return value
+
+    def validate_amount_paid(self, value):
+        data = self.get_initial()
+        try:
+            Decimal(data.get('amount_paid'))
+        except Exception as e:
+            raise ValidationError('Amount paid should be a decimal/integer')
+        return value
+
+    def validate_terminal(self, value):
+        data = self.get_initial()
+        # try:
+        terminal = Terminal.objects.filter(pk=int(data.get('terminal')))
+        if terminal.exists():
+            return value
+        else:
+            raise ValidationError('Terminal specified does not exist')
+            # except:
+            #     raise ValidationError('Terminal specified does not exist')
+
+    def update(self, instance, validated_data):
+        terminal = validated_data.get('terminal', instance.terminal.id)
+        terminal.amount += Decimal(validated_data.get('amount_paid', instance.amount_paid))
+        terminal.save()
+        instance.debt = instance.debt - validated_data.get('amount_paid', instance.amount_paid)
+        instance.amount_paid = instance.amount_paid + validated_data.get('amount_paid', instance.amount_paid)
+        if instance.amount_paid >= instance.total_net:
+            instance.status = 'fully-paid'
+        else:
+            instance.status = validated_data.get('status', instance.status)
+        instance.mobile = validated_data.get('mobile', instance.mobile)
+        instance.save()
+        return instance

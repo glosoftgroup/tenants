@@ -87,6 +87,8 @@ class Orders(models.Model):
         verbose_name=pgettext_lazy('Sales field',
                                    'sales options'))
     payment_data = JSONField(null=True, blank=True)
+    debt = models.DecimalField(
+        pgettext_lazy('Order field', 'debt'), default=Decimal(0), max_digits=100, decimal_places=2)
 
     objects = OrdersManager()
 
@@ -100,7 +102,6 @@ class Orders(models.Model):
 
     def __unicode__(self):
         return unicode(self.invoice_number)
-
 
 
 @python_2_unicode_compatible
@@ -132,4 +133,7 @@ class OrderedItem(models.Model):
 
     def __str__(self):
         return self.product_name
+
+    def items(self):
+        return self.ordered_items.all()
 

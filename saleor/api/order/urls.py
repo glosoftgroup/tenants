@@ -4,6 +4,7 @@ from .views import (
     OrderCreateAPIView,
     OrderListAPIView,
     OrderStatusListAPIView,
+    OrderUpdateAPIView,
     SalePointOrdersListAPIView,
     TableOrdersListAPIView,
     )
@@ -11,13 +12,22 @@ from .views import (
 
 urlpatterns = [
     url(r'^$', OrderListAPIView.as_view(),
-     name='list-orders'),
+        name='list-orders'),
     url(r'^create-order/$',
-        OrderCreateAPIView.as_view(), name='create-order'),
-    url(r'^search/status/$', OrderStatusListAPIView.as_view(),
-     name='search-orders'),
-    url(r'^sale-point/(?P<pk>[0-9]+)$', SalePointOrdersListAPIView.as_view(), name='api-sale_point-orders'),
-    url(r'^table/(?P<pk>[0-9]+)$', TableOrdersListAPIView.as_view(), name='api-table-orders'),
+        OrderCreateAPIView.as_view(),
+        name='create-order'),
+    url(r'^search/status/$',
+        OrderStatusListAPIView.as_view(),
+        name='search-orders'),
+    url(r'^sale-point/(?P<pk>[0-9]+)$',
+        SalePointOrdersListAPIView.as_view(),
+        name='api-sale_point-orders'),
+    url(r'^table/(?P<pk>[0-9]+)$',
+        TableOrdersListAPIView.as_view(),
+        name='api-table-orders'),
+    url(r'^update-order/(?P<pk>[0-9]+)/$',
+        OrderUpdateAPIView.as_view(),
+        name='update-order'),
 
 ]
 
