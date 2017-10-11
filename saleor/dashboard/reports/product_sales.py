@@ -59,6 +59,7 @@ def sales_paginate(request):
 	select_sz = request.GET.get('select_size')
 	date = request.GET.get('gid')
 	order = request.GET.get('order')
+	point = request.GET.get('point')
 	today_formart = DateFormat(datetime.date.today())
 	today = today_formart.format('Y-m-d')
 	margin = False
@@ -127,7 +128,7 @@ def sales_paginate(request):
 				paginator = Paginator(sales, int(list_sz))
 				sales = paginator.page(page)
 				return TemplateResponse(request, 'dashboard/reports/product_sales/p2.html',
-										{'margin':margin, 'order':order, 'sales': sales, 'pn': paginator.num_pages, 'sz': list_sz, 'gid': date,
+										{'point':point, 'margin':margin, 'order':order, 'sales': sales, 'pn': paginator.num_pages, 'sz': list_sz, 'gid': date,
 										 'date': datetime.datetime.strptime(date, '%Y-%m-%d').strftime(
 											 '%b %d, %Y')
 										 })
@@ -143,12 +144,12 @@ def sales_paginate(request):
 			paginator = Paginator(sales, 10)
 			sales = paginator.page(page)
 			return TemplateResponse(request, 'dashboard/reports/product_sales/p2.html',
-									{'margin':margin, 'order':order, 'sales': sales, 'pn': paginator.num_pages, 'sz': 10, 'gid': date,
+									{'point':point, 'margin':margin, 'order':order, 'sales': sales, 'pn': paginator.num_pages, 'sz': 10, 'gid': date,
 									 'date': datetime.datetime.strptime(date, '%Y-%m-%d').strftime(
 										 '%b %d, %Y'), 'today': today})
 
 		except ObjectDoesNotExist as e:
-			return TemplateResponse(request, 'dashboard/reports/product_sales/p2.html', {'date': date})
+			return TemplateResponse(request, 'dashboard/reports/product_sales/p2.html', {'point':point, 'date': date})
 
 	else:
 		try:
@@ -216,7 +217,7 @@ def sales_paginate(request):
 				paginator = Paginator(sales, int(list_sz))
 				sales = paginator.page(page)
 				return TemplateResponse(request, 'dashboard/reports/product_sales/p2.html',
-										{'margin':margin, 'order':order, 'sales': sales, 'pn': paginator.num_pages, 'sz': list_sz, 'gid': 0,
+										{'point':point, 'margin':margin, 'order':order, 'sales': sales, 'pn': paginator.num_pages, 'sz': list_sz, 'gid': 0,
 										 'date': datetime.datetime.strptime(last_date_of_sales, '%Y-%m-%d').strftime(
 											 '%b %d, %Y')
 										 })
@@ -243,7 +244,7 @@ def sales_paginate(request):
 																								   '%Y-%m-%d').strftime(
 																								   '%b %d, %Y')})
 		except ObjectDoesNotExist as e:
-			return TemplateResponse(request, 'dashboard/reports/product_sales/p2.html', {'date': datetime.datetime.strptime(last_date_of_sales, '%Y-%m-%d').strftime('%b %d, %Y')})
+			return TemplateResponse(request, 'dashboard/reports/product_sales/p2.html', {'point':point, 'date': datetime.datetime.strptime(last_date_of_sales, '%Y-%m-%d').strftime('%b %d, %Y')})
 
 
 @staff_member_required
@@ -254,6 +255,7 @@ def sales_search(request):
 		p2_sz = request.GET.get('psize')
 		q = request.GET.get('q')
 		order = request.GET.get('order')
+		point = request.GET.get('point')
 		margin = False
 		if list_sz is None:
 			sz = 10
@@ -343,7 +345,7 @@ def sales_search(request):
 				paginator = Paginator(sales, int(list_sz))
 				sales = paginator.page(page)
 				return TemplateResponse(request, 'dashboard/reports/product_sales/search.html',
-										{'margin':margin, 'order':order, 'sales': sales, 'pn': paginator.num_pages, 'sz': list_sz,
+										{'point':point, 'margin':margin, 'order':order, 'sales': sales, 'pn': paginator.num_pages, 'sz': list_sz,
 										 'gid': request.GET.get('gid'), 'q': q,
 										 'date': datetime.datetime.strptime(date, '%Y-%m-%d').strftime(
 											 '%b %d, %Y')})
@@ -351,7 +353,7 @@ def sales_search(request):
 			paginator = Paginator(sales, 10)
 			sales = paginator.page(page)
 			return TemplateResponse(request, 'dashboard/reports/product_sales/search.html',
-									{'margin':margin, 'order':order, 'sales': sales, 'pn': paginator.num_pages, 'sz': sz,
+									{'point':point, 'margin':margin, 'order':order, 'sales': sales, 'pn': paginator.num_pages, 'sz': sz,
 									 'gid': request.GET.get('gid'),
 									 'date': datetime.datetime.strptime(date, '%Y-%m-%d').strftime(
 										 '%b %d, %Y')})
@@ -371,7 +373,7 @@ def sales_search(request):
 										{'margin':margin, 'order':order, 'sales': sales,'date': datetime.datetime.strptime(date, '%Y-%m-%d').strftime('%b %d, %Y')})
 
 			return TemplateResponse(request, 'dashboard/reports/product_sales/search.html',
-									{'margin':margin, 'order':order, 'sales': sales, 'pn': paginator.num_pages, 'sz': sz,
+									{'point':point, 'margin':margin, 'order':order, 'sales': sales, 'pn': paginator.num_pages, 'sz': sz,
 									 'q': q,'date': datetime.datetime.strptime(date, '%Y-%m-%d').strftime('%b %d, %Y')})
 
 @staff_member_required
