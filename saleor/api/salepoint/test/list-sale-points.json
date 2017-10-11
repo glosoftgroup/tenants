@@ -18,13 +18,14 @@
         {
             "id": 1,
             "name": "Restaurant",
-            "orders_url": "http://127.0.0.1:8000/api/order/sale-point/1"
+            "orders_url": "http://192.168.0.16:8000/api/order/sale-point/1",
+            "category_url": "http://192.168.0.16:8000/api/category/sale-point/1"
         },
         {
             "id": 2,
             "name": "Bar",
-            "orders_url": "http://127.0.0.1:8000/api/order/sale-point/2"
+            "orders_url": "http://192.168.0.16:8000/api/order/sale-point/2",
+            "category_url": "http://192.168.0.16:8000/api/category/sale-point/2"
         }
     ]
 }
-

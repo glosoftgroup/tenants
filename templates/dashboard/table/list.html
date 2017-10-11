@@ -60,6 +60,7 @@
         <thead>
             <tr class="bg-primary">            
             <th>Name</th>
+                <th>Sale Point</th>
             <th>Number</th>
             <th></th>
             </tr>
@@ -70,6 +71,14 @@
           <td>
             <input placeholder="name" class="form-control" id="name" required="" name="name" type="text" >           
             </td>
+              <td>
+                  <select name="sale_point" class="form-control" id="id_sale_point">
+                      <option value="0">---</option>
+                      {% for sale_point in sale_points %}
+                      <option value="{{sale_point.pk}}">{{sale_point}}</option>
+                      {% endfor %}
+                  </select>
+              </td>
             <td> 
             <input placeholder="Number" class="form-control" id="loyalty_points" name="number" value="0" type="number" >
            </td>
@@ -283,8 +292,10 @@
   $(document).ready(function() {
 
     $('#addExpenseBtn').on('click', function(){
-        $('#addExpenseTable').slideToggle();
+        $('#addExpenseTable').slideToggle( "slow");
     });
+    $('#id_sale_point').selectpicker();
+
     $('.expense_type').selectpicker({
         iconBase: 'fa',
         addIcon:'fa-plus-circle'

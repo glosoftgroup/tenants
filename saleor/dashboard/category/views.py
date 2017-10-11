@@ -4,18 +4,19 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.http import HttpResponse
-import json
 from django.utils.translation import pgettext_lazy
 
-from ...product.models import ( Category, 
+from ...product.models import (
+                                Category,
                                 Product, 
-                                ProductClass)
+                                ProductClass
+                               )
+from ...salepoints.models import SalePoint
 from ..views import staff_member_required
 from .forms import CategoryForm, ProductForm
-from django.db.models import Q
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, InvalidPage
 from ...decorators import permission_decorator, user_trail
+
 
 @staff_member_required
 @permission_decorator('product.view_category')
@@ -23,7 +24,7 @@ def category_list(request, root_pk=None):
     root = None
     path = None
     categories = Category.tree.root_nodes().order_by('-id')
-
+    sale_points = SalePoint.objects.all().order_by('-id')
     page = request.GET.get('page', 1)
     paginator = Paginator(categories, 10)
     try:
@@ -49,12 +50,22 @@ def category_list(request, root_pk=None):
             categories = paginator.page(1)
         except EmptyPage:
             categories = paginator.page(paginator.num_pages)
-        ctx = {'categories': categories, 'path': path, 'root': root, 'totalp': paginator.num_pages}
+        ctx = {'categories': categories,
+               'path': path,
+               'root': root,
+               'totalp': paginator.num_pages,
+               'sale_points': sale_points}
         return TemplateResponse(request, 'dashboard/category/list_subcategories.html', ctx)
 
-    ctx = {'categories': categories, 'path': path, 'root': root, 'totalp':paginator.num_pages}    
+    ctx = {'categories': categories,
+           'path': path,
+           'root': root,
+           'totalp': paginator.num_pages,
+           'sale_points': sale_points}
     return TemplateResponse(request, 'dashboard/category/pagination/view.html', ctx)
 
+
+@staff_member_required
 def paginate_category(request, root_pk=None):
     root = None
     path = None
@@ -107,7 +118,8 @@ def paginate_category(request, root_pk=None):
 
         return TemplateResponse(request, 'dashboard/category/pagination/paginate.html', {'categories': categories})
     except Exception, e:
-        return  HttpResponse()
+        return HttpResponse()
+
 
 @staff_member_required
 def category_search(request, root_pk=None):
@@ -153,24 +165,36 @@ def category_search(request, root_pk=None):
 @permission_decorator('product.add_category')
 def category_create32(request):
     if request.method == 'POST':
-        name = request.POST.get('name')
-        category = Category() 
-        all_cats = Category.objects.all().order_by('-id')       
-        description = request.POST.get('description')
-        new_category = Category.objects.create(name=name,description=description)
+        category = Category()
+        if request.POST.get('name'):
+            category.name = request.POST.get('name')
+        else:
+            return HttpResponse('name required')
+        if request.POST.get('sale_point'):
+            category.sale_point = SalePoint.objects.get(pk=request.POST.get('sale_point'))
+        if request.POST.get('description'):
+            category.description = request.POST.get('description')
+        category.save()
+        all_cats = Category.objects.all().order_by('-id')
         product = Product()
         class_pk = ProductClass.objects.all().first().pk
         product_class = get_object_or_404(ProductClass, pk=class_pk)
         product.product_class = product_class
         product_form = ProductForm(request.POST or None, instance=product)
-        ctx = {'all_cats':all_cats,'category': category, 'product_form': product_form}
+        ctx = {'all_cats': all_cats,
+               'category': category,
+               'product_form': product_form
+               }
         return TemplateResponse(request, 'dashboard/category/_category_add_success.html', ctx)
     else:
         return HttpResponse('Unexpected get method')
+
+
 @staff_member_required
 @permission_decorator('product.add_category')
 def category_create(request, root_pk=None):
     category = Category()
+    sale_points = SalePoint.objects.all().order_by('-id')
     form = CategoryForm(request.POST or None, parent_pk=root_pk)
     if form.is_valid():
         category = form.save()
@@ -184,13 +208,18 @@ def category_create(request, root_pk=None):
             product_class = get_object_or_404(ProductClass, pk=class_pk)
             product.product_class = product_class
             product_form = ProductForm(request.POST or None, instance=product)
-            ctx = {'category': category, 'product_form': product_form}
+            ctx = {'category': category,
+                   'product_form': product_form,
+                   'sale_points': sale_points
+                   }
             return TemplateResponse(request, 'dashboard/category/_category_add_success.html', ctx)    
         if root_pk:
             return redirect('dashboard:category-list', root_pk=root_pk)
         else:
             return redirect('dashboard:category-list')
-    ctx = {'category': category, 'form': form}
+    ctx = {'category': category,
+           'form': form,
+           'sale_points': sale_points}
     if request.is_ajax():        
         return TemplateResponse(request, 'dashboard/category/ajax_modal_detail.html', ctx)    
     return TemplateResponse(request, 'dashboard/category/detail.html', ctx)

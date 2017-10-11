@@ -30,7 +30,6 @@ request = factory.get('/')
 serializer_context = {
     'request': Request(request),
 }
-# context=serializer_context
 
 
 class OrderDetailAPIView(generics.RetrieveAPIView):

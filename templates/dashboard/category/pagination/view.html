@@ -65,16 +65,20 @@
                   </select>
               </div>
             </div>
+            <style>
+                .toggler{display: none}
+            </style>
            <!-- add form -->
             <div class="col-md-12">
-                 <div id="toggle-div" class="col-md-12" style="display: none;">
+                 <div id="toggle-div" class="col-md-12 toggler">
        <!-- add attr form here -->
        <form class="form" enctype="multipart/form-data" id="user-details" name="user-details">
             {% csrf_token %}
      <table class="table table-hover">
         <thead>
             <tr class="bg-primary">            
-            <th>Name</th>            
+            <th>Name</th>
+            <th>Sale Point</th>
             <th>Description</th>
             <th></th>
             </tr>
@@ -84,7 +88,16 @@
 
           <td>
             <input type="text" placeholder="Category Name" id="id_name" class="form-control" name="name">
-            </td>            
+            </td>
+              <td>
+                  <select name="sale_point" class="form-control" id="id_sale_point">
+                      <option value="0">---</option>
+                      {% for sale_point in sale_points %}
+                      <option value="{{sale_point.pk}}">{{sale_point}}</option>
+                      {% endfor %}
+                  </select>
+              </td>
+
             <td>
               <input type="text" placeholder="Description" id="id_description" class="form-control" name="description">
             </td>
@@ -113,6 +126,7 @@
                   <tr class="bg-primary">
                     <th>#</th>
                     <th>Name</th>
+                      <th>Sale Point</th>
                     <th>Description</th>
                     <th>Products</th>
                       {% if perms.product.change_category or perms.product.delete_category %}
@@ -130,6 +144,8 @@
                     <!-- name -->
                     <td class="td" data-href="{% url 'dashboard:cat-subcategories' pk=node.pk %}"
                     >{{ node.name }}</td>
+                       <!--salepoint-->
+                    <td>{{node.sale_point}}</td>
                     <!-- description\ -->
                     <td class="td" data-href="{% url 'dashboard:cat-subcategories' pk=node.pk %}"
                     >{{ node.description|slice:":60" }}...</td>
@@ -339,8 +355,9 @@ var toggleDiv = $('#toggle-div');
 var addurl = toggleBtn.data('href');
 
 toggleBtn.on('click',function(){
-  toggleDiv.slideDown('slow');
+  toggleDiv.slideToggle( "slow");
 });
+$('#id_sale_point').selectpicker();
 
 function refreshList(){
   var url = "{% url 'dashboard:category-search' %}";
@@ -359,8 +376,6 @@ $('#user-details').validate({
           digits: true,
           minlength: 1
         },
-        
-
     },
     messages:{
       name:{

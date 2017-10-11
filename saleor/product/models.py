@@ -25,6 +25,7 @@ from versatileimagefield.fields import VersatileImageField, PPOIField
 from ..discount.models import calculate_discounted_price
 from ..supplier.models import Supplier
 from ..search import index
+from ..salepoints.models import SalePoint
 from .utils import get_attributes_display_map
 
 
@@ -39,6 +40,10 @@ class Category(MPTTModel):
     parent = models.ForeignKey(
         'self', null=True, blank=True, related_name='children',
         verbose_name=pgettext_lazy('Category field', 'parent'))
+    sale_point = models.ForeignKey(
+        SalePoint, null=True, blank=True, related_name='cat_sale_point',
+        verbose_name=pgettext_lazy('Category field', 'sale point'))
+
     hidden = models.BooleanField(
         pgettext_lazy('Category field', 'hidden'), default=False)
 

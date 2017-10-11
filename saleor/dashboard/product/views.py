@@ -9,7 +9,6 @@ from django.template.response import TemplateResponse
 from django.utils.http import is_safe_url
 from django.utils.translation import pgettext_lazy
 from django.views.decorators.http import require_http_methods
-from django.contrib.postgres.search import SearchVector
 
 from . import forms
 from ...core.utils import get_paginator_items
@@ -24,7 +23,8 @@ from ...product.models import (Product, ProductAttribute, Category,
                                ProductImage, ProductVariant, Stock,
                                StockLocation, ProductTax, StockHistoryEntry)
 from ..views import staff_member_required
-from ..views import get_low_stock_products
+from ...salepoints.models import SalePoint
+
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.db.models import Q
@@ -35,6 +35,7 @@ import logging
 debug_logger = logging.getLogger('debug_logger')
 info_logger = logging.getLogger('info_logger')
 error_logger = logging.getLogger('error_logger')
+
 
 @staff_member_required
 def re_order(request):
@@ -67,6 +68,7 @@ def re_order(request):
     except TypeError as e:
         error_logger.error(e)
         return TemplateResponse(request, 'dashboard/re_order/re_order.html', data)
+
 
 def reorder_pagination(request):
     page = int(request.GET.get('page', 1))
@@ -533,14 +535,11 @@ def product_data(request):
             except:
                 print('Error add supplier')
         if request.POST.get('sku'):
-            #try:
             variant = ProductVariant.objects.get(product=product)
             variant.name = request.POST.get('sku')
             if request.POST.get('threshold'):
-                 variant.low_stock_threshold = request.POST.get('threshold')
-            variant.save();
-            #except:
-            #   print('Error adding sku')
+                  variant.low_stock_threshold = request.POST.get('threshold')
+            variant.save()
         if request.POST.get('wholesale_price'):
             product.wholesale_price = request.POST.get('wholesale_price')
         if request.POST.get('price'):
@@ -549,14 +548,15 @@ def product_data(request):
             product.low_stock_threshold = int(request.POST.get('threshold'))
         product.save()
         return HttpResponse({'message':str(product)+' Added'})
-        #except:
-        #return HttpResponse('Invalid product id')
+
     return HttpResponse('Invalid Method!')
+
 
 @staff_member_required
 @permission_decorator('product.add_product')
 def product_create(request):
     product_classes = ProductClass.objects.all().order_by('pk')
+    sale_points = SalePoint.objects.all().order_by('-id')
     form_classes = forms.ProductClassSelectorForm(
         request.POST or None, product_classes=product_classes)
     if form_classes.is_valid():
@@ -626,9 +626,16 @@ def product_create(request):
                                       instance=product_cl)
 
         categories = Category.objects.all()
-        ctx = {'product_form': product_form, 'variant_form': variant_form,
-           'product': product,'form_classes':form_classes, 'errors':errors,
-               'form':form, 'product_class':product_cl,'categories':categories}
+        ctx = {'product_form': product_form,
+               'variant_form': variant_form,
+               'product': product,
+               'form_classes': form_classes,
+               'errors': errors,
+               'form': form,
+               'product_class': product_cl,
+               'categories': categories,
+               'sale_points': sale_points
+               }
     return TemplateResponse(
         request, 'dashboard/product/product_form.html', ctx)
 
