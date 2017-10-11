@@ -5,7 +5,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, InvalidPage, Empt
 from django.db.models import Q
 
 from ..views import staff_member_required
-from ...sale.models import PaymentOption
+from ...salepoints.models import SalePoint
 from ...table.models import Table
 from ...decorators import user_trail
 import logging
@@ -18,6 +18,7 @@ error_logger = logging.getLogger('error_logger')
 
 @staff_member_required
 def list(request):
+    sale_points = SalePoint.objects.all().order_by('-id')
     try:
         options = Table.objects.all().order_by('-id')
         page = request.GET.get('page', 1)
@@ -32,7 +33,8 @@ def list(request):
             options = paginator.page(paginator.num_pages)
         data = {
             "options": options,            
-            "pn": paginator.num_pages
+            "pn": paginator.num_pages,
+            "sale_points":sale_points
         }
         user_trail(request.user.name, 'accessed payment option', 'views')
         info_logger.info('User: ' + str(request.user.name) + 'accessed payment option page')
@@ -50,12 +52,13 @@ def add(request):
     if request.method == 'POST':
         number = request.POST.get('number')
         if request.POST.get('name'):
-            option = Table.objects.create(
-                            name=request.POST.get('name'),
-                            number=number,
-                           )
-            l = {'name':option.name}
-            return HttpResponse(json.dumps(l), content_type='application/json')
+            option = Table()
+            if request.POST.get('sale_point'):
+                option.sale_point = SalePoint.objects.get(pk=int(request.POST.get('sale_point')))
+            option.name = request.POST.get('name'),
+            option.number = number
+            data = {'name': option.name}
+            return HttpResponse(json.dumps(data), content_type='application/json')
         return HttpResponse(json.dumps({'message':'Invalid method'}))
 
 

@@ -9,6 +9,10 @@
     <!-- name -->
     <td class="td" data-href="{% url 'dashboard:cat-subcategories' pk=node.pk %}"
     >{{ node.name }}</td>
+    <!--salepoint-->
+   <td class="td" data-href="{% url 'dashboard:cat-subcategories' pk=node.pk %}">
+       {{node.sale_point}}
+   </td>
     <!-- description\ -->
     <td class="td" data-href="{% url 'dashboard:cat-subcategories' pk=node.pk %}"
     >{{ node.description|slice:":60" }}...</td>

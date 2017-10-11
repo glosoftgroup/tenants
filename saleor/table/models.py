@@ -2,9 +2,9 @@ from __future__ import unicode_literals
 
 from decimal import Decimal
 from django.db import models
-#from ..orders.models import Orders
 from django.utils.timezone import now
 from django.utils.translation import pgettext_lazy
+from ..salepoints.models import SalePoint
 
 
 class Table(models.Model):
@@ -16,6 +16,9 @@ class Table(models.Model):
         pgettext_lazy('Table field', 'created'),
         default=now, editable=False)
     orders = models.IntegerField(default=Decimal(0))
+    sale_point = models.ForeignKey(
+        SalePoint, null=True, blank=True, related_name='table_sale_point',
+        verbose_name=pgettext_lazy('Table field', 'sale point'))
 
     class Meta:
         verbose_name = pgettext_lazy('Table model', 'Table')
