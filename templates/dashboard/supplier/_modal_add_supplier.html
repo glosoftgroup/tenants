@@ -34,11 +34,11 @@
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-                <label for="name">Name</label>
+                <label for="name">Name:<i class="text-danger">*</i></label>
                 <input type="text" class="form-control" name="name" id="name" placeholder="Name">
               </div>
               <div class="form-group">
-                <label for="name">Address</label>
+                <label for="name">Address:</label>
                 <input type="text" class="form-control" name="street1" id="street1" placeholder="Street 1">
               </div>
 
@@ -49,14 +49,13 @@
 
             </div>
             <div class="col-md-6">
-               <div class="form-group">
-                  <label for="email">Email address</label>
-                  <input type="email" class="form-control" name="email" id="email" placeholder="Email">
-               </div>
-
-               <div class="form-group">
-                <label for="mobile">Phone</label>
+                <div class="form-group">
+                <label for="mobile">Phone:<i class="text-danger">*</i></label>
                 <input type="text" class="form-control" name="mobile" id="mobile" data-mask="(+254)-999-999-999" placeholder="Mobile">
+               </div>
+               <div class="form-group">
+                  <label for="email">Email address:</label>
+                  <input type="email" class="form-control" name="email" id="email" placeholder="Email">
                </div>
             </div>
           </div>
@@ -92,11 +91,11 @@
           email:true
         },
         city:{
-          required:true,
+          required:false,
           minlength: 3
         },
         street1:{
-          required:true
+          required:false
         },
         code:{
           required:false,
@@ -118,15 +117,7 @@
         required: "please provide a name",
         minlength: "name must be atleast 3 characters long"
       },
-      password:{
-        required: "please provide a password",
-        minlength: "password must be atleast 6 characters long"
-      },
-      confirm_password:{
-        required: "please provide a password",
-        minlength: "password must be atleast 6 characters long",
-        equalTo: "please enter the same password"
-      }
+
     },
     submitHandler: function() {
       var file = $('#image')[0].files[0];
@@ -190,7 +181,7 @@
     }
   });
   $('#mobile').inputmask({
-  mask: '(254)-000-000-000'
+  mask: '(254)-999-999-999'
  })
   /* permission button */
 $("#permission-btn").click(function(event){

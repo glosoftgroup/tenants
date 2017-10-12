@@ -1,14 +1,13 @@
-/*
-    Sale Point List Api
-
-    Sale Point List Api
-    GET /api/sale-point/
-
-    HTTP 200 OK
-    Allow: GET, HEAD, OPTIONS
-    Content-Type: application/json
-    Vary: Accept
-*/
+//     Sale Point List Api
+//
+//Sale Point List Api
+//
+//GET /api/sale-point/
+//
+//HTTP 200 OK
+//Allow: GET, HEAD, OPTIONS
+//Content-Type: application/json
+//Vary: Accept
 
 {
     "count": 2,
@@ -19,13 +18,16 @@
             "id": 1,
             "name": "Restaurant",
             "orders_url": "http://192.168.0.16:8000/api/order/sale-point/1",
-            "category_url": "http://192.168.0.16:8000/api/category/sale-point/1"
+            "category_url": "http://192.168.0.16:8000/api/category/sale-point/1",
+            "tables_url": "http://192.168.0.16:8000/api/table/sale-point/1"
         },
         {
             "id": 2,
             "name": "Bar",
             "orders_url": "http://192.168.0.16:8000/api/order/sale-point/2",
-            "category_url": "http://192.168.0.16:8000/api/category/sale-point/2"
+            "category_url": "http://192.168.0.16:8000/api/category/sale-point/2",
+            "tables_url": "http://192.168.0.16:8000/api/table/sale-point/2"
         }
     ]
 }
+

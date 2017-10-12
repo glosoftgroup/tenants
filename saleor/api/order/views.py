@@ -148,6 +148,7 @@ def send_to_sale(credit):
         terminal=credit.terminal,
         amount_paid=credit.amount_paid,
         status=credit.status,
+        table=credit.table,
         total_tax=credit.total_tax,
     )
     for item in credit.items():
