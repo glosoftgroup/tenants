@@ -1,11 +1,13 @@
-from ...product.models import Category
+from rest_framework import generics
+from rest_framework.response import Response
 from rest_framework.request import Request
+from django.contrib.auth import get_user_model
+
 from .serializers import (
     CategoryListSerializer,
      )
-from rest_framework import generics
-from rest_framework.response import Response
-from django.contrib.auth import get_user_model
+from ...product.models import Category
+
 User = get_user_model()
 
 

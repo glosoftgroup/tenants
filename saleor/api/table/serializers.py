@@ -15,6 +15,7 @@ class TableListSerializer(serializers.ModelSerializer):
         model = Table
         fields = ('id',
                   'name',
+                  'sale_point',
                   'orders_url',
                   'new_orders'
                  )

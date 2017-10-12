@@ -16,7 +16,7 @@
       "value": "100"
     }
   ],
-  "soldItems": [
+  "solditems": [
     {
       "quantity": 1,
       "total_cost": "35.62",

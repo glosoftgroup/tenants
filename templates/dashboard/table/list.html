@@ -506,13 +506,15 @@
                     success:function(data){
                          $('#addoptionsform')[0].reset();
                          $('#addExpenseTable').slideUp();
+
                          $.ajax({ url: paginationUrl,type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
                             $('#pagination-div').html(data);
                          }});
-                         $.jGrowl('message sent successfully', {
+                         $.jGrowl('message sent successfully.', {
                             header: 'Well done!',
                             theme: 'bg-success'
                          });
+                         $('#id_sale_point').selectpicker("refresh");
 
                     },
                     error:function(error){
