@@ -2,7 +2,9 @@
 {% load staticfiles i18n %}
 {% load render_bundle from webpack_loader %}
 {% load version %}
-
+{% load default_user_image %}
+{% load business_name %}
+{% load business_logo %}
 <html lang="{{ LANGUAGE_CODE }}" class="no-js">
   <head>
     <title>
@@ -17,8 +19,8 @@
     {% endblock meta %}
 
     {% include 'favicon.html' %}
-   
-    
+
+
 
     <!-- Global stylesheets -->
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">
@@ -32,8 +34,8 @@
   <link href="{% static 'backend/css/hover-min.css' %}" rel="stylesheet" type="text/css">
    <link href="{% static 'backend/css/extras/animate.min.css' %}" rel="stylesheet" type="text/css">
   <!--image preview -->
-  <link href="{% static 'backend/js/plugins/ui/jasny-bootstrap/css/jasny-bootstrap.css' %}" rel="stylesheet" type="text/css"> 
-  <script type="text/javascript" src="{% static 'backend/js/jquery-1.11.3.min.js' %}"></script> 
+  <link href="{% static 'backend/js/plugins/ui/jasny-bootstrap/css/jasny-bootstrap.css' %}" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="{% static 'backend/js/jquery-1.11.3.min.js' %}"></script>
   <!-- /global stylesheets -->
   <style type="text/css">
     .search-panel{padding: 6px;}
@@ -60,9 +62,36 @@
           <span style="font-size: 2.3em;font-family: monospace;font-weight: bolder;">G-POS</span>
         <svg data-src="{% static "dashboard/images/saleor_logo.svg" %}" height="38px" width="176px" />
       </a>
-
     </div>
 
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+           {% if request.user.image %}
+              <img src="{{request.user.image.url }}" alt="" class="img-circle img-sm" style="width: 20px;height: 20px;margin-top: 7px;" />
+           {% else %}
+              <img src="{% default_user_image %}" alt="" class="img-circle img-sm" style="width: 20px;height: 20px;margin-top: 7px;">
+           {% endif %}
+        </li>
+          <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+
+          {% if request.user.name %}{{ request.user.name|title }} {% else %} {{ request.user.email }}{% endif %}<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+             <li>
+                <a href="{% url 'dashboard:user-detail' pk=user.id %}">
+                 <i class="icon-user-plus"></i> My profile
+                </a>
+             </li>
+            <li role="separator" class="divider"></li>
+            <li>
+                <a href="{% url 'account_logout' %}" class="waves-effect waves-teal">
+                <i class="icon-switch"></i>
+                  {% trans "Log out" context "Dashboard top navigation action" %}
+                </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
 
   </div>
   <!-- /main navbar -->
@@ -73,13 +102,13 @@
     <div class="page-content">
 
       <!-- Main content -->
-      <div class="content-wrapper">         
+      <div class="content-wrapper">
         <!-- Content area -->
-        <div class="content" id="content"> 
+        <div class="content" id="content">
 
                 {% block content %}{% endblock %}
-            
-          
+
+
           <!-- Footer -->
           <div class="footer text-muted">
             &copy; . <a href="#">Glosoft Group</a> <a href="http://glosoftgroup.com" target="_blank"></a>
@@ -88,14 +117,14 @@
 
         </div>
         <!-- /content area -->
-        
+
     </div>
     <!-- end page content -->
   </div>
   <!-- end page container -->
 
-   
-   
+
+
     <div id="base-modal" class="modal"></div>
     <div id="base-modal-fixed" class="modal modal-fixed-footer"></div>
     <!-- Core JS files -->
@@ -112,7 +141,7 @@
   <script type="text/javascript" src="{% static 'backend/js/plugins/ui/ripple.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'backend/js/plugins/ui/chart.js/chart.min.js' %}"></script>
   <!-- /theme JS files -->
- 
+
   <!-- form js -->
   <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/select2.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'backend/js/plugins/forms/styling/uniform.min.js' %}"></script>
@@ -134,9 +163,9 @@
   <script type="text/javascript" src="{% static 'backend/js/plugins/notifications/jgrowl.min.js' %}"></script>
 
   <script type="text/javascript" src="{% static 'backend/js/pages/components_notifications_other.js' %}"></script>
-  
 
-  
+
+
     <!-- Core Scripts - Include with every page -->
     <script type="text/javascript" src="{% url 'javascript-catalog' %}"></script>
       <script type="text/javascript" src="{% static 'backend/js/plugins/pagination/bootpag.min.js' %}"></script>
@@ -152,8 +181,8 @@
     $( "label" ).addClass( "text-bold" );
       });
   </script>
-   
-    
+
+
     {% include "dashboard/includes/_messages.html" %}
     <script type="text/javascript" src="{% static 'backend/js/search.js' %}"></script>
     <script type="text/javascript" src="{% static 'backend/js/fixed_table_header.js' %}"></script>
@@ -161,9 +190,9 @@
     <script type="text/javascript" src="{% static 'backend/js/plugins/printThis/printer.js' %}"></script>
 
     <script type="text/javascript">
-   
+
   function getNotification() {
-    var dynamicData = {};    
+    var dynamicData = {};
     return $.ajax({
       url: "{% url 'dashboard:unread_count'%}",
       type: "get",
@@ -172,14 +201,14 @@
   }
   getNotification().done(function (data) {
        $(".status-mark22").text(data);
-    }); 
+    });
   $(document).ready(function(){
     setInterval(function(){ getNotification().done(function (data) {
        $(".status-mark22").text(data);
-    }) }, 9920000);  
-    
+    }) }, 9920000);
+
   });
-  
+
   </script>
     {% block custom_js %}{% endblock %}
    </div>
