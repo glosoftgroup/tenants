@@ -1,13 +1,8 @@
 from __future__ import unicode_literals
 
 from decimal import Decimal
-from uuid import uuid4
-
-import emailit.api
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
@@ -17,6 +12,7 @@ from ..userprofile.models import Address
 from ..customer.models import Customer
 from ..site.models import SiteSettings
 from ..salepoints.models import SalePoint
+from ..table.models import Table
 
 from . import OrderStatus
 from . import TransactionStatus
@@ -165,6 +161,9 @@ class Sales(models.Model):
     sale_point = models.ForeignKey(
         SalePoint, related_name='sale_sale_point', blank=True, null=True, default='',
         verbose_name=pgettext_lazy('Sale field', 'Sale point'))
+    table = models.ForeignKey(
+        Table, related_name='table_sales', blank=True, default='',
+        verbose_name=pgettext_lazy('Sale field', 'table'))
 
     class Meta:
         ordering = ('-last_status_change',)
