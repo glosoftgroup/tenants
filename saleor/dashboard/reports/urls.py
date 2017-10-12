@@ -1,7 +1,11 @@
 from django.conf.urls import url
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import permission_required
 
-from . import views,charts, pdfs,  purchase, sales_profit, sales_tax, sales_margin2, product_sales
+from . import (
+	orders, views, charts, pdfs,  purchase,
+	sales_profit, sales_tax, sales_margin,
+	product_sales
+)
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -12,6 +16,9 @@ urlpatterns = [
 			(views.sales_reports), name='sales_reports'),
 		url(r'^sales/$', permission_required('reports.view_sale_reports', login_url='not_found')
 			(views.sales_list), name='sales_list'),
+		url(r'^sales_search/$', views.sales_search, name='sales_search'),
+		url(r'^sales_paginate/$', views.sales_paginate, name='sales_paginate'),
+
 		url(r'^prs/sales/$', permission_required('reports.view_sale_reports', login_url='not_found')
 			(product_sales.sales_list), name='product_sales_list'),
 		url( r'^sales/prs/paginate/$', product_sales.sales_paginate, name = 'product_sales_paginate'),
@@ -35,22 +42,28 @@ urlpatterns = [
 
 		# Sales Margin
 		url(r'^mrg/$', permission_required('reports.view_sale_reports', login_url='not_found')
-			(sales_margin2.sales_reports), name='sales_margin_list_reports'),
+			(sales_margin.sales_reports), name='sales_margin_list_reports'),
 		url(r'^mrg/sales/$', permission_required('reports.view_sale_reports', login_url='not_found')
-			(sales_margin2.sales_list), name='sales_margin_list'),
+			(sales_margin.sales_list), name='sales_margin_list'),
 		url(r'^mrg/detail/(?P<pk>[0-9]+)/$', permission_required('reports.view_sale_reports', login_url='not_found')
-			(sales_margin2.sales_detail), name='sale_margin_detail'),
-		url( r'^mrg/sales_search/$', sales_margin2.sales_search, name = 'sales_margin_search' ),
-		url( r'^mrg/sales_paginate/$', sales_margin2.sales_paginate, name = 'sales_margin_paginate'),
+			(sales_margin.sales_detail), name='sale_margin_detail'),
+		url( r'^mrg/sales_search/$', sales_margin.sales_search, name = 'sales_margin_search' ),
+		url( r'^mrg/sales_paginate/$', sales_margin.sales_paginate, name = 'sales_margin_paginate'),
 		url(r'^mrg/pdf/detail/(?P<pk>[0-9]+)/$', permission_required('reports.view_sale_reports', login_url='not_found')
-			(sales_margin2.pdf_sale_tax_detail), name='pdf-sale-margin-detail'),
-		url(r'^mrg/sales/list/pdf/$', sales_margin2.sales_list_tax_pdf, name='reports_sales_margin_list_pdf'),
+			(sales_margin.pdf_sale_tax_detail), name='pdf-sale-margin-detail'),
+		url(r'^mrg/sales/list/pdf/$', sales_margin.sales_list_tax_pdf, name='reports_sales_margin_list_pdf'),
 
-		url(r'^mrg/sls/itms/paginate/$', sales_margin2.sales_items_paginate, name='sales_margin_items_paginate'),
-		url(r'^mrg/sls/itms/search/$', sales_margin2.sales_items_search, name='sales_margin_items_search'),
-		url(r'^mrg/sales/list/items/pdf/$', sales_margin2.sales_list_margin_items_pdf, name='reports_sales_margin_items_pdf'),
+		url(r'^mrg/sls/itms/paginate/$', sales_margin.sales_items_paginate, name='sales_margin_items_paginate'),
+		url(r'^mrg/sls/itms/search/$', sales_margin.sales_items_search, name='sales_margin_items_search'),
+		url(r'^mrg/sales/list/items/pdf/$', sales_margin.sales_list_margin_items_pdf, name='reports_sales_margin_items_pdf'),
 
-
+		url(r'^ords/detail/(?P<pk>[0-9]+)/$', permission_required('reports.view_sale_reports', login_url='not_found')
+			(orders.sales_detail), name='order-detail'),
+		url(r'^orders/$', permission_required('reports.view_sale_reports', login_url='not_found')
+			(orders.sales_list), name='orders_list'),
+		url( r'^orders/search/$', orders.sales_search, name = 'orders_search' ),
+		url( r'^orders/paginate/$', orders.sales_paginate, name = 'orders_paginate'),
+		url(r'^orders/list/pdf/$', orders.sales_list_pdf, name='reports_orders_list_pdf'),
 
 		url(r'^reports/sales/list/pdf/$', pdfs.sales_list_pdf, name='reports_sales_list_pdf'),
 		url(r'^reports/category/pdf/$', pdfs.sales_category, name='reports_sales_category_pdf'),
@@ -85,20 +98,17 @@ urlpatterns = [
 
 		url(r'^balancesheet_reports/$', permission_required('reports.view_balancesheet', login_url='not_found')
 			(views.balancesheet_reports), name='balancesheet_reports'),
-		url(r'^chart/$', views.get_dashboard_data, name='chart'), 
-		url( r'^sales_search/$', views.sales_search, name = 'sales_search' ),
-		url( r'^sales_paginate/$', views.sales_paginate, name = 'sales_paginate'),
+		url(r'^chart/$', views.get_dashboard_data, name='chart'),
 		url(r'^cpdf/(?P<image>.+)/$', pdfs.chart_pdf, name='chart_pdf'),
 		url(r'^csv/(?P<image>.+)/$', pdfs.sales_export_csv, name='chart_csv'),
 
-		url( r'^summary/$',  permission_required('reports.view_sale_reports', login_url='not_found')
+		url(r'^summary/$',  permission_required('reports.view_sale_reports', login_url='not_found')
 			(charts.sales_date_chart), name = 'sales_date_chart' ),
-		# url( r'^summary/image/(?P<image>.+)/$', charts.sales_date_chart, name = 'sales_date_chart' ),
-		url( r'^productchart/$',  permission_required('reports.view_products_reports', login_url='not_found')
+		url(r'^productchart/$',  permission_required('reports.view_products_reports', login_url='not_found')
 			(charts.sales_product_chart), name = 'sales_product_chart' ),
-	    url( r'^productchart/pnt/$',  permission_required('reports.view_products_reports', login_url='not_found')
+	    url(r'^productchart/pnt/$',  permission_required('reports.view_products_reports', login_url='not_found')
 			(charts.sales_product_chart_paginate), name = 'sales_product_chart_paginate' ),
-	    url( r'^discountchart/$',  permission_required('reports.view_products_reports', login_url='not_found')
+	    url(r'^discountchart/$',  permission_required('reports.view_products_reports', login_url='not_found')
 			(charts.sales_discount_chart), name = 'sales_discount_chart' ),
 	    url( r'^discountchart/pnt/$',  permission_required('reports.view_products_reports', login_url='not_found')
 			(charts.sales_discount_chart_paginate), name = 'sales_discount_chart_paginate' ),

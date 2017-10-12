@@ -6,13 +6,13 @@
 {% load humanize %}
 
 {% block title %}
-  Sales Report
+  Orders Report
 {% endblock %}
 {% block breadcrumbs %}
-     <li class="active"><a href="{% url 'dashboard:sales_list' %}">Sales Reports</a></li>
+     <li class="active"><a href="{% url 'dashboard:orders_list' %}">Orders Reports</a></li>
  {% endblock %}
 
-{% block menu_report_class %}active{% endblock %}
+{% block menu_report_orders_class %}active{% endblock %}
  {% block custom_css %}
    <style type="text/css">
    .highcharts-credits{display:none;}
@@ -31,7 +31,7 @@
      
         <div class="panel-body search-panel">
             <div class="col-md-4">
-             <label>Search Sales (for date format: yyyy-mm-dd)</label>
+             <label>Search Orders (for date format: yyyy-mm-dd)</label>
               <div class="form-group form-group-material has-feedback">
                 <input class="form-control search_user" placeholder="Search details" type="text">
                 <div class="form-control-feedback">
@@ -53,6 +53,17 @@
                   </select>
               </div>
             </div>
+            <div class="col-md-2 hidden">
+              <label>display list size</label>
+              <div class="form-group">
+                 <select class="bootstrap-select list-sz" style="display: none;" data-width="100%" tabindex="-98">
+                    <option value="0" selected>No:</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                  </select>
+              </div>
+            </div>
             <div class="col-md-2">
               <label>pick a date</label>
               <div class="form-group">
@@ -60,16 +71,6 @@
                   <input class="form-control daterange-single" type="text" placeholder="yyyy-mm-dd">
                   <span class="input-group-addon"><i class="icon-calendar22"></i></span>
                 </div>
-              </div>
-            </div>
-            <div class="col-md-2 hidden">
-                <label>Sale Point</label>
-              <div class="form-group">
-                 <select class="bootstrap-select sales-point" style="display: none;" data-width="100%" tabindex="-98">
-                    <option value="all">All</option>
-                     <option value="bar">Bar</option>
-                     <option value="restaurant">Restaurant</option>
-                  </select>
               </div>
             </div>
             <div class="col-md-2">
@@ -232,10 +233,6 @@ $(document).ready(function(){
                $('#tb').html(data);
             });
     }).children('.pagination').addClass('pagination-flat pagination-sm');
-
-     $('.sales-point').selectpicker().on('change', function(){
-        var sv = $(this).val();
-    });
 
     $('.daterange-single').daterangepicker({
         singleDatePicker: true,
