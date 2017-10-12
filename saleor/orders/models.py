@@ -112,21 +112,24 @@ class OrderedItem(models.Model):
     orders = models.ForeignKey(Orders, related_name='ordered_items', on_delete=models.CASCADE, null=True)
     order = models.IntegerField(default=Decimal(1))
     sku = models.CharField(
-        pgettext_lazy('OrderdItem field', 'SKU'), max_length=32)
+        pgettext_lazy('OrderedItem field', 'SKU'), max_length=32)
     quantity = models.IntegerField(
-        pgettext_lazy('OrderdItem field', 'quantity'),
+        pgettext_lazy('OrderedItem field', 'quantity'),
         validators=[MinValueValidator(0)], default=Decimal(1))
     product_name = models.CharField(
-        pgettext_lazy('OrderdItem field', 'product name'), max_length=128)
+        pgettext_lazy('OrderedItem field', 'product name'), max_length=128)
     total_cost = models.DecimalField(
-        pgettext_lazy('OrderdItem field', 'total cost'), default=Decimal(0), max_digits=100, decimal_places=2)
+        pgettext_lazy('OrderedItem field', 'total cost'), default=Decimal(0), max_digits=100, decimal_places=2)
     unit_cost = models.DecimalField(
-        pgettext_lazy('OrderdItem field', 'unit cost'), default=Decimal(0), max_digits=100, decimal_places=2)
+        pgettext_lazy('OrderedItem field', 'unit cost'), default=Decimal(0), max_digits=100, decimal_places=2)
     product_category = models.CharField(
-        pgettext_lazy('OrderdItem field', 'product_category'), max_length=128, null=True)
+        pgettext_lazy('OrderedItem field', 'product_category'), max_length=128, null=True)
     discount = models.DecimalField(
-        pgettext_lazy('OrderdItem field', 'discount'), default=Decimal(0), max_digits=100, decimal_places=2)
+        pgettext_lazy('OrderedItem field', 'discount'), default=Decimal(0), max_digits=100, decimal_places=2)
     tax = models.IntegerField(default=Decimal(0))
+    sale_point = models.ForeignKey(
+        SalePoint, related_name='order_item_sale_point', blank=True, null=True, default='',
+        verbose_name=pgettext_lazy('OrderedItem field', 'Sale point'))
 
     class Meta:
         ordering = ['order']

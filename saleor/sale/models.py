@@ -12,19 +12,11 @@ from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.timezone import now
 from django.utils.translation import pgettext_lazy
-from django_prices.models import PriceField
-from payments import PaymentStatus, PurchasedItem
-from payments.models import BasePayment
-from prices import Price, FixedDiscount
 from jsonfield import JSONField
-from satchless.item import ItemLine, ItemSet
-from datetime import date
-from django.contrib.postgres.fields import HStoreField
-from ..discount.models import Voucher
-from ..product.models import Product
 from ..userprofile.models import Address
 from ..customer.models import Customer
 from ..site.models import SiteSettings
+from ..salepoints.models import SalePoint
 
 from . import OrderStatus
 from . import TransactionStatus
@@ -36,8 +28,8 @@ class PaymentOption(models.Model):
         max_length=52, unique=True,)    
     description = models.TextField(
         pgettext_lazy('Payment option field', 'description'), blank=True)
-    loyalty_point_equiv = models.IntegerField( pgettext_lazy('Site field', 'loyalty points equivalency'),
-        validators=[MinValueValidator(0)], default=Decimal(0))
+    loyalty_point_equiv = models.IntegerField(pgettext_lazy('Site field', 'loyalty points equivalency'),
+                                              validators=[MinValueValidator(0)], default=Decimal(0))
     
     class Meta:     
         verbose_name = pgettext_lazy('Payment option model', 'Payment')
@@ -56,7 +48,6 @@ class Terminal(models.Model):
         pgettext_lazy('Terminal field', 'created'),
         default=now, editable=False)
     amount = models.IntegerField(default=Decimal(0))
-    
 
     class Meta:     
         verbose_name = pgettext_lazy('Terminal model', 'Terminal')
@@ -67,10 +58,13 @@ class Terminal(models.Model):
 
     def get_transations(self):
         return len(self.terminals.all())
+
     def get_sales(self):
         return len(self.terminal_sales.all())
+
     def get_todaySales(self):
         return len(self.terminal_sales.filter(created=now()))
+
     def get_loyalty_points(self):
         points = SiteSettings.objects.get(pk=1)
         return points.loyalty_point_equiv
@@ -108,7 +102,6 @@ class TerminalHistoryEntry(models.Model):
             'TerminalHistoryEntry for terminal #%d') % self.terminal.pk
 
 
-        
 @python_2_unicode_compatible
 class Sales(models.Model):
     status = models.CharField(
@@ -168,7 +161,11 @@ class Sales(models.Model):
         'PaymentOption', related_name='payment_option', blank=True,
         verbose_name=pgettext_lazy('Sales field',
                                    'sales options'))
-    payment_data = JSONField(null=True,blank=True)
+    payment_data = JSONField(null=True, blank=True)
+    sale_point = models.ForeignKey(
+        SalePoint, related_name='sale_sale_point', blank=True, null=True, default='',
+        verbose_name=pgettext_lazy('Sale field', 'Sale point'))
+
     class Meta:
         ordering = ('-last_status_change',)
         verbose_name = pgettext_lazy('Sales model', 'Sales')
@@ -176,6 +173,7 @@ class Sales(models.Model):
         
     def __str__(self):
         return self.invoice_number
+
     def __unicode__(self):
         return unicode(self.invoice_number)
 
@@ -199,16 +197,19 @@ class SoldItem(models.Model):
     discount = models.DecimalField(
         pgettext_lazy('SoldItem field', 'discount'), default=Decimal(0), max_digits=100, decimal_places=2)
     tax = models.IntegerField(default=Decimal(0))
-    
+    sale_point = models.ForeignKey(
+        SalePoint, related_name='sold_item_sale_point', blank=True, null=True, default='',
+        verbose_name=pgettext_lazy('OrderedItem field', 'Sale point'))
 
     class Meta:
-        #unique_together = ('sales')
         ordering = ['order']
+
     def __unicode__(self):
         return '%d: %s' % (self.order,self.product_name)
 
     def __str__(self):
         return self.product_name
+
 
 class DrawerCash(models.Model):
     trans_type = models.CharField(
@@ -221,7 +222,7 @@ class DrawerCash(models.Model):
         settings.AUTH_USER_MODEL, blank=True, null=True, related_name='managers',
         verbose_name=pgettext_lazy('DrawerCash field', 'manager'))  
     terminal = models.ForeignKey(Terminal, related_name='terminals',
-                                null=True,blank=True,)
+                                null=True, blank=True,)
     amount = models.DecimalField(
         pgettext_lazy('DrawerCash field', 'total cost'), default=Decimal(0), max_digits=100, decimal_places=2)
     created = models.DateTimeField(
