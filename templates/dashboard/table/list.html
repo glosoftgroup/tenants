@@ -106,6 +106,7 @@
                 <thead>
                   <tr class="bg-primary">                  
                     <th>Name</th>
+                      <th>Sale Point</th>
                     <th>Number</th>
                     {% if perms.sale.delete_table %}
                     <th class="text-center">Options</th>
@@ -118,6 +119,7 @@
                   <tr class='clickable-row' id="{{option.pk }}">
                     <!-- name -->
                     <td class="td" data-href="{% url 'dashboard:table-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.name}}</td>
+                      <td class="td" data-href="{% url 'dashboard:table-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.sale_point}}</td>
                     <!-- number -->
                     <td class="td" data-href="{% url 'dashboard:table-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.number}}</td>
 

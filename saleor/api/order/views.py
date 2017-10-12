@@ -144,6 +144,7 @@ def send_to_sale(credit):
         total_net=credit.total_net,
         sub_total=credit.sub_total,
         balance=credit.balance,
+        sale_point=credit.sale_point,
         terminal=credit.terminal,
         amount_paid=credit.amount_paid,
         status=credit.status,
@@ -151,12 +152,13 @@ def send_to_sale(credit):
     )
     for item in credit.items():
         new_item = SoldItem.objects.create(
-                                       sales=sale,
-                                       sku=item.sku,
-                                       quantity=item.quantity,
-                                       product_name=item.product_name,
-                                       total_cost=item.total_cost,
-                                       unit_cost=item.unit_cost,
-                                       product_category=item.product_category
-                                       )
+               sales=sale,
+               sku=item.sku,
+               quantity=item.quantity,
+               product_name=item.product_name,
+               total_cost=item.total_cost,
+               unit_cost=item.unit_cost,
+               sale_point=item.sale_point,
+               product_category=item.product_category
+               )
         print new_item

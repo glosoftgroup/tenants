@@ -27,7 +27,7 @@ class ItemSerializer(serializers.ModelSerializer):
         model = OrderedItem
         fields = (
                 'id',
-                #'order',
+                'sale_point',
                 'sku',
                 'quantity',
                 'unit_cost',
@@ -152,13 +152,14 @@ class OrderSerializer(serializers.ModelSerializer):
 
         try:
             ordered_items_data = validated_data.pop('ordered_items')
-        except:
+        except Exception as e:
             raise ValidationError('Ordered items field should not be empty')
         status = validated_data.get('status')
         # make a sale
         order.user = validated_data.get('user')
         order.invoice_number = validated_data.get('invoice_number')
         order.total_net = validated_data.get('total_net')
+        order.debt = validated_data.get('total_net')
         order.sub_total = validated_data.get('sub_total')
         order.balance = validated_data.get('balance')
         order.terminal = validated_data.get('terminal')
@@ -215,8 +216,6 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
             amount_paid = Decimal(data.get('amount_paid'))
             sale = Orders.objects.get(invoice_number=str(data.get('invoice_number')))
             if status == 'fully-paid' and sale.balance > amount_paid:
-                print 'balance ' + str(sale.balance)
-                print 'amount ' + str(amount_paid)
                 raise ValidationError("Status error. Amount paid is less than balance.")
             else:
                 return value

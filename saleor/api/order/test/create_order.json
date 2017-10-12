@@ -24,7 +24,8 @@
       "sku": "2-1340",
       "product_name": "Davis-Wilson (Box Size: 100g)",
       "product_category": "Groceries",
-      "order": "1"
+      "order": "1",
+      "sale_point":"1"
     },
     {
       "quantity": 1,
@@ -33,7 +34,8 @@
       "sku": "2-1338",
       "product_name": "Davis-Wilson (Box Size: 500g)",
       "product_category": "Groceries",
-      "order": "1"
+      "order": "1",
+      "sale_point":"1"
     },
     {
       "quantity": 1,
@@ -42,7 +44,8 @@
       "sku": "2-1337",
       "product_name": "Davis-Wilson (Box Size: 1kg)",
       "product_category": "Groceries",
-      "order": "1"
+      "order": "1",
+      "sale_point":"1"
     }
   ],
   "payment_options": [],
