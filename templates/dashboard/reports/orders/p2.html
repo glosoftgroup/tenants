@@ -12,37 +12,35 @@
                       <thead style="border-top:1px solid #ddd;">
                         <tr class="bg-primary">
                           <th>Transaction Date</th>
-                          <th>Receipt No</th>
-                          <th>Customer</th>
-                          <th>Cashier</th>
-                          <th>Payment Mode</th>
+                          <th>Order No</th>
+                          <th>Order Status</th>
+                          <th>Sale Point</th>
+                          <th>Table</th>
                           <th>Quantity</th>
-                          <th>Total Sales (KShs)</th>
-                            <th class="text-center">Total Tax (KShs)</th>
+                          <th>Total Amount (KShs)</th>
                         </tr>
                       </thead>
                       <tbody id="p-tb">
-                        {% if sales %}
-                        {% for sale in sales %}
+                        {% if orders %}
+                        {% for order in orders %}
                           <tr class='clickable-row' id="{{sale.pk }}">
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{{sale.created|date:"d-m-Y H:i a"}}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{{sale.invoice_number }}</td>
-                              <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{% if sale.customer_name %}{{sale.customer_name}}{% else %} Customer {% endif %}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{% if sale.user.name %}{{sale.user.name}}{% else %}{{sale.user.email}}{% endif %}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{% if sale.payment_options.name %}{{sale.payment_options.name}}{% else %} Cash {% endif %}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{{sale.quantity}}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}"><span class="pull-right">{{sale.total_net|intcomma }}</span></td>
-                              <td class="td" data-href="{% url 'dashboard:sale_tax_detail' pk=sale.pk %}"><span class="pull-right">{{sale.total_tax|intcomma }}</span></td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.created|date:"d-m-Y H:i a"}}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.invoice_number }}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.get_status|title }}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{ order.sale_point.name }}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{ order.table.name }}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.quantity}}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}"><span class="pull-right">{{order.total_net|intcomma }}</span></td>
                           </tr>
                         {% endfor %}
                          {% else %}
-                         <tr><td colspan="7"><h2 class="text-center">No Sales Reports Available</h2></td></tr>
+                         <tr><td colspan="7"><h2 class="text-center">No Orders Summary Available</h2></td></tr>
                         {% endif %}
                         </tbody>
 
                  </table>
         </div>
-          {% if sales %}
+          {% if orders %}
              <div class="my-paginate" style="margin-top:20px;">
          <div class="row">   
          <div class="col-md-12">               
@@ -114,12 +112,12 @@
                 $(".pages-nav2").html("Page " + num +" of "+'{{pn}}'); 
                 var gid = '{{gid}}';
                 if(gid == 0){
-                    $.get("{% url 'dashboard:sales_paginate' %}",{page:num, psize:'{{sz}}'},function(data){
+                    $.get("{% url 'dashboard:orders_paginate' %}",{page:num, psize:'{{sz}}'},function(data){
                       $('#p-tb').html(data);
                       console.log('without gid '+data);
                     });
                 }else{
-                    $.get("{% url 'dashboard:sales_paginate' %}",{page:num, psize:'{{sz}}',gid:'{{gid}}'},function(data){
+                    $.get("{% url 'dashboard:orders_paginate' %}",{page:num, psize:'{{sz}}',gid:'{{gid}}'},function(data){
                        $('#p-tb').html(data);
                     });
                 }
@@ -178,7 +176,7 @@
         var listSizeVal = $(this).val();
         var searchData = $('.search_user').val();
         var date = $('.daterange-single').val();
-        var url = "{% url 'dashboard:sales_search' %}";
+        var url = "{% url 'dashboard:orders_search' %}";
         var scategory = $('.sales-category').find(":selected").val();
 
         if((scategory == 'list' && date && searchData)){
@@ -203,11 +201,11 @@
             }
         }else if(scategory == 'list' && date){
             if(listSizeVal != '0'){
-               $.ajax({ url:"{% url 'dashboard:sales_paginate' %}", type: 'GET',data: {page:1, size:listSizeVal, gid:date},success: function(data){
+               $.ajax({ url:"{% url 'dashboard:orders_paginate' %}", type: 'GET',data: {page:1, size:listSizeVal, gid:date},success: function(data){
                           $('#pagination-div').html(data);
                 }});
             }else{
-               $.ajax({ url:"{% url 'dashboard:sales_paginate' %}", type: 'GET',data: {page:1, size:10, gid:date},success: function(data){
+               $.ajax({ url:"{% url 'dashboard:orders_paginate' %}", type: 'GET',data: {page:1, size:10, gid:date},success: function(data){
                           $('#pagination-div').html(data);
                 }});
             }
@@ -235,21 +233,21 @@
              }
         }else if(date){
             if(listSizeVal != '0'){
-               $.ajax({ url:"{% url 'dashboard:sales_paginate' %}", type: 'GET',data: {page:1, size:listSizeVal, gid:date},success: function(data){
+               $.ajax({ url:"{% url 'dashboard:orders_paginate' %}", type: 'GET',data: {page:1, size:listSizeVal, gid:date},success: function(data){
                           $('#pagination-div').html(data);
                 }});
             }else{
-               $.ajax({ url:"{% url 'dashboard:sales_paginate' %}", type: 'GET',data: {page:1, size:10, gid:date},success: function(data){
+               $.ajax({ url:"{% url 'dashboard:orders_paginate' %}", type: 'GET',data: {page:1, size:10, gid:date},success: function(data){
                           $('#pagination-div').html(data);
                 }});
              }
         }else{
            if(listSizeVal != '0'){
-               $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal}, async:false,success: function(data){
+               $.ajax({ url: "{% url 'dashboard:orders_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal}, async:false,success: function(data){
                   $('#pagination-div').html(data);
               }});
            }else{
-                $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
+                $.ajax({ url: "{% url 'dashboard:orders_paginate' %}",type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
                       $('#pagination-div').html(data);
                 }});
            }

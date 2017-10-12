@@ -57,13 +57,15 @@ urlpatterns = [
 		url(r'^mrg/sls/itms/search/$', sales_margin.sales_items_search, name='sales_margin_items_search'),
 		url(r'^mrg/sales/list/items/pdf/$', sales_margin.sales_list_margin_items_pdf, name='reports_sales_margin_items_pdf'),
 
-		url(r'^ords/detail/(?P<pk>[0-9]+)/$', permission_required('reports.view_sale_reports', login_url='not_found')
-			(orders.sales_detail), name='order-detail'),
 		url(r'^orders/$', permission_required('reports.view_sale_reports', login_url='not_found')
-			(orders.sales_list), name='orders_list'),
-		url( r'^orders/search/$', orders.sales_search, name = 'orders_search' ),
-		url( r'^orders/paginate/$', orders.sales_paginate, name = 'orders_paginate'),
-		url(r'^orders/list/pdf/$', orders.sales_list_pdf, name='reports_orders_list_pdf'),
+			(orders.orders_list), name='orders_list'),
+		url(r'^ords/detail/(?P<pk>[0-9]+)/$', permission_required('reports.view_sale_reports', login_url='not_found')
+			(orders.orders_detail), name='order-detail'),
+		url( r'^orders/search/$', orders.orders_search, name = 'orders_search' ),
+		url( r'^orders/paginate/$', orders.orders_paginate, name = 'orders_paginate'),
+		url(r'^orders/list/pdf/$', orders.orders_list_pdf, name='reports_orders_list_pdf'),
+		url(r'^orders/pdf/detail/(?P<pk>[0-9]+)/$', permission_required('reports.view_sale_reports', login_url='not_found')
+			(orders.order_detail_pdf), name='pdf-order-detail'),
 
 		url(r'^reports/sales/list/pdf/$', pdfs.sales_list_pdf, name='reports_sales_list_pdf'),
 		url(r'^reports/category/pdf/$', pdfs.sales_category, name='reports_sales_category_pdf'),

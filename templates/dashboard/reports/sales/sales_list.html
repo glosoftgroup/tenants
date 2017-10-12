@@ -321,36 +321,22 @@ $(document).ready(function(){
         var listSizeVal = $('.list-sz').find(":selected").val();
         var searchData = $('.search_user').val();
 
+        if(listSizeVal == '0'){
+            listSizeVal  = 10
+        }
+
          if(sv == 'list' && date && listSizeVal && searchData){
-            if(listSizeVal != '0'){
                $.ajax({ url: "{% url 'dashboard:sales_search' %}",type: 'GET',data: {page:1, size:listSizeVal, gid:date, q:searchData}, async:false,success: function(data){
                       $('#pagination-div').html(data);
                 }});
-            }else{
-               $.ajax({ url: "{% url 'dashboard:sales_search' %}",type: 'GET',data: {page:1, size:10, gid:date, q:searchData}, async:false,success: function(data){
-                      $('#pagination-div').html(data);
-                }});
-            }
         }else if(sv == 'list' && listSizeVal && searchData){
-            if(listSizeVal != '0'){
                $.ajax({ url: "{% url 'dashboard:sales_search' %}",type: 'GET',data: {page:1, size:listSizeVal, q:searchData}, async:false,success: function(data){
                       $('#pagination-div').html(data);
                 }});
-            }else{
-               $.ajax({ url: "{% url 'dashboard:sales_search' %}",type: 'GET',data: {page:1, size:10, q:searchData}, async:false,success: function(data){
-                      $('#pagination-div').html(data);
-                }});
-            }
         }else if(sv == 'list' && listSizeVal && date){
-            if(listSizeVal != '0'){
                $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal, gid:date}, async:false,success: function(data){
                       $('#pagination-div').html(data);
                 }});
-            }else{
-               $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:10, gid:date}, async:false,success: function(data){
-                      $('#pagination-div').html(data);
-                }});
-            }
         }else if(sv == 'list' && date){
          $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:10, gid:date}, async:false,success: function(data){
                   $('#pagination-div').html(data);
@@ -360,15 +346,9 @@ $(document).ready(function(){
                   $('#pagination-div').html(data);
             }});
         }else if(sv == 'list' && listSizeVal){
-            if(listSizeVal != '0'){
                  $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal}, async:false,success: function(data){
                           $('#pagination-div').html(data);
                     }});
-            }else{
-            $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
-                          $('#pagination-div').html(data);
-                    }});
-            }
         }else if(sv == 'category' && date){
             $.get("{% url 'dashboard:sales_category_chart' %}", {date:date},function(data){
                       $('#pagination-div').html(data)
@@ -606,78 +586,40 @@ $(document).ready(function(){
         var url = "{% url 'dashboard:sales_search' %}";
         var scategory = $('.sales-category').find(":selected").val();
 
+        if(listSizeVal == '0'){
+            listSizeVal  = 10
+        }
+
         if((scategory == 'list' && date && searchData)){
-            if(listSizeVal != '0'){
                $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, size:listSizeVal, gid:date},success: function(data){
                           $('#pagination-div').html(data);
                 }});
-            }else{
-               $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, size:10, gid:date},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-            }
         }else if(scategory == 'list' && searchData){
-            if(listSizeVal != '0'){
                $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, size:listSizeVal},success: function(data){
                           $('#pagination-div').html(data);
                 }});
-            }else{
-               $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, size:10},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-            }
         }else if(scategory == 'list' && date){
-            if(listSizeVal != '0'){
                $.ajax({ url:"{% url 'dashboard:sales_paginate' %}", type: 'GET',data: {page:1, size:listSizeVal, gid:date},success: function(data){
                           $('#pagination-div').html(data);
                 }});
-            }else{
-               $.ajax({ url:"{% url 'dashboard:sales_paginate' %}", type: 'GET',data: {page:1, size:10, gid:date},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-            }
         }else if(((scategory && scategory != 'list' && scategory != 'none') && (!searchData && !date)) || (scategory && scategory != 'list' && scategory != 'none' && date)){
            console.log('nothinh')
         }else if(searchData && date){
-            if(listSizeVal != '0'){
                $.ajax({ url:url, type: 'GET',data: {page:1, size:listSizeVal, q:searchData, gid:date},success: function(data){
                           $('#pagination-div').html(data);
                 }});
-            }else{
-               $.ajax({ url:url, type: 'GET',data: {page:1, size:10, q:searchData, gid:date},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-             }
         }else if(searchData){
-            if(listSizeVal != '0'){
                $.ajax({ url:url, type: 'GET',data: {page:1, size:listSizeVal, q:searchData},success: function(data){
                           $('#pagination-div').html(data);
                 }});
-            }else{
-               $.ajax({ url:url, type: 'GET',data: {page:1, size:10, q:searchData},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-             }
         }else if(date){
-            if(listSizeVal != '0'){
                $.ajax({ url:"{% url 'dashboard:sales_paginate' %}", type: 'GET',data: {page:1, size:listSizeVal, gid:date},success: function(data){
                           $('#pagination-div').html(data);
                 }});
-            }else{
-               $.ajax({ url:"{% url 'dashboard:sales_paginate' %}", type: 'GET',data: {page:1, size:10, gid:date},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-             }
         }else{
-           if(listSizeVal != '0'){
                $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal}, async:false,success: function(data){
                   $('#pagination-div').html(data);
               }});
-           }else{
-                $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
-                      $('#pagination-div').html(data);
-                }});
-           }
        }
 
      });
@@ -708,6 +650,10 @@ $(document).ready(function(){
         var listSizeVal = $('.list-sz').find(":selected").val();
         var url = "{% url 'dashboard:sales_search' %}";
         var scategory = $('.sales-category').find(":selected").val();
+
+        if(listSizeVal == '0'){
+            listSizeVal  = 10
+        }
 
         delay(function(){
             if(scategory == 'list' && (listSizeVal && listSizeVal != '0') && date ){

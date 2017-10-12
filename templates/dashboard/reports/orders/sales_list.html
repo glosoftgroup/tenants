@@ -39,7 +39,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 hidden">
                 <label>categories</label>
               <div class="form-group">
                  <select class="bootstrap-select sales-category" style="display: none;" data-width="100%" tabindex="-98">
@@ -99,37 +99,35 @@
                       <thead style="border-top:1px solid #ddd;">
                         <tr class="bg-primary">
                           <th>Transaction Date</th>
-                          <th>Receipt No</th>
-                          <th>Customer Name</th>
-                          <th>Cashier</th>
-                          <th>Payment Mode</th>
+                          <th>Order No</th>
+                          <th>Order Status</th>
+                          <th>Sale Point</th>
+                          <th>Table</th>
                           <th>Quantity</th>
-                          <th>Total Sales (KShs)</th>
-                            <th class="text-center">Total Tax (KShs)</th>
+                          <th>Total Amount (KShs)</th>
                         </tr>
                       </thead>
                       <tbody id="tb">
-                        {% if sales %}
-                        {% for sale in sales %}
+                        {% if orders %}
+                        {% for order in orders %}
                           <tr class='clickable-row' id="{{sale.pk }}">
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{{sale.created|date:"d-m-Y H:i a"}}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{{sale.invoice_number }}</td>
-                              <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{% if sale.customer_name %}{{sale.customer_name}}{% else %} Customer {% endif %}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{% if sale.user.name %}{{sale.user.name}}{% else %}{{sale.user.email}}{% endif %}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{% if sale.payment_options.name %}{{sale.payment_options.name}}{% else %} Cash {% endif %}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{{sale.quantity}}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}"><span class="pull-right">{{sale.total_net|intcomma }}</span></td>
-                              <td class="td" data-href="{% url 'dashboard:sale_tax_detail' pk=sale.pk %}"><span class="pull-right">{{sale.total_tax|intcomma }}</span></td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.created|date:"d-m-Y H:i a"}}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.invoice_number }}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.get_status|title }}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{ order.sale_point.name }}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{ order.table.name }}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.quantity}}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}"><span class="pull-right">{{order.total_net|intcomma }}</span></td>
                           </tr>
                         {% endfor %}
                          {% else %}
-                         <tr><td colspan="7"><h2 class="text-center">No Sales Summary Available</h2></td></tr>
+                         <tr><td colspan="7"><h2 class="text-center">No Orders Summary Available</h2></td></tr>
                         {% endif %}
                         </tbody>
 
                  </table>
               </div>
-              {% if sales %}
+              {% if orders %}
               <div class="my-paginate" style="margin-top:20px;">
          <div class="row">   
          <div class="col-md-12">               
@@ -169,13 +167,9 @@
               {% endif %}
              </div>
             </div>
-          {% if sales %}
+          {% if orders %}
             <div class="row">
               <div class="col-md-10 col-md-offset-1">
-                 <p class="text-center" style="margin: 20px 0px;">
-                     Total Sales: Kshs {{total_sales_amount.total_net__sum}} <br>
-                   Total Tax: Kshs {{ total_tax_amount.total_tax__sum}}
-                 </p>
                   <p class="text-center"> Thank you for partnering with us.<br />
                   <span>Report pulled by  {% if request.user.name %}
                         {{request.user.name}}
@@ -229,7 +223,7 @@ $(document).ready(function(){
         firstClass: 'first',
         }).on("page", function(event, num){
             $(".pages-nav").html("Page " + num +" of "+{{pn}});
-            $.get("{% url 'dashboard:sales_paginate' %}",{page:parseInt(num)},function(data){
+            $.get("{% url 'dashboard:orders_paginate' %}",{page:parseInt(num)},function(data){
                $('#tb').html(data);
             });
     }).children('.pagination').addClass('pagination-flat pagination-sm');
@@ -245,7 +239,7 @@ $(document).ready(function(){
         var group_id = $('.daterange-single').val();
         var searchData = $('.search_user').val();
         var listSizeVal = $('.list-sz').find(":selected").val();
-        var url = "{% url 'dashboard:sales_search' %}";
+        var url = "{% url 'dashboard:orders_search' %}";
        var categs = $('.sales-category').find(":selected").val();
 
        if((categs == 'category') || (categs == 'category' && listSizeVal) || (categs == 'category' && searchData) || (categs == 'category' && listSizeVal && searchData) ){
@@ -290,21 +284,21 @@ $(document).ready(function(){
            }
        }else if(listSizeVal && listSizeVal != '0'){
            if(!group_id){
-               $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal}, async:false,success: function(data){
+               $.ajax({ url: "{% url 'dashboard:orders_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal}, async:false,success: function(data){
                   $('#pagination-div').html(data);
               }});
            }else{
-                $.get("{% url 'dashboard:sales_paginate' %}",{page:1,gid:group_id, size:listSizeVal},function(data){
+                $.get("{% url 'dashboard:orders_paginate' %}",{page:1,gid:group_id, size:listSizeVal},function(data){
                  $('#pagination-div').html(data);
                });
            }
        }else{
            if(!group_id){
-               $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
+               $.ajax({ url: "{% url 'dashboard:orders_paginate' %}",type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
                   $('#pagination-div').html(data);
               }});
            }else{
-                $.get("{% url 'dashboard:sales_paginate' %}",{page:1,gid:group_id},function(data){
+                $.get("{% url 'dashboard:orders_paginate' %}",{page:1,gid:group_id},function(data){
                  $('#pagination-div').html(data);
                });
            }
@@ -320,49 +314,49 @@ $(document).ready(function(){
 
          if(sv == 'list' && date && listSizeVal && searchData){
             if(listSizeVal != '0'){
-               $.ajax({ url: "{% url 'dashboard:sales_search' %}",type: 'GET',data: {page:1, size:listSizeVal, gid:date, q:searchData}, async:false,success: function(data){
+               $.ajax({ url: "{% url 'dashboard:orders_search' %}",type: 'GET',data: {page:1, size:listSizeVal, gid:date, q:searchData}, async:false,success: function(data){
                       $('#pagination-div').html(data);
                 }});
             }else{
-               $.ajax({ url: "{% url 'dashboard:sales_search' %}",type: 'GET',data: {page:1, size:10, gid:date, q:searchData}, async:false,success: function(data){
+               $.ajax({ url: "{% url 'dashboard:orders_search' %}",type: 'GET',data: {page:1, size:10, gid:date, q:searchData}, async:false,success: function(data){
                       $('#pagination-div').html(data);
                 }});
             }
         }else if(sv == 'list' && listSizeVal && searchData){
             if(listSizeVal != '0'){
-               $.ajax({ url: "{% url 'dashboard:sales_search' %}",type: 'GET',data: {page:1, size:listSizeVal, q:searchData}, async:false,success: function(data){
+               $.ajax({ url: "{% url 'dashboard:orders_search' %}",type: 'GET',data: {page:1, size:listSizeVal, q:searchData}, async:false,success: function(data){
                       $('#pagination-div').html(data);
                 }});
             }else{
-               $.ajax({ url: "{% url 'dashboard:sales_search' %}",type: 'GET',data: {page:1, size:10, q:searchData}, async:false,success: function(data){
+               $.ajax({ url: "{% url 'dashboard:orders_search' %}",type: 'GET',data: {page:1, size:10, q:searchData}, async:false,success: function(data){
                       $('#pagination-div').html(data);
                 }});
             }
         }else if(sv == 'list' && listSizeVal && date){
             if(listSizeVal != '0'){
-               $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal, gid:date}, async:false,success: function(data){
+               $.ajax({ url: "{% url 'dashboard:orders_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal, gid:date}, async:false,success: function(data){
                       $('#pagination-div').html(data);
                 }});
             }else{
-               $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:10, gid:date}, async:false,success: function(data){
+               $.ajax({ url: "{% url 'dashboard:orders_paginate' %}",type: 'GET',data: {page:1, size:10, gid:date}, async:false,success: function(data){
                       $('#pagination-div').html(data);
                 }});
             }
         }else if(sv == 'list' && date){
-         $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:10, gid:date}, async:false,success: function(data){
+         $.ajax({ url: "{% url 'dashboard:orders_paginate' %}",type: 'GET',data: {page:1, size:10, gid:date}, async:false,success: function(data){
                   $('#pagination-div').html(data);
             }});
         }else if(sv == 'list' && searchData){
-         $.ajax({ url: "{% url 'dashboard:sales_search' %}",type: 'GET',data: {page:1, size:10, gid:date,q:searchData}, async:false,success: function(data){
+         $.ajax({ url: "{% url 'dashboard:orders_search' %}",type: 'GET',data: {page:1, size:10, gid:date,q:searchData}, async:false,success: function(data){
                   $('#pagination-div').html(data);
             }});
         }else if(sv == 'list' && listSizeVal){
             if(listSizeVal != '0'){
-                 $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal}, async:false,success: function(data){
+                 $.ajax({ url: "{% url 'dashboard:orders_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal}, async:false,success: function(data){
                           $('#pagination-div').html(data);
                     }});
             }else{
-            $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
+            $.ajax({ url: "{% url 'dashboard:orders_paginate' %}",type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
                           $('#pagination-div').html(data);
                     }});
             }
@@ -435,7 +429,7 @@ $(document).ready(function(){
             var listSizeVal = $('.list-sz').find(":selected").val();
             var groupSizeVal = $('.group-sz').find(":selected").val();
             var date = $('.daterange-single').val();
-            var url = "{% url 'dashboard:reports_sales_list_pdf' %}";
+            var url = "{% url 'dashboard:reports_orders_list_pdf' %}";
             var scategory = $('.sales-category').find(":selected").val();
 
             if(date && (scategory == 'category')){
@@ -600,7 +594,7 @@ $(document).ready(function(){
         var listSizeVal = $(this).val();
         var searchData = $('.search_user').val();
         var date = $('.daterange-single').val();
-        var url = "{% url 'dashboard:sales_search' %}";
+        var url = "{% url 'dashboard:orders_search' %}";
         var scategory = $('.sales-category').find(":selected").val();
 
         if((scategory == 'list' && date && searchData)){
@@ -625,11 +619,11 @@ $(document).ready(function(){
             }
         }else if(scategory == 'list' && date){
             if(listSizeVal != '0'){
-               $.ajax({ url:"{% url 'dashboard:sales_paginate' %}", type: 'GET',data: {page:1, size:listSizeVal, gid:date},success: function(data){
+               $.ajax({ url:"{% url 'dashboard:orders_paginate' %}", type: 'GET',data: {page:1, size:listSizeVal, gid:date},success: function(data){
                           $('#pagination-div').html(data);
                 }});
             }else{
-               $.ajax({ url:"{% url 'dashboard:sales_paginate' %}", type: 'GET',data: {page:1, size:10, gid:date},success: function(data){
+               $.ajax({ url:"{% url 'dashboard:orders_paginate' %}", type: 'GET',data: {page:1, size:10, gid:date},success: function(data){
                           $('#pagination-div').html(data);
                 }});
             }
@@ -657,21 +651,21 @@ $(document).ready(function(){
              }
         }else if(date){
             if(listSizeVal != '0'){
-               $.ajax({ url:"{% url 'dashboard:sales_paginate' %}", type: 'GET',data: {page:1, size:listSizeVal, gid:date},success: function(data){
+               $.ajax({ url:"{% url 'dashboard:orders_paginate' %}", type: 'GET',data: {page:1, size:listSizeVal, gid:date},success: function(data){
                           $('#pagination-div').html(data);
                 }});
             }else{
-               $.ajax({ url:"{% url 'dashboard:sales_paginate' %}", type: 'GET',data: {page:1, size:10, gid:date},success: function(data){
+               $.ajax({ url:"{% url 'dashboard:orders_paginate' %}", type: 'GET',data: {page:1, size:10, gid:date},success: function(data){
                           $('#pagination-div').html(data);
                 }});
              }
         }else{
            if(listSizeVal != '0'){
-               $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal}, async:false,success: function(data){
+               $.ajax({ url: "{% url 'dashboard:orders_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal}, async:false,success: function(data){
                   $('#pagination-div').html(data);
               }});
            }else{
-                $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
+                $.ajax({ url: "{% url 'dashboard:orders_paginate' %}",type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
                       $('#pagination-div').html(data);
                 }});
            }
@@ -703,7 +697,7 @@ $(document).ready(function(){
         var search_text = $(this).val();
         var date = $('.daterange-single').val();
         var listSizeVal = $('.list-sz').find(":selected").val();
-        var url = "{% url 'dashboard:sales_search' %}";
+        var url = "{% url 'dashboard:orders_search' %}";
         var scategory = $('.sales-category').find(":selected").val();
 
         delay(function(){

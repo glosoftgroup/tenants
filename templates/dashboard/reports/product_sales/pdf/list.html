@@ -33,6 +33,9 @@
              <div class='header'>
                   <p style="margin-bottom:0px;"><img class="img" src="{{image}}" alt="Red dot" /></p>
                  <p class='title' style="margin-top:2px;margin-bottom:0px;font-size:13px;"> SALES REPORT
+                     {% if point %}
+                        <p style="margin-bottom:0px;margin-top:2px;font-size:13px;">{{point}}</p>
+                      {% endif %}
                  {% if gid %}
                      <p style="margin-bottom:0px;margin-top:2px;font-size:11px;">
                         SALES DATE: {{gid}}
@@ -70,7 +73,10 @@
                           </tr>
                         {% endfor %}
                          {% else %}
-                         <tr><td colspan="6"><h2 class="text-center">No Products Sales Summary Available</h2></td></tr>
+                         <tr><td colspan="5"><h2 class="text-center" style="text-align:center;">No Products Sales Reports Available</h2></td></tr>
+                          {% if margin %}
+                           <tr><td colspan="6"><h2 class="text-center" style="text-align:center;">No Products Sales Reports Available</h2></td></tr>
+                         {% endif %}
                         {% endif %}
                   </tbody>
            </table>

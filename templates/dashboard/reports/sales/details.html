@@ -45,8 +45,9 @@
                           <h7 class=""><span class="text-bold">Serverd by:</span> {{sale.user.name}}</h7>
                       </div>
                     </div>
-              {% if items %}
-              <div class="col-md-12"> <h2 class="" style="font-weight:bold">Bar</h2></div>
+              {% for i in epp %}
+              {% if i.items %}
+              <div class="col-md-12"> <h2 class="" style="font-weight:bold">{{i.name}}</h2></div>
                   <div class="table-responsives">
                     <table class="table  datatable-header-footer">
 
@@ -60,74 +61,25 @@
                             </tr>
                           </thead>
                           <tbody id="tb">
-                            {% if items %}
-                            {% for item in items %}
-                              <tr>
-                                <td>{{item.sales.created|date:"d-m-Y H:i a"}}</td>
+                             {% for item in i.items %}
+                                <tr>
+                                <td>{{item.orders.created|date:"d-m-Y H:i a"}}</td>
                                 <td>{{item.product_name}}</td>
                                 <td>{{item.unit_cost}}</td>
                                 <td>{{item.quantity}}</td>
                                   <td><span class="pull-right">{{item.total_cost|intcomma}}</span></td>
                               </tr>
-                            {% endfor %}
-                            <tr>
-                                <td colspan="4"><span style="font-weight:bold">Total Tax</span></td>
-                                <td><span class="pull-right" style="font-weight:bold">Kshs {{sale.total_tax}}</span></td>
-                            </tr>
-                            <tr>
+                             {% endfor %}
+                             <tr>
                                 <td colspan="4"><span style="font-weight:bold">Total Sales</span></td>
-                                <td><span class="pull-right" style="font-weight:bold">Kshs {{sale.total_net}}</span></td>
-                            </tr>
-                             {% else %}
-                             <tr><td colspan="5"><h2 class="text-center">No Items Available</h2></td></tr>
-                            {% endif %}
+                                <td><span class="pull-right" style="font-weight:bold">Kshs {{i.amount}}</span></td>
+                             </tr>
                             </tbody>
 
                      </table>
                   </div>
-              {% endif %}
-
-              {% if items %}
-              <div class="col-md-12"> <h2 class="" style="font-weight:bold">Restaurant</h2></div>
-                  <div class="table-responsives">
-                    <table class="table  datatable-header-footer">
-
-                          <thead style="border-top:1px solid #ddd;">
-                            <tr class="bg-primary">
-                              <th>Transaction Date</th>
-                              <th>Item Name</th>
-                              <th>Unit Cost</th>
-                              <th>Quantity</th>
-                              <th>Total Sales (KShs)</th>
-                            </tr>
-                          </thead>
-                          <tbody id="tb">
-                            {% if items %}
-                            {% for item in items %}
-                              <tr>
-                                <td>{{item.sales.created|date:"d-m-Y H:i a"}}</td>
-                                <td>{{item.product_name}}</td>
-                                <td>{{item.unit_cost}}</td>
-                                <td>{{item.quantity}}</td>
-                                  <td><span class="pull-right">{{item.total_cost|intcomma}}</span></td>
-                              </tr>
-                            {% endfor %}
-                            <tr>
-                                <td colspan="4"><span style="font-weight:bold">Total Tax</span></td>
-                                <td><span class="pull-right" style="font-weight:bold">Kshs {{sale.total_tax}}</span></td>
-                            </tr>
-                            <tr>
-                                <td colspan="4"><span style="font-weight:bold">Total Sales</span></td>
-                                <td><span class="pull-right" style="font-weight:bold">Kshs {{sale.total_net}}</span></td>
-                            </tr>
-                             {% else %}
-                             <tr><td colspan="5"><h2 class="text-center">No Items Available</h2></td></tr>
-                            {% endif %}
-                            </tbody>
-
-                     </table>
-                  </div>
-              {% endif %}
+                  {% endif %}
+                 {% endfor %}
              </div>
             </div>
 

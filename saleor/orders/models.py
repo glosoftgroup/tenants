@@ -106,6 +106,12 @@ class Orders(models.Model):
     def items(self):
         return self.ordered_items.all()
 
+    def get_status(self):
+        if self.status == 'fully-paid':
+            return 'Complete'
+        else:
+            return "Pending"
+
 
 @python_2_unicode_compatible
 class OrderedItem(models.Model):
