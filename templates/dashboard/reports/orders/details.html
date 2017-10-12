@@ -7,14 +7,14 @@
 {% load humanize %}
 {% load default_user_image %}
 {% block title %}
-  Sales Report
+  Orders Report
 {% endblock %}
 {% block breadcrumbs %}
-     <li class="active"><a href="{% url 'dashboard:sales_list' %}">Sales</a></li>
+     <li class="active"><a href="{% url 'dashboard:orders_list' %}">Orders</a></li>
      <li>Receipt</li>
  {% endblock %}
 
-{% block menu_report_class %}active{% endblock %}
+{% block menu_report_orders_class %}active{% endblock %}
  {% block custom_css %}
    <style type="text/css">
     label.error{
@@ -28,8 +28,8 @@
 <div class="col-md-12">
     <div class="row">
         <div class="col-md-12" style="margin-bottom:10px;">
-        <a class="btn btn-primary pull-left" href="{% url 'dashboard:sales_list' %}"><i class="icon-arrow-left13 position-left"></i> Back To Sales List</a>
-        <a class="btn btn-primary pull-right printPdf" data-url="{% url 'dashboard:pdf-sale-detail' pk=sale.pk%}" href="javascript:;"><i class="fa fa-file-pdf-o position-left"></i> Print</a>
+        <a class="btn btn-primary pull-left" href="{% url 'dashboard:orders_list' %}"><i class="icon-arrow-left13 position-left"></i> Back To Orders List</a>
+        <a class="btn btn-primary pull-right printPdf" data-url="{% url 'dashboard:pdf-order-detail' pk=order.pk%}" href="javascript:;"><i class="fa fa-file-pdf-o position-left"></i> Print</a>
         </div>
     </div>
 </div>
@@ -41,8 +41,9 @@
           <div class="col-md-12">
                   <div>
                       <div class="col-md-6 col-md-offset-3 text-center" style="color:#333;">
-                         <h6><span class="text-bold">Customer:</span> {% if sale.customer.name %} {{sale.customer.name}} {% else %} <span class="text-bold">-</span>{% endif %}</h6> <h6 class=""><span class="text-bold">Receipt Number:</span> {{sale.invoice_number}}</h6>
-                          <h7 class=""><span class="text-bold">Serverd by:</span> {{sale.user.name}}</h7>
+                         <h6><span class="text-bold">Customer:</span> {% if order.customer.name %} {{order.customer.name}} {% else %} <span class="text-bold">-</span>{% endif %}</h6>
+                          <h6 class=""><span class="text-bold">Receipt Number:</span> {{order.invoice_number}}</h6>
+                          <h7 class=""><span class="text-bold">Serverd by:</span> {{order.user.name}}</h7>
                       </div>
                     </div>
               {% for i in epp %}

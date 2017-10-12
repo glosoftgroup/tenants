@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.response import TemplateResponse
 from django.http import HttpResponse, JsonResponse
-from django.db.models import Count, Min, Sum, Avg, F, Q
+from django.db.models import Count, Sum, Q
 from django.core import serializers
 from django.core.paginator import Paginator, EmptyPage, InvalidPage, PageNotAnInteger
 import datetime
@@ -63,49 +63,27 @@ def sales_list(request):
 def sales_detail(request, pk=None):
 	try:
 		sale = Sales.objects.get(pk=pk)
-		items = SoldItem.objects.filter(sales=sale)
 
-		# try:
-		# 	baritems = SoldItem.objects.filter(sales=sale, salepoint__name='bar')
-		# 	baritems_total = baritems.aggregate(Sum('total_cost'))['total_cost__sum']
-		# 	baritems_tax = baritems.aggregate(Sum('tax'))['tax__sum']
-		# 	baritems_discount = baritems.aggregate(Sum('discount'))['discount__sum']
-		# 	if not baritems.exists():
-		# 		raise Exception
-		# except Exception as e:
-		# 	baritems = None
-		# 	baritems_total = 0
-		# 	baritems_tax = 0
-		# 	baritems_discount = 0
-		#
-		# try:
-		# 	restitems = SoldItem.objects.filter(sales=sale, salepoint__name='restaurant')
-		# 	restitems_total = restitems.aggregate(Sum('total_cost'))['total_cost__sum']
-		# 	restitems_tax = restitems.aggregate(Sum('tax'))['tax__sum']
-		# 	restitems_discount = restitems.aggregate(Sum('discount'))['discount__sum']
-		#
-		# 	if not restitems.exists():
-		# 		raise Exception
-		# except Exception as e:
-		# 	restitems = None
-		# 	restitems_total = 0
-		# 	restitems_tax = 0
-		# 	restitems_discount = 0
+		sale_points = []
+		items = []
+		for n in SalePoint.objects.all():
+			sale_points.append(n.name)
+
+		all_sale_points = list(set(sale_points))
+
+		for i in all_sale_points:
+			sale_items = SoldItem.objects.filter(sales=sale, sale_point__name=i)
+			try:
+				totals = items.aggregate(Sum('total_cost'))['total_cost__sum']
+			except:
+				totals = 0
+			items.append({'name': i, 'items': sale_items, 'amount': totals})
 
 
 		data = {
 			'items': items,
 			'sale': sale,
-
-			# 'baritems':baritems,
-			# 'baritems_total':baritems_total,
-			# 'baritems_tax':baritems_tax,
-			# 'baritems_discount':baritems_discount,
-			#
-			# 'restitems':restitems,
-			# 'restitems_total':restitems_total,
-			# 'restitems_tax':restitems_tax,
-			# 'restitems_discount':restitems_discount
+			'epp': items
 		}
 		return TemplateResponse(request, 'dashboard/reports/sales/details.html',data)
 	except ObjectDoesNotExist as e:

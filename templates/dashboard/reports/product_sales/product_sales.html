@@ -55,9 +55,14 @@
                 <label>Sale Point</label>
               <div class="form-group">
                  <select class="bootstrap-select sales-point" style="display: none;" data-width="100%" tabindex="-98">
-                    <option value="all">All</option>
-                     <option value="bar">Bar</option>
-                     <option value="restaurant">Restaurant</option>
+                     {% if points %}
+                      <option value="all">All</option>
+                        {% for i in points %}
+                        <option value="{{i.name}}">{{i.name}}</option>
+                        {% endfor %}
+                     {% else %}
+                     <option value="none">No Sale Points</option>
+                     {% endif %}
                   </select>
               </div>
             </div>
@@ -100,7 +105,7 @@
       <div class="panel-body">
         <div class="row">
           <div class="col-md-12">
-              <div class="col-md-12"> <h5 class="text-center" style="font-weight:bold">All Item Sales</h5></div>
+              <div class="col-md-12"> <h5 class="text-center" style="font-weight:bold">ALL ITEM SALES</h5></div>
             <div class="table-responsives">
                 <table class="table  datatable-header-footer table-hover">
                   <caption style="margin-bottom: 10px;">
@@ -224,7 +229,7 @@ $(document).ready(function(){
         firstClass: 'first',
         }).on("page", function(event, num){
             $(".pages-nav").html("Page " + num +" of "+{{pn}});
-            $.get("{% url 'dashboard:product_sales_paginate' %}",{page:parseInt(num)},function(data){
+            $.get("{% url 'dashboard:product_sales_paginate' %}",{page:parseInt(num), point:'all'},function(data){
                $('#tb').html(data);
             });
     }).children('.pagination').addClass('pagination-flat pagination-sm');
@@ -289,7 +294,50 @@ $(document).ready(function(){
     });
 
     $('.sales-point').selectpicker().on('change', function(){
-        var sv = $(this).val();
+        var point = $(this).val();
+        var sv = $('.sales-category').find(":selected").val();
+        var date = $('.daterange-single').val();
+        var listSizeVal = $('.list-sz').find(":selected").val();
+        var searchData = $('.search_user').val();
+
+        if(listSizeVal == '0'){
+            listSizeVal  = 10
+        }
+
+        if(sv == 'none'){
+            sv = 'list'
+        }
+
+        if(point && date && listSizeVal && searchData && sv){
+           $.ajax({ url: "{% url 'dashboard:product_sales_search' %}",type: 'GET',data: {order:sv, page:1, size:listSizeVal, gid:date, q:searchData, point:point}, async:false,success: function(data){
+                  $('#pagination-div').html(data);
+           }});
+        }else if(point && listSizeVal && searchData && sv){
+           $.ajax({ url: "{% url 'dashboard:product_sales_search' %}",type: 'GET',data: {order:sv, page:1, size:listSizeVal, q:searchData, point:point}, async:false,success: function(data){
+                  $('#pagination-div').html(data);
+           }});
+        }else if(point && listSizeVal && date && sv){
+           $.ajax({ url: "{% url 'dashboard:product_sales_paginate' %}",type: 'GET',data: {order:sv, page:1, size:listSizeVal, gid:date, point:point}, async:false,success: function(data){
+                  $('#pagination-div').html(data);
+           }});
+        }else if(point && date && sv){
+         $.ajax({ url: "{% url 'dashboard:product_sales_paginate' %}",type: 'GET',data: {order:sv, page:1, size:listSizeVal, gid:date, point:point}, async:false,success: function(data){
+                  $('#pagination-div').html(data);
+            }});
+        }else if( point && searchData && sv){
+         $.ajax({ url: "{% url 'dashboard:product_sales_search' %}",type: 'GET',data: {order:sv, page:1, size:listSizeVal, gid:date,q:searchData, point:point}, async:false,success: function(data){
+                  $('#pagination-div').html(data);
+            }});
+        }else if( point && listSizeVal && sv){
+             $.ajax({ url: "{% url 'dashboard:product_sales_paginate' %}",type: 'GET',data: {order:sv, page:1, size:listSizeVal, point:point}, async:false,success: function(data){
+                      $('#pagination-div').html(data);
+             }});
+        }else{
+            $.ajax({ url: "{% url 'dashboard:product_sales_paginate' %}",type: 'GET',data: {order:sv, page:1, size:listSizeVal, point:point}, async:false,success: function(data){
+                      $('#pagination-div').html(data);
+             }});
+        }
+
     });
 
   $('.sales-category').selectpicker().on('change', function(){

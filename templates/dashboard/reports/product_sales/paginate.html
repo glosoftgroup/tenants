@@ -15,5 +15,8 @@
       </tr>
     {% endfor %}
      {% else %}
-     <tr><td colspan="5"><h2 class="text-center">No Products Sales Summary Available</h2></td></tr>
+      <tr><td colspan="5"><h2 class="text-center">No Products Sales Reports Available</h2></td></tr>
+      {% if margin %}
+       <tr><td colspan="6"><h2 class="text-center">No Products Sales Reports Available</h2></td></tr>
+     {% endif %}
     {% endif %}

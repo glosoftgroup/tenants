@@ -9,6 +9,7 @@ import logging
 from operator import itemgetter
 from ..views import staff_member_required
 from ...sale.models import Sales, SoldItem
+from ...salepoints.models import SalePoint
 from ...product.models import ProductVariant
 from ...decorators import permission_decorator, user_trail
 from ...utils import render_to_pdf, default_logo
@@ -41,10 +42,12 @@ def sales_list(request):
 			total_sales = paginator.page(1)
 		except EmptyPage:
 			total_sales = paginator.page(paginator.num_pages)
+
+		points = SalePoint.objects.all()
 		user_trail(request.user.name, 'accessed sales reports', 'view')
 		info_logger.info('User: ' + str(request.user.name) + ' accessed the view product sales report page')
 		return TemplateResponse(request, 'dashboard/reports/product_sales/product_sales.html',
-								{'pn': paginator.num_pages, 'sales': total_sales,
+								{'points':points, 'pn': paginator.num_pages, 'sales': total_sales,
 								 'date': datetime.datetime.strptime(last_date_of_sales, '%Y-%m-%d').strftime('%b %d, %Y')})
 	except ObjectDoesNotExist as e:
 		error_logger.error(e)
@@ -56,7 +59,6 @@ def sales_paginate(request):
 	page = int(request.GET.get('page'))
 	list_sz = request.GET.get('size')
 	p2_sz = request.GET.get('psize')
-	select_sz = request.GET.get('select_size')
 	date = request.GET.get('gid')
 	order = request.GET.get('order')
 	point = request.GET.get('point')
@@ -64,19 +66,26 @@ def sales_paginate(request):
 	today = today_formart.format('Y-m-d')
 	margin = False
 
+	if point and point != 'all':
+		all_items = SoldItem.objects.filter(sale_point__name__icontains=point)
+	else:
+		all_items = SoldItem.objects.all()
+
+	if point == 'all':
+		point = 'all item sales'
+
+	point = point.upper()
+
 	if date:
 		try:
-			if order == 'qlh':
-				sales = SoldItem.objects.filter(sales__created__contains=date). \
-					values('product_category', 'product_name').annotate(
-					c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
-					Sum('quantity')).order_by(
-					'quantity__sum')
-			elif order == 'mlh':
-				items = SoldItem.objects.filter(sales__created__contains=date). \
+			itms = all_items.filter(sales__created__contains=date). \
 					values('sku', 'product_category', 'product_name').annotate(
 					c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
 					Sum('quantity'))
+			if order == 'qlh':
+				sales = itms.order_by('quantity__sum')
+			elif order == 'mlh':
+				items = itms
 				total_items = []
 				for t in items:
 					product = ProductVariant.objects.get(sku=t['sku'])
@@ -96,10 +105,7 @@ def sales_paginate(request):
 				sales = sorted(total_items, key=itemgetter('unitMargin'))
 				margin = True
 			elif order == 'mhl':
-				items = SoldItem.objects.filter(sales__created__contains=date). \
-					values('sku', 'product_category', 'product_name').annotate(
-					c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
-					Sum('quantity'))
+				items = itms
 				total_items = []
 				for t in items:
 					product = ProductVariant.objects.get(sku=t['sku'])
@@ -119,9 +125,7 @@ def sales_paginate(request):
 				sales = sorted(total_items, key=itemgetter('unitMargin'), reverse=True)
 				margin = True
 			else:
-				sales = SoldItem.objects.filter(sales__created__contains=date).\
-					values('product_category','product_name').annotate(
-					c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by(
+				sales = itms.order_by(
 					'-quantity__sum')
 
 			if list_sz:
@@ -137,7 +141,7 @@ def sales_paginate(request):
 				paginator = Paginator(sales, int(p2_sz))
 				sales = paginator.page(page)
 				return TemplateResponse(request, 'dashboard/reports/product_sales/paginate.html',
-										{'date': datetime.datetime.strptime(date, '%Y-%m-%d').strftime(
+										{'point':point, 'date': datetime.datetime.strptime(date, '%Y-%m-%d').strftime(
 										 '%b %d, %Y'),
 										'margin':margin, 'order':order, 'sales': sales,'gid': date})
 
@@ -155,17 +159,14 @@ def sales_paginate(request):
 		try:
 			last_sale = Sales.objects.latest('id')
 			last_date_of_sales = DateFormat(last_sale.created).format('Y-m-d')
-			if order == 'qlh':
-				sales = SoldItem.objects.filter(sales__created__contains=last_date_of_sales). \
-					values('product_category', 'product_name').annotate(
-					c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
-					Sum('quantity')).order_by(
-					'quantity__sum')
-			elif order == 'mlh':
-				items = SoldItem.objects.filter(sales__created__contains=last_date_of_sales). \
+			itms = all_items.filter(sales__created__contains=last_date_of_sales). \
 					values('sku', 'product_category', 'product_name').annotate(
 					c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
 					Sum('quantity'))
+			if order == 'qlh':
+				sales = itms.order_by('quantity__sum')
+			elif order == 'mlh':
+				items = itms
 				total_items = []
 				for t in items:
 					product = ProductVariant.objects.get(sku=t['sku'])
@@ -185,10 +186,7 @@ def sales_paginate(request):
 				sales = sorted(total_items, key=itemgetter('unitMargin'))
 				margin = True
 			elif order == 'mhl':
-				items = SoldItem.objects.filter(sales__created__contains=last_date_of_sales). \
-					values('sku', 'product_category', 'product_name').annotate(
-					c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
-					Sum('quantity'))
+				items = itms
 				total_items = []
 				for t in items:
 					product = ProductVariant.objects.get(sku=t['sku'])
@@ -208,9 +206,7 @@ def sales_paginate(request):
 				sales = sorted(total_items, key=itemgetter('unitMargin'), reverse=True)
 				margin = True
 			else:
-				sales = SoldItem.objects.filter(sales__created__contains=last_date_of_sales). \
-					values('product_category','product_name').annotate(
-					c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by(
+				sales = itms.order_by(
 					'-quantity__sum')
 
 			if list_sz:
@@ -227,7 +223,7 @@ def sales_paginate(request):
 				paginator = Paginator(sales, int(p2_sz))
 				sales = paginator.page(page)
 				return TemplateResponse(request, 'dashboard/reports/product_sales/paginate.html',
-										{'margin':margin, 'order':order, 'sales': sales,
+										{'point':point, 'margin':margin, 'order':order, 'sales': sales,
 										 'date': datetime.datetime.strptime(last_date_of_sales,'%Y-%m-%d').strftime('%b %d, %Y')})
 
 			try:
@@ -238,7 +234,7 @@ def sales_paginate(request):
 				sales = paginator.page(1)
 			except EmptyPage:
 				sales = paginator.page(1)
-			return TemplateResponse(request, 'dashboard/reports/product_sales/paginate.html', {'margin':margin, 'order':order, 'sales': sales,
+			return TemplateResponse(request, 'dashboard/reports/product_sales/paginate.html', {'point':point, 'margin':margin, 'order':order, 'sales': sales,
 																							   'date': datetime.datetime.strptime(
 																								   last_date_of_sales,
 																								   '%Y-%m-%d').strftime(
@@ -271,23 +267,29 @@ def sales_search(request):
 			except:
 				date = DateFormat(datetime.datetime.today()).format('Y-m-d')
 
+		if point and point != 'all':
+			all_items = SoldItem.objects.filter(sale_point__name__icontains=point)
+		else:
+			all_items = SoldItem.objects.all()
 
+		if point == 'all':
+			point = 'all item sales'
+
+		point = point.upper()
 
 		if q is not None:
-			all_sales = SoldItem.objects.filter(
+			all_sales = all_items.filter(
 				Q(product_name__icontains=q) |
-				Q(product_category__icontains=q))
+				Q(product_category__icontains=q) |
+				Q(sale_point__name__icontains=q)).filter(sales__created__contains=date). \
+					values('sku', 'product_category','product_name'). \
+					annotate(c=Count('product_name', distinct=True)).annotate(Sum('total_cost')). \
+					annotate(Sum('quantity'))
 
 			if order == 'qlh':
-				sales = all_sales.filter(sales__created__contains=date). \
-					values('product_category','product_name'). \
-					annotate(c=Count('product_name', distinct=True)).annotate(Sum('total_cost')). \
-					annotate(Sum('quantity')).order_by('quantity__sum')
+				sales = all_sales.order_by('quantity__sum')
 			elif order == 'mlh':
-				items = all_sales.filter(sales__created__contains=date). \
-					values('sku', 'product_category', 'product_name').annotate(
-					c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
-					Sum('quantity'))
+				items = all_sales
 				total_items = []
 				for t in items:
 					product = ProductVariant.objects.get(sku=t['sku'])
@@ -307,10 +309,7 @@ def sales_search(request):
 				sales = sorted(total_items, key=itemgetter('unitMargin'))
 				margin = True
 			elif order == 'mhl':
-				items = all_sales.filter(sales__created__contains=date). \
-					values('sku', 'product_category', 'product_name').annotate(
-					c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
-					Sum('quantity'))
+				items = all_sales
 				total_items = []
 				for t in items:
 					product = ProductVariant.objects.get(sku=t['sku'])
@@ -330,16 +329,13 @@ def sales_search(request):
 				sales = sorted(total_items, key=itemgetter('unitMargin'), reverse=True)
 				margin = True
 			else:
-				sales = all_sales.filter(sales__created__contains=date). \
-					values('product_category', 'product_name'). \
-					annotate(c=Count('product_name', distinct=True)).annotate(Sum('total_cost')). \
-					annotate(Sum('quantity')).order_by('-quantity__sum')
+				sales = all_sales.order_by('-quantity__sum')
 
 			if p2_sz:
 				paginator = Paginator(sales, int(p2_sz))
 				sales = paginator.page(page)
 				return TemplateResponse(request, 'dashboard/reports/product_sales/paginate.html',
-										{'margin':margin, 'order':order, 'sales': sales, 'date': datetime.datetime.strptime(date, '%Y-%m-%d').strftime('%b %d, %Y')})
+										{'point':point, 'margin':margin, 'order':order, 'sales': sales, 'date': datetime.datetime.strptime(date, '%Y-%m-%d').strftime('%b %d, %Y')})
 
 			if list_sz:
 				paginator = Paginator(sales, int(list_sz))
@@ -370,7 +366,7 @@ def sales_search(request):
 			if p2_sz:
 				sales = paginator.page(page)
 				return TemplateResponse(request, 'dashboard/reports/product_sales/paginate.html',
-										{'margin':margin, 'order':order, 'sales': sales,'date': datetime.datetime.strptime(date, '%Y-%m-%d').strftime('%b %d, %Y')})
+										{'point':point, 'margin':margin, 'order':order, 'sales': sales,'date': datetime.datetime.strptime(date, '%Y-%m-%d').strftime('%b %d, %Y')})
 
 			return TemplateResponse(request, 'dashboard/reports/product_sales/search.html',
 									{'point':point, 'margin':margin, 'order':order, 'sales': sales, 'pn': paginator.num_pages, 'sz': sz,
@@ -383,6 +379,7 @@ def sales_list_pdf( request ):
 		q = request.GET.get( 'q' )
 		gid = request.GET.get('gid')
 		order = request.GET.get('order')
+		point = request.GET.get('point')
 		margin = False
 
 		if gid:
@@ -396,23 +393,29 @@ def sales_list_pdf( request ):
 			except:
 				date = DateFormat(datetime.datetime.today()).format('Y-m-d')
 
-		if q is not None:
-			all_sales = SoldItem.objects.filter(
-				Q(product_name__icontains=q) |
-				Q(product_category__icontains=q))
+		if point and point != 'all':
+			all_items = SoldItem.objects.filter(sale_point__name__icontains=point)
 		else:
-			all_sales = SoldItem.objects.all()
+			all_items = SoldItem.objects.all()
+
+		if q is not None:
+			all_sales = all_items.filter(
+				Q(product_name__icontains=q) |
+				Q(product_category__icontains=q) |
+				Q(sale_point__name__icontains=q)).filter(sales__created__contains=date). \
+				values('sku', 'product_category', 'product_name'). \
+				annotate(c=Count('product_name', distinct=True)).annotate(Sum('total_cost')). \
+				annotate(Sum('quantity'))
+		else:
+			all_sales = all_items.filter(sales__created__contains=date). \
+				values('sku', 'product_category', 'product_name'). \
+				annotate(c=Count('product_name', distinct=True)).annotate(Sum('total_cost')). \
+				annotate(Sum('quantity'))
 
 		if order == 'qlh':
-			sales = all_sales.filter(sales__created__contains=date). \
-				values('product_category', 'product_name'). \
-				annotate(c=Count('product_name', distinct=True)).annotate(Sum('total_cost')). \
-				annotate(Sum('quantity')).order_by('quantity__sum')
+			sales = all_sales.order_by('quantity__sum')
 		elif order == 'mlh':
-			items = all_sales.filter(sales__created__contains=date). \
-				values('sku', 'product_category', 'product_name').annotate(
-				c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
-				Sum('quantity'))
+			items = all_sales
 			total_items = []
 			for t in items:
 				product = ProductVariant.objects.get(sku=t['sku'])
@@ -432,10 +435,7 @@ def sales_list_pdf( request ):
 			sales = sorted(total_items, key=itemgetter('unitMargin'))
 			margin = True
 		elif order == 'mhl':
-			items = all_sales.filter(sales__created__contains=date). \
-				values('sku', 'product_category', 'product_name').annotate(
-				c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
-				Sum('quantity'))
+			items = all_sales
 			total_items = []
 			for t in items:
 				product = ProductVariant.objects.get(sku=t['sku'])
@@ -455,10 +455,12 @@ def sales_list_pdf( request ):
 			sales = sorted(total_items, key=itemgetter('unitMargin'), reverse=True)
 			margin = True
 		else:
-			sales = all_sales.filter(sales__created__contains=date). \
-				values('product_category','product_name'). \
-				annotate(c=Count('product_name', distinct=True)).annotate(Sum('total_cost')). \
-				annotate(Sum('quantity')).order_by('-quantity__sum')
+			sales = all_sales.order_by('-quantity__sum')
+
+		if point == 'all':
+			point = 'all item sales'
+
+		point = point.upper()
 
 		img = default_logo()
 		data = {
@@ -468,7 +470,8 @@ def sales_list_pdf( request ):
 			'image': img,
 			'gid':gid,
 			'date': datetime.datetime.strptime(date, '%Y-%m-%d').strftime('%b %d, %Y'),
-			'margin':margin
+			'margin':margin,
+			'point':point
 		}
 		pdf = render_to_pdf('dashboard/reports/product_sales/pdf/list.html', data)
 		return HttpResponse(pdf, content_type='application/pdf')

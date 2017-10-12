@@ -7,12 +7,8 @@
           <div class="col-md-12">
               <div class="col-md-12s">
                   <h5 class="text-center" style="font-weight:bold">
-                      {% if point == 'restaurant' %}
-                        Restaurant Item Sales
-                      {% elif point == 'bar' %}
-                        Bar Item Sales
-                      {% else %}
-                        All Item Sales
+                      {% if point %}
+                        {{point}}
                       {% endif %}
                   </h5>
               </div>
@@ -47,7 +43,10 @@
                           </tr>
                         {% endfor %}
                          {% else %}
-                         <tr><td colspan="5"><h2 class="text-center">No Products Sales Summary Available</h2></td></tr>
+                         <tr><td colspan="5"><h2 class="text-center">No Products Sales Reports Available</h2></td></tr>
+                          {% if margin %}
+                           <tr><td colspan="6"><h2 class="text-center">No Products Sales Reports Available</h2></td></tr>
+                         {% endif %}
                         {% endif %}
                         </tbody>
 
@@ -121,12 +120,12 @@
                 $(".pages-nav2").html("Page " + num +" of "+'{{pn}}'); 
                 var gid = '{{gid}}';
                 if(gid == 0){
-                    $.get("{% url 'dashboard:product_sales_paginate' %}",{order:'{{order}}', page:num, psize:'{{sz}}'},function(data){
+                    $.get("{% url 'dashboard:product_sales_paginate' %}",{order:'{{order}}', page:num, psize:'{{sz}}', point:'{{point}}' },function(data){
                       $('#p-tb').html(data);
                       console.log('without gid '+data);
                     });
                 }else{
-                    $.get("{% url 'dashboard:product_sales_paginate' %}",{order:'{{order}}', page:num, psize:'{{sz}}',gid:'{{gid}}'},function(data){
+                    $.get("{% url 'dashboard:product_sales_paginate' %}",{order:'{{order}}', page:num, psize:'{{sz}}',gid:'{{gid}}', point:'{{point}}' },function(data){
                        $('#p-tb').html(data);
                     });
                 }
