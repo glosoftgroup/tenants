@@ -99,7 +99,7 @@
                               <tbody id="tb">
                                  {% for item in i.items %}
                                     <tr>
-                                    <td>{{item.orders.created|date:"d-m-Y H:i a"}}</td>
+                                    <td>{{item.sales.created|date:"d-m-Y H:i a"}}</td>
                                     <td>{{item.product_name}}</td>
                                     <td>{{item.unit_cost}}</td>
                                     <td>{{item.quantity}}</td>
@@ -133,7 +133,7 @@
                               <tbody id="tb">
                                  {% for item in i.items %}
                                     <tr>
-                                    <td>{{item.orders.created|date:"d-m-Y H:i a"}}</td>
+                                    <td>{{item.sales.created|date:"d-m-Y H:i a"}}</td>
                                     <td>{{item.product_name}}</td>
                                     <td>{{item.unit_cost}}</td>
                                     <td>{{item.quantity}}</td>

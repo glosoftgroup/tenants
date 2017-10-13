@@ -231,6 +231,7 @@ def orders_paginate(request):
 										 'tsum': tsum})
 			else:
 				paginator = Paginator(orders, 10)
+
 			if p2_sz:
 				paginator = Paginator(orders, int(p2_sz))
 				orders = paginator.page(page)

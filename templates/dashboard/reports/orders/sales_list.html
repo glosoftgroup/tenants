@@ -223,7 +223,7 @@ $(document).ready(function(){
         var listSizeVal = $('.list-sz').find(":selected").val();
         var searchData = $('.search_user').val();
 
-        if(listSizeVal == '0'){
+        if(!listSizeVal || listSizeVal == '0'){
             listSizeVal  = 10
         }
 

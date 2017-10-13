@@ -82,7 +82,7 @@ def sales_detail(request, pk=None, point=None):
 		for i in all_sale_points:
 			sale_items = SoldItem.objects.filter(sales=sale, sale_point__name=i)
 			try:
-				totals = items.aggregate(Sum('total_cost'))['total_cost__sum']
+				totals = sale_items.aggregate(Sum('total_cost'))['total_cost__sum']
 			except:
 				totals = 0
 			items.append({'name': i, 'items': sale_items, 'amount': totals})
@@ -160,6 +160,7 @@ def sales_paginate(request):
 						Sum('quantity'))
 					setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
 					setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+					setattr(i, 'total_tax', p.aggregate(Sum('tax'))['tax__sum'])
 
 					if p.exists():
 						sales.append(i)
@@ -212,6 +213,7 @@ def sales_paginate(request):
 						Sum('quantity'))
 					setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
 					setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+					setattr(i, 'total_tax', p.aggregate(Sum('tax'))['tax__sum'])
 
 					if p.exists():
 						sales.append(i)
@@ -285,6 +287,7 @@ def sales_search(request):
 							Sum('quantity'))
 						setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
 						setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+						setattr(i, 'total_tax', p.aggregate(Sum('tax'))['tax__sum'])
 
 						if p.exists():
 							sales.append(i)
@@ -328,6 +331,7 @@ def sales_search(request):
 							Sum('quantity'))
 						setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
 						setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+						setattr(i, 'total_tax', p.aggregate(Sum('tax'))['tax__sum'])
 
 						if p.exists():
 							sales.append(i)
