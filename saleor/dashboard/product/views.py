@@ -9,7 +9,7 @@ from django.template.response import TemplateResponse
 from django.utils.http import is_safe_url
 from django.utils.translation import pgettext_lazy
 from django.views.decorators.http import require_http_methods
-
+import json
 from . import forms
 from ...core.utils import get_paginator_items
 from ...purchase.models import (
@@ -57,8 +57,8 @@ def re_order(request):
         info_logger.info('User: ' + str(request.user.name) + ' accessed reorder page')
 
         data ={
-            "low_stock":low_stock,
-            "totalp":paginator.num_pages,
+            "low_stock": low_stock,
+            "totalp": paginator.num_pages,
             'pn': paginator.num_pages
                }
         if request.GET.get('initial'):
@@ -87,8 +87,7 @@ def reorder_pagination(request):
     if p2_sz:
         paginator = Paginator(low_stock, int(p2_sz))
         low_stock = paginator.page(page)
-        return TemplateResponse(request, 'dashboard/re_order/pagination/paginate.html', {"low_stock":low_stock,'pn': paginator.num_pages})
-
+        return TemplateResponse(request, 'dashboard/re_order/pagination/paginate.html', {"low_stock": low_stock,'pn': paginator.num_pages})
     try:
         low_stock = paginator.page(page)
     except PageNotAnInteger:
@@ -98,6 +97,7 @@ def reorder_pagination(request):
     except EmptyPage:
         low_stock = paginator.page(paginator.num_pages)
     return TemplateResponse(request, 'dashboard/re_order/pagination/paginate.html', {"low_stock":low_stock,'pn': paginator.num_pages})
+
 
 @staff_member_required
 def reorder_search(request):
@@ -137,7 +137,6 @@ def reorder_search(request):
                                     {"low_stock":low_stock, 'pn': paginator.num_pages, 'sz': sz, 'q': q})
 
 
-import json
 @staff_member_required
 @permission_decorator('product.add_stock')
 def add_reorder_stock(request,pk=None): 
@@ -170,7 +169,6 @@ def add_reorder_stock(request,pk=None):
                       
             return HttpResponse('success!')
         variant_id = request.POST.get('variant_id')
-        #return HttpResponse(variant_id)
         variant = ProductVariant.objects.get(pk=int(variant_id))
         ctx = {"variant":variant}
         user_trail(request.user.name, 'added reorder level', 'add')
@@ -188,11 +186,9 @@ def request_order(request):
         send_email = emailit.api.send_mail(
             supplier.email, context, 'order/emails/confirm_email',
             from_email=settings.ORDER_FROM_EMAIL)
-        # if send_email:
-        #   if purchase_order:
-        #            purchase_order.change_status('sent')
         return HttpResponse(send_email)
     return HttpResponse('Bad request')
+
 
 @staff_member_required
 def re_order_form(request, pk):
@@ -212,7 +208,7 @@ def re_order_form(request, pk):
             print items
         ctx = {'items':items,'order':qset,"product":product,'suppliers':suppliers,'variants':variants,'attributes':attributes}
     else:
-        ctx = {"product":product,'suppliers':suppliers,'variants':variants,'attributes':attributes}
+        ctx = {"product": product,'suppliers':suppliers,'variants':variants,'attributes':attributes}
     return TemplateResponse(request, 'dashboard/re_order/re_order_form.html', ctx)    
 
 # @staff_member_required
@@ -230,6 +226,7 @@ def re_order_form(request, pk):
 #       for pc in classes.object_list]
 #   ctx = {'form': form, 'product_classes': classes}
 #   return TemplateResponse(request, 'dashboard/product/class_list.html', ctx)
+
 
 @staff_member_required
 @permission_decorator('product.view_productclass')

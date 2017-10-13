@@ -56,16 +56,32 @@
   </div>
   <!-- ./inventory -->
   {% endif %}
+      {% if perms.customer.view_customer %}
+  <!-- customer management -->
+  <div class="col-md-3 hvr-float-shadow ">
+  <a href="{% url 'salepoints:salepoints' %}">
+ <div class="thumbnail no-padding">
+        <div class="thumb bg-blue">
+          <img src="{% static 'backend/images/landingpage/sale-point.png' %}" alt="">
+        </div>
+        <div class="caption text-center no-padding">
+          <h6 class="text-semibold no-margin">Sale Points </h6>
+        </div>
+     </div>
+    </a>
+  </div>
+  <!-- ./customer -->
+  {% endif %}
   {% if perms.customer.view_customer %}
   <!-- customer management -->
   <div class="col-md-3 hvr-float-shadow ">
-  <a href="{% url 'dashboard:customers' %}">
+  <a href="{% url 'dashboard:table-list' %}">
  <div class="thumbnail no-padding">
         <div class="thumb bg-blue">
-          <img src="{% static 'backend/images/landingpage/customers.png' %}" alt="">   
+          <img src="{% static 'backend/images/landingpage/tables.png' %}" alt="">
         </div>              
         <div class="caption text-center no-padding">
-          <h6 class="text-semibold no-margin">Customer </h6>          
+          <h6 class="text-semibold no-margin">Tables </h6>
         </div>
      </div>
     </a>
@@ -127,7 +143,7 @@
           <img src="{% static 'backend/images/landingpage/drawer-cash.png' %}" alt="">       
         </div>              
         <div class="caption text-center no-padding">
-          <h6 class="text-semibold no-margin">Drawer Cash </h6>          
+          <h6 class="text-semibold no-margin">Cash Drawer</h6>
         </div>
      </div>
     </a>
