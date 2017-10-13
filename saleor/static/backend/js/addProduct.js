@@ -472,7 +472,6 @@ $(function(){
       stockInvoiceId.nextAll('.help-block:first').addClass('text-danger').html('');
     }
     if(!variant){
-      //alertUser('Please select a variant','bg-danger','Field Required!');
       stockVariantId.focus();
       stockVariantId.prop('autofocus');      
       stockVariantId.nextAll('.help-block:first').addClass('text-danger').html('Field required');
@@ -552,7 +551,7 @@ $(function(){
 * ---------------------------------------------------------------------------- */
 
 $(function(){
-  var addNewStockBtn = $('#addNewStockBtn');
+  var addNewStockBtn = $('#xaddNewStockBtn');
   var modalIds = $('#modal_stocks');  
   var addStockForm = $('.addstockresults');
 

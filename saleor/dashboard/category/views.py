@@ -214,7 +214,7 @@ def category_create(request, root_pk=None):
                    }
             return TemplateResponse(request, 'dashboard/category/_category_add_success.html', ctx)    
         if root_pk:
-            return redirect('dashboard:category-list', root_pk=root_pk)
+            return redirect('dashboard:category-list')#, root_pk=root_pk)
         else:
             return redirect('dashboard:category-list')
     ctx = {'category': category,
@@ -239,7 +239,7 @@ def category_edit(request, root_pk=None):
             pgettext_lazy(
                 'Dashboard message', 'Updated category %s') % category)
         if root_pk:
-            return redirect('dashboard:category-list', root_pk=root_pk)
+            return redirect('dashboard:category-list')#, root_pk=root_pk)
         else:
             return redirect('dashboard:category-list')
     elif form.errors:

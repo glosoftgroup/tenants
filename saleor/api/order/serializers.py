@@ -219,8 +219,11 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
                 raise ValidationError("Status error. Amount paid is less than balance.")
             else:
                 return value
+        elif status == "cancelled":
+            pass
+            return value
         else:
-            raise ValidationError('Enter correct Status. Expecting either fully-paid/payment-pending')
+            raise ValidationError('Enter correct Status. Expecting either fully-paid/payment-pending or cancelled')
 
     def validate_total_net(self, value):
         data = self.get_initial()
@@ -266,6 +269,7 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
         if instance.amount_paid >= instance.total_net:
             instance.status = 'fully-paid'
         else:
+            print validated_data.get('status')
             instance.status = validated_data.get('status', instance.status)
         instance.save()
         return instance
