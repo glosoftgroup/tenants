@@ -246,7 +246,7 @@ def orders_paginate(request):
 				orders = paginator.page(1)
 			return TemplateResponse(request, 'dashboard/reports/orders/paginate.html', {'point_pk':point_pk,'orders': orders})
 		except ObjectDoesNotExist as e:
-			return TemplateResponse(request, 'dashboard/reports/orders/p2.html', {'point':point, 'point_pk':point_pk, 'date': date})
+			return TemplateResponse(request, 'dashboard/reports/orders/p2.html', {'point':point, 'date': date})
 
 
 @staff_member_required

@@ -235,7 +235,8 @@ def sales_paginate(request):
 																								   '%Y-%m-%d').strftime(
 																								   '%b %d, %Y')})
 		except ObjectDoesNotExist as e:
-			return TemplateResponse(request, 'dashboard/reports/product_sales/p2.html', {'point':point, 'date': datetime.datetime.strptime(last_date_of_sales, '%Y-%m-%d').strftime('%b %d, %Y')})
+			return TemplateResponse(request, 'dashboard/reports/product_sales/p2.html', {'point':point})
+
 
 
 @staff_member_required
