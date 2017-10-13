@@ -24,7 +24,7 @@ urlpatterns = [
 		url( r'^sales/prs/paginate/$', product_sales.sales_paginate, name = 'product_sales_paginate'),
 		url( r'^sales/prs/search/$', product_sales.sales_search, name = 'product_sales_search' ),
 		url( r'^sales/prs/pdf/$', product_sales.sales_list_pdf, name = 'product_sales_list_pdf' ),
-		url(r'^detail/(?P<pk>[0-9]+)/$', permission_required('reports.view_sale_reports', login_url='not_found')
+		url(r'^detail/(?P<pk>[0-9]+)/(?P<point>[0-9]+)/$', permission_required('reports.view_sale_reports', login_url='not_found')
 			(views.sales_detail), name='sale-detail'),
 
 		# Sales Tax
@@ -59,12 +59,12 @@ urlpatterns = [
 
 		url(r'^orders/$', permission_required('reports.view_sale_reports', login_url='not_found')
 			(orders.orders_list), name='orders_list'),
-		url(r'^ords/detail/(?P<pk>[0-9]+)/$', permission_required('reports.view_sale_reports', login_url='not_found')
+		url(r'^ords/detail/(?P<pk>[0-9]+)/(?P<point>[0-9]+)/$', permission_required('reports.view_sale_reports', login_url='not_found')
 			(orders.orders_detail), name='order-detail'),
 		url( r'^orders/search/$', orders.orders_search, name = 'orders_search' ),
 		url( r'^orders/paginate/$', orders.orders_paginate, name = 'orders_paginate'),
 		url(r'^orders/list/pdf/$', orders.orders_list_pdf, name='reports_orders_list_pdf'),
-		url(r'^orders/pdf/detail/(?P<pk>[0-9]+)/$', permission_required('reports.view_sale_reports', login_url='not_found')
+		url(r'^orders/pdf/detail/(?P<pk>[0-9]+)/(?P<point>[0-9]+)/$', permission_required('reports.view_sale_reports', login_url='not_found')
 			(orders.order_detail_pdf), name='pdf-order-detail'),
 
 		url(r'^reports/sales/list/pdf/$', pdfs.sales_list_pdf, name='reports_sales_list_pdf'),

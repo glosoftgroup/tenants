@@ -5,8 +5,10 @@
           <div class="panel-body">
               <div class="col-md-12s">
                   <h5 class="text-center" style="font-weight:bold">
-                      {% if point %}
-                        {{point}}
+                      {% if point == 'all'%}
+                        ALL ITEM SALES
+                      {% else %}
+                        {{point|upper}}
                       {% endif %}
                   </h5>
               </div>

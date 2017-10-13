@@ -4,13 +4,13 @@
  {% if orders %}
     {% for order in orders %}
       <tr class='clickable-row' id="{{sale.pk }}">
-        <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.created|date:"d-m-Y H:i a"}}</td>
-        <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.invoice_number }}</td>
-        <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.get_status|title }}</td>
-        <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{ order.sale_point.name }}</td>
-        <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{ order.table.name }}</td>
-        <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.quantity}}</td>
-        <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}"><span class="pull-right">{{order.total_net|intcomma }}</span></td>
+        <<td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk point=point.pk %}">{{order.created|date:"d-m-Y H:i a"}}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk point=point_pk %}">{{order.invoice_number }}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk point=point_pk %}">{{order.get_status|title }}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk point=point_pk %}">{{ order.sale_point.name }}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk point=point_pk %}">{{ order.table.name }}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk point=point_pk %}">{{order.quantity}}</td>
+                            <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk point=point_pk %}"><span class="pull-right">{{order.total_net|intcomma }}</span></td>
       </tr>
     {% endfor %}
 

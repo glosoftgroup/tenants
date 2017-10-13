@@ -52,15 +52,23 @@ def sales_list(request):
 			total_sales = paginator.page(1)
 		except EmptyPage:
 			total_sales = paginator.page(paginator.num_pages)
+		points = SalePoint.objects.all()
 		user_trail(request.user.name, 'accessed sales reports', 'view')
 		info_logger.info('User: ' + str(request.user.name) + ' accessed the view sales report page')
-		return TemplateResponse(request, 'dashboard/reports/sales/sales_list.html',{'pn': paginator.num_pages, 'sales': total_sales, "total_sales_amount":total_sales_amount, "total_tax_amount":total_tax_amount,"date":last_date_of_sales})
+		return TemplateResponse(request, 'dashboard/reports/sales/sales_list.html',{'points':points, 'pn': paginator.num_pages, 'sales': total_sales, "total_sales_amount":total_sales_amount, "total_tax_amount":total_tax_amount,"date":last_date_of_sales})
 	except ObjectDoesNotExist as e:
 		error_logger.error(e)
 
 @staff_member_required
 @permission_decorator('reports.view_sale_reports')
-def sales_detail(request, pk=None):
+def sales_detail(request, pk=None, point=None):
+	if point == '0':
+		sale_point = None
+		print 'true'
+	else:
+		print 'false'
+		sale_point = SalePoint.objects.get(pk=int(point))
+
 	try:
 		sale = Sales.objects.get(pk=pk)
 
@@ -83,7 +91,9 @@ def sales_detail(request, pk=None):
 		data = {
 			'items': items,
 			'sale': sale,
-			'epp': items
+			'epp': items,
+			'point': sale_point,
+			'point_pk': point
 		}
 		return TemplateResponse(request, 'dashboard/reports/sales/details.html',data)
 	except ObjectDoesNotExist as e:
@@ -124,9 +134,8 @@ def sales_paginate(request):
 	page = int(request.GET.get('page'))
 	list_sz = request.GET.get('size')
 	p2_sz = request.GET.get('psize')
-	select_sz = request.GET.get('select_size')
+	point = request.GET.get('point')
 	date = request.GET.get('gid')
-	sales = Sales.objects.all().order_by('-id')
 	today_formart = DateFormat(datetime.date.today())
 	today = today_formart.format('Y-m-d')
 	ts = Sales.objects.filter(created__icontains=today)
@@ -140,25 +149,53 @@ def sales_paginate(request):
 			all_salesd = Sales.objects.filter(created__icontains=date).order_by('-id')
 			that_date_sum = Sales.objects.filter(created__contains=date).aggregate(Sum('total_net'))
 			sales = []
-			for sale in all_salesd:
-				quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
-				setattr(sale, 'quantity', quantity['c'])
-				sales.append(sale)
+			# for sale in all_salesd:
+			# 	quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
+			# 	setattr(sale, 'quantity', quantity['c'])
+			# 	sales.append(sale)
+			if point and point != 'all':
+				for i in Sales.objects.filter(created__contains=date):
+					p = SoldItem.objects.filter(sales__pk=i.pk, sale_point__name=point).annotate(
+						c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+						Sum('quantity'))
+					setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+					setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+
+					if p.exists():
+						sales.append(i)
+				point = SalePoint.objects.get(name=point)
+				point_pk=point.pk
+			else:
+				for sale in all_salesd:
+					quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
+					setattr(sale, 'quantity', quantity['c'])
+					sales.append(sale)
+				point_pk = 0
+				point = point
+
+			if list_sz:
+				paginator = Paginator(sales, int(list_sz))
+				sales = paginator.page(page)
+				return TemplateResponse(request, 'dashboard/reports/sales/p2.html',
+										{'point':point, 'point_pk':point_pk, 'sales': sales, 'pn': paginator.num_pages, 'sz': list_sz, 'gid': date,
+										 'tsum': tsum})
+			else:
+				paginator = Paginator(sales, 10)
 
 			if p2_sz and date:
 				paginator = Paginator(sales, int(p2_sz))
 				sales = paginator.page(page)
-				return TemplateResponse(request,'dashboard/reports/sales/paginate.html',{'sales':sales, 'gid':date})
+				return TemplateResponse(request,'dashboard/reports/sales/paginate.html',{'point_pk':point_pk, 'sales':sales, 'gid':date})
 
 			paginator = Paginator(sales, 10)
 			sales = paginator.page(page)
 			return TemplateResponse(request,'dashboard/reports/sales/p2.html',
-				{'sales':sales, 'pn':paginator.num_pages,'sz':10,'gid':date,
+				{'point':point, 'point_pk':point_pk,'sales':sales, 'pn':paginator.num_pages,'sz':10,'gid':date,
 				'total_sales':total_sales,'total_tax':total_tax,'tsum':tsum,
 				'that_date_sum':that_date_sum, 'date':date, 'today':today})
 
 		except ObjectDoesNotExist as e:
-			return TemplateResponse(request, 'dashboard/reports/sales/p2.html',{'date': date})
+			return TemplateResponse(request, 'dashboard/reports/sales/p2.html',{'point':point, 'point_pk':point_pk,'date': date})
 
 	else:
 		try:
@@ -168,31 +205,46 @@ def sales_paginate(request):
 			total_sales_amount = all_sales.aggregate(Sum('total_net'))
 			total_tax_amount = all_sales.aggregate(Sum('total_tax'))
 			sales = []
-			for sale in all_sales:
-				quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
-				setattr(sale, 'quantity', quantity['c'])
-				sales.append(sale)
+			if point and point != 'all':
+				for i in Sales.objects.filter(created__contains=last_date_of_sales):
+					p = SoldItem.objects.filter(sales__pk=i.pk, sale_point__name=point).annotate(
+						c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+						Sum('quantity'))
+					setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+					setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+
+					if p.exists():
+						sales.append(i)
+				point = SalePoint.objects.get(name=point)
+				point_pk = point.pk
+			else:
+				for sale in all_sales:
+					quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
+					setattr(sale, 'quantity', quantity['c'])
+					sales.append(sale)
+				point = point
+				point_pk = 0
 
 			if list_sz:
 				paginator = Paginator(sales, int(list_sz))
 				sales = paginator.page(page)
-				return TemplateResponse(request,'dashboard/reports/sales/p2.html',{'sales':sales, 'pn':paginator.num_pages,'sz':list_sz, 'gid':0, 'total_sales':total_sales,'total_tax':total_tax, 'tsum':tsum})
+				return TemplateResponse(request, 'dashboard/reports/sales/p2.html',
+										{'point':point, 'point_pk':point_pk, 'sales': sales, 'pn': paginator.num_pages, 'sz': list_sz, 'gid': 0,
+										 'tsum': tsum})
 			else:
 				paginator = Paginator(sales, 10)
+
 			if p2_sz:
 				paginator = Paginator(sales, int(p2_sz))
 				sales = paginator.page(page)
-				return TemplateResponse(request,'dashboard/reports/sales/paginate.html',{'sales':sales})
+				return TemplateResponse(request,'dashboard/reports/sales/paginate.html',{'point_pk':point_pk,'sales':sales})
 
-			try:
-				sales = paginator.page(page)
-			except PageNotAnInteger:
-				sales = paginator.page(1)
-			except InvalidPage:
-				sales = paginator.page(1)
-			except EmptyPage:
-				sales = paginator.page(1)
-			return TemplateResponse(request,'dashboard/reports/sales/paginate.html',{'sales':sales})
+			paginator = Paginator(sales, 10)
+			sales = paginator.page(page)
+			return TemplateResponse(request, 'dashboard/reports/sales/p2.html',
+									{'point': point, 'point_pk': point_pk, 'sales': sales, 'pn': paginator.num_pages,
+									 'sz': 10, 'gid': date,
+									 'total_sales': total_sales, 'total_tax': total_tax, 'tsum': tsum, 'date': date, 'today': today})
 		except ObjectDoesNotExist as e:
 			return TemplateResponse(request, 'dashboard/reports/sales/p2.html', {'date': date})
 
@@ -202,6 +254,7 @@ def sales_search(request):
 		page = int(request.GET.get('page', 1))
 		list_sz = request.GET.get('size')
 		p2_sz = request.GET.get('psize')
+		point = request.GET.get('point')
 		q = request.GET.get( 'q' )
 		if list_sz is None:
 			sz = 10
@@ -221,48 +274,87 @@ def sales_search(request):
 
 			if request.GET.get('gid'):
 				csales = all_sales.filter(created__icontains=request.GET.get('gid'))
-				for sale in csales:
-					quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
-					setattr(sale, 'quantity', quantity['c'])
-					sales.append(sale)
+				# for sale in csales:
+				# 	quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
+				# 	setattr(sale, 'quantity', quantity['c'])
+				# 	sales.append(sale)
+				if point and point != 'all':
+					for i in csales:
+						p = SoldItem.objects.filter(sales__pk=i.pk, sale_point__name=point).annotate(
+							c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+							Sum('quantity'))
+						setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+						setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+
+						if p.exists():
+							sales.append(i)
+					point = SalePoint.objects.get(name=point)
+					point_pk = point.pk
+				else:
+					for sale in csales:
+						quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
+						setattr(sale, 'quantity', quantity['c'])
+						sales.append(sale)
+					point_pk = 0
+					point = point
 
 				if p2_sz:
 					paginator = Paginator(sales, int(p2_sz))
 					sales = paginator.page(page)
-					return TemplateResponse(request, 'dashboard/reports/sales/paginate.html', {'sales': sales})
+					return TemplateResponse(request, 'dashboard/reports/sales/paginate.html', {'point_pk':point_pk, 'sales': sales})
 
 				if list_sz:
 					paginator = Paginator(sales, int(list_sz))
 					sales = paginator.page(page)
 					return TemplateResponse(request, 'dashboard/reports/sales/search.html',
-											{'sales': sales, 'pn': paginator.num_pages, 'sz': list_sz,
+											{'point_pk':point_pk, 'point':point, 'sales': sales, 'pn': paginator.num_pages, 'sz': list_sz,
 											 'gid': request.GET.get('gid'), 'q': q})
 
 				paginator = Paginator(sales, 10)
 				sales = paginator.page(page)
 				return TemplateResponse(request, 'dashboard/reports/sales/search.html',
-										{'sales': sales, 'pn': paginator.num_pages, 'sz': sz,
+										{'point_pk':point_pk, 'point':point, 'sales': sales, 'pn': paginator.num_pages, 'sz': sz,
 										 'gid': request.GET.get('gid')})
 
 			else:
-				for sale in all_sales:
-					quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
-					setattr(sale, 'quantity', quantity['c'])
-					sales.append(sale)
+				# for sale in all_sales:
+				# 	quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
+				# 	setattr(sale, 'quantity', quantity['c'])
+				# 	sales.append(sale)
+				if point and point != 'all':
+					for i in all_sales:
+						p = SoldItem.objects.filter(sales__pk=i.pk, sale_point__name=point).annotate(
+							c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+							Sum('quantity'))
+						setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+						setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+
+						if p.exists():
+							sales.append(i)
+					point = SalePoint.objects.get(name=point)
+					point_pk = point.pk
+				else:
+					for sale in all_sales:
+						quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
+						setattr(sale, 'quantity', quantity['c'])
+						sales.append(sale)
+					point_pk = 0
+					point = point
+
 
 				if list_sz:
 					print ('lst')
 					paginator = Paginator(sales, int(list_sz))
 					sales = paginator.page(page)
 					return TemplateResponse(request, 'dashboard/reports/sales/search.html',
-											{'sales': sales, 'pn': paginator.num_pages, 'sz': list_sz, 'gid': 0,
+											{'point_pk':point_pk,'point':point, 'sales': sales, 'pn': paginator.num_pages, 'sz': list_sz, 'gid': 0,
 											 'q': q})
 
 				if p2_sz:
 					print ('pst')
 					paginator = Paginator(sales, int(p2_sz))
 					sales = paginator.page(page)
-					return TemplateResponse(request, 'dashboard/reports/sales/paginate.html', {'sales': sales})
+					return TemplateResponse(request, 'dashboard/reports/sales/paginate.html', {'point_pk':point_pk, 'sales': sales})
 
 				paginator = Paginator(sales, 10)
 				try:
@@ -275,10 +367,10 @@ def sales_search(request):
 					sales = paginator.page(paginator.num_pages)
 				if p2_sz:
 					sales = paginator.page(page)
-					return TemplateResponse(request, 'dashboard/reports/sales/paginate.html', {'sales': sales})
+					return TemplateResponse(request, 'dashboard/reports/sales/paginate.html', {'point_pk':point_pk, 'sales': sales})
 
 				return TemplateResponse(request, 'dashboard/reports/sales/search.html',
-										{'sales': sales, 'pn': paginator.num_pages, 'sz': sz, 'q': q})
+										{'point_pk':point_pk,'point':point, 'sales': sales, 'pn': paginator.num_pages, 'sz': sz, 'q': q})
 
 @staff_member_required
 @permission_decorator('reports.view_products_reports')
