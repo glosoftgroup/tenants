@@ -250,7 +250,7 @@ $(document).ready(function(){
         var listSizeVal = $('.list-sz').find(":selected").val();
         var searchData = $('.search_user').val();
 
-        if(listSizeVal == '0'){
+        if(!listSizeVal || listSizeVal == '0'){
             listSizeVal  = 10
         }
 
@@ -274,10 +274,6 @@ $(document).ready(function(){
          $.ajax({ url: "{% url 'dashboard:sales_search' %}",type: 'GET',data: {page:1, size:listSizeVal, gid:date,q:searchData, point:point}, async:false,success: function(data){
                   $('#pagination-div').html(data);
             }});
-        }else if(listSizeVal){
-             $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal, point:point}, async:false,success: function(data){
-                      $('#pagination-div').html(data);
-             }});
         }else{
             $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal, point:point}, async:false,success: function(data){
                       $('#pagination-div').html(data);
@@ -301,9 +297,9 @@ $(document).ready(function(){
        var categs = $('.sales-category').find(":selected").val();
        var point = $('.sales-point').find(":selected").val();
 
-       <!--if(listSizeVal == '0' || !listSizeVal){-->
-            <!--listSizeVal  = 10-->
-        <!--}-->
+       if(listSizeVal == '0' || !listSizeVal){
+            listSizeVal  = 10
+        }
 
        if((categs == 'category') || (categs == 'category' && listSizeVal) || (categs == 'category' && searchData) || (categs == 'category' && listSizeVal && searchData) ){
                $.get("{% url 'dashboard:sales_category_chart' %}", {date:group_id, point:point },function(data){
@@ -337,11 +333,11 @@ $(document).ready(function(){
            }
        }else if(searchData){
             if(!group_id){
-               $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, point:point },success: function(data){
+               $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, size:listSizeVal, point:point },success: function(data){
                       $('#pagination-div').html(data);
                }});
             }else{
-               $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, size:10, gid:group_id, point:point },success: function(data){
+               $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, size:listSizeVal, gid:group_id, point:point },success: function(data){
                           $('#pagination-div').html(data);
                 }});
            }
@@ -357,11 +353,11 @@ $(document).ready(function(){
            }
        }else{
            if(!group_id){
-               $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:10, point:point }, async:false,success: function(data){
+               $.ajax({ url: "{% url 'dashboard:sales_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal, point:point }, async:false,success: function(data){
                   $('#pagination-div').html(data);
               }});
            }else{
-                $.get("{% url 'dashboard:sales_paginate' %}",{page:1,gid:group_id, point:poin, size:listSizeVal },function(data){
+                $.get("{% url 'dashboard:sales_paginate' %}",{page:1,gid:group_id, point:point, size:listSizeVal },function(data){
                  $('#pagination-div').html(data);
                });
            }
