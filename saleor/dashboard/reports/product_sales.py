@@ -71,11 +71,6 @@ def sales_paginate(request):
 	else:
 		all_items = SoldItem.objects.all()
 
-	if point == 'all':
-		point = 'all item sales'
-
-	point = point.upper()
-
 	if date:
 		try:
 			itms = all_items.filter(sales__created__contains=date). \
@@ -271,11 +266,6 @@ def sales_search(request):
 			all_items = SoldItem.objects.filter(sale_point__name__icontains=point)
 		else:
 			all_items = SoldItem.objects.all()
-
-		if point == 'all':
-			point = 'all item sales'
-
-		point = point.upper()
 
 		if q is not None:
 			all_sales = all_items.filter(

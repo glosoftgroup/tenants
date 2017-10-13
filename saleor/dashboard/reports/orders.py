@@ -44,18 +44,26 @@ def orders_list(request):
 			total_orders = paginator.page(1)
 		except EmptyPage:
 			total_orders = paginator.page(paginator.num_pages)
+		points = SalePoint.objects.all()
 		user_trail(request.user.name, 'accessed sales reports', 'view')
 		info_logger.info('User: ' + str(request.user.name) + ' accessed the view sales report page')
 		return TemplateResponse(request, 'dashboard/reports/orders/sales_list.html',
 								{'pn': paginator.num_pages, 'orders': total_orders,
-								 "date": last_date_of_orders})
+								 "date": last_date_of_orders, 'points':points})
 	except ObjectDoesNotExist as e:
 		error_logger.error(e)
 
 
 @staff_member_required
 @permission_decorator('reports.view_sale_reports')
-def orders_detail(request, pk=None):
+def orders_detail(request, pk=None, point=None):
+	if point == '0':
+		sale_point = None
+		print 'true'
+	else:
+		print 'false'
+		sale_point = SalePoint.objects.get(pk=int(point))
+
 	try:
 		order = Orders.objects.get(pk=pk)
 
@@ -77,7 +85,9 @@ def orders_detail(request, pk=None):
 
 		data = {
 			'order': order,
-			'epp':order_items
+			'epp':order_items,
+			'point':sale_point,
+			'point_pk':point
 		}
 		return TemplateResponse(request, 'dashboard/reports/orders/details.html', data)
 	except ObjectDoesNotExist as e:
@@ -86,7 +96,13 @@ def orders_detail(request, pk=None):
 
 @staff_member_required
 @permission_decorator('reports.view_sales_reports')
-def order_detail_pdf(request, pk=None):
+def order_detail_pdf(request, pk=None, point=None):
+	if point == '0':
+		sale_point = None
+		print 'true'
+	else:
+		print 'false'
+		sale_point = SalePoint.objects.get(pk=int(point))
 	try:
 		order = Orders.objects.get(pk=pk)
 		sale_points = []
@@ -110,7 +126,8 @@ def order_detail_pdf(request, pk=None):
 			'epp': order_items,
 			'order': order,
 			'puller': request.user,
-			'image': img
+			'image': img,
+			'point':sale_point
 		}
 		pdf = render_to_pdf('dashboard/reports/orders/pdf/pdf.html',data)
 		return HttpResponse(pdf, content_type='application/pdf')
@@ -125,6 +142,7 @@ def orders_paginate(request):
 	list_sz = request.GET.get('size')
 	p2_sz = request.GET.get('psize')
 	date = request.GET.get('gid')
+	point = request.GET.get('point')
 	today_formart = DateFormat(datetime.date.today())
 	today = today_formart.format('Y-m-d')
 	ts = Orders.objects.filter(created__icontains=today)
@@ -135,24 +153,47 @@ def orders_paginate(request):
 			all_ordersd = Orders.objects.filter(created__icontains=date).order_by('-id')
 			that_date_sum = Orders.objects.filter(created__contains=date).aggregate(Sum('total_net'))
 			orders = []
-			for order in all_ordersd:
-				quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
-				setattr(order, 'quantity', quantity['c'])
-				orders.append(order)
+			if point and point != 'all':
+				for i in Orders.objects.filter(created__contains=date):
+					p = OrderedItem.objects.filter(orders__pk=i.pk, sale_point__name=point).annotate(
+						c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+						Sum('quantity'))
+					setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+					setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+
+					if p.exists():
+						orders.append(i)
+				point = SalePoint.objects.get(name=point)
+				point_pk=point.pk
+			else:
+				for order in all_ordersd:
+					quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
+					setattr(order, 'quantity', quantity['c'])
+					orders.append(order)
+				point_pk = 0
+				point = point
+
+			if list_sz:
+				paginator = Paginator(orders, int(list_sz))
+				orders = paginator.page(page)
+				return TemplateResponse(request, 'dashboard/reports/orders/p2.html',
+										{'point': point, 'point_pk': point_pk, 'orders': orders,
+										 'pn': paginator.num_pages, 'sz': list_sz, 'gid': date,
+										 'tsum': tsum})
 
 			if p2_sz and date:
 				paginator = Paginator(orders, int(p2_sz))
 				orders = paginator.page(page)
-				return TemplateResponse(request, 'dashboard/reports/orders/paginate.html', {'orders': orders, 'gid': date})
+				return TemplateResponse(request, 'dashboard/reports/orders/paginate.html', {'point_pk':point_pk,'orders': orders, 'gid': date})
 
 			paginator = Paginator(orders, 10)
 			orders = paginator.page(page)
 			return TemplateResponse(request, 'dashboard/reports/orders/p2.html',
-									{'orders': orders, 'pn': paginator.num_pages, 'sz': 10, 'gid': date,
+									{'point':point, 'point_pk':point_pk, 'orders': orders, 'pn': paginator.num_pages, 'sz': 10, 'gid': date,
 									 'tsum': tsum, 'that_date_sum': that_date_sum, 'date': date, 'today': today})
 
 		except ObjectDoesNotExist as e:
-			return TemplateResponse(request, 'dashboard/reports/orders/p2.html', {'date': date})
+			return TemplateResponse(request, 'dashboard/reports/orders/p2.html', {'point':point, 'point_pk':point_pk, 'date': date})
 
 	else:
 		try:
@@ -160,23 +201,40 @@ def orders_paginate(request):
 			last_date_of_order = DateFormat(last_order.created).format('Y-m-d')
 			all_sales = Orders.objects.filter(created__contains=last_date_of_order)
 			orders = []
-			for order in all_sales:
-				quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
-				setattr(order, 'quantity', quantity['c'])
-				orders.append(order)
+			if point and point != 'all':
+				for i in Orders.objects.filter(created__contains=last_date_of_order):
+					p = OrderedItem.objects.filter(orders__pk=i.pk, sale_point__name=point).annotate(
+						c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+						Sum('quantity'))
+					setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+					setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+
+					if p.exists():
+						orders.append(i)
+				point = SalePoint.objects.get(name=point)
+				point_pk = point.pk
+			else:
+				for order in all_sales:
+					quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
+					setattr(order, 'quantity', quantity['c'])
+					orders.append(order)
+				point_pk = 0
+				point = point
+
+
 
 			if list_sz:
 				paginator = Paginator(orders, int(list_sz))
 				orders = paginator.page(page)
 				return TemplateResponse(request, 'dashboard/reports/orders/p2.html',
-										{'orders': orders, 'pn': paginator.num_pages, 'sz': list_sz, 'gid': 0,
+										{'point':point, 'point_pk':point_pk, 'orders': orders, 'pn': paginator.num_pages, 'sz': list_sz, 'gid': 0,
 										 'tsum': tsum})
 			else:
 				paginator = Paginator(orders, 10)
 			if p2_sz:
 				paginator = Paginator(orders, int(p2_sz))
 				orders = paginator.page(page)
-				return TemplateResponse(request, 'dashboard/reports/orders/paginate.html', {'orders': orders})
+				return TemplateResponse(request, 'dashboard/reports/orders/paginate.html', {'point_pk':point_pk,'orders': orders})
 
 			try:
 				orders = paginator.page(page)
@@ -186,9 +244,9 @@ def orders_paginate(request):
 				orders = paginator.page(1)
 			except EmptyPage:
 				orders = paginator.page(1)
-			return TemplateResponse(request, 'dashboard/reports/orders/paginate.html', {'orders': orders})
+			return TemplateResponse(request, 'dashboard/reports/orders/paginate.html', {'point_pk':point_pk,'orders': orders})
 		except ObjectDoesNotExist as e:
-			return TemplateResponse(request, 'dashboard/reports/orders/p2.html', {'date': date})
+			return TemplateResponse(request, 'dashboard/reports/orders/p2.html', {'point':point, 'point_pk':point_pk, 'date': date})
 
 
 @staff_member_required
@@ -197,6 +255,7 @@ def orders_search(request):
 		page = int(request.GET.get('page', 1))
 		list_sz = request.GET.get('size')
 		p2_sz = request.GET.get('psize')
+		point = request.GET.get('point')
 		q = request.GET.get('q')
 		if list_sz is None:
 			sz = 10
@@ -214,48 +273,78 @@ def orders_search(request):
 
 			if request.GET.get('gid'):
 				corders = all_orders.filter(created__icontains=request.GET.get('gid'))
-				for order in corders:
-					quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
-					setattr(order, 'quantity', quantity['c'])
-					orders.append(order)
+				if point and point != 'all':
+					for i in corders:
+						p = OrderedItem.objects.filter(orders__pk=i.pk, sale_point__name=point).annotate(
+							c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+							Sum('quantity'))
+						setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+						setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+
+						if p.exists():
+							orders.append(i)
+					point = SalePoint.objects.get(name=point)
+					point_pk = point.pk
+				else:
+					for order in corders:
+						quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
+						setattr(order, 'quantity', quantity['c'])
+						orders.append(order)
+					point_pk = 0
+					point = point
 
 				if p2_sz:
 					paginator = Paginator(orders, int(p2_sz))
 					orders = paginator.page(page)
-					return TemplateResponse(request, 'dashboard/reports/orders/paginate.html', {'orders': orders})
+					return TemplateResponse(request, 'dashboard/reports/orders/paginate.html', {'point_pk':point_pk, 'orders': orders})
 
 				if list_sz:
 					paginator = Paginator(orders, int(list_sz))
 					orders = paginator.page(page)
 					return TemplateResponse(request, 'dashboard/reports/orders/search.html',
-											{'orders': orders, 'pn': paginator.num_pages, 'sz': list_sz,
+											{'point_pk':point_pk, 'point':point, 'orders': orders, 'pn': paginator.num_pages, 'sz': list_sz,
 											 'gid': request.GET.get('gid'), 'q': q})
 
 				paginator = Paginator(orders, 10)
 				orders = paginator.page(page)
 				return TemplateResponse(request, 'dashboard/reports/orders/search.html',
-										{'orders': orders, 'pn': paginator.num_pages, 'sz': sz,
+										{'point_pk':point_pk, 'point':point, 'orders': orders, 'pn': paginator.num_pages, 'sz': sz,
 										 'gid': request.GET.get('gid')})
 
 			else:
-				for order in all_orders:
-					quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
-					setattr(order, 'quantity', quantity['c'])
-					orders.append(order)
+				if point and point != 'all':
+					for i in all_orders:
+						p = OrderedItem.objects.filter(orders__pk=i.pk, sale_point__name=point).annotate(
+							c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+							Sum('quantity'))
+						setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+						setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+
+						if p.exists():
+							orders.append(i)
+					point = SalePoint.objects.get(name=point)
+					point_pk = point.pk
+				else:
+					for order in all_orders:
+						quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
+						setattr(order, 'quantity', quantity['c'])
+						orders.append(order)
+					point_pk = 0
+					point = point
 
 				if list_sz:
 					print ('lst')
 					paginator = Paginator(orders, int(list_sz))
 					orders = paginator.page(page)
 					return TemplateResponse(request, 'dashboard/reports/orders/search.html',
-											{'orders': orders, 'pn': paginator.num_pages, 'sz': list_sz, 'gid': 0,
+											{'point_pk':point_pk,'point':point, 'orders': orders, 'pn': paginator.num_pages, 'sz': list_sz, 'gid': 0,
 											 'q': q})
 
 				if p2_sz:
 					print ('pst')
 					paginator = Paginator(orders, int(p2_sz))
 					orders = paginator.page(page)
-					return TemplateResponse(request, 'dashboard/reports/orders/paginate.html', {'orders': orders})
+					return TemplateResponse(request, 'dashboard/reports/orders/paginate.html', {'point_pk':point_pk,'orders': orders})
 
 				paginator = Paginator(orders, 10)
 				try:
@@ -268,10 +357,10 @@ def orders_search(request):
 					orders = paginator.page(paginator.num_pages)
 				if p2_sz:
 					orders = paginator.page(page)
-					return TemplateResponse(request, 'dashboard/reports/orders/paginate.html', {'orders': orders})
+					return TemplateResponse(request, 'dashboard/reports/orders/paginate.html', {'point_pk':point_pk,'orders': orders})
 
 				return TemplateResponse(request, 'dashboard/reports/orders/search.html',
-										{'orders': orders, 'pn': paginator.num_pages, 'sz': sz, 'q': q})
+										{'point_pk':point_pk,'point':point, 'orders': orders, 'pn': paginator.num_pages, 'sz': sz, 'q': q})
 
 
 @staff_member_required

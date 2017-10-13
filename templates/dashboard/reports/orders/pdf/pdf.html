@@ -47,7 +47,8 @@
          <div>
          <div class='details'>
             {% for i in epp %}
-              {% if i.items %}
+              {% if point %}
+                {% if i.name == point.name %}
               <div class="col-md-12"> <h2 class="" style="font-weight:bold">{{i.name}}</h2></div>
                   <div class="table-responsives">
                     <table class="table  datatable-header-footer">
@@ -80,7 +81,42 @@
                      </table>
                   </div>
                   {% endif %}
-                 {% endfor %}
+              {% else %}
+                {% if i.items %}
+              <div class="col-md-12"> <h2 class="" style="font-weight:bold">{{i.name}}</h2></div>
+                  <div class="table-responsives">
+                    <table class="table  datatable-header-footer">
+
+                          <thead style="border-top:1px solid #ddd;">
+                            <tr class="bg-primary">
+                              <th>Transaction Date</th>
+                              <th>Item Name</th>
+                              <th>Unit Cost</th>
+                              <th>Quantity</th>
+                              <th>Total Sales (KShs)</th>
+                            </tr>
+                          </thead>
+                          <tbody id="tb">
+                             {% for item in i.items %}
+                                <tr>
+                                <td>{{item.orders.created|date:"d-m-Y H:i a"}}</td>
+                                <td>{{item.product_name}}</td>
+                                <td>{{item.unit_cost}}</td>
+                                <td>{{item.quantity}}</td>
+                                  <td><span class="pull-right">{{item.total_cost}}</span></td>
+                              </tr>
+                             {% endfor %}
+                             <tr>
+                                <td colspan="4"><span style="font-weight:bold">Total Sales</span></td>
+                                <td><span class="pull-right" style="font-weight:bold">Kshs {{i.amount}}</span></td>
+                             </tr>
+                            </tbody>
+
+                     </table>
+                  </div>
+                  {% endif %}
+              {% endif %}
+            {% endfor %}
          </div>
          <div class="foot" id="footerContent">
                  <p style="text-align: center;font-size:11px;">Report Pulled by:
