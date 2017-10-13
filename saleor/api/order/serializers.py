@@ -5,6 +5,7 @@ from rest_framework.serializers import (
                 )
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.utils.timezone import now
 from ...orders.models import (
             Orders,
             OrderedItem,
@@ -271,5 +272,6 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
         else:
             print validated_data.get('status')
             instance.status = validated_data.get('status', instance.status)
+        instance.last_status_change = now()
         instance.save()
         return instance

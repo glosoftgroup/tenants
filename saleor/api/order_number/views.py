@@ -16,7 +16,10 @@ class Comment(object):
 
 @api_view(['GET', 'POST', ])
 def new_order(request):
-    number = int(Orders.objects.latest('id').id) + random.randrange(10) + request.user.id
+    try:
+        number = int(Orders.objects.latest('id').id) + random.randrange(10) + request.user.id
+    except Exception as e:
+        number = random.randrange(10) + request.user.id
     order_number = Comment(number='RET#'+str(number))
     serializer = OrderNumberSerializer(order_number)
     return Response(serializer.data)
