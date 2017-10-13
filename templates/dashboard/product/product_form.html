@@ -56,10 +56,7 @@
 
 {% block header_extra %}
   {% if product.pk %}
-  <li>              
-    <a href="{{ product.get_absolute_url }}"><i class="icon-eye position-left"></i>  {% trans "View on site" context "Dashboard preview action" %}
-    </a>
-  </li>
+  
   <li>
     <a href="#modal_instance" data-href="{% url 'dashboard:product-delete' pk=product.pk %}"
         class="modal-trigger"><i class="icon-trash position-left"></i> 
