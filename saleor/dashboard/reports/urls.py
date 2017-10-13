@@ -73,7 +73,7 @@ urlpatterns = [
 		url(r'^reports/discount/pdf/$', pdfs.discount_items, name='reports_discount_items_pdf'),
 		url(r'^reports/user/pdf/$', pdfs.sales_user, name='reports_sales_user_pdf'),
 		url(r'^reports/till/pdf/$', pdfs.sales_tills, name='reports_sales_tills_pdf'),
-		url(r'^pdf/detail/(?P<pk>[0-9]+)/$', permission_required('reports.view_sale_reports', login_url='not_found')
+		url(r'^pdf/detail/(?P<pk>[0-9]+)/(?P<point>[0-9]+)/$', permission_required('reports.view_sale_reports', login_url='not_found')
 			(pdfs.sales_detail), name='pdf-sale-detail'),
     	url(r'^reports/sales/list/export_csv/$', views.sales_list_export_csv, name='reports_sales_list_export_csv'),
 

@@ -6,11 +6,12 @@ import re
 from django.http import HttpResponse
 from django.db.models import Count
 from django.template.defaultfilters import date
-from django.db.models import Q
+from django.db.models import Count, Sum, Q
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import date
 from django.utils.dateformat import DateFormat
 from django.utils.encoding import smart_str
+from ...salepoints.models import SalePoint
 from ..views import staff_member_required
 from ...userprofile.models import User
 from ...sale.models import Sales, SoldItem
@@ -136,17 +137,42 @@ def sales_list_pdf( request ):
 
 @staff_member_required
 @permission_decorator('reports.view_sales_reports')
-def sales_detail(request, pk=None):
+def sales_detail(request, pk=None, point=None):
+	if point == '0':
+		sale_point = None
+		print 'true'
+	else:
+		print 'false'
+		sale_point = SalePoint.objects.get(pk=int(point))
+
+
 	try:
 		sale = Sales.objects.get(pk=pk)
-		items = SoldItem.objects.filter(sales=sale)
 		img = default_logo()
+
+		sale_points = []
+		sale_items = []
+		for n in SalePoint.objects.all():
+			sale_points.append(n.name)
+
+		all_sale_points = list(set(sale_points))
+
+		for i in all_sale_points:
+			items = SoldItem.objects.filter(sales=sale, sale_point__name=i)
+			try:
+				totals = items.aggregate(Sum('total_cost'))['total_cost__sum']
+			except:
+				totals = 0
+			sale_items.append({'name': i, 'items': items, 'amount': totals})
+
 		data = {
 			'today': date.today(),
-			'items': items,
+			'epp': sale_items,
 			'sale': sale,
 			'puller': request.user,
-			'image': img
+			'image': img,
+			'point': sale_point,
+			'point_pk': point
 		}
 		pdf = render_to_pdf('dashboard/reports/sales/pdf/pdf.html',data)
 		return HttpResponse(pdf, content_type='application/pdf')
