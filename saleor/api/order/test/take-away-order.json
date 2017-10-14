@@ -2,13 +2,12 @@
   "amount_paid": "0.00",
   "balance": "223.29",
   "sub_total": "223.29",
-  "table":1,
-  "sale_point":1,
+  "sale_point": 1,
   "mobile": "4215",
   "customer_name": "dfghj",
   "terminal": "1",
   "total_tax": "0.00",
-  "invoice_number": "RET#298377796",
+  "invoice_number": "29000077--hhjhl;o96",
   "total_net": "223.29",
   "payment_data": [
     {
@@ -25,7 +24,7 @@
       "product_name": "Davis-Wilson (Box Size: 100g)",
       "product_category": "Groceries",
       "order": "1",
-      "sale_point":"1"
+      "sale_point": "1"
     },
     {
       "quantity": 1,
@@ -35,7 +34,7 @@
       "product_name": "Davis-Wilson (Box Size: 500g)",
       "product_category": "Groceries",
       "order": "1",
-      "sale_point":"1"
+      "sale_point": "1"
     },
     {
       "quantity": 1,
@@ -45,7 +44,7 @@
       "product_name": "Davis-Wilson (Box Size: 1kg)",
       "product_category": "Groceries",
       "order": "1",
-      "sale_point":"1"
+      "sale_point": "1"
     }
   ],
   "payment_options": [],

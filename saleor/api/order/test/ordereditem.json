@@ -1,0 +1,550 @@
+//     Order List Api Sale Point Orders Item List Api
+//
+//Sale Point Orders Item List Api
+//
+//GET /api/order/sale-point-items/1?q=fully-paid
+//
+//HTTP 200 OK
+//Allow: GET, HEAD, OPTIONS
+//Content-Type: application/json
+//Vary: Accept
+
+[
+    {
+        "id": 53,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 21,
+        "table": 1,
+        "sale_point": 1
+    },
+    {
+        "id": 54,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 21,
+        "table": 1,
+        "sale_point": 1
+    },
+    {
+        "id": 55,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 21,
+        "table": 1,
+        "sale_point": 1
+    },
+    {
+        "id": 56,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 22,
+        "table": 1,
+        "sale_point": 1
+    },
+    {
+        "id": 57,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 22,
+        "table": 1,
+        "sale_point": 1
+    },
+    {
+        "id": 58,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 22,
+        "table": 1,
+        "sale_point": 1
+    },
+    {
+        "id": 59,
+        "product_name": "Hernandez-Fleming ( Hard)",
+        "quantity": 1,
+        "order_number": 23,
+        "table": 7,
+        "sale_point": 1
+    },
+    {
+        "id": 60,
+        "product_name": "Cruz Ltd ( Hard)",
+        "quantity": 1,
+        "order_number": 23,
+        "table": 7,
+        "sale_point": 1
+    },
+    {
+        "id": 78,
+        "product_name": "Williams Group ( Soft)",
+        "quantity": 1,
+        "order_number": 28,
+        "table": 7,
+        "sale_point": 1
+    },
+    {
+        "id": 79,
+        "product_name": "Palmer-Hall ( Hard)",
+        "quantity": 1,
+        "order_number": 28,
+        "table": 7,
+        "sale_point": 1
+    },
+    {
+        "id": 80,
+        "product_name": "Hernandez-Fleming ( Hard)",
+        "quantity": 1,
+        "order_number": 28,
+        "table": 7,
+        "sale_point": 1
+    },
+    {
+        "id": 81,
+        "product_name": "Cruz Ltd ( Hard)",
+        "quantity": 1,
+        "order_number": 28,
+        "table": 7,
+        "sale_point": 1
+    },
+    {
+        "id": 82,
+        "product_name": "Perry-Leach ( Hard)",
+        "quantity": 1,
+        "order_number": 29,
+        "table": 7,
+        "sale_point": 1
+    },
+    {
+        "id": 83,
+        "product_name": "Cruz Ltd ( Hard)",
+        "quantity": 1,
+        "order_number": 29,
+        "table": 7,
+        "sale_point": 1
+    },
+    {
+        "id": 84,
+        "product_name": "Williams Group ( Soft)",
+        "quantity": 1,
+        "order_number": 29,
+        "table": 7,
+        "sale_point": 1
+    },
+    {
+        "id": 85,
+        "product_name": "Williams Group ( Hard)",
+        "quantity": 1,
+        "order_number": 29,
+        "table": 7,
+        "sale_point": 1
+    },
+    {
+        "id": 91,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 32,
+        "table": 1,
+        "sale_point": 1
+    },
+    {
+        "id": 92,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 32,
+        "table": 1,
+        "sale_point": 1
+    },
+    {
+        "id": 93,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 32,
+        "table": 1,
+        "sale_point": 1
+    },
+    {
+        "id": 94,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 33,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 95,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 33,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 96,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 33,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 97,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 34,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 98,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 34,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 99,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 34,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 100,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 35,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 101,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 35,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 102,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 35,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 103,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 36,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 104,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 36,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 105,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 36,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 106,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 37,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 107,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 37,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 108,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 37,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 109,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 38,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 110,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 38,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 111,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 38,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 112,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 39,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 113,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 39,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 114,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 39,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 115,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 40,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 116,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 40,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 117,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 40,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 118,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 41,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 119,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 41,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 120,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 41,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 121,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 42,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 122,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 42,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 123,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 42,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 124,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 43,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 125,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 43,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 126,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 43,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 127,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 44,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 128,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 44,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 129,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 44,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 130,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 45,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 131,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 45,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 132,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 45,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 133,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 46,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 134,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 46,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 135,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 46,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 136,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 47,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 137,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 47,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 138,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 47,
+        "table": "Take away",
+        "sale_point": 1
+    },
+    {
+        "id": 139,
+        "product_name": "Davis-Wilson (Box Size: 100g)",
+        "quantity": 1,
+        "order_number": 48,
+        "table": 1,
+        "sale_point": 1
+    },
+    {
+        "id": 140,
+        "product_name": "Davis-Wilson (Box Size: 500g)",
+        "quantity": 1,
+        "order_number": 48,
+        "table": 1,
+        "sale_point": 1
+    },
+    {
+        "id": 141,
+        "product_name": "Davis-Wilson (Box Size: 1kg)",
+        "quantity": 1,
+        "order_number": 48,
+        "table": 1,
+        "sale_point": 1
+    }
+]
+

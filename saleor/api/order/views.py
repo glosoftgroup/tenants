@@ -2,7 +2,7 @@ from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import generics
 from django.contrib.auth import get_user_model
-from ...orders.models import Orders
+from ...orders.models import Orders, OrderedItem
 from ...sale.models import (
                             Sales,
                             SoldItem,
@@ -14,7 +14,8 @@ from ...sale.models import (
 from .serializers import (
     ListOrderSerializer,
     OrderSerializer,
-    OrderUpdateSerializer
+    OrderUpdateSerializer,
+    ListOrderItemSerializer
      )
 from ...decorators import user_trail
 import logging
@@ -41,8 +42,10 @@ class OrderCreateAPIView(generics.CreateAPIView):
     queryset = Orders.objects.all()
     serializer_class = OrderSerializer
 
-    def perform_create(self, serializer):              
-        serializer.save(user=self.request.user)      
+    def perform_create(self, serializer):
+        instance = serializer.save(user=self.request.user)
+        if serializer.data['status'] == 'fully-paid':
+            send_to_sale(instance)
 
         
 class OrderListAPIView(generics.ListAPIView):
@@ -54,6 +57,19 @@ class OrderListAPIView(generics.ListAPIView):
         if query:
             queryset_list = queryset_list.filter(
                 Q(invoice_number__icontains=query)               
+                ).distinct()
+        return queryset_list
+
+
+class OrderItemsListAPIView(generics.ListAPIView):
+    serializer_class = ListOrderItemSerializer
+
+    def get_queryset(self, *args, **kwargs):
+        queryset_list = OrderedItem.objects.all()
+        query = self.request.GET.get('q')
+        if query:
+            queryset_list = queryset_list.filter(
+                Q(product_name__icontains=query)
                 ).distinct()
         return queryset_list
 
@@ -83,6 +99,28 @@ class SalePointOrdersListAPIView(generics.ListAPIView):
         else:
             queryset = self.get_queryset().filter(sale_point__pk=pk)
         serializer = ListOrderSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class SalePointOrdersItemListAPIView(generics.ListAPIView):
+    """
+        list ordered items where q is order status
+        1 is sale point id
+        GET /api/order/sale-point-items/1?q=fully-paid
+        test Json: /test/orderditems.json
+    """
+
+    serializer_class = ListOrderItemSerializer
+    queryset = OrderedItem.objects.all().order_by('-id')
+
+    def list(self, request, pk=None):
+        # Note the use of `get_queryset()` instead of `self.queryset`
+        query = self.request.GET.get('q')
+        if query:
+            queryset = self.get_queryset().filter(sale_point__pk=pk).filter(orders__status=query)
+        else:
+            queryset = self.get_queryset().filter(sale_point__pk=pk)
+        serializer = ListOrderItemSerializer(queryset, many=True)
         return Response(serializer.data)
 
 
@@ -138,19 +176,24 @@ class OrderUpdateAPIView(generics.RetrieveUpdateAPIView):
 
 
 def send_to_sale(credit):
-    sale = Sales.objects.create(
-        user=credit.user,
-        invoice_number=credit.invoice_number,
-        total_net=credit.total_net,
-        sub_total=credit.sub_total,
-        balance=credit.balance,
-        sale_point=credit.sale_point,
-        terminal=credit.terminal,
-        amount_paid=credit.amount_paid,
-        status=credit.status,
-        table=credit.table,
-        total_tax=credit.total_tax,
-    )
+    sale = Sales()
+    sale.user = credit.user
+    sale.invoice_number = credit.invoice_number
+    sale.total_net = credit.total_net
+    sale.sub_total = credit.sub_total
+    sale.balance = credit.balance
+    sale.sale_point = credit.sale_point
+    sale.terminal = credit.terminal
+    sale.amount_paid = credit.amount_paid
+    sale.status = credit.status
+
+    try:
+        sale.table = credit.table
+    except Exception as e:
+        print e
+    sale.total_tax = credit.total_tax
+    sale.save()
+
     for item in credit.items():
         new_item = SoldItem.objects.create(
                sales=sale,

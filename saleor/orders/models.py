@@ -54,7 +54,7 @@ class Orders(models.Model):
         Terminal, related_name='terminal_orders',blank=True, default='',
         verbose_name=pgettext_lazy('Orders field', 'terminal'))
     table = models.ForeignKey(
-        Table, related_name='table_orders', blank=True, default='',
+        Table, related_name='table_orders', blank=True, default='', null=True,
         verbose_name=pgettext_lazy('Orders field', 'table'))
     sale_point = models.ForeignKey(
         SalePoint, related_name='sale_point', blank=True, default='',

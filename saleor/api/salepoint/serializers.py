@@ -10,12 +10,15 @@ class SalePointListSerializer(serializers.ModelSerializer):
     orders_url = serializers.HyperlinkedIdentityField(view_name='order-api:api-sale_point-orders')
     category_url = serializers.HyperlinkedIdentityField(view_name='category-api:api-sale_point-categories')
     tables_url = serializers.HyperlinkedIdentityField(view_name='table-api:api-sale_point-table')
+    items_url = serializers.HyperlinkedIdentityField(view_name='order-api:api-sale_point-orders-items')
 
     class Meta:
         model = SalePoint
         fields = ('id',
+                  'category_url',
+                  'items_url',
                   'name',
                   'orders_url',
-                  'category_url',
-                  'tables_url'
+                  'tables_url',
+
                  )
