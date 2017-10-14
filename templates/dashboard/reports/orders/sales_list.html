@@ -465,6 +465,7 @@ $(document).ready(function(){
             var date = $('.daterange-single').val();
             var url = "{% url 'dashboard:reports_orders_list_pdf' %}";
             var scategory = $('.sales-category').find(":selected").val();
+            var point = $('.sales-point').find(":selected").val();
 
             if(date && (scategory == 'category')){
                     var node = document.getElementById('pagination-div')
@@ -597,19 +598,19 @@ $(document).ready(function(){
                         console.error('oops, something went wrong!', error);
                     });
             }else if (searchData && date ){
-                $.get(url, {q:searchData, gid:date}, function(data){
+                $.get(url, {q:searchData, gid:date, point:point}, function(data){
                           window.open("data:application/pdf," + escape(data));
                 });
             }else if (searchData){
-                $.get(url, {q:searchData}, function(data){
+                $.get(url, {q:searchData, point:point}, function(data){
                           window.open("data:application/pdf," + escape(data));
                 });
             }else if (date){
-                $.get(url, {gid:date}, function(data){
+                $.get(url, {gid:date, point:point}, function(data){
                           window.open("data:application/pdf," + escape(data));
                 });
             }else{
-                $.get(url, function(data){
+                $.get(url, {point:point},function(data){
                           window.open("data:application/pdf," + escape(data));
                });
             }

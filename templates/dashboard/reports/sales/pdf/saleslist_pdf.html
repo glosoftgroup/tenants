@@ -37,7 +37,14 @@
                      <p style="margin-bottom:0px;margin-top:2px;font-size:11px;">
                         SALES DATE: {{gid}}
                  </p>{% endif %}
-                   <p style="margin-top:2px;font-size:11px;">{{today | date:'jS F Y'}}</p>
+                 <p>
+                     {% if point.name and point.name != 'all' %}
+                        {{point.name|upper}}
+                      {% else %}
+                        ALL ITEM SALES
+                      {% endif %}
+                 </p>
+                   <p style="margin-top:2px;font-size:11px;">{{today | date:'d-m-Y'}}</p>
                  </p>
              </div>
          <div>
@@ -57,14 +64,14 @@
                 <tbody id="tb">
                {% if sales %}
                   {% for sale in sales %}
-                  <tr class='clickable-row' id="{{user.pk }}">
-                    <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{{sale.created|date:"d-m-Y H:i a"}}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{{sale.invoice_number }}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{% if sale.customer_name %}{{sale.customer_name}}{% else %} Customer {% endif %}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{% if sale.user.email %}{{sale.user.email}}{% else %}{{sale.user.name}}{% endif %}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{% if sale.payment_options.name %}{{sale.payment_options.name}}{% else %} Cash {% endif %}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{{sale.quantity}}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk %}">{{sale.total_net}}</td>
+                  <tr class='clickable-row'>
+                    <td class="td">{{sale.created|date:"d-m-Y H:i a"}}</td>
+                            <td class="td">{{sale.invoice_number }}</td>
+                            <td class="td">{% if sale.customer_name %}{{sale.customer_name}}{% else %} Customer {% endif %}</td>
+                            <td class="td">{% if sale.user.email %}{{sale.user.email}}{% else %}{{sale.user.name}}{% endif %}</td>
+                            <td class="td">{% if sale.payment_options.name %}{{sale.payment_options.name}}{% else %} Cash {% endif %}</td>
+                            <td class="td">{{sale.quantity}}</td>
+                            <td class="td">{{sale.total_net}}</td>
                   </tr>
                   {% endfor %}
                 {% else %}

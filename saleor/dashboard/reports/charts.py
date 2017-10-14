@@ -6,10 +6,9 @@ import re
 from django.template.response import TemplateResponse
 from django.http import HttpResponse, JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from django.core import serializers
 from django.core.paginator import Paginator
-from django.db.models import Q
 from datetime import *
 from django.utils.dateformat import DateFormat
 
@@ -19,6 +18,7 @@ from ...sale.models import *
 from ...product.models import Category
 from ...decorators import permission_decorator
 from ...utils import render_to_pdf
+from ...salepoints.models import SalePoint
 
 from .hours_chart import get_item_results, get_terminal_results, get_user_results, get_hours_results, get_hours_results_range, get_date_results_range, get_date_results, get_category_results
 
@@ -29,6 +29,8 @@ error_logger = logging.getLogger('error_logger')
 @staff_member_required
 def sales_category_chart(request, image=None):
 	get_date = request.GET.get('date')
+	image = request.GET.get('image')
+	point = request.GET.get('point')
 	today = datetime.now()
 	if get_date:
 		date = get_date
@@ -39,38 +41,22 @@ def sales_category_chart(request, image=None):
 		except:
 			date = DateFormat(datetime.today()).format('Y-m-d')
 
-	if image:
-		dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
-		ImageData = image
-		ImageData = dataUrlPattern.match(ImageData).group(2)
-
-		sales_by_category = SoldItem.objects.filter(sales__created__contains=date).values('product_category').annotate(
-			c=Count('product_category', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by('-quantity__sum')[:5]
-		quantity_totals = sales_by_category.aggregate(Sum('quantity__sum'))['quantity__sum__sum']
-		new_sales = []
-		for sales in sales_by_category:
-			color = "#%03x" % random.randint(0, 0xFFF)
-			sales['color'] = color
-			percent = (Decimal(sales['quantity__sum']) / Decimal(quantity_totals)) * 100
-			percentage = round(percent, 2)
-			sales['percentage'] = percentage
-			for s in range(0, sales_by_category.count(), 1):
-				sales['count'] = s
-			new_sales.append(sales)
-
-		data = {
-			'today': last_sale.created,
-			'sales_by_category': new_sales,
-			'puller': request.user,
-			'image': ImageData,
-		}
-		pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/category_pdf.html', data)
-		return HttpResponse(pdf, content_type='application/pdf')
-
 	if date:
 		try:
-			sales_by_category = SoldItem.objects.filter(sales__created__contains=date).values('product_category').annotate(
-				c=Count('product_category', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by('-quantity__sum')
+			if point and point != 'all':
+				sales_by_category = SoldItem.objects.filter(sales__created__contains=date, sale_point__name__contains=point).values(
+					'product_category').annotate(
+					c=Count('product_category', distinct=True)).annotate(Sum('total_cost')).annotate(
+					Sum('quantity')).order_by('-quantity__sum')
+				point = SalePoint.objects.get(name=point)
+			else:
+				sales_by_category = SoldItem.objects.filter(sales__created__contains=date).values(
+					'product_category').annotate(
+					c=Count('product_category', distinct=True)).annotate(Sum('total_cost')).annotate(
+					Sum('quantity')).order_by('-quantity__sum')
+				point = point
+
+
 			quantity_totals = sales_by_category.aggregate(Sum('quantity__sum'))['quantity__sum__sum']
 			new_sales = []
 			for sales in sales_by_category:
@@ -82,6 +68,8 @@ def sales_category_chart(request, image=None):
 				for s in range(0, sales_by_category.count(), 1):
 					sales['count'] = s
 				new_sales.append(sales)
+
+
 
 			categs = Category.objects.all()
 			this_year = today.year
@@ -109,8 +97,32 @@ def sales_category_chart(request, image=None):
 				"hcateg":highest_category_sales,
 				"sales_date":date,
 				"pn":paginator.num_pages,
-				"count": sales_by_category.count()
+				"count": sales_by_category.count(),
+				"point":point
 			}
+			if image:
+				dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
+				ImageData = image
+				ImageData = dataUrlPattern.match(ImageData).group(2)
+
+				data = {
+					"sales_by_category": new_sales2,
+					"categs": categs,
+					"avg": avg_m,
+					"labels": labels,
+					"default": default,
+					"hcateg": highest_category_sales,
+					"sales_date": date,
+					"pn": paginator.num_pages,
+					"count": sales_by_category.count(),
+					"point": point,
+
+					'today': datetime.today(),
+					'puller': request.user,
+					'image': ImageData,
+				}
+				pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/category_pdf.html', data)
+				return HttpResponse(pdf, content_type='application/pdf')
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/category.html', data)
 		except ObjectDoesNotExist as e:
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/category.html', {"e":e, "date":date})
@@ -122,6 +134,7 @@ def sales_category_chart_paginate(request):
 	get_date = request.GET.get('date')
 	page = request.GET.get('page', 1)
 	list_sz = request.GET.get('size')
+	point = request.GET.get('point')
 	if list_sz:
 		size = list_sz
 	else:
@@ -137,9 +150,23 @@ def sales_category_chart_paginate(request):
 			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	try:
-		sales_by_category = SoldItem.objects.filter(sales__created__contains=date).values('product_category').annotate(
-			c=Count('product_category', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by(
-			'-quantity__sum')
+
+
+		if point and point != 'all':
+			sales_by_category = SoldItem.objects.filter(sales__created__contains=date, sale_point__name__contains=point).values(
+				'product_category').annotate(
+				c=Count('product_category', distinct=True)).annotate(Sum('total_cost')).annotate(
+				Sum('quantity')).order_by(
+				'-quantity__sum')
+
+			point = SalePoint.objects.get(name=point)
+		else:
+			sales_by_category = SoldItem.objects.filter(sales__created__contains=date).values(
+				'product_category').annotate(
+				c=Count('product_category', distinct=True)).annotate(Sum('total_cost')).annotate(
+				Sum('quantity')).order_by(
+				'-quantity__sum')
+			point = point
 		paginator = Paginator(sales_by_category, int(size))
 		sales = paginator.page(page)
 		data = {
@@ -521,9 +548,10 @@ def get_sales_by_week(request):
 @staff_member_required
 @permission_decorator('reports.view_sale_reports')
 def sales_user_chart(request):
-	image = request.POST.get('img')
+	image = request.GET.get('image')
 	today = datetime.now()
 	get_date = request.GET.get('date')
+	point = request.GET.get('point')
 	if get_date:
 		date = get_date
 	else:
@@ -533,39 +561,58 @@ def sales_user_chart(request):
 		except:
 			date = DateFormat(datetime.today()).format('Y-m-d')
 
-	if image:
-		dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
-		ImageData = image
-		ImageData = dataUrlPattern.match(ImageData).group(2)
-
-		users = Sales.objects.values('user__email', 'user__name', 'terminal').annotate(Count('user')).annotate(
-			Sum('total_net')).order_by().filter(created__contains=date)
-		sales_by_category_totals = users.aggregate(Sum('total_net__sum'))['total_net__sum__sum']
-		new_sales = []
-		for sales in users:
-			color = "#%03x" % random.randint(0, 0xFFF)
-			sales['color'] = color
-			percent = (Decimal(sales['total_net__sum']) / Decimal(sales_by_category_totals)) * 100
-			percentage = round(percent, 2)
-			sales['percentage'] = percentage
-			for s in range(0, users.count(), 1):
-				sales['count'] = s
-			new_sales.append(sales)
-
-		data = {
-			'today': last_sale.created,
-			'sales_by_category': new_sales,
-			'puller': request.user,
-			'image': ImageData,
-		}
-		pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/user_pdf.html', data)
-		return HttpResponse(pdf, content_type='application/pdf')
+	# if image:
+	# 	dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
+	# 	ImageData = image
+	# 	ImageData = dataUrlPattern.match(ImageData).group(2)
+	#
+	#
+	# 	if point and point != 'all':
+	# 		users = Sales.objects.values('user__email', 'user__name', 'terminal').annotate(Count('user')).annotate(
+	# 			Sum('total_net')).order_by().filter(created__contains=date, sale_point__name__contains=point)
+	# 		point = SalePoint.objects.get(name=point)
+	# 		point_name = point.name
+	# 	else:
+	# 		users = Sales.objects.values('user__email', 'user__name', 'terminal').annotate(Count('user')).annotate(
+	# 			Sum('total_net')).order_by().filter(created__contains=date)
+	# 		point = point
+	# 		point_name = point
+	# 	sales_by_category_totals = users.aggregate(Sum('total_net__sum'))['total_net__sum__sum']
+	# 	new_sales = []
+	# 	for sales in users:
+	# 		color = "#%03x" % random.randint(0, 0xFFF)
+	# 		sales['color'] = color
+	# 		percent = (Decimal(sales['total_net__sum']) / Decimal(sales_by_category_totals)) * 100
+	# 		percentage = round(percent, 2)
+	# 		sales['percentage'] = percentage
+	# 		for s in range(0, users.count(), 1):
+	# 			sales['count'] = s
+	# 		new_sales.append(sales)
+	#
+	# 	data = {
+	# 		'today': last_sale.created,
+	# 		'sales_by_category': new_sales,
+	# 		'puller': request.user,
+	# 		'image': ImageData,
+	# 	}
+	# 	pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/user_pdf.html', data)
+	# 	return HttpResponse(pdf, content_type='application/pdf')
 
 	if date:
 		try:
-			users = Sales.objects.values('user__email', 'user__name', 'user').annotate(Count('user')).annotate(
-				Sum('total_net')).annotate(
-				Sum('solditems__quantity')).order_by('-solditems__quantity__sum').filter(created__contains=date)
+
+			if point and point != 'all':
+				users = Sales.objects.values('user__email', 'user__name', 'user').annotate(Count('user')).annotate(
+					Sum('total_net')).annotate(
+					Sum('solditems__quantity')).order_by('-solditems__quantity__sum').filter(created__contains=date, sale_point__name__contains=point)
+				point = SalePoint.objects.get(name=point)
+				point_name = point.name
+			else:
+				users = Sales.objects.values('user__email', 'user__name', 'user').annotate(Count('user')).annotate(
+					Sum('total_net')).annotate(
+					Sum('solditems__quantity')).order_by('-solditems__quantity__sum').filter(created__contains=date)
+				point = point
+				point_name = point
 			sales_by_category_totals = users.aggregate(Sum('solditems__quantity__sum'))['solditems__quantity__sum__sum']
 			new_sales = []
 			for sales in users:
@@ -606,9 +653,33 @@ def sales_user_chart(request):
 				"hcateg": highest_user_sales,
 				"sales_date":date,
 				"pn": paginator.num_pages,
-				"count": users.count()
+				"count": users.count(),
+				"point":point,
+				"point_name":point_name
 			}
-			# return TemplateResponse(request, 'dashboard/reports/sales/charts/sales_by_user.html', data)
+			if image:
+				dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
+				ImageData = image
+				ImageData = dataUrlPattern.match(ImageData).group(2)
+
+				data = {
+					"sales_by_category": new_sales,
+					"categs":categs,
+					"avg":avg_m,
+					"labels":labels,
+					"default":default,
+					"sales_date":date,
+					"pn":paginator.num_pages,
+					"point":point,
+					"point_name":point_name,
+
+					'today': datetime.today(),
+					'puller': request.user,
+					'image': ImageData,
+				}
+				pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/user_pdf.html', data)
+				return HttpResponse(pdf, content_type='application/pdf')
+
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/user.html', data)
 		except ObjectDoesNotExist:
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/user.html',{"sales_date":date})
@@ -620,6 +691,7 @@ def sales_user_chart_paginate(request):
 	get_date = request.GET.get('date')
 	page = request.GET.get('page', 1)
 	list_sz = request.GET.get('size')
+	point = request.GET.get('point')
 	if list_sz:
 		size = list_sz
 	else:
@@ -635,9 +707,19 @@ def sales_user_chart_paginate(request):
 			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	try:
-		users = Sales.objects.values('user__email', 'user__name', 'terminal').annotate(Count('user')).annotate(
-			Sum('total_net')).annotate(
-			Sum('solditems__quantity')).order_by('solditems__quantity__sum').filter(created__contains=date)
+
+		if point and point != 'all':
+			users = Sales.objects.values('user__email', 'user__name', 'terminal').annotate(Count('user')).annotate(
+				Sum('total_net')).annotate(
+				Sum('solditems__quantity')).order_by('solditems__quantity__sum').filter(created__contains=date, sale_point__name__contains=point)
+			point = SalePoint.objects.get(name=point)
+			point_name = point.name
+		else:
+			users = Sales.objects.values('user__email', 'user__name', 'terminal').annotate(Count('user')).annotate(
+				Sum('total_net')).annotate(
+				Sum('solditems__quantity')).order_by('solditems__quantity__sum').filter(created__contains=date)
+			point = point
+			point_name = point
 		paginator = Paginator(users, int(size))
 		sales = paginator.page(page)
 		data = {
@@ -729,9 +811,10 @@ def get_user_sale_details(request):
 @staff_member_required
 @permission_decorator('reports.view_sale_reports')
 def sales_terminal_chart(request):
-	image = request.POST.get('img')
+	image = request.GET.get('image')
 	today = datetime.now()
 	get_date = request.GET.get('date')
+	point = request.GET.get('point')
 	if get_date:
 		date = get_date
 	else:
@@ -741,38 +824,62 @@ def sales_terminal_chart(request):
 		except:
 			date = DateFormat(datetime.today()).format('Y-m-d')
 
-	if image:
-		dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
-		ImageData = image
-		ImageData = dataUrlPattern.match(ImageData).group(2)
-
-		terminals = Sales.objects.values('terminal__terminal_name', 'terminal').annotate(Count('terminal')).annotate(
-			Sum('total_net')).order_by().filter(created__contains=date)
-		sales_by_category_totals = terminals.aggregate(Sum('total_net__sum'))['total_net__sum__sum']
-		new_sales = []
-		for sales in terminals:
-			color = "#%03x" % random.randint(0, 0xFFF)
-			sales['color'] = color
-			percent = (Decimal(sales['total_net__sum']) / Decimal(sales_by_category_totals)) * 100
-			percentage = round(percent, 2)
-			sales['percentage'] = percentage
-			for s in range(0, terminals.count(), 1):
-				sales['count'] = s
-			new_sales.append(sales)
-
-		data = {
-			'today': last_sale.created,
-			'sales_by_category': new_sales,
-			'puller': request.user,
-			'image': ImageData,
-		}
-		pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/terminal_pdf.html', data)
-		return HttpResponse(pdf, content_type='application/pdf')
+	# if image:
+	# 	dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
+	# 	ImageData = image
+	# 	ImageData = dataUrlPattern.match(ImageData).group(2)
+	#
+	#
+	# 	if point and point != 'all':
+	# 		terminals = Sales.objects.values('terminal__terminal_name', 'terminal').annotate(
+	# 			Count('terminal')).annotate(
+	# 			Sum('total_net')).order_by().filter(created__contains=date, sale_point__name__contains=point)
+	# 		point = SalePoint.objects.get(name=point)
+	# 		point_name = point.name
+	# 	else:
+	# 		terminals = Sales.objects.values('terminal__terminal_name', 'terminal').annotate(
+	# 			Count('terminal')).annotate(
+	# 			Sum('total_net')).order_by().filter(created__contains=date)
+	# 		point = point
+	# 		point_name = point
+	# 	sales_by_category_totals = terminals.aggregate(Sum('total_net__sum'))['total_net__sum__sum']
+	# 	new_sales = []
+	# 	for sales in terminals:
+	# 		color = "#%03x" % random.randint(0, 0xFFF)
+	# 		sales['color'] = color
+	# 		percent = (Decimal(sales['total_net__sum']) / Decimal(sales_by_category_totals)) * 100
+	# 		percentage = round(percent, 2)
+	# 		sales['percentage'] = percentage
+	# 		for s in range(0, terminals.count(), 1):
+	# 			sales['count'] = s
+	# 		new_sales.append(sales)
+	#
+	# 	data = {
+	# 		'today': last_sale.created,
+	# 		'sales_by_category': new_sales,
+	# 		'puller': request.user,
+	# 		'image': ImageData,
+	# 	}
+	# 	pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/terminal_pdf.html', data)
+	# 	return HttpResponse(pdf, content_type='application/pdf')
 
 	if date:
 		try:
-			terminals = Sales.objects.values('terminal__terminal_name', 'terminal').annotate(Count('terminal')).annotate(
-				Sum('solditems__quantity')).annotate(Sum('total_net')).order_by('-solditems__quantity__sum').filter(created__contains = date)
+
+			if point and point != 'all':
+				terminals = Sales.objects.values('terminal__terminal_name', 'terminal').annotate(
+					Count('terminal')).annotate(
+					Sum('solditems__quantity')).annotate(Sum('total_net')).order_by('-solditems__quantity__sum').filter(
+					created__contains=date, sale_point__name__contains=point)
+				point = SalePoint.objects.get(name=point)
+				point_name = point.name
+			else:
+				terminals = Sales.objects.values('terminal__terminal_name', 'terminal').annotate(
+					Count('terminal')).annotate(
+					Sum('solditems__quantity')).annotate(Sum('total_net')).order_by('-solditems__quantity__sum').filter(
+					created__contains=date)
+				point = point
+				point_name = point
 			sales_by_category_totals = terminals.aggregate(Sum('solditems__quantity__sum'))['solditems__quantity__sum__sum']
 			new_sales = []
 			for sales in terminals:
@@ -809,8 +916,34 @@ def sales_terminal_chart(request):
 				"hcateg": highest_user_sales,
 				"sales_date":date,
 				"pn": paginator.num_pages,
-				"count": terminals.count()
+				"count": terminals.count(),
+				"point":point,
+				"point_name":point_name
 			}
+
+			if image:
+				dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
+				ImageData = image
+				ImageData = dataUrlPattern.match(ImageData).group(2)
+
+				data = {
+					"sales_by_category": new_sales2,
+					"categs": categs,
+					"labels": labels,
+					"default": default,
+					"hcateg": highest_user_sales,
+					"sales_date":date,
+					"pn": paginator.num_pages,
+					"count": terminals.count(),
+					"point":point,
+					"point_name":point_name,
+
+					'today': datetime.today(),
+					'puller': request.user,
+					'image': ImageData,
+				}
+				pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/terminal_pdf.html', data)
+				return HttpResponse(pdf, content_type='application/pdf')
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/till.html', data)
 		except ObjectDoesNotExist:
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/till.html',{"sales_date":date})
@@ -931,7 +1064,8 @@ def get_terminal_sale_details(request):
 @permission_decorator('reports.view_products_reports')
 def sales_product_chart(request):
 	get_date = request.GET.get('date')
-	image = request.POST.get('img')
+	point = request.GET.get('point')
+	image = request.GET.get('image')
 	today = datetime.now()
 	if get_date:
 		date = get_date
@@ -942,37 +1076,24 @@ def sales_product_chart(request):
 		except:
 			date = DateFormat(datetime.today()).format('Y-m-d')
 
-	if image:
-		dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
-		ImageData = image
-		ImageData = dataUrlPattern.match(ImageData).group(2)
-
-		sales_by_category = SoldItem.objects.filter(sales__created__contains=date).values('product_category').annotate(
-			c=Count('product_category', distinct=True)).annotate(Sum('total_cost')).order_by('-total_cost__sum')[:5]
-		sales_by_category_totals = sales_by_category.aggregate(Sum('total_cost__sum'))['total_cost__sum__sum']
-		new_sales = []
-		for sales in sales_by_category:
-			color = "#%03x" % random.randint(0, 0xFFF)
-			sales['color'] = color
-			percent = (Decimal(sales['total_cost__sum']) / Decimal(sales_by_category_totals)) * 100
-			percentage = round(percent, 2)
-			sales['percentage'] = percentage
-			for s in range(0, sales_by_category.count(), 1):
-				sales['count'] = s
-			new_sales.append(sales)
-
-		data = {
-			'today': last_sale.created,
-			'sales_by_category': new_sales,
-			'puller': request.user,
-			'image': ImageData,
-		}
-		pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/product_pdf.html', data)
-		return HttpResponse(pdf, content_type='application/pdf')
 	if date:
 		try:
-			sales_by_category = SoldItem.objects.filter(sales__created__contains=date).values('product_name').annotate(
-				c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by('-quantity__sum')
+
+			if point and point != 'all':
+				sales_by_category = SoldItem.objects.filter(sales__created__contains=date, sale_point__name__contains=point).values(
+					'product_name').annotate(
+					c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+					Sum('quantity')).order_by('-quantity__sum')
+
+				point = SalePoint.objects.get(name=point)
+				point_name = point.name
+			else:
+				sales_by_category = SoldItem.objects.filter(sales__created__contains=date).values(
+					'product_name').annotate(
+					c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+					Sum('quantity')).order_by('-quantity__sum')
+				point = point
+				point_name = point
 
 			quantity_totals = sales_by_category.aggregate(Sum('quantity__sum'))['quantity__sum__sum']
 			new_sales = []
@@ -985,6 +1106,7 @@ def sales_product_chart(request):
 				for s in range(0, sales_by_category.count(), 1):
 					sales['count'] = s
 				new_sales.append(sales)
+
 			categs = SoldItem.objects.values('product_name').annotate(Count('product_name', distinct=True)).order_by()
 			this_year = today.year
 			avg_m = Sales.objects.filter(created__year=this_year).annotate(c=Count('total_net'))
@@ -1012,8 +1134,36 @@ def sales_product_chart(request):
 				"hcateg":highest_category_sales,
 				"sales_date":date,
 				"pn":paginator.num_pages,
-				"count":sales_by_category.count()
+				"count":sales_by_category.count(),
+				"point":point,
+				"point_name":point_name
 			}
+			if image:
+				dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
+				ImageData = image
+				ImageData = dataUrlPattern.match(ImageData).group(2)
+
+				data = {
+					"sales_by_category": new_sales,
+					"hello":'mamobo',
+					"categs":categs,
+					"avg":avg_m,
+					"labels":labels,
+					"default":default,
+					"hcateg":highest_category_sales,
+					"sales_date":date,
+					"pn":paginator.num_pages,
+					"count":sales_by_category.count(),
+					"point":point,
+					"point_name":point_name,
+
+					'today': datetime.today(),
+					'puller': request.user,
+					'image': ImageData,
+				}
+				pdf = render_to_pdf('dashboard/reports/sales/charts/pdf/product_pdf.html', data)
+				return HttpResponse(pdf, content_type='application/pdf')
+
 
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/items.html', data)
 		except ObjectDoesNotExist as e:
@@ -1026,6 +1176,7 @@ def sales_product_chart_paginate(request):
 	get_date = request.GET.get('date')
 	page = request.GET.get('page', 1)
 	list_sz = request.GET.get('size')
+	point = request.GET.get('point')
 	if list_sz:
 		size = list_sz
 	else:
@@ -1040,9 +1191,19 @@ def sales_product_chart_paginate(request):
 			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	try:
-		sales_by_category = SoldItem.objects.filter(sales__created__contains=date).values('product_name').annotate(
-			c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by(
-			'-quantity__sum')
+
+		if point and point != 'all':
+			sales_by_category = SoldItem.objects.filter(sales__created__contains=date, sale_point__name__contains=point).values('product_name').annotate(
+				c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by(
+				'-quantity__sum')
+
+			point = SalePoint.objects.get(name=point)
+		else:
+			sales_by_category = SoldItem.objects.filter(sales__created__contains=date).values('product_name').annotate(
+				c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by(
+				'-quantity__sum')
+			point = point
+			print ('amofsg fgs ad')
 		paginator = Paginator(sales_by_category, int(size))
 		sales = paginator.page(page)
 		data = {
@@ -1137,6 +1298,7 @@ def get_product_sale_details(request):
 @permission_decorator('reports.view_products_reports')
 def sales_discount_chart(request):
 	get_date = request.GET.get('date')
+	point = request.GET.get('point')
 	image = request.POST.get('img')
 	today = datetime.now()
 	if get_date:
@@ -1153,8 +1315,20 @@ def sales_discount_chart(request):
 		ImageData = image
 		ImageData = dataUrlPattern.match(ImageData).group(2)
 
-		sales_by_category = SoldItem.objects.filter(sales__created__contains=date).filter(~Q(discount = 0.00)).values('product_category').annotate(
-			c=Count('product_category', distinct=True)).annotate(Sum('total_cost')).order_by('-total_cost__sum')[:5]
+
+		if point and point != 'all':
+			sales_by_category = SoldItem.objects.filter(sales__created__contains=date, sale_point__name__contains=point).filter(~Q(discount=0.00)).values(
+				'product_category').annotate(
+				c=Count('product_category', distinct=True)).annotate(Sum('total_cost')).order_by('-total_cost__sum')[:5]
+			point = SalePoint.objects.get(name=point)
+			point_name = point.name
+		else:
+			sales_by_category = SoldItem.objects.filter(sales__created__contains=date).filter(~Q(discount=0.00)).values(
+				'product_category').annotate(
+				c=Count('product_category', distinct=True)).annotate(Sum('total_cost')).order_by('-total_cost__sum')[:5]
+			point = point
+			point_name = point
+
 		sales_by_category_totals = sales_by_category.aggregate(Sum('total_cost__sum'))['total_cost__sum__sum']
 		new_sales = []
 		for sales in sales_by_category:
@@ -1177,8 +1351,21 @@ def sales_discount_chart(request):
 		return HttpResponse(pdf, content_type='application/pdf')
 	if date:
 		try:
-			sales_by_category = SoldItem.objects.filter(sales__created__contains=date).filter(~Q(discount = 0.00)).values('product_name','discount').annotate(
-				c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by('-quantity__sum')
+
+			if point and point != 'all':
+				sales_by_category = SoldItem.objects.filter(sales__created__contains=date, sale_point__name__contains=point).filter(
+					~Q(discount=0.00)).values('product_name', 'discount').annotate(
+					c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+					Sum('quantity')).order_by('-quantity__sum')
+				point = SalePoint.objects.get(name=point)
+				point_name = point.name
+			else:
+				sales_by_category = SoldItem.objects.filter(sales__created__contains=date).filter(
+					~Q(discount=0.00)).values('product_name', 'discount').annotate(
+					c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+					Sum('quantity')).order_by('-quantity__sum')
+				point = point
+				point_name = point
 
 			quantity_totals = sales_by_category.aggregate(Sum('quantity__sum'))['quantity__sum__sum']
 			new_sales = []
@@ -1218,7 +1405,9 @@ def sales_discount_chart(request):
 				"hcateg":highest_category_sales,
 				"sales_date":date,
 				"pn":paginator.num_pages,
-				"count":sales_by_category.count()
+				"count":sales_by_category.count(),
+				"point":point,
+				"point_name":point_name
 			}
 
 			return TemplateResponse(request, 'dashboard/reports/sales/ajax/discount.html', data)
@@ -1230,6 +1419,7 @@ def sales_discount_chart(request):
 
 def sales_discount_chart_paginate(request):
 	get_date = request.GET.get('date')
+	point = request.GET.get('point')
 	page = request.GET.get('page', 1)
 	list_sz = request.GET.get('size')
 	if list_sz:
@@ -1246,9 +1436,17 @@ def sales_discount_chart_paginate(request):
 			date = DateFormat(datetime.today()).format('Y-m-d')
 
 	try:
-		sales_by_category = SoldItem.objects.filter(sales__created__contains=date).filter(~Q(discount = 0.00)).values('product_name','discount').annotate(
-			c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by(
-			'-quantity__sum')
+
+		if point and point != 'all':
+			sales_by_category = SoldItem.objects.filter(sales__created__contains=date, sale_point__name__contains=point).filter(~Q(discount=0.00)).values(
+				'product_name', 'discount').annotate(
+				c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by(
+				'-quantity__sum')
+		else:
+			sales_by_category = SoldItem.objects.filter(sales__created__contains=date).filter(~Q(discount=0.00)).values(
+				'product_name', 'discount').annotate(
+				c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(Sum('quantity')).order_by(
+				'-quantity__sum')
 		paginator = Paginator(sales_by_category, int(size))
 		sales = paginator.page(page)
 		data = {

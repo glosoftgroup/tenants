@@ -37,7 +37,14 @@
                      <p style="margin-bottom:0px;margin-top:2px;font-size:11px;">
                         ORDERS DATE: {{gid}}
                  </p>{% endif %}
-                   <p style="margin-top:2px;font-size:11px;">{{today | date:'jS F Y'}}</p>
+                 <p>
+                     {% if point.name and point.name != 'all' %}
+                        {{point.name|upper}}
+                      {% else %}
+                        ALL ITEM SALES
+                      {% endif %}
+                 </p>
+                   <p style="margin-top:2px;font-size:11px;">{{today | date:'d-m-Y'}}</p>
                  </p>
              </div>
          <div>
@@ -57,14 +64,14 @@
                 <tbody id="tb">
                {% if orders %}
                     {% for order in orders %}
-                      <tr class='clickable-row' id="{{sale.pk }}">
-                        <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.created|date:"d-m-Y H:i a"}}</td>
-                        <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.invoice_number }}</td>
-                        <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.get_status|title }}</td>
-                        <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{ order.sale_point.name }}</td>
-                        <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{ order.table.name }}</td>
-                        <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}">{{order.quantity}}</td>
-                        <td class="td" data-href="{% url 'dashboard:order-detail' pk=order.pk %}"><span class="pull-right">{{order.total_net }}</span></td>
+                      <tr class='clickable-row'>
+                        <td class="td">{{order.created|date:"d-m-Y H:i a"}}</td>
+                        <td class="td">{{order.invoice_number }}</td>
+                        <td class="td">{{order.get_status|title }}</td>
+                        <td class="td">{{ order.sale_point.name }}</td>
+                        <td class="td">{{ order.table.name }}</td>
+                        <td class="td">{{order.quantity}}</td>
+                        <td class="td"><span class="pull-right">{{order.total_net }}</span></td>
                       </tr>
                     {% endfor %}
                  {% else %}
