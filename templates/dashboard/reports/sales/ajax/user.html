@@ -4,12 +4,19 @@
 <div class="row">
     <div class="col-md-12 animated fadeIn" id="containers">
         <div class="panel panel-flat">
-            <div class="panel-body">
+            <div class="panel-body" id="chart-div">
+                <h5 class="text-center" style="font-weight:bold">
+                      {% if point.name and point.name != 'all' %}
+                        {{point.name|upper}}
+                      {% else %}
+                        ALL USER SALES
+                      {% endif %}
+                  </h5>
             <div class="col-md-6">
              <div id="containerChart" style="width:100%; height:400px;"></div>
             </div>
                 <div class="col-md-6">
-                    <h6 class="text-center">Top 5 Items on {{sales_date}}</h6>
+                    <h6 class="text-center">Top 5 User on {{sales_date}}</h6>
                      <div class="data-table-container">
                         <table class="table bordered highlight responsive data-table" style="border-left:0px;border-right:0px;">
                           <tbody>
@@ -33,26 +40,7 @@
                               </tr>
                               {% endfor %}
                             {% endif %}
-                          <!--{% if sales_by_category %}-->
-                           <!--{% for sales in sales_by_category %}-->
-                              <!--<tr data-action-go="">-->
-                                <!--<td class="td" data-href="{{sales.user__name}}">-->
-                                  <!--<div class="sqaure" style="width: 15px;height: 15px;border-radius: 50%;background-color: {{sales.color}};">-->
-                                  <!--</div>-->
-                                <!--</td>-->
-                                <!--<td class="td" data-href="{{sales.user__name}}">-->
-                                    <!--{{forloop.counter }}.-->
-                                   <!--{{sales.user__name}}-->
-                                <!--</td>-->
-                                <!--<td class="td" data-href="{{sales.user__name}}">-->
-                                     <!--<div><span style="font-size: 0.7em;">Ksh.</span>{{sales.total_net__sum}}</div>-->
-                                <!--</td>-->
-                                <!--<td class="td" data-href="{{sales.user__name}}">-->
-                                  <!--{{ sales.percentage }}%-->
-                                <!--</td>-->
-                              <!--</tr>-->
-                              <!--{% endfor %}-->
-                            <!--{% endif %}-->
+
 
                           </tbody>
                         </table>
@@ -158,7 +146,7 @@ $('.p2-pag').bootpag({
         }).on("page", function(event, num){
             var size = $('.sales-category-ls').find(":selected").val();
             $(".pages-nav").html("Page " + num +" of "+ t);
-            $.get("{% url 'dashboard:sales_user_chart_paginate' %}",{page:parseInt(num), size:size, date:'{{sales_date}}'},function(data){
+            $.get("{% url 'dashboard:sales_user_chart_paginate' %}",{page:parseInt(num), size:size, date:'{{sales_date}}', point:'{{point_name}}'},function(data){
                $('#p-tb').html(data);
             });
     }).children('.pagination').addClass('pagination-flat pagination-sm');
@@ -183,7 +171,7 @@ $('.p2-pag').bootpag({
             t=pages;
             $(".pages-nav").html("Page " + pageNumber +" of "+ t);
 
-            $.get("{% url 'dashboard:sales_user_chart_paginate' %}",{page:parseInt(pageNumber), size:size, date:'{{sales_date}}'},function(data){
+            $.get("{% url 'dashboard:sales_user_chart_paginate' %}",{page:parseInt(pageNumber), size:size, date:'{{sales_date}}', point:'{{point_name}}'},function(data){
                $('#p-tb').html(data);
             });
     });

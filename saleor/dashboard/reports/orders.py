@@ -365,11 +365,12 @@ def orders_search(request):
 
 
 @staff_member_required
-def orders_list_pdf( request ):
+def orders_list_pdf(request):
 
 	if request.is_ajax():
 		q = request.GET.get( 'q' )
 		gid = request.GET.get('gid')
+		point = request.GET.get('point')
 
 		if gid:
 			gid = gid
@@ -389,22 +390,62 @@ def orders_list_pdf( request ):
 
 			if gid:
 				corders = all_orders.filter(created__icontains=gid)
+				if point and point != 'all':
+					for i in corders:
+						p = OrderedItem.objects.filter(orders__pk=i.pk, sale_point__name=point).annotate(
+							c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+							Sum('quantity'))
+						setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+						setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+
+						if p.exists():
+							orders.append(i)
+					point = SalePoint.objects.get(name=point)
+				else:
+					for order in corders:
+						quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
+						setattr(order, 'quantity', quantity['c'])
+						orders.append(order)
+					point = point
+			else:
+				if point and point != 'all':
+					for i in all_orders:
+						p = OrderedItem.objects.filter(orders__pk=i.pk, sale_point__name=point).annotate(
+							c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+							Sum('quantity'))
+						setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+						setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+
+						if p.exists():
+							orders.append(i)
+					point = SalePoint.objects.get(name=point)
+				else:
+					for order in all_orders:
+						quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
+						setattr(order, 'quantity', quantity['c'])
+						orders.append(order)
+					point = point
+
+
+		elif gid:
+			corders = Orders.objects.filter(created__icontains=gid)
+			if point and point != 'all':
+				for i in corders:
+					p = OrderedItem.objects.filter(orders__pk=i.pk, sale_point__name=point).annotate(
+						c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+						Sum('quantity'))
+					setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+					setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+
+					if p.exists():
+						orders.append(i)
+				point = SalePoint.objects.get(name=point)
+			else:
 				for order in corders:
 					quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
 					setattr(order, 'quantity', quantity['c'])
 					orders.append(order)
-			else:
-				for order in all_orders:
-					quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
-					setattr(order, 'quantity', quantity['c'])
-					orders.append(order)
-
-		elif gid:
-			corders = Orders.objects.filter(created__icontains=gid)
-			for order in corders:
-				quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
-				setattr(order, 'quantity', quantity['c'])
-				orders.append(order)
+				point = point
 		else:
 			try:
 				last_order = Orders.objects.latest('id')
@@ -413,10 +454,23 @@ def orders_list_pdf( request ):
 				gid = DateFormat(datetime.datetime.today()).format('Y-m-d')
 
 			corders = Orders.objects.filter(created__icontains=gid)
-			for order in corders:
-				quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
-				setattr(order, 'quantity', quantity['c'])
-				orders.append(order)
+			if point and point != 'all':
+				for i in corders:
+					p = OrderedItem.objects.filter(orders__pk=i.pk, sale_point__name=point).annotate(
+						c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+						Sum('quantity'))
+					setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+					setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+
+					if p.exists():
+						orders.append(i)
+				point = SalePoint.objects.get(name=point)
+			else:
+				for order in corders:
+					quantity = OrderedItem.objects.filter(orders=order).aggregate(c=Count('sku'))
+					setattr(order, 'quantity', quantity['c'])
+					orders.append(order)
+				point = point
 
 		img = default_logo
 		data = {
@@ -424,7 +478,8 @@ def orders_list_pdf( request ):
 			'orders': orders,
 			'puller': request.user,
 			'image': img,
-			'gid':gid
+			'gid':gid,
+			'point':point
 		}
 		pdf = render_to_pdf('dashboard/reports/orders/pdf/saleslist_pdf.html', data)
 		return HttpResponse(pdf, content_type='application/pdf')

@@ -4,7 +4,14 @@
 <div class="row">
     <div class="col-md-12 animated fadeIn" id="containers">
         <div class="panel panel-flat">
-            <div class="panel-body">
+            <div class="panel-body" id="chart-div">
+                <h5 class="text-center" style="font-weight:bold">
+                      {% if point.name and point.name != 'all' %}
+                        {{point.name|upper}}
+                      {% else %}
+                        ALL TILL SALES
+                      {% endif %}
+                  </h5>
             <div class="col-md-6">
              <div id="container" style="width:100%; height:400px;"></div>
             </div>
@@ -137,7 +144,7 @@ $('.p2-pag').bootpag({
         }).on("page", function(event, num){
             var size = $('.sales-category-ls').find(":selected").val();
             $(".pages-nav").html("Page " + num +" of "+ t);
-            $.get("{% url 'dashboard:sales_till_chart_paginate' %}",{page:parseInt(num), size:size, date:'{{sales_date}}'},function(data){
+            $.get("{% url 'dashboard:sales_till_chart_paginate' %}",{page:parseInt(num), size:size, date:'{{sales_date}}', point:'{{point_name}}'},function(data){
                $('#p-tb').html(data);
             });
     }).children('.pagination').addClass('pagination-flat pagination-sm');
@@ -162,7 +169,7 @@ $('.p2-pag').bootpag({
             t=pages;
             $(".pages-nav").html("Page " + pageNumber +" of "+ t);
 
-            $.get("{% url 'dashboard:sales_till_chart_paginate' %}",{page:parseInt(pageNumber), size:size, date:'{{sales_date}}'},function(data){
+            $.get("{% url 'dashboard:sales_till_chart_paginate' %}",{page:parseInt(pageNumber), size:size, date:'{{sales_date}}', point:'{{point_name}}'},function(data){
                $('#p-tb').html(data);
             });
     });

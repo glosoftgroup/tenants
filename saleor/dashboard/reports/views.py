@@ -149,10 +149,6 @@ def sales_paginate(request):
 			all_salesd = Sales.objects.filter(created__icontains=date).order_by('-id')
 			that_date_sum = Sales.objects.filter(created__contains=date).aggregate(Sum('total_net'))
 			sales = []
-			# for sale in all_salesd:
-			# 	quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
-			# 	setattr(sale, 'quantity', quantity['c'])
-			# 	sales.append(sale)
 			if point and point != 'all':
 				for i in Sales.objects.filter(created__contains=date):
 					p = SoldItem.objects.filter(sales__pk=i.pk, sale_point__name=point).annotate(
@@ -276,10 +272,6 @@ def sales_search(request):
 
 			if request.GET.get('gid'):
 				csales = all_sales.filter(created__icontains=request.GET.get('gid'))
-				# for sale in csales:
-				# 	quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
-				# 	setattr(sale, 'quantity', quantity['c'])
-				# 	sales.append(sale)
 				if point and point != 'all':
 					for i in csales:
 						p = SoldItem.objects.filter(sales__pk=i.pk, sale_point__name=point).annotate(
@@ -320,10 +312,6 @@ def sales_search(request):
 										 'gid': request.GET.get('gid')})
 
 			else:
-				# for sale in all_sales:
-				# 	quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
-				# 	setattr(sale, 'quantity', quantity['c'])
-				# 	sales.append(sale)
 				if point and point != 'all':
 					for i in all_sales:
 						p = SoldItem.objects.filter(sales__pk=i.pk, sale_point__name=point).annotate(

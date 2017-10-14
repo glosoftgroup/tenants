@@ -76,6 +76,7 @@ def sales_list_pdf( request ):
 	if request.is_ajax():
 		q = request.GET.get( 'q' )
 		gid = request.GET.get('gid')
+		point = request.GET.get('point')
 
 		if gid:
 			gid = gid
@@ -95,22 +96,64 @@ def sales_list_pdf( request ):
 
 			if gid:
 				csales = all_sales.filter(created__icontains=gid)
+				if point and point != 'all':
+					for i in csales:
+						p = SoldItem.objects.filter(sales__pk=i.pk, sale_point__name=point).annotate(
+							c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+							Sum('quantity'))
+						setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+						setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+						setattr(i, 'total_tax', p.aggregate(Sum('tax'))['tax__sum'])
+
+						if p.exists():
+							sales.append(i)
+					point = SalePoint.objects.get(name=point)
+				else:
+					for sale in csales:
+						quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
+						setattr(sale, 'quantity', quantity['c'])
+						sales.append(sale)
+					point = point
+			else:
+				if point and point != 'all':
+					for i in all_sales:
+						p = SoldItem.objects.filter(sales__pk=i.pk, sale_point__name=point).annotate(
+							c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+							Sum('quantity'))
+						setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+						setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+						setattr(i, 'total_tax', p.aggregate(Sum('tax'))['tax__sum'])
+
+						if p.exists():
+							sales.append(i)
+					point = SalePoint.objects.get(name=point)
+				else:
+					for sale in all_sales:
+						quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
+						setattr(sale, 'quantity', quantity['c'])
+						sales.append(sale)
+					point = point
+
+		elif gid:
+			csales = Sales.objects.filter(created__icontains=gid)
+			if point and point != 'all':
+				for i in csales:
+					p = SoldItem.objects.filter(sales__pk=i.pk, sale_point__name=point).annotate(
+						c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+						Sum('quantity'))
+					setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+					setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+					setattr(i, 'total_tax', p.aggregate(Sum('tax'))['tax__sum'])
+
+					if p.exists():
+						sales.append(i)
+				point = SalePoint.objects.get(name=point)
+			else:
 				for sale in csales:
 					quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
 					setattr(sale, 'quantity', quantity['c'])
 					sales.append(sale)
-			else:
-				for sale in all_sales:
-					quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
-					setattr(sale, 'quantity', quantity['c'])
-					sales.append(sale)
-
-		elif gid:
-			csales = Sales.objects.filter(created__icontains=gid)
-			for sale in csales:
-				quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
-				setattr(sale, 'quantity', quantity['c'])
-				sales.append(sale)
+				point = point
 		else:
 			try:
 				last_sale = Sales.objects.latest('id')
@@ -119,10 +162,24 @@ def sales_list_pdf( request ):
 				gid = DateFormat(datetime.datetime.today()).format('Y-m-d')
 
 			csales = Sales.objects.filter(created__icontains=gid)
-			for sale in csales:
-				quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
-				setattr(sale, 'quantity', quantity['c'])
-				sales.append(sale)
+			if point and point != 'all':
+				for i in csales:
+					p = SoldItem.objects.filter(sales__pk=i.pk, sale_point__name=point).annotate(
+						c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
+						Sum('quantity'))
+					setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+					setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
+					setattr(i, 'total_tax', p.aggregate(Sum('tax'))['tax__sum'])
+
+					if p.exists():
+						sales.append(i)
+				point = SalePoint.objects.get(name=point)
+			else:
+				for sale in csales:
+					quantity = SoldItem.objects.filter(sales=sale).aggregate(c=Count('sku'))
+					setattr(sale, 'quantity', quantity['c'])
+					sales.append(sale)
+				point = point
 
 		img = default_logo
 		data = {
@@ -130,7 +187,8 @@ def sales_list_pdf( request ):
 			'sales': sales,
 			'puller': request.user,
 			'image': img,
-			'gid':gid
+			'gid':gid,
+			'point': point
 		}
 		pdf = render_to_pdf('dashboard/reports/sales/pdf/saleslist_pdf.html', data)
 		return HttpResponse(pdf, content_type='application/pdf')
