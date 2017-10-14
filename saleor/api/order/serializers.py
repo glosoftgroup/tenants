@@ -5,6 +5,7 @@ from rest_framework.serializers import (
                 )
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django.utils.timezone import now
 from ...orders.models import (
             Orders,
             OrderedItem,
@@ -163,7 +164,8 @@ class OrderSerializer(serializers.ModelSerializer):
         order.sub_total = validated_data.get('sub_total')
         order.balance = validated_data.get('balance')
         order.terminal = validated_data.get('terminal')
-        order.table = validated_data.get('table')
+        if validated_data.get('table'):
+            order.table = validated_data.get('table')
         order.sale_point = validated_data.get('sale_point')
         order.amount_paid = validated_data.get('amount_paid')
         order.status = status
@@ -185,8 +187,8 @@ class OrderSerializer(serializers.ModelSerializer):
                     print 'stock not found'
             except Exception as e:
                 print 'Error reducing stock!'
-
-        return order
+        self.order = order
+        return self.order
 
 
 class OrderUpdateSerializer(serializers.ModelSerializer):
@@ -271,5 +273,29 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
         else:
             print validated_data.get('status')
             instance.status = validated_data.get('status', instance.status)
+        instance.last_status_change = now()
         instance.save()
         return instance
+
+
+class ListOrderItemSerializer(serializers.ModelSerializer):
+    order_number = serializers.SerializerMethodField()
+    table = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OrderedItem
+        fields = ('id',
+                  'product_name',
+                  'quantity',
+                  'order_number',
+                  'table',
+                  'sale_point')
+
+    def get_order_number(self, obj):
+        return obj.orders.id
+
+    def get_table(self, obj):
+        try:
+            return obj.orders.table.id
+        except Exception as e:
+            return 'Take away'

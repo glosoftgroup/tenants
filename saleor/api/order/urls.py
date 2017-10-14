@@ -2,10 +2,12 @@ from django.conf.urls import url
 
 from .views import (
     OrderCreateAPIView,
+    OrderItemsListAPIView,
     OrderListAPIView,
     OrderStatusListAPIView,
     OrderUpdateAPIView,
     SalePointOrdersListAPIView,
+    SalePointOrdersItemListAPIView,
     TableOrdersListAPIView,
     )
 
@@ -13,6 +15,8 @@ from .views import (
 urlpatterns = [
     url(r'^$', OrderListAPIView.as_view(),
         name='list-orders'),
+    url(r'^items/$', OrderItemsListAPIView.as_view(),
+        name='list-ordered-items'),
     url(r'^create-order/$',
         OrderCreateAPIView.as_view(),
         name='create-order'),
@@ -22,6 +26,9 @@ urlpatterns = [
     url(r'^sale-point/(?P<pk>[0-9]+)$',
         SalePointOrdersListAPIView.as_view(),
         name='api-sale_point-orders'),
+    url(r'^sale-point-items/(?P<pk>[0-9]+)$',
+        SalePointOrdersItemListAPIView.as_view(),
+        name='api-sale_point-orders-items'),
     url(r'^table/(?P<pk>[0-9]+)$',
         TableOrdersListAPIView.as_view(),
         name='api-table-orders'),

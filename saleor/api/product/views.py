@@ -54,6 +54,7 @@ class SalesDetailAPIView(generics.RetrieveAPIView):
 class SalesCreateAPIView(generics.CreateAPIView):
     queryset = Sales.objects.all()
     serializer_class = SalesSerializer
+
     def perform_create(self, serializer):              
         serializer.save(user=self.request.user)
         user_trail(self.request.user.name,'made a sale:#'+str(serializer.data['invoice_number'])+' sale worth: '+str(serializer.data['total_net']),'add')
@@ -68,7 +69,7 @@ class SalesCreateAPIView(generics.CreateAPIView):
                             crud='deposit',
                             user=self.request.user
                         )
-        drawer = DrawerCash.objects.create(manager=self.request.user,                                        
+        DrawerCash.objects.create(manager=self.request.user,
                                            user = self.request.user,
                                            terminal=terminal,
                                            amount=serializer.data['total_net'],

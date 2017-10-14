@@ -162,7 +162,7 @@ class Sales(models.Model):
         SalePoint, related_name='sale_sale_point', blank=True, null=True, default='',
         verbose_name=pgettext_lazy('Sale field', 'Sale point'))
     table = models.ForeignKey(
-        Table, related_name='table_sales', blank=True, default='',
+        Table, related_name='table_sales', blank=True, null=True, default='',
         verbose_name=pgettext_lazy('Sale field', 'table'))
 
     class Meta:
