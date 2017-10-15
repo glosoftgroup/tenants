@@ -59,9 +59,7 @@ def orders_list(request):
 def orders_detail(request, pk=None, point=None):
 	if point == '0':
 		sale_point = None
-		print 'true'
 	else:
-		print 'false'
 		sale_point = SalePoint.objects.get(pk=int(point))
 
 	try:
@@ -76,13 +74,15 @@ def orders_detail(request, pk=None, point=None):
 
 		for i in all_sale_points:
 			items = OrderedItem.objects.filter(orders=order, sale_point__name=i)
-			try:
-				totals = items.aggregate(Sum('total_cost'))['total_cost__sum']
-			except:
-				totals = 0
-			order_items.append({'name': i, 'items':items, 'amount': totals})
+			if items.exists():
+				try:
+					totals = items.aggregate(Sum('total_cost'))['total_cost__sum']
+				except:
+					totals = 0
+				pks = SalePoint.objects.get(name=i).pk
+				order_items.append({'name': i, 'pk':pks, 'items':items, 'amount': totals})
 
-
+		print len(order_items)
 		data = {
 			'order': order,
 			'epp':order_items,

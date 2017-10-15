@@ -49,7 +49,9 @@
               {% for i in epp %}
                 {% if point %}
                     {% if i.name == point.name %}
-                  <div class="col-md-12"> <h2 class="" style="font-weight:bold">{{i.name}}</h2></div>
+                      <div class="col-md-12">
+                          <h2 class="" style="font-weight:bold">{{i.name}}</h2>
+                      </div>
                       <div class="table-responsives">
                         <table class="table  datatable-header-footer">
 
@@ -83,7 +85,20 @@
                       {% endif %}
                 {% else %}
                   {% if i.items %}
-                  <div class="col-md-12"> <h2 class="" style="font-weight:bold">{{i.name}}</h2></div>
+                      <div class="col-md-12" style="margin-top:{% if not forloop.first %}25px;{% else %}0px{% endif %}">
+                          <div class="col-md-6">
+                              <span class="" style="font-weight:bold; font-size:1.5em">{{i.name}}</span>
+                          </div>
+                          {% if i.items and epp|length > 1%}
+                          <div class="col-md-6">
+                              <a style="margin-bottom:5px;" class="btn btn-primary pull-right printPdf" data-url="{% url 'dashboard:pdf-order-detail' pk=order.pk point=i.pk %}" href="javascript:;">
+                                  <i class="fa fa-file-pdf-o position-left"></i>
+                                  Print
+                              </a>
+                          </div>
+                          {% endif %}
+
+                      </div>
                       <div class="table-responsives">
                         <table class="table  datatable-header-footer">
 
