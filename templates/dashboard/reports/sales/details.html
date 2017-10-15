@@ -45,41 +45,6 @@
                           <h7 class=""><span class="text-bold">Serverd by:</span> {{sale.user.name}}</h7>
                       </div>
                     </div>
-              <!--{% for i in epp %}-->
-              <!--{% if i.items %}-->
-              <!--<div class="col-md-12"> <h2 class="" style="font-weight:bold">{{i.name}}</h2></div>-->
-                  <!--<div class="table-responsives">-->
-                    <!--<table class="table  datatable-header-footer">-->
-
-                          <!--<thead style="border-top:1px solid #ddd;">-->
-                            <!--<tr class="bg-primary">-->
-                              <!--<th>Transaction Date</th>-->
-                              <!--<th>Item Name</th>-->
-                              <!--<th>Unit Cost</th>-->
-                              <!--<th>Quantity</th>-->
-                              <!--<th>Total Sales (KShs)</th>-->
-                            <!--</tr>-->
-                          <!--</thead>-->
-                          <!--<tbody id="tb">-->
-                             <!--{% for item in i.items %}-->
-                                <!--<tr>-->
-                                <!--<td>{{item.orders.created|date:"d-m-Y H:i a"}}</td>-->
-                                <!--<td>{{item.product_name}}</td>-->
-                                <!--<td>{{item.unit_cost}}</td>-->
-                                <!--<td>{{item.quantity}}</td>-->
-                                  <!--<td><span class="pull-right">{{item.total_cost|intcomma}}</span></td>-->
-                              <!--</tr>-->
-                             <!--{% endfor %}-->
-                             <!--<tr>-->
-                                <!--<td colspan="4"><span style="font-weight:bold">Total Sales</span></td>-->
-                                <!--<td><span class="pull-right" style="font-weight:bold">Kshs {{i.amount}}</span></td>-->
-                             <!--</tr>-->
-                            <!--</tbody>-->
-
-                     <!--</table>-->
-                  <!--</div>-->
-                  <!--{% endif %}-->
-                 <!--{% endfor %}-->
               {% for i in epp %}
                 {% if point %}
                     {% if i.name == point.name %}
@@ -117,7 +82,20 @@
                       {% endif %}
                 {% else %}
                   {% if i.items %}
-                  <div class="col-md-12"> <h2 class="" style="font-weight:bold">{{i.name}}</h2></div>
+              <div class="col-md-12" style="margin-top:{% if not forloop.first %}25px;{% else %}0px{% endif %}">
+                          <div class="col-md-6">
+                              <span class="" style="font-weight:bold; font-size:1.5em">{{i.name}}</span>
+                          </div>
+                          {% if i.items and epp|length > 1%}
+                          <div class="col-md-6">
+                              <a style="margin-bottom:5px;" class="btn btn-primary pull-right printPdf" data-url="{% url 'dashboard:pdf-sale-detail' pk=sale.pk point=i.pk %}" href="javascript:;">
+                                  <i class="fa fa-file-pdf-o position-left"></i>
+                                  Print
+                              </a>
+                          </div>
+                          {% endif %}
+                      </div>
+                  <!--<div class="col-md-12"> <h2 class="" style="font-weight:bold">{{i.name}}</h2></div>-->
                       <div class="table-responsives">
                         <table class="table  datatable-header-footer">
 
