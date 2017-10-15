@@ -80,12 +80,17 @@ def sales_detail(request, pk=None, point=None):
 		all_sale_points = list(set(sale_points))
 
 		for i in all_sale_points:
-			sale_items = SoldItem.objects.filter(sales=sale, sale_point__name=i)
 			try:
-				totals = sale_items.aggregate(Sum('total_cost'))['total_cost__sum']
+				sale_items = SoldItem.objects.filter(sales=sale, sale_point__name=i)
+				if sale_items.exists():
+					try:
+						totals = sale_items.aggregate(Sum('total_cost'))['total_cost__sum']
+					except:
+						totals = 0
+					pks = SalePoint.objects.get(name=i).pk
+					items.append({'name': i, 'pk':pks, 'items': sale_items, 'amount': totals})
 			except:
-				totals = 0
-			items.append({'name': i, 'items': sale_items, 'amount': totals})
+				items = []
 
 
 		data = {
