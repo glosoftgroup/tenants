@@ -53,16 +53,25 @@ def add_point(request):
 
 @staff_member_required
 def edit_point(request, pk):
-    return HttpResponse('hello')
+    name = request.POST.get('name')
+    description = request.POST.get('description')
+    point = get_object_or_404(SalePoint, pk=pk)
+    point.name = name
+    point.description = description
+    try:
+        point.save()
+        return HttpResponse('success')
+    except Exception as e:
+        return HttpResponse(e)
 
 
 @staff_member_required
 def delete_point(request, pk):
-    expense = get_object_or_404(SalePoint, pk=pk)
+    point = get_object_or_404(SalePoint, pk=pk)
     if request.method == 'POST':
         try:
-            expense.delete()
-            info_logger.info('deleted sale point: '+ str(expense.expense_type))
+            point.delete()
+            info_logger.info('deleted sale point: '+ str(point.name))
             return HttpResponse('success')
         except Exception, e:
             error_logger.error(e)
