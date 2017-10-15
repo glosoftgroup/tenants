@@ -73,17 +73,14 @@ def orders_detail(request, pk=None, point=None):
 		all_sale_points = list(set(sale_points))
 
 		for i in all_sale_points:
-			try:
-				items = OrderedItem.objects.filter(orders=order, sale_point__name=i)
-				if items.exists():
-					try:
-						totals = items.aggregate(Sum('total_cost'))['total_cost__sum']
-					except:
-						totals = 0
-					pks = SalePoint.objects.get(name=i).pk
-					order_items.append({'name': i, 'pk':pks, 'items':items, 'amount': totals})
-			except:
-				order_items = []
+			items = OrderedItem.objects.filter(orders=order, sale_point__name=i)
+			if items.exists():
+				try:
+					totals = items.aggregate(Sum('total_cost'))['total_cost__sum']
+				except:
+					totals = 0
+				pks = SalePoint.objects.get(name=i).pk
+				order_items.append({'name': i, 'pk':pks, 'items':items, 'amount': totals})
 
 		data = {
 			'order': order,
