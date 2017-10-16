@@ -165,7 +165,10 @@ class OrderSerializer(serializers.ModelSerializer):
         order.balance = validated_data.get('balance')
         order.terminal = validated_data.get('terminal')
         if validated_data.get('table'):
+            order.carry = 'Sitting'
             order.table = validated_data.get('table')
+        else:
+            order.carry = 'Take away'
         order.sale_point = validated_data.get('sale_point')
         order.amount_paid = validated_data.get('amount_paid')
         order.status = status

@@ -153,6 +153,10 @@ class Sales(models.Model):
     discount_name = models.CharField(
         verbose_name=pgettext_lazy('Sales field', 'discount name'),
         max_length=255, default='', blank=True)
+    carry = models.CharField(
+        verbose_name=pgettext_lazy('Sales field', 'carry name'),
+        max_length=255, default='', blank=True)
+
     payment_options = models.ManyToManyField(
         'PaymentOption', related_name='payment_option', blank=True,
         verbose_name=pgettext_lazy('Sales field',
