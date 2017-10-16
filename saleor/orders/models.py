@@ -89,7 +89,9 @@ class Orders(models.Model):
     payment_data = JSONField(null=True, blank=True)
     debt = models.DecimalField(
         pgettext_lazy('Order field', 'debt'), default=Decimal(0), max_digits=100, decimal_places=2)
-
+    carry = models.CharField(
+        verbose_name=pgettext_lazy('Sales field', 'carry name'),
+        max_length=255, default='', blank=True)
     objects = OrdersManager()
 
     class Meta:
