@@ -224,7 +224,9 @@ def send_to_sale(credit):
 
     try:
         sale.table = credit.table
+        sale.carry = 'Sitting'
     except Exception as e:
+        sale.carry = 'Take Away'
         print e
     sale.total_tax = credit.total_tax
     sale.save()
