@@ -92,13 +92,48 @@ class SalePointOrdersListAPIView(generics.ListAPIView):
     queryset = Orders.objects.all()
 
     def list(self, request, pk=None):
-        # Note the use of `get_queryset()` instead of `self.queryset`
+        serializer_context = {
+            'request': Request(request),
+        }
         query = self.request.GET.get('q')
         if query:
             queryset = self.get_queryset().filter(sale_point__pk=pk).filter(status=query)
         else:
             queryset = self.get_queryset().filter(sale_point__pk=pk)
-        serializer = ListOrderSerializer(queryset, many=True)
+        serializer = ListOrderSerializer(queryset, many=True, context=serializer_context)
+        return Response(serializer.data)
+
+
+class SalePointNextOrdersListAPIView(generics.ListAPIView):
+    """
+        list new ordered items
+        @:param q is order status
+        @:param pk sale point id
+        @:param order_pk order start query
+
+        GET /api/order/sale-point/2/47?q=pending-payment
+        test Json: /test/getnewerorders.json
+    """
+    serializer_class = ListOrderSerializer
+    queryset = Orders.objects.all()
+
+    def list(self, request, pk=None, order_pk=None):
+        serializer_context = {
+            'request': Request(request),
+        }
+        query = self.request.GET.get('q')
+        queryset = self.get_queryset().filter(
+            Q(sale_point__pk=pk) and
+            Q(pk__gt=order_pk)
+        )
+        if query:
+            queryset = self.get_queryset().filter(
+                status=query,
+                sale_point__pk=pk,
+                pk__gt=order_pk
+                )
+
+        serializer = ListOrderSerializer(queryset, many=True, context=serializer_context)
         return Response(serializer.data)
 
 

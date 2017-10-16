@@ -12,7 +12,6 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import pgettext_lazy
 from django_countries.fields import Country, CountryField
 from ..search import index
-#from ..sale.models import Sales
 
 
 class AddressBookManager(models.Manager):
