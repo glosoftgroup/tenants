@@ -1,0 +1,72 @@
+/*
+
+        list new ordered items
+        @:param q is order status
+        @:param pk sale point id
+        @:param order_pk order start query
+
+        GET /api/order/sale-point/2/47?q=pending-payment
+        test Json: /test/getnewerorders.json
+*/
+
+[
+    {
+        "id": 48,
+        "user": 1,
+        "invoice_number": "RET#298377796",
+        "table": 1,
+        "sale_point": 1,
+        "total_net": "223.29",
+        "sub_total": "223.29",
+        "balance": "223.29",
+        "terminal": 1,
+        "amount_paid": "300.00",
+        "update_url": "http://127.0.0.1:8000/api/order/update-order/48/",
+        "ordered_items": [
+            {
+                "id": 139,
+                "sale_point": 1,
+                "sku": "2-1340",
+                "quantity": 1,
+                "unit_cost": "35.62",
+                "total_cost": "35.62",
+                "product_name": "Davis-Wilson (Box Size: 100g)",
+                "product_category": "Groceries",
+                "tax": 0,
+                "discount": "0.00"
+            },
+            {
+                "id": 140,
+                "sale_point": 1,
+                "sku": "2-1338",
+                "quantity": 1,
+                "unit_cost": "87.79",
+                "total_cost": "87.79",
+                "product_name": "Davis-Wilson (Box Size: 500g)",
+                "product_category": "Groceries",
+                "tax": 0,
+                "discount": "0.00"
+            },
+            {
+                "id": 141,
+                "sale_point": 1,
+                "sku": "2-1337",
+                "quantity": 1,
+                "unit_cost": "99.88",
+                "total_cost": "99.88",
+                "product_name": "Davis-Wilson (Box Size: 1kg)",
+                "product_category": "Groceries",
+                "tax": 0,
+                "discount": "0.00"
+            }
+        ],
+        "customer": null,
+        "mobile": null,
+        "customer_name": null,
+        "payment_data": "[{u'payment_id': 1, u'value': u'100'}]",
+        "status": "fully-paid",
+        "total_tax": "0.00",
+        "discount_amount": "0.00"
+    }
+]
+
