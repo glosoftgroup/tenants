@@ -267,6 +267,7 @@ def sales_search(request):
 				Q(terminal__terminal_name__icontains=q) |
 				Q(created__icontains=q) |
 				Q(table__name__icontains=q) |
+				Q(carry__icontains=q) |
 				Q(customer__name__icontains=q) | Q(customer__mobile__icontains=q) |
 				Q(solditems__product_name__icontains=q) |
 				Q(user__email__icontains=q) |

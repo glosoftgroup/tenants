@@ -268,6 +268,7 @@ def orders_search(request):
 				Q(sale_point__name__icontains=q) |
 				Q(status__icontains=q) |
 				Q(table__name__icontains=q) |
+				Q(carry__icontains=q) |
 				Q(ordered_items__product_name__icontains=q) |
 				Q(user__email__icontains=q) |
 				Q(user__name__icontains=q)).order_by('id').distinct()
