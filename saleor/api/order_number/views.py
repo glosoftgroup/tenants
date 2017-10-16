@@ -1,6 +1,4 @@
 from rest_framework.response import Response
-from rest_framework.request import Request
-from rest_framework.renderers import JSONRenderer
 from ...orders.models import Orders
 import random
 from rest_framework.decorators import api_view
@@ -17,10 +15,10 @@ class Comment(object):
 @api_view(['GET', 'POST', ])
 def new_order(request):
     try:
-        number = int(Orders.objects.latest('id').id) + random.randrange(10) + request.user.id
+        number = int(Orders.objects.latest('id').id)# + random.randrange(6) + request.user.id
     except Exception as e:
         number = random.randrange(10) + request.user.id
-    order_number = Comment(number='RET#'+str(number))
+    order_number = Comment(number='RET#'+str(request.user.id)+str(''.join(random.choice('0123456789ABCDEF') for i in range(3)))+'-'+str(number))
     serializer = OrderNumberSerializer(order_number)
     return Response(serializer.data)
 

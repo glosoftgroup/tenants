@@ -65,7 +65,7 @@ class OrderItemsListAPIView(generics.ListAPIView):
     serializer_class = ListOrderItemSerializer
 
     def get_queryset(self, *args, **kwargs):
-        queryset_list = OrderedItem.objects.all()
+        queryset_list = OrderedItem.objects.all().order_by('-id')
         query = self.request.GET.get('q')
         if query:
             queryset_list = queryset_list.filter(
@@ -78,7 +78,7 @@ class OrderStatusListAPIView(generics.ListAPIView):
     serializer_class = ListOrderSerializer
 
     def get_queryset(self, *args, **kwargs):
-        queryset_list = Orders.objects.all()
+        queryset_list = Orders.objects.all().order_by('-id')
         query = self.request.GET.get('q')
         if query:
             queryset_list = queryset_list.filter(
@@ -89,7 +89,7 @@ class OrderStatusListAPIView(generics.ListAPIView):
 
 class SalePointOrdersListAPIView(generics.ListAPIView):
     serializer_class = ListOrderSerializer
-    queryset = Orders.objects.all()
+    queryset = Orders.objects.all().order_by('id')
 
     def list(self, request, pk=None):
         serializer_context = {
