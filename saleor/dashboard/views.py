@@ -96,17 +96,7 @@ def index(request):
             return TemplateResponse(request, 'dashboard/ajax.html', ctx)
         else:
             return TemplateResponse(request, 'dashboard/index.html', ctx)
-    except ObjectDoesNotExist as e:
-        if period:
-            return TemplateResponse(request, 'dashboard/ajax.html', {"e":e, "date":date})
-        else:
-            return TemplateResponse(request, 'dashboard/index.html', {"e":e, "date":date})
-    except IndexError as e:
-        if period:
-            return TemplateResponse(request, 'dashboard/ajax.html', {"e":e, "date":date})
-        else:
-            return TemplateResponse(request, 'dashboard/index.html', {"e":e, "date":date})
-    except KeyError as e:
+    except BaseException as e:
         if period:
             return TemplateResponse(request, 'dashboard/ajax.html', {"e":e, "date":date})
         else:
@@ -180,9 +170,8 @@ def top_categories(month=None, year=None, period=None):
             '-quantity__sum')[:5]
         sales_customers = Sales.objects.filter(created__contains=date).count()
         credit_customers = Credit.objects.filter(created__contains=date).count()
-        date_period = None
+        date_period = date
 
-    # if date:
     try:
         sales_by_category = sales_by_category
         quantity_totals = sales_by_category.aggregate(Sum('quantity__sum'))['quantity__sum__sum']
@@ -197,7 +186,6 @@ def top_categories(month=None, year=None, period=None):
                 sales['count'] = s
             new_sales.append(sales)
             sales['total_cost'] = int(sales['total_cost__sum'])
-            # new_sales.append(sales_by_category.setdefault(sales, {'data':'None'}))
         categs = Category.objects.all()
         this_year = today.year
         avg_m = Sales.objects.filter(created__year=this_year).annotate(c=Count('total_net'))
