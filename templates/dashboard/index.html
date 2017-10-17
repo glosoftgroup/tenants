@@ -431,8 +431,8 @@ var url = '{% url 'dashboard:index' %}';
 $('.date-month').datepicker({
     format: "MM/yyyy",
     autoclose: true,
-    //startDate: '{{startMonth}}/{{startYear}}',
-    //endDate: 'now',
+    startDate: '{{startMonth}}/{{startYear}}',
+    endDate: 'now',
     minViewMode: "months"})
     .on('changeDate', function(e) {
         var month = e.date.getMonth()+1;
