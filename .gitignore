@@ -26,5 +26,6 @@ dist/
 /static/
 /saleor/static/assets/
 webpack-bundle.json
-!/saleor/*/migrations/__init__.py
 /saleor/*/migrations/
+!/saleor/*/migrations/__init__.py
+
