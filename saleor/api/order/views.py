@@ -112,7 +112,7 @@ class SalePointNextOrdersListAPIView(generics.ListAPIView):
         @:param order_pk order start query
 
         GET /api/order/sale-point/2/47?q=pending-payment
-        test Json: /test/getnewerorders.json
+        payload Json: /payload/getnewerorders.json
     """
     serializer_class = ListOrderSerializer
     queryset = Orders.objects.all()
@@ -142,7 +142,7 @@ class SalePointOrdersItemListAPIView(generics.ListAPIView):
         list ordered items where q is order status
         1 is sale point id
         GET /api/order/sale-point-items/1?q=fully-paid
-        test Json: /test/orderditems.json
+        payload Json: /payload/orderditems.json
     """
 
     serializer_class = ListOrderItemSerializer
@@ -178,6 +178,15 @@ class TableOrdersListAPIView(generics.ListAPIView):
 
 
 class OrderUpdateAPIView(generics.RetrieveUpdateAPIView):
+    """
+        update order details
+
+        @:param pk order id
+        @:method PUT
+
+        PUT /api/order/update-order/62/
+        payload Json: /payload/update_order.json
+    """
     queryset = Orders.objects.all()
     serializer_class = OrderUpdateSerializer
 

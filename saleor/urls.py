@@ -20,6 +20,7 @@ from .api.payment.urls import urlpatterns as api_payment_urls
 from .api.product.urls import urlpatterns as api_urls
 from .api.sale.urls import urlpatterns as api_sale_urls
 from .api.salepoint.urls import urlpatterns as api_salepoint_urls
+from .api.settings.urls import urlpatterns as api_settings_urls
 from .api.sms.urls import urlpatterns as api_sms_urls
 from .api.table.urls import urlpatterns as api_table_urls
 from .api.terminal.urls import urlpatterns as api_terminal_urls
@@ -58,6 +59,7 @@ urlpatterns = [
     url(r'^api/products/', include(api_urls, namespace='product-api')),
     url(r'^api/payment/', include(api_payment_urls, namespace='payment-api')),
     url(r'^api/sale/', include(api_sale_urls, namespace='sale-api')),
+    url(r'^api/setting/', include(api_settings_urls, namespace='setting-api')),
     url(r'^api/sale-point/', include(api_salepoint_urls, namespace='sale_point-api')),
     url(r'^api/sms/', include(api_sms_urls, namespace='terminal-api')),
     url(r'^api/table/', include(api_table_urls, namespace='table-api')),

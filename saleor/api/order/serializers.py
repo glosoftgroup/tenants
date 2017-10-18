@@ -205,6 +205,7 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
                   'sub_total',
                   'balance',
                   'terminal',
+                  'table',
                   'amount_paid',
                   'status',
                   'total_tax',
@@ -269,6 +270,7 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
         terminal = validated_data.get('terminal', instance.terminal.id)
         terminal.amount += Decimal(validated_data.get('amount_paid', instance.amount_paid))
         terminal.save()
+        instance.table = validated_data.get('table', instance.table)
         instance.debt = instance.debt - validated_data.get('amount_paid', instance.amount_paid)
         instance.amount_paid = instance.amount_paid + validated_data.get('amount_paid', instance.amount_paid)
         if instance.amount_paid >= instance.total_net:

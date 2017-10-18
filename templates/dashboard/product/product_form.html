@@ -56,14 +56,14 @@
 
 {% block header_extra %}
   {% if product.pk %}
-  
+
   <li>
     <a href="#modal_instance" data-href="{% url 'dashboard:product-delete' pk=product.pk %}"
-        class="modal-trigger"><i class="icon-trash position-left"></i> 
+        class="modal-trigger"><i class="icon-trash position-left"></i>
           {% trans "Remove product" context "Product form action" %}
         </a>
-  </li>   
-   
+  </li>
+
   {% endif %}
 {% endblock %}
 
@@ -76,66 +76,66 @@
 <div class="row">
     <div class="col-md-12">
             <div class="panel panel-flat">
-              
+
               <div class="panel-body animated fadeIn">
                 <div class="tabbable ">
-                   
+
                   <ul class="nav nav-tabs nav-tabs-highlight">
                   <!-- general settings tab -->
-                   {% if request.GET.tab %}                   
-                     <li>             
+                   {% if request.GET.tab %}
+                     <li>
                     {% else %}
                       <li class="active bordered-tab1">
                     {% endif %}
                         <a href="#bordered-tab1" data-toggle="tab">Product Name</a>
                       </li>
-                     
-                    
+
+
                     <!-- variant tab -->
-                    {% if request.GET.tab == 'variants'  %}                   
+                    {% if request.GET.tab == 'variants'  %}
                      <li class="active">
                     {% else %}
-                      <li class="bordered-tab2">             
+                      <li class="bordered-tab2">
                     {% endif %}
                     <a href="#bordered-tab2" class="tabProductAdded" data-toggle="tab">Pricing</a></li>
                     <!-- stock tab -->
-                   {% if request.GET.tab == 'stock'  %}                   
+                   {% if request.GET.tab == 'stock'  %}
                      <li class="active">
                     {% else %}
-                      <li>             
+                      <li>
                     {% endif %}
                     <a href="#stock-tab" class="tabProductAdded" data-toggle="tab">Stock</a></li>
                     <!-- images tab -->
-                    {% if request.GET.tab == 'images'  %}                   
+                    {% if request.GET.tab == 'images'  %}
                      <li class="active">
                     {% else %}
-                      <li >             
+                      <li >
                     {% endif %}
-                    
+
                     <a href="#images-tab" class="tabProductAdded" data-toggle="tab">Images</a>
                     </li>
                      <!-- endif %} -->
-                    
+
                   </ul>
-                    
+
                   <div class="tab-content">
-                  {% if request.GET.tab %}                   
-                     <div class="tab-pane has-padding" id="bordered-tab1">            
+                  {% if request.GET.tab %}
+                     <div class="tab-pane has-padding" id="bordered-tab1">
                     {% else %}
                       <div class="tab-pane has-padding active" id="bordered-tab1">
                     {% endif %}
 
                        <!-- 2 columns form -->
         <form method="post" class="form-horizontals" id="form-product" enctype="multipart/form-data" novalidate>
-          {% csrf_token %}         
+          {% csrf_token %}
             <div class="panelpanel-flat">
-             
+
               <div class="panel-body">
-              
+
                 {% if errors %}
                 <div class="alert alert-danger alert-styled-left">
-                  {{errors}} 
-                  </div>             
+                  {{errors}}
+                  </div>
                 {% endif %}
 
   <!-- panel -->
@@ -155,11 +155,26 @@
               <div class="form-group" >
                 <label>Product Category:<i class='text-danger'> *</i> </label>
                 <div class="input-group">
-                             
+
                       <div class=" input-group-btn" id='category_field' >
-                        {{ product_form.categories }}
+                        <!--{{ product_form.categories }}-->
+                          <select style="display:none" class="form-control" id="id_categories" name="categories" required>
+                              {% if product.pk %}
+                              {% with product.get_first_category as category %}
+                              {% if category %}
+                              <option value="{{category.id}}">{{ category }}</option>
+                              {% endif %}
+                              {% endwith %}
+                              {% else %}
+                              <option value="">---</option>
+                              {% endif %}
+
+                              {% for cat in categories %}
+                              <option value="{{cat.pk}}">{{cat}}</option>
+                              {% endfor %}
+                          </select>
                       </div>
-                  
+
                   <div class="input-group-btn">
                      <button type="button" class="btn bg-primary btn-icon legitRipple edit_modal-trigger" data-popup="tooltip"
                     data-original-title="Add New category"
@@ -187,23 +202,23 @@
               </div>
               </div>
             </div>
-        
-      
+
+
      </div>
 
      <!-- product attributes -->
      <div class="col-md-12">
        <!-- Product attributes -->
         <div class="col-md-12 hidden">
-          
-         <div class="form-group">         
+
+         <div class="form-group">
           <label> Product Attributes</label>
           <button type="button" class="btn btn-flat btn-sm" data-popup="popover" data-placement="bottom" title="Product Type" data-trigger="hover" data-content="– it’s a characteristic of a product, shared with all product variants. Example: Manufacturer - all flour variants(1kg,2kg) are published by same company"> <i class="icon-info22 position-right"></i></button>
            <span>
             <a href="">
               <input type="hidden" value='{% url "dashboard:product-attr-add-value" 1 %}' id="link-pk" name="link-pk">
               <button id="add-new-classd" onclick="return false;" class="btn bg-primary btn-icon  text-bold btn- btn-lg" data-refresh="{% url 'dashboard:product-class-add' %}" data-href='{% url "dashboard:product-attr-add-value" 1 %}'
-                      href="#modal_attribute"  data-popup="tooltip" 
+                      href="#modal_attribute"  data-popup="tooltip"
             data-original-title="Add attributes" data-title="Add attributes">
             <i class="icon-plus-circle2"></i>
             </button>
@@ -225,11 +240,11 @@
         </div>
       </div>
       <!-- ./product attribute -->
-  <div class="hidden"> 
+  <div class="hidden">
    {% if product.pk %}
    {{ product_form.price }}
     {% if not product.product_class.has_variants %}
-        <div class="row">   
+        <div class="row">
          {{ variant_form.sku|materializecss }}
        </div>
        {% endif %}
@@ -237,19 +252,19 @@
     <div class="col-md-9">
     <input class="form-control" id="idprice" name="price" value="0" required="" type="number">
     <input class="form-control validate" id="idvariant-sku" maxlength="32" name="variant-sku" value="EN000-1" required="required" type="text">
-    </div>  
-    {% endif %}    
-    
+    </div>
+    {% endif %}
+
   </div>
 
 
-     </div>    
+     </div>
 
     </div>
-    <!-- ./body --> 
-  
+    <!-- ./body -->
+
   <!-- ./panel -->
- 
+
 
 
                 <div class="col-md-6 col-md-offset-3 text-center p-10" style="margin-top:20px;">
@@ -257,7 +272,7 @@
               <a href="{% url 'dashboard:product-list' %}" class="btn btn-default pull-left">
                 {% trans "Cancel" context "Dashboard cancel action" %}
               </a>
-              <button type="submit" class="btn btn-primary waves-effect waves-light pull-right">
+               <button onclick="return false;" data-pk="{{product.pk}}" data-href="{% url 'dashboard:product-data' %}" id="update_product_btn" type="submit" class="btn btn-primary waves-effect waves-light pull-right">
                 {% trans "Update" context "Dashboard update action" %}
               </button>
             {% else %}
@@ -278,14 +293,14 @@
 
   <!-- ./end produc pricing -->
                     <!-- panel product variant -->
-                    {% if request.GET.tab == 'variants'  %}                   
+                    {% if request.GET.tab == 'variants'  %}
                      <div class="tab-pane has-padding active" id="bordered-tab2">
                     {% else %}
-                      <div class="tab-pane has-padding" id="bordered-tab2">            
+                      <div class="tab-pane has-padding" id="bordered-tab2">
                     {% endif %}
                     {% include "dashboard/product/partials/pricing.html" with product=product %}
                     {% if product.pk %}
-     
+
                       {% if product.product_class.has_variants %}
       <!-- CODE V -->
       <div id="variants" class="">
@@ -301,13 +316,13 @@
       <div id="toggleVariant" class="card-3">
       <table class="table table-hover">
         <thead>
-        <tr class="bg-primary">  
-        <th>SKU</th>          
-        {% for v in pc %} 
-         <th>{{v}}</th>       
+        <tr class="bg-primary">
+        <th>SKU</th>
+        {% for v in pc %}
+         <th>{{v}}</th>
         {% endfor %}
         <th>Retail Price</th>
-        <th>Wholesale Price</th>        
+        <th>Wholesale Price</th>
         <th></th>
         </tr>
         </thead>
@@ -322,20 +337,20 @@
           {% for v in pc%}
           <td>
            <select placeholder="{{v}}" data-pk={{v.pk}} name="{{v}}" class="bootstrap-select form-control dynamicvxx">
-            <option></option>         
-            
-              {% for value in v.values.all %} 
+            <option></option>
+
+              {% for value in v.values.all %}
                 <option value="{{value.pk}}">{{ value }}</option>
               {% endfor %}
             </select>
-            </td>            
+            </td>
           {% endfor %}
            <td>
             <input type="number" placeholder="Retail price" class="form-control" id="rprice" name='rprice'>
             </td>
             <td>
               <input type="number" placeholder="Wholesale Price" class="form-control" id="wprice" name='wprice'>
-            </td>     
+            </td>
             <td>
               <button class="btn btn-xs btn-primary" id="addvariantBtn" data-refreshvurl="{% url 'dashboard:refresh-stock-table' product_pk=product.pk %}" data-productpk="{{product.pk}}" data-attrurl="{% url 'dashboard:add-attributes' %}">Add</button>
             </td>
@@ -343,7 +358,7 @@
         </tbody>
       </table>
       </div>
-      
+
       <!-- <button class="btn btn-primary" id="addNewvaraints">New variant</button> -->
         <form method="post" action="{% url 'dashboard:variant-bulk-delete' product_pk=product.pk %}" novalidate>
           {% csrf_token %}
@@ -386,7 +401,7 @@
                 <!-- end footer -->
               </div>
               </div>
-              
+
             </div>
           </div>
           <div class="data-table-container" id="refreshvaraintscontent">
@@ -394,9 +409,9 @@
             <table class="table  datatable-header-footer">
               {% if variants %}
                 <thead>
-               
+
                   <tr class="bg-primary">
-                    
+
                     <th>
                       {% trans "SKU" context "Product variant table header" %}
                     </th>
@@ -405,8 +420,8 @@
                       <th>
                         {{ attribute.name|capfirst }}
                       </th>
-                    {% endfor %}                  
-                    
+                    {% endfor %}
+
                     <th class="right-align">
                       Retail Price
                     </th>
@@ -419,7 +434,7 @@
                 <tbody>
                   {% for variant in variants %}
                     <tr id="variant-row{{variant.pk}}" data-action-go="{% url 'dashboard:variant-update' product_pk=product.pk variant_pk=variant.pk %}" title="{% trans "Edit variant" context "Product variant table link title" %}">
-                      
+
                       <td>
                         {{ variant.sku }}
                       </td>
@@ -431,7 +446,7 @@
                           {{ attr_display }}
                         </td>
                       {% endfor %}
-                     
+
                       <!-- retail price -->
                       <td class="right-align">
                 {% gross variant.get_price_per_item html=True %}
@@ -448,19 +463,19 @@
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         action <span class="caret"></span>
                         </button>
-                        <ul class="dropdown-menu edit-dropdown">   
+                        <ul class="dropdown-menu edit-dropdown">
                         <li><a onclick="return false;" class="editVariantBtn" data-pk="{{variant.pk}}" data-href="{% url 'dashboard:variant-update' product_pk=product.pk variant_pk=variant.pk %}"><i class="icon-pencil7"></i> EDIT</a></li>
-                       
+
                         <li>
-                          <a data-ta="#modal_delete_instance" data-title="Delete {{variant}}?" data-href="{% url 'dashboard:single-variant-delete' product_pk=product.pk variant_pk=variant.pk %}" data-tabname='?tab=variants' 
+                          <a data-ta="#modal_delete_instance" data-title="Delete {{variant}}?" data-href="{% url 'dashboard:single-variant-delete' product_pk=product.pk variant_pk=variant.pk %}" data-tabname='?tab=variants'
                          data-successurl="{% url 'dashboard:product-update' pk=product.pk  %}" data-name="{{ variant.name }}" data-id="{{ variant.pk }}"
                        class="modal-trigger-delete"><i class="icon-trash" href="#modal_delete_instance" data-toggle="modal"></i> DELETE
                        </a>
                         </li>
-                       
+
                         </ul>
                     </div>
-                      
+
                     </td>
                     </tr>
                   {% endfor %}
@@ -487,16 +502,16 @@
      </div>
     {% endif %}
     {% endif %}
-     
+
                     </div>
                     <!-- end product variant -->
                     <!-- product stock -->
-                    {% if request.GET.tab == 'stock'  %}                   
+                    {% if request.GET.tab == 'stock'  %}
                      <div class="tab-pane has-padding active" id="stock-tab">
                     {% else %}
-                     <div class="tab-pane has-padding" id="stock-tab">            
+                     <div class="tab-pane has-padding" id="stock-tab">
                     {% endif %}
-                    
+
                      {% if product.pk %}
                   <!-- CODE S -->
       <!-- STOCK DETAILS -->
@@ -542,14 +557,14 @@
             <!-- end footer -->
             </div>
             </div>
-            <!-- end dialog -->            
+            <!-- end dialog -->
           </div>
           <!-- end modal -->
         </div>
-      
+
         <div class="data-table-container">
           <table class="table  datatable-header-footer responsive data-table">
-            
+
             <thead>
               <tr class='bg-primary'>
                 <th>Name</th>
@@ -559,7 +574,7 @@
                 <th> Cost Price</th>
                 <th>
                   Retail Price
-                </th>                
+                </th>
                 <!-- <th class="wide">
                   {% trans "Location" context "Stock table header" %}
                 </th> -->
@@ -577,25 +592,25 @@
             </thead>
              <tbody id="refreshStockitems">
             {% if stock_items %}
-           
+
               {% for item in stock_items %}
                 <tr data-action-go="{% url 'dashboard:product-stock-update' product_pk=product.pk stock_pk=item.pk %}" title="{% trans "Edit variant" context "Stock table action" %}">
                   <td>{{ item.variant.display_product }}</td>
                   <td>
-                    {{ item.variant.sku }}                    
+                    {{ item.variant.sku }}
                   </td>
                   <!-- cost price -->
                   <td>
                     {% if item.cost_price %}
                      {% gross item.cost_price %}
-                    {% endif %}   
+                    {% endif %}
                   </td>
                   <!-- sales price -->
-                  <td> 
+                  <td>
                   {% gross item.variant.get_price_per_item html=True %}
                   </td>
-                  
-                  
+
+
                   <td class="right-align">
                     {{ item.quantity }}
                   </td>
@@ -610,28 +625,28 @@
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         action <span class="caret"></span>
                         </button>
-                        <ul class="dropdown-menu edit-dropdown">   
+                        <ul class="dropdown-menu edit-dropdown">
                         <li><a onclick="return false;" data-href="{% url 'dashboard:product-stock-update' product_pk=product.pk stock_pk=item.pk %}" class="edit-stock-Btn"><i class="icon-pencil7"></i> EDIT</a></li>
-                       
+
                         <li>
                           <a data-ta="#modal_delete_instance" data-title="Delete {{item.variant.sku}}?" data-href="{% url 'dashboard:single-stock-delete' product_pk=product.pk stock_pk=item.pk %}" data-tabname='?tab=stock'
                          data-successurl="{% url 'dashboard:product-update' pk=product.pk  %}" data-name="{{ item.variant.sku }}" data-id="{{ item.pk }}"
                        class="modal-trigger-delete"><i class="icon-trash" href="#modal_delete_instance" data-toggle="modal"></i> DELETE
                        </a>
                         </li>
-                       
+
                         </ul>
                     </div>
-                    
+
                   </td>
                 </tr>
-              {% endfor %}           
-            {% else %}             
+              {% endfor %}
+            {% else %}
                 <tr>
                   <td colspan="8">
                     <span class="text-center alert alert-warning">
                       {% trans "There is no stock for this product." context "Empty stock table message" %}
-                      
+
                     </span>
                   </td>
                 </tr>
@@ -646,29 +661,29 @@
                     </div>
                     <!-- end product stock -->
                     <!-- IMAGES tAB -->
-                    {% if request.GET.tab == 'images'  %}                   
+                    {% if request.GET.tab == 'images'  %}
                      <div class="tab-pane has-padding active" id="images-tab">
                     {% else %}
-                      <div class="tab-pane has-padding" id="images-tab">            
+                      <div class="tab-pane has-padding" id="images-tab">
                     {% endif %}
-                    
+
                      {% if product.pk %}
                          <div id="images" class="">
       <form action="{% url 'dashboard:product-images-upload' product_pk=product.pk %}" class="" id="product-image-form" novalidate>
         <div class="dz-message"></div>
         {% csrf_token %}
         <input type="hidden" name="success_url" value="{% url 'dashboard:product-update' pk=product.pk %}?tab=images">
-        
+
         <div class="row">
           <div class="col-md-12">
             <div class="col-md-4">
             <div class="text-left" style="margin-bottom: 8px;">
-              <a class="btn btn-primary  waves-effect waves-light images-bt" id="images-bt" onclick="return false;" data-href="{% url 'dashboard:product-image-add' product_pk=product.pk %}" title=""> Add Image 
+              <a class="btn btn-primary  waves-effect waves-light images-bt" id="images-bt" onclick="return false;" data-href="{% url 'dashboard:product-image-add' product_pk=product.pk %}" title=""> Add Image
                  </a>
             </div>
 
-          </div>         
-          
+          </div>
+
           <div  class='col-md-8 hidden' id="myloader">
             <div class="cs-loader mt-15">
               <div class="cs-loader-inner text-primary">
@@ -684,14 +699,14 @@
           </div>
           <div class="col-md-12" id="add-image-form-div"></div>
           <br>
-          {% if images %}    
-            
+          {% if images %}
+
               {% for image in images %}
               <div class="col-lg-3 col-sm-6">
               <div class="thumbnail">
                 <div class="thumb">
-                  <img class="" 
-                             src="{{ image.image.crop.255x255 }}" 
+                  <img class=""
+                             src="{{ image.image.crop.255x255 }}"
                              srcset="{{ image.image.crop.255x255 }} 1x, {{ image.image.crop.510x510 }} 2x"
                              alt="">
                   <div class="caption-overflow">
@@ -722,9 +737,9 @@
                 </div>
               </div>
             </div>
-               
+
               {% endfor %}
-            
+
         {% else %}
           <p class="no-images">
             {% trans "This product has no images yet." context "Empty image gallery message" %}
@@ -733,7 +748,7 @@
             {% if images|length > 4 %}
         <div class="col-md-12">
           <div class="text-right">
-            <a class="btn btn-primary  waves-effect waves-light images-bt" id="images-bt2" onclick="return false;" data-href="{% url 'dashboard:product-image-add' product_pk=product.pk %}" title=""> Add Image 
+            <a class="btn btn-primary  waves-effect waves-light images-bt" id="images-bt2" onclick="return false;" data-href="{% url 'dashboard:product-image-add' product_pk=product.pk %}" title=""> Add Image
                </a>
           </div>
           </div>
@@ -775,19 +790,19 @@
     {% endif %}
                      </div>
                     <!-- END IMAGES TAB -->
-                    
-                    
+
+
                   </div>
                 </div>
               </div>
             </div>
-          </div>                
+          </div>
 
 </div>
 <input type="hidden" class="pageUrls" data-attributes="{% url 'dashboard:attr_list_f32b' %}" data-variantdetail="{% url 'dashboard:have-variants' %}" data-addattrurl="{% url 'dashboard:product-attr-add' %}" data-addclassurlb="{% url 'dashboard:attr_list_f32d' %}" data-addclassurl="{% url 'dashboard:product-class-form32b' %}">
  {% include "dashboard/includes/_modal_images.html"  %}
  {% include "dashboard/includes/_modal_add_category.html"  %}
- {% include "dashboard/includes/_modal_add_tax.html"  %} 
+ {% include "dashboard/includes/_modal_add_tax.html"  %}
  {% include "dashboard/includes/_modal_classesd.html"  %}
  {% include "dashboard/includes/_modal_attribute_choice.html"  %}
  {% include "dashboard/includes/_modal_type.html"  %}
@@ -806,7 +821,7 @@
 <script type="text/javascript" src="{% static 'backend/js/addProduct.js' %}"></script>
 
   <script type="text/javascript" src="{% static 'backend/js/plugins/forms/styling/switch.min.js' %}"></script>
-   
+
   <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
   <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
   <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
@@ -821,32 +836,32 @@
 <script type="text/javascript" src="{% static 'backend/js/plugins/supplier.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/deleteModal.js' %}"></script>
  <script type="text/javascript">
- 
+
   $( document ).ready(function() {
     $('.selectAttributesChoice').tokenize2({
     placeholder: 'Add attribute choice(s) (eg. 1kg, 2kg)',
-    tokensAllowCustom:true,      
+    tokensAllowCustom:true,
     });
     $('.selectVariantChoice').tokenize2({
     placeholder: 'Add attribute choice(s) (eg. 1kg, 2kg)',
-    tokensAllowCustom:true,      
+    tokensAllowCustom:true,
     });
-    function addAttributePlusChoice(dynamicData,myUrl) 
-    {     
+    function addAttributePlusChoice(dynamicData,myUrl)
+    {
        return $.ajax({
           url: myUrl,
           type: "post",
           data: dynamicData
         });
     }
-    
+
     var getAttributesChoice = $('.selectAttributesChoice');
     var getVariantChoice = $('.selectVariantChoice');
     var addAttributeChBtn = $('#addAttributeChBtn');
     var addVariantChBtn = $('#addVariantChBtn');
 
     addVariantChBtn.on('click',function(){
-      var newattrName = $('#newvName').val();      
+      var newattrName = $('#newvName').val();
       var choices = getVariantChoice.val();
       if(!newattrName)
       {
@@ -872,10 +887,10 @@
         newattrName = '';
         dynamicData = {};
         newattrName = '';
-         
+
         getVariantChoice.parents('div').find('li.token').remove();
         $(".selectVariantChoice option[data-type='custom']").remove();
-        $('#newvName').val('');        
+        $('#newvName').val('');
       })
       .fail(function(){
         alertUser('Variant already exist','bg-danger','Add unique variant name');
@@ -905,7 +920,7 @@
       .done(function(data){
         alertUser('Success');
         getAttributesChoice.val('');
-         
+
          $(".selectAttributesChoice").parents('div').find('li.token').remove();
         $('#newattrName').val('');
       })

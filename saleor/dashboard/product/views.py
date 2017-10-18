@@ -544,6 +544,10 @@ def product_data(request):
         if request.POST.get('threshold'):
             product.low_stock_threshold = int(request.POST.get('threshold'))
         product.save()
+        if request.POST.get('categories'):
+            category = request.POST.get('categories')
+            product.categories.clear()
+            product.categories.add(category)
         return HttpResponse({'message':str(product)+' Added'})
 
     return HttpResponse('Invalid Method!')
@@ -640,6 +644,7 @@ def product_create(request):
 @staff_member_required
 @permission_decorator('product.change_product')
 def product_edit(request, pk,name=None):
+    sale_points = SalePoint.objects.all().order_by('-id')
     product = get_object_or_404(
         Product.objects.prefetch_related(
             'images', 'variants'), pk=pk)
@@ -674,9 +679,16 @@ def product_edit(request, pk,name=None):
             'Dashboard message', 'Updated product %s') % product
         messages.success(request, msg)
         return redirect('dashboard:product-update', pk=product.pk,go='pricing')
-    ctx = {'stock_form':stock_form,'pc':pc,'attributes': attributes, 'images': images, 'product_form': form,
-           'product': product, 'stock_delete_form': stock_delete_form,
-           'stock_items': stock_items, 'variants': variants,
+    ctx = {'stock_form': stock_form,
+           'pc': pc,
+           'attributes': attributes,
+           'images': images,
+           'product_form': form,
+           'sale_points': sale_points,
+           'product': product,
+           'stock_delete_form': stock_delete_form,
+           'stock_items': stock_items,
+           'variants': variants,
            'variants_delete_form': variants_delete_form,
            'variant_form': variant_form}
     if name:
