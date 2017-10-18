@@ -158,6 +158,7 @@ def orders_paginate(request):
 						c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
 						Sum('quantity'))
 					setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+					setattr(i, 'point', str(point))
 					setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
 
 					if p.exists():
@@ -206,6 +207,7 @@ def orders_paginate(request):
 						c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
 						Sum('quantity'))
 					setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+					setattr(i, 'point', str(point))
 					setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
 
 					if p.exists():
@@ -282,6 +284,7 @@ def orders_search(request):
 							c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
 							Sum('quantity'))
 						setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+						setattr(i, 'point', str(point))
 						setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
 
 						if p.exists():
@@ -321,6 +324,7 @@ def orders_search(request):
 							c=Count('product_name', distinct=True)).annotate(Sum('total_cost')).annotate(
 							Sum('quantity'))
 						setattr(i, 'quantity', p.aggregate(c=Count('sku'))['c'])
+						setattr(i, 'point', str(point))
 						setattr(i, 'total_net', p.aggregate(Sum('total_cost'))['total_cost__sum'])
 
 						if p.exists():
