@@ -1,3 +1,4 @@
+{% load static %}
 {% if option %}
     <div class=" detail-column">
         
@@ -22,7 +23,9 @@
             
           </div>
     </div>
+<script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
 <script type="text/javascript">
+    $('#id_sale_point').selectpicker();
     var updateOptionBtn = $('#updateOption');
     var number = $('#number');
     var optname = $('#optname');
@@ -67,7 +70,8 @@
         alertUser('Error occurred. Try another name','bg-danger','Error!')
        });
     });
-$('#id_sale_point').selectpicker();
+
+
 </script>
 {% else %}
 <div class="alert bg-info col-md-12">

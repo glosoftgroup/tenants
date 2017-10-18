@@ -166,7 +166,7 @@ class Sales(models.Model):
         SalePoint, related_name='sale_sale_point', blank=True, null=True, default='',
         verbose_name=pgettext_lazy('Sale field', 'Sale point'))
     table = models.ForeignKey(
-        Table, related_name='table_sales', blank=True, null=True, default='',
+        Table, related_name='table_sales', blank=True, null=True, default='', on_delete=models.SET_NULL,
         verbose_name=pgettext_lazy('Sale field', 'table'))
 
     class Meta:
@@ -217,7 +217,7 @@ class SoldItem(models.Model):
 class DrawerCash(models.Model):
     trans_type = models.CharField(
         pgettext_lazy('DrawerCash field', 'drawer trans type'),
-        max_length=32, choices= TransactionStatus.CHOICES, default=TransactionStatus.DEPOSIT)   
+        max_length=32, choices=TransactionStatus.CHOICES, default=TransactionStatus.DEPOSIT)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, blank=True, null=True, related_name='cashier',
         verbose_name=pgettext_lazy('DrawerCash field', 'user'))
