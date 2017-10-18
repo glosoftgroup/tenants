@@ -39,7 +39,10 @@ $(function() {
  var thresholdId = $('#id_variant-low_stock_threshold');
  var supplierId  = $('#id_product_supplier');
  var skuId       = $('#id_variant-sku'); 
- var updateStockBtn = $('#updatestock'); 
+ var updateStockBtn = $('#updatestock');
+ var id_name = $('#id_name');
+ var id_categories = $('#id_categories');
+ var update_product_btn = $('#update_product_btn');
  skuId.attr('disabled','disabled');
  
  $('.disablesku').find('input[name=variant-sku]')
@@ -72,6 +75,25 @@ $(function() {
       alertUser('Data sent successfully');      
     }).fail(function(){
       alertUser('Error adding stock details','bg-danger','Error!');
+    });
+
+ });
+ update_product_btn.on('click',function(){
+   dynamicData = {};
+   dynamicData['pk'] = $(this).data('pk');
+   if(!id_name.val())
+   { alertUser('Product name required','bg-success','Field Error');
+    return false; }else{ dynamicData['name'] = id_name.val();
+   }
+   if(!id_categories.val())
+   { alertUser('Product Categories required','bg-success','Field Error');
+    return false;  }else{  dynamicData['categories'] = id_categories.val();
+   }
+   addProductDetails(dynamicData,$(this).data('href'),'post')
+    .done(function(data){
+      alertUser('Data sent successfully');
+    }).fail(function(){
+      alertUser('Error updating product details','bg-danger','Error!');
     });
 
  });
