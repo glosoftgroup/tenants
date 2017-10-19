@@ -127,13 +127,21 @@
                     {% if perms.sale.delete_paymentoption %}
                     <!-- actions -->
                     <td class="text-center">
-                      <ul class="icons-list">
-                        <li>
-                          <a data-ta="#modal_instance" data-title="Delete  table {{ option.name }} ?" data-href="{% url 'dashboard:table-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
-                         class="modal-trigger btn btn-default btn-sm del-btn"><i class="icon-trash" style="font-size: 11px;" href="#modal_instance" data-toggle="modal"></i> delete
-                         </a>
-                        </li>
-                      </ul>
+                        <div class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle legitRipple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        action <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu edit-dropdown">
+                              <li class="td" data-href="{% url 'dashboard:table-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail"><a><i class="icon-pencil7"></i> EDIT</a>
+                              </li>
+                            <li>
+                                <a data-ta="#modal_instance" data-title="Delete  table {{ option.name }} ?" data-href="{% url 'dashboard:table-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
+                         class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
+                            </a>
+                            </li>
+
+                        </ul>
+                      </div>
                     </td>
                     {% endif %}
                   </tr>
@@ -297,6 +305,7 @@
         $('#addExpenseTable').slideToggle( "slow");
     });
     $('#id_sale_point').selectpicker();
+    $('.spoint').selectpicker();
 
     $('.expense_type').selectpicker({
         iconBase: 'fa',
@@ -669,7 +678,6 @@
 
 
   });
-
 
 </script>
 {% endblock %}

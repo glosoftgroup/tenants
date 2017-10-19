@@ -12,7 +12,6 @@ from ..search import index
 
 
 class AddressBookManager(models.Manager):
-
     def as_data(self, address):
         data = model_to_dict(addressbook, exclude=['id', 'user'])
         if isinstance(data['country'], Country):
@@ -93,54 +92,50 @@ class AddressBook(models.Model):
                 self.contact_name, self.company_name, self.street_address_1, self.street_address_2,
                 self.city, self.postal_code, self.country, self.country_area,
                 self.phone))
-    
 
 
 class SupplierManager(BaseUserManager):
-
     def create_supplier(self, email, password=None,
-                    is_active=True, username='', **extra_fields):
+                        is_active=True, username='', **extra_fields):
         'Creates a User with the given username, email and password'
         email = SupplierManager.normalize_email(email)
         supplier = self.model(email=email, is_active=is_active,
-                           **extra_fields)
+                              **extra_fields)
         if password:
             supplier.set_password(password)
         supplier.save()
         return supplier
 
 
-
 class SupplierManager(BaseUserManager):
-
     def create_supplier(self, email, password=None,
-                    is_active=True, username='', **extra_fields):
+                        is_active=True, username='', **extra_fields):
         'Creates a User with the given username, email and password'
         email = SupplierManager.normalize_email(email)
         supplier = self.model(email=email, is_active=is_active,
-                           **extra_fields)
+                              **extra_fields)
         supplier.save()
         return supplier
-    
+
 
 class Supplier(models.Model):
-    email = models.EmailField(pgettext_lazy('Supplier field', 'email'), unique=True)
+    email = models.EmailField(pgettext_lazy('Supplier field', 'email'))
     name = models.CharField(max_length=100, null=True, blank=True)
-    street1 = models.CharField(max_length=128, null=True, blank=True)    
-    street2 = models.CharField(max_length=128, null=True, blank=True)    
-    city = models.CharField(max_length=128, null=True, blank=True)    
-    county = models.CharField(max_length=128, null=True, blank=True)    
-    website = models.CharField(max_length=128, null=True, blank=True)    
-    url = models.CharField(max_length=128, null=True, blank=True)    
+    street1 = models.CharField(max_length=128, null=True, blank=True)
+    street2 = models.CharField(max_length=128, null=True, blank=True)
+    city = models.CharField(max_length=128, null=True, blank=True)
+    county = models.CharField(max_length=128, null=True, blank=True)
+    website = models.CharField(max_length=128, null=True, blank=True)
+    url = models.CharField(max_length=128, null=True, blank=True)
     fax = models.CharField(max_length=128, null=True, blank=True)
     description = models.CharField(max_length=500, null=True, blank=True)
     addresses = models.ManyToManyField(
         AddressBook, blank=True,
-        verbose_name=pgettext_lazy('Supplier field', 'addresses'))   
+        verbose_name=pgettext_lazy('Supplier field', 'addresses'))
     is_active = models.BooleanField(
         pgettext_lazy('Supplier field', 'active'),
         default=True)
-    code = models.CharField(max_length=100, null=True,blank=True)
+    code = models.CharField(max_length=100, null=True, blank=True)
     mobile = models.CharField(max_length=100, null=True, blank=True)
     image = models.FileField(upload_to='employee', blank=True, null=True)
     date_joined = models.DateTimeField(
@@ -155,27 +150,22 @@ class Supplier(models.Model):
         on_delete=models.SET_NULL,
         verbose_name=pgettext_lazy('Supplier field', 'default billing address'))
 
-    USERNAME_FIELD = 'email'
-
     objects = SupplierManager()
 
-    search_fields = [
-        index.SearchField('email')]
-    
     class Meta:
         verbose_name = pgettext_lazy('Supplier model', 'supplier')
         verbose_name_plural = pgettext_lazy('Supplier model', 'supplier')
 
     def __str__(self):
         return self.name
-        
+
     def get_full_name(self):
         return self.email
 
     def get_short_name(self):
         return self.email
-        
+
     def get_addresses(self):
         return self.addresses.all()
-    
+
 
