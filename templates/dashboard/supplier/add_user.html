@@ -37,7 +37,7 @@
         <div class="tabbable">
           <ul class="nav nav-tabs nav-tabs-highlight">
             <li class="active" id="profile-tab"><a href="#profile" data-toggle="tab" class="legitRipple" aria-expanded="false">add supplier profile</a></li>
-            <li class="" id="contacts-tab"><a href="#contacts-disabled" data-toggle="tab" class="legitRipple contacts-tab" aria-expanded="false">Contacts</a></li>
+            <li  id="contacts-tab"><a href="#contacts-disabled" class="legitRipple disabled contacts-tab" aria-expanded="false">Contacts</a></li>
           </ul>
 
           <div class="tab-content">
@@ -54,7 +54,7 @@
                   <div class="row">
                     <div class="col-md-4">
                     <label for="exampleInputEmail1" class="text-center">Supplier Logo</label>
-                      <div class="form-group">     
+                      <div class="form-group">
                         <div class="fileinput fileinput-new" data-provides="fileinput">
                           <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
                             <img data-src="holder.js/100%x100%" alt="..." src="{% load default_user_image %}">
@@ -74,7 +74,7 @@
                           <div class="form-group">
                             <label for="name">Name</label>
                             <input type="text" class="form-control" name="name" id="name" placeholder="Name">
-                          </div>  
+                          </div>
                           <div class="form-group">
                             <label for="name">Address</label>
                             <input type="text" class="form-control" name="street1" id="street1" placeholder="Street 1">
@@ -84,7 +84,7 @@
                             <label for="exampleInputPassword1">Website:</label>
                             <input type="url" class="form-control" name="website" id="website" placeholder="http://www.example.com">
                            </div>
-                           
+
                         </div>
                         <div class="col-md-6">
                           <div class="form-group">
@@ -94,10 +94,10 @@
                            <div class="form-group">
                               <label for="email">Email address</label>
                               <input type="email" class="form-control" name="email" id="email" placeholder="Email">
-                           </div>                  
-                           
+                           </div>
+
                         </div>
-                      </div>            
+                      </div>
                      <div class="row">
                           <div class="col-md-12">
                             <label for="mobile">Description</label>
@@ -110,14 +110,14 @@
                     <div class="col-md-6 col-md-offset-3">
                      <div class="pull-rights" style="margin-top:40px;">
                       <a href="{% url 'dashboard:supplier' %}" class="pull-left btn btn-default waves-effect waves-light">Cancel</a>
-                      
+
                       <button class="btn btn-primary waves-effect waves-light pull-right" id="submit" type="submit">Create supplier <i class="icon-arrow-right14 position-right"></i></button>
                      </div>
                     </div>
                   </div>
                 </form>
             </div>
-            
+
 
           </div>
         </div>
@@ -130,9 +130,9 @@
 {% block custom_js %}
   <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
 
- 
+
   <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
-  
+
 <script type="text/javascript">
 /* disable th permissions tab code */
 $('#next-tab').click(function(){
@@ -159,11 +159,11 @@ function disable_profile_tab(){
         },
         street2:{
           required:false,
-          minlength:3,          
+          minlength:3,
         },
         code:{
           required:false,
-          digits: true,          
+          digits: true,
         },
         mobile:{
             required:true,
@@ -197,7 +197,7 @@ function disable_profile_tab(){
         equalTo: "please enter the same password"
       }
     },
-    submitHandler: function() { 
+    submitHandler: function() {
       var file = $('#image')[0].files[0];
       var raw_groups = $("#multiple :selected").map(function(){
                return $(this).val();
@@ -212,9 +212,9 @@ function disable_profile_tab(){
           for (var i = 0; i < raw_groups.length; i++) {
               formData.append('groups[]', raw_groups[i]);
           }
-          
+
           for (var pair of formData.entries()) {
-              console.log(pair[0]+ ', ' + pair[1]); 
+              console.log(pair[0]+ ', ' + pair[1]);
           }
           if (formData) {
                 $.ajax({
@@ -226,7 +226,7 @@ function disable_profile_tab(){
                     success:function(data){
                        console.log(data);
                        $("#name").val('');
-                       $("#email").val('');         
+                       $("#email").val('');
                        $("#code").val('');
                        $("#mobile").val('');
                        $("#website").val('');
@@ -239,10 +239,10 @@ function disable_profile_tab(){
                           header: 'Well done!',
                           theme: 'bg-success'
                        });
-                       window.location = "{% url 'dashboard:supplier' %}";
-                      
+
                       localStorage.setItem('user_id', data);
                       $('.user_id').val(localStorage.getItem("user_id"));
+                      window.location = data.success_url+'?contacts=edit';
                     },
                     error:function(error){
                       console.log(error);
@@ -252,7 +252,7 @@ function disable_profile_tab(){
                       });
                     }
                 });
-            } 
+            }
       }else{
         $.jGrowl('Image is empty fill and try submitting again', {
             header: 'Oh snap!',
@@ -273,6 +273,13 @@ function disable_profile_tab(){
     if(web.val()=='http://'){
       web.val('');
     }
+  });
+
+  $('#contacts-tab').on('click',function(){
+    $.jGrowl('Add supplier first', {
+            header: 'Oh snap!',
+            theme: 'bg-danger'
+        });
   });
   
 </script>

@@ -198,10 +198,10 @@ class OrderUpdateAPIView(generics.RetrieveUpdateAPIView):
                    'made a sale:#' + str(serializer.data['invoice_number']) + ' sale worth: ' + str(
                        serializer.data['total_net']), 'add')
         info_logger.info(
-            'User: ' + str(self.request.user) + ' made a credit sale:' + str(serializer.data['invoice_number']))
+            'User: ' + str(self.request.user) + ' made a order sale:' + str(serializer.data['invoice_number']))
         terminal = Terminal.objects.get(pk=int(serializer.data['terminal']))
         trail = 'User: ' + str(self.request.user) + \
-                ' updated a credited sale :' + str(serializer.data['invoice_number']) + \
+                ' updated a order sale :' + str(serializer.data['invoice_number']) + \
                 ' Net#: ' + str(serializer.data['total_net']) + \
                 ' Amount paid#:' + str(serializer.data['amount_paid'])
 
@@ -216,7 +216,7 @@ class OrderUpdateAPIView(generics.RetrieveUpdateAPIView):
                                  user=self.request.user,
                                  terminal=terminal,
                                  amount=serializer.data['amount_paid'],
-                                 trans_type='credit paid')
+                                 trans_type='sale')
 
 
 def send_to_sale(credit):
