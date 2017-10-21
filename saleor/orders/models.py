@@ -19,10 +19,16 @@ from . import OrderStatus
 
 class OrdersManager(models.Manager):
 
-    def get_table_orders(self,table_pk):
+    def get_table_orders(self, table_pk):
 
         return self.get_queryset().filter(
             models.Q(table=table_pk), models.Q(status='fully-paid'))
+
+    def get_table_new_orders(self, table_pk):
+
+        return self.get_queryset().filter(
+            models.Q(table=table_pk), models.Q(status='payment-pending'))
+
 
 
 #@python_2_unicode_compatible
