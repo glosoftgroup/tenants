@@ -331,10 +331,8 @@
           <tr>
           <td>
             <input type="text" id="new-sku-td" placeholder="Enter SKU" class="form-control" name='new-sku-td'>
+              <span class="help-block text-danger"></span>
           </td>
-         <!--  <td>
-            <input type="number" placeholder="(e.g 10)" class="form-control" value="10" id="reorder_level" name="reorder_level">
-          </td> -->
           {% for v in pc%}
           <td>
            <select placeholder="{{v}}" data-pk={{v.pk}} name="{{v}}" class="bootstrap-select form-control dynamicvxx">
@@ -348,10 +346,13 @@
           {% endfor %}
            <td>
             <input type="number" placeholder="Retail price" class="form-control" id="rprice" name='rprice'>
+               <span class="help-block text-danger"></span>
             </td>
             <td>
               <input type="number" placeholder="Wholesale Price" class="form-control" id="wprice" name='wprice'>
+                <span class="help-block text-danger"></span>
             </td>
+
             <td>
               <button class="btn btn-xs btn-primary" id="addvariantBtn" data-refreshvurl="{% url 'dashboard:refresh-stock-table' product_pk=product.pk %}" data-productpk="{{product.pk}}" data-attrurl="{% url 'dashboard:add-attributes' %}">Add</button>
             </td>
