@@ -23,60 +23,46 @@ function addProductDetails(dynamicData,url,method){
 }
 var dynamicData = {};
 
-$(function() {  
- 
+$(function() {
+
  // pricing variables
+ var pageUrls = $('.pageUrls');
+ var productUrl = pageUrls.data('productdata');
+ var productPk  = pageUrls.data('pk');
  var tax_id = $('#id_product_tax');
  var updatePricing = $('#updatePricing');
- $('#xsxs').on('click',function(){
-  console.log('clicked');
- });
  var newPrice = $('#tabprice');
+ var minimum_price = $('#id_minimum_price')
  var wholesaleId = $('#id_wholesale_price');
  var tax = 0;
-
  // stock variables
  var thresholdId = $('#id_variant-low_stock_threshold');
  var supplierId  = $('#id_product_supplier');
- var skuId       = $('#id_variant-sku'); 
+ var skuId       = $('#id_variant-sku');
  var updateStockBtn = $('#updatestock');
  var id_name = $('#id_name');
  var id_categories = $('#id_categories');
  var update_product_btn = $('#update_product_btn');
  skuId.attr('disabled','disabled');
- 
+
  $('.disablesku').find('input[name=variant-sku]')
  .removeAttr('required').attr('disabled','disabled');
 
- 
-
- updateStockBtn.on('click', function(){ 	
- 	var sku = skuId.val();
- 	var supplier = supplierId.val();
- 	var threshold = thresholdId.val();
- 
- 	url = $(this).data('stockurl');
-  pk  = $(this).data('productpk');
-
- 	 	dynamicData = {};
-    dynamicData['sku'] = sku;
-    dynamicData['pk'] = pk;
-    if(supplier){
-    dynamicData['supplier'] = supplier;
-    }    
-    if(threshold){
-    dynamicData['threshold'] = threshold;
-    }     
-    dynamicData['track'] = 'add stock details';
-    
-    method = 'post';
-    addProductDetails(dynamicData,url,method)
+ tax_id.on('change',function(){
+   dynamicData = {};
+   if(tax_id.val()){
+   dynamicData['tax'] = tax_id.val();
+   }else{
+   dynamicData['tax'] = '0';
+   }
+   dynamicData['track'] = 'adding tax';
+   dynamicData['pk']  = productPk;
+   addProductDetails(dynamicData,productUrl,'post')
     .done(function(data){
-      alertUser('Data sent successfully');      
+      alertUser('Data sent successfully');
     }).fail(function(){
-      alertUser('Error adding stock details','bg-danger','Error!');
+      alertUser('Error updating product details','bg-danger','Error!');
     });
-
  });
  update_product_btn.on('click',function(){
    dynamicData = {};
@@ -97,7 +83,36 @@ $(function() {
     });
 
  });
+
+ updateStockBtn.on('click', function(){
+ 	var sku = skuId.val();
+ 	var supplier = supplierId.val();
+ 	var threshold = thresholdId.val();
+
+ 	url = $(this).data('stockurl');
+    pk  = $(this).data('productpk');
+
+ 	dynamicData = {};
+    dynamicData['sku'] = sku;
+    dynamicData['pk'] = pk;
+    if(supplier){
+    dynamicData['supplier'] = supplier;
+    }
+    if(threshold){
+    dynamicData['threshold'] = threshold;
+    }
+    dynamicData['track'] = 'add stock details';
+
+    addProductDetails(dynamicData,url,'post')
+    .done(function(data){
+      alertUser('Data sent successfully');
+    }).fail(function(){
+      alertUser('Error adding stock details','bg-danger','Error!');
+    });
+
+ });
  updatePricing.on('click',function(){
+    console.log('update priceing');
     tax = tax_id.val();
     price = newPrice.val();
     wholesalePrice = wholesaleId.val();
@@ -105,6 +120,9 @@ $(function() {
     var sku = skuId.val();
     url = $(this).data('priceurl');
     pk  = $(this).data('productpk');
+    if(minimum_price.val()){
+       dynamicData['minimum_price'] = minimum_price.val();
+    }
     dynamicData = {};
     dynamicData['pk'] = pk;
     dynamicData['price'] = price;
@@ -118,15 +136,15 @@ $(function() {
     dynamicData['sku'] = sku;
     }
     if(wholesalePrice){
-    dynamicData['wholesale_price'] =wholesalePrice;	
+    dynamicData['wholesale_price'] =wholesalePrice;
     }
-    
-    dynamicData['track'] = 'add pricing';
+    dynamicData['minimum_price'] = $('#id_minimum_price').val();
+    dynamicData['track'] = 'add pricing x';
     method = 'post';
     addProductDetails(dynamicData,url,method)
     .done(function(data){
       alertUser('Data sent successfully');
-      $('#id_price').val(price);      
+      $('#id_price').val(price);
     }).fail(function(){
       alertUser('Error occured','bg-danger','Error!');
     });
@@ -138,7 +156,7 @@ $(function() {
 **
 * ---------------------------------------------------------------------------- */
 
-function refreshStockVar(dynamicData={},url){    
+function refreshStockVar(dynamicData={},url){
     return $.ajax({
       url: url,
       type: 'get',
@@ -156,22 +174,23 @@ $(function() {
   var refreshVaraintsContent = $('#refreshvaraintscontent');
   var refreshStockVariants = $('#refreshStockVariants');
   var json = [];
-  addvariantBtn.on('click',function(){    
+  addvariantBtn.on('click',function(){
     // map each varaint
-    dynamicVariants.map(function() {       
-      var id = $(this).data('pk');      
-      var value = $(this).val(); 
+    dynamicVariants.map(function() {
+      var id = $(this).data('pk');
+      var value = $(this).val();
       if(id && value){
         json.push({'id':id,'value':value});
       }
       return $(this).data('pk');
-    }).get();  
-    // ./mapping    
-    
+    }).get();
+    // ./mapping
+
     wholePrice  = wholePriceId.val();
     retailPrice = retailPriceId.val();
     newSku      = newSkuId.val();
     reorder_level = reorder_levelId.val();
+
     newSkuId.on('focusin',function(){
       $(this).nextAll('.help-block:first').addClass('text-danger').html('');
     });
@@ -188,8 +207,8 @@ $(function() {
         return false;
     }
 
-    if(!retailPrice || !newSku){
-      alertUser('Retail Price & SKU required','bg-danger','Fill required fields!');
+    if(!retailPrice || !newSku ){
+      alertUser('Retail Price, Minimum price & SKU required','bg-danger','Fill required fields!');
       return false;
     }
     dynamicData = {};
@@ -199,16 +218,17 @@ $(function() {
     if(reorder_level){
       dynamicData['low_stock_threshold'] = reorder_level;
     }
-    
-    if ( json.length < 1) {      
+
+    if ( json.length < 1) {
       //alertUser('Please Select variants','bg-danger','Varaints Required!');
       //return false;
-    }  
-    
+    }
+
     dynamicData['price'] = retailPrice;
+
     dynamicData['sku'] = newSku;
     dynamicData['attributes'] = JSON.stringify(json);
-    dynamicData['track'] = 'adding variants';
+    dynamicData['track'] = 'adding variants x';
     dynamicData['pk'] = $(this).data('productpk');
     var method = 'post';
     var url = $(this).data('attrurl');
@@ -221,7 +241,7 @@ $(function() {
       refreshVaraintsContent.html(data);
       var dynamic = {}
       dynamic['template'] = 'select_variant';
-      dynamic['get'] = 'variants';      
+      dynamic['get'] = 'variants';
       refreshStockVar(dynamic,refreshvurl)
       .done(function(data){
         refreshStockVariants.html(data);
@@ -237,7 +257,7 @@ $(function() {
 });
 
 $(function() {
-  
+
   var pageUrls = $('.pageUrls');
   var modalBtnD = $('#addNewvaraints');
   var addClassBtnD = $('#xaddClassBtnD');
@@ -251,7 +271,7 @@ $(function() {
   // select selectors
   var getAttributesD = $('.xgetAttributesD');
   //var getAttributesTwoD = $('.xgetAttributesTwoD');
-  
+
   // get product class getDetailUrl
   function getDetail(class_pk,getDetailUrl)
   {
@@ -276,19 +296,19 @@ $(function() {
         modalIdD.modal();
       }
     });
-    
+
   });
   // alertUser
   function alertUser(msg,status='bg-success',header='Well done!')
   {
-      $.jGrowl(msg, 
+      $.jGrowl(msg,
       {header: header,theme: status});
   }
 
   // add New Class
   // ajax
   function addNewClassD(name,attributes,variants) {
-    var dynamicData = {};    
+    var dynamicData = {};
     //dynamicData["attributes"] = JSON.stringify(attributes);
     dynamicData["name"] = name;
     dynamicData["csrfmiddlewaretoken"]  = jQuery("[name=csrfmiddlewaretoken]").val();
@@ -303,8 +323,8 @@ $(function() {
   // function addItemD(newitemnum, newitemdesc) {
   //  var selector = $('#id_product_class');
   //  selector.append('<option value="'+newitemnum+'">'+newitemdesc+'</option>');
-  //  selector.selectpicker('refresh'); 
-  //  selector.selectpicker('val', newitemdesc); 
+  //  selector.selectpicker('refresh');
+  //  selector.selectpicker('val', newitemdesc);
   // }
 
   addClassBtnD.on('click',function(){
@@ -321,7 +341,7 @@ $(function() {
     }
     addNewClassD(cname,variants,attributes)
     .done(function(data){
-      alertUser('Attribute added successfully!');     
+      alertUser('Attribute added successfully!');
       //refreshAttributes();
       window.location.href = $('#xaddClassBtnD').data('refreshme');
       $('#daddProductClass').modal('hide');
@@ -333,7 +353,7 @@ $(function() {
 
 
   });
-  
+
   getAttributesD.on('tokenize:select', function(container){
   $(this).tokenize2().trigger('tokenize:search', [$(this).tokenize2().input.val()]);
    });
@@ -358,8 +378,8 @@ $(function() {
     }
 });
 
-  
-  
+
+
   // sdfj
 
   // add attributes
@@ -368,11 +388,11 @@ $(function() {
   var Aurl = addAttrUrl;
   function alertUser(msg,status='bg-success',header='Well done!')
   {
-      $.jGrowl(msg, 
+      $.jGrowl(msg,
       {header: header,theme: status});
-  } 
+  }
     // ajax
-  function addAttributeD(myUrl,attName) 
+  function addAttributeD(myUrl,attName)
   {
      var dynamicData = {};
      dynamicData["csrfmiddlewaretoken"]  = jQuery("[name=csrfmiddlewaretoken]").val();
@@ -385,7 +405,7 @@ $(function() {
   }
 
   // ajax
-  function addNValueD(myUrl,attName) 
+  function addNValueD(myUrl,attName)
   {
      var dynamicData = {};
      dynamicData["csrfmiddlewaretoken"]  = jQuery("[name=csrfmiddlewaretoken]").val();
@@ -400,9 +420,9 @@ $(function() {
   newValueBtnD.on('click',function(){
     var value = $('#value32Dx').val();
     //alert(Aurl);
-    if(!value){ 
+    if(!value){
       alertUser('Attribute Value required!','bg-danger','Error');
-      return false;     
+      return false;
      }
      addNValueD(Aurl,value).done(function(data){
        alertUser('Attribute added successful');
@@ -413,9 +433,9 @@ $(function() {
     });
   });
 
-  attrNameBtnD.on('click',function(){  
+  attrNameBtnD.on('click',function(){
     var atname = $('#attribute_name32Dx').val();
-    if(!atname){ 
+    if(!atname){
       alertUser('Attribute Name required!','bg-danger','Error');
       return false;
      }
@@ -425,7 +445,7 @@ $(function() {
      $('#attribute_name32Dx').attr('disabled','disabled');
      attrNameBtnD.addClass('hidden');
      $('#value-inputDx').removeClass('hidden');
-     $('#newvalueDx').removeClass('hidden'); 
+     $('#newvalueDx').removeClass('hidden');
      addAnotherAttr.removeClass('hidden');
   }).fail(function(){
       alertUser('Attribute name already added. Please add a unique name','bg-danger','Error!');
@@ -436,7 +456,7 @@ $(function() {
      $('#attribute_name32Dx').removeAttr('disabled');
      attrNameBtnD.removeClass('hidden');
      $('#value-inputDx').addClass('hidden');
-     $('#newvalueDx').addClass('hidden'); 
+     $('#newvalueDx').addClass('hidden');
      addAnotherAttr.addClass('hidden');
      valueBox.html('');
      Aurl = addAttrUrl;
@@ -471,24 +491,24 @@ $(function(){
    // remove helper
    stockVariantId.on('change',function(){
     $(this).nextAll('.help-block:first').addClass('text-danger').html('');
-   });   
+   });
    reorder_levelId.on('change',function(){
     $(this).nextAll('.help-block:first').addClass('text-danger').html('');
    });
-   stockQuantityId.on('focusout',function(){
+   stockQuantityId.on('focusin',function(){
     $(this).nextAll('.help-block:first').addClass('text-danger').html('');
    });
    stockLocationId.on('change',function(){
     $(this).nextAll('.help-block:first').addClass('text-danger').html('');
    });
-   stockInvoiceId.on('focusout',function(){
+   stockInvoiceId.on('focusin',function(){
     $(this).nextAll('.help-block:first').addClass('text-danger').html('');
    });
    costPriceId.on('keyup',function(){
     $(this).nextAll('.help-block:first').addClass('text-danger').html('');
    });
    // success
-   var refreshDiv = $('#refreshStockitems');   
+   var refreshDiv = $('#refreshStockitems');
    addnewStockBtn.on('click',function(){
     var dynamicData = {};
     var variant = stockVariantId.val();
@@ -503,27 +523,28 @@ $(function(){
     if(!invoice_number){
       //alertUser('Invoice number required','bg-danger','Field Required!');
       stockInvoiceId.focus();
-      stockInvoiceId.prop('autofocus');      
+      stockInvoiceId.prop('autofocus');
       stockInvoiceId.nextAll('.help-block:first').addClass('text-danger').html('Field required');
       return false;
     }else{
       stockInvoiceId.nextAll('.help-block:first').addClass('text-danger').html('');
     }
     if(!variant){
+      //alertUser('Please select a variant','bg-danger','Field Required!');
       stockVariantId.focus();
-      stockVariantId.prop('autofocus');      
+      stockVariantId.prop('autofocus');
       stockVariantId.nextAll('.help-block:first').addClass('text-danger').html('Field required');
       stockVariantId.css("border-color","transparent transparent #D84315;");
-      
+
       return false;
-    }else{            
-      stockVariantId.nextAll('.help-block:first').addClass('text-danger').html('');     
-       
+    }else{
+      stockVariantId.nextAll('.help-block:first').addClass('text-danger').html('');
+
     }
     if(!cost_price){
       //alertUser('Enter cost price','bg-danger','Field Required!');
       costPriceId.focus();
-      costPriceId.prop('autofocus');      
+      costPriceId.prop('autofocus');
       costPriceId.nextAll('.help-block:first').addClass('text-danger').html('Field required');
       costPriceId.css("border-color","transparent transparent #D84315;");
       return false;
@@ -533,19 +554,19 @@ $(function(){
     if(!quantity){
       //alertUser('Stock Quantity required','bg-danger','Field Required!');
       stockQuantityId.focus();
-      stockQuantityId.prop('autofocus');      
+      stockQuantityId.prop('autofocus');
       stockQuantityId.nextAll('.help-block:first').addClass('text-danger').html('Field required');
-      
+
       return false;
     }else{
       stockQuantityId.nextAll('.help-block:first').addClass('text-danger').html('');
     }
-    
+
     if(reorder_level){
       dynamicData['low_stock_threshold'] = reorder_level;
     }
-    
-    // ./validation    
+
+    // ./validation
     dynamicData['variant'] = variant;
     dynamicData['quantity'] = quantity;
     dynamicData['cost_price'] = cost_price;
@@ -554,19 +575,19 @@ $(function(){
     dynamicData['track'] = 'adding stock details';
 
     addProductDetails(dynamicData,addStockUrl,'post')
-    .done(function(data){        
-      if(data.errors){        
+    .done(function(data){
+      if(data.errors){
         var message = ' ';
         $.each(data, function(i, item) {
            if(item != '__all__'){
             message += item+ ' ';
-           }            
+           }
         });
         alertUser(message.replace('__all__', ' '),'bg-warning','Error!');
       }else{
         alertUser('Stock information sent successfully');
       }
-      
+
       /* toggle form */
       $('#toggleStock').slideUp();
       refreshStockDiv(refreshStockUrl)
@@ -589,15 +610,15 @@ $(function(){
 * ---------------------------------------------------------------------------- */
 
 $(function(){
-  var addNewStockBtn = $('#xaddNewStockBtn');
-  var modalIds = $('#modal_stocks');  
+  var addNewStockBtn = $('#addNewStockBtnjj');
+  var modalIds = $('#modal_stocks');
   var addStockForm = $('.addstockresults');
 
   addNewStockBtn.on('click',function(){
     dynamicData = {};
-    var getStockformUrl = $(this).data('contenturl');    
+    var getStockformUrl = $(this).data('contenturl');
     addProductDetails(dynamicData,getStockformUrl,'get')
-    .done(function(data){     
+    .done(function(data){
       addStockForm.html(data);
     });
     modalIds.modal();
@@ -609,55 +630,63 @@ $(function(){
   var EditRefreshDiv = $('#div-edit-variant');
   var editButton = $('.editVariantBtn');
   var editvariantBtn = $('#editvariantBtn');
-  var url = '#';  
+  var toggleVariant = $('#toggleVariant');
+  var url = '#';
 
   editButton.on('click',function(){
+    if(toggleVariant.is(':visible')){
+        toggleVariant.toggle('slow');
+    }
     EditRefreshDiv.html('Processing form ...');
     var pk = $(this).data('pk');
     var url = $(this).data('href');
     dynamicData = {};
-    dynamicData['template'] = 'edit_variant';    
-    
+    dynamicData['template'] = 'edit_variant';
+
     $('html, body').animate({
      scrollTop: $('#div-edit-variant').offset().top
     }, 1000);
     addProductDetails(dynamicData,url,'get')
-    .done(function(data){      
+    .done(function(data){
       EditRefreshDiv.html(data);
     })
     .fail(function(){
       alertUser('failed to get edit form');
-    });    
-  
-  });  
+    });
+
+  });
 
 });
 
 /* edit variant script */
 $(function(){
   var editStockRefreshDiv = $('#div-edit-stock');
-  var editSelectOption = $('.edit-stock-Btn');  
-  var url = '#';  
+  var editSelectOption = $('.edit-stock-Btn');
+  var toggleStock = $('#toggleStock');
+  var url = '#';
 
   editSelectOption.on('click',function(){
     editStockRefreshDiv.html('Processing form ...');
+    if(toggleStock.is(':visible')){
+        toggleStock.toggle('slow');
+    }
     var pk = $(this).data('pk');
     url = $(this).data('href');
     dynamicData = {};
-    dynamicData['template'] = 'edit_stock';    
-    
+    dynamicData['template'] = 'edit_stock';
+
     $('html, body').animate({
      scrollTop: $('#stock-tab').offset().top
     }, 1000);
     addProductDetails(dynamicData,url,'get')
-    .done(function(data){      
+    .done(function(data){
       editStockRefreshDiv.html(data);
     })
     .fail(function(){
       alertUser('failed to get edit form');
-    });    
-  
-  });  
+    });
+
+  });
 
 });
 
@@ -666,10 +695,10 @@ $(function(){
   var addImageBtn = $('.images-bt');
   var editImageRefreshDiv = $('#add-image-form-div');
   var loader = $('#myloader');
-  // get template  
+  // get template
   addImageBtn.on('click',function(){
     loader.removeClass('hidden');
-    var url = $(this).data('href');    
+    var url = $(this).data('href');
     dynamicData = {};
     dynamicData['url'] = url;
     addProductDetails(dynamicData,url,'get')
