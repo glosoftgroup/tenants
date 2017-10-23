@@ -172,6 +172,22 @@ $(function() {
     retailPrice = retailPriceId.val();
     newSku      = newSkuId.val();
     reorder_level = reorder_levelId.val();
+    newSkuId.on('focusin',function(){
+      $(this).nextAll('.help-block:first').addClass('text-danger').html('');
+    });
+    if(!newSku){
+        newSkuId.nextAll('.help-block:first').addClass('text-danger').html('Sku required');
+        return false;
+    }
+    //validate retail price
+    retailPriceId.on('focusin',function(){
+      $(this).nextAll('.help-block:first').addClass('text-danger').html('');
+    });
+    if(!retailPriceId.val()){
+        retailPriceId.nextAll('.help-block:first').addClass('text-danger').html('Retail price');
+        return false;
+    }
+
     if(!retailPrice || !newSku){
       alertUser('Retail Price & SKU required','bg-danger','Fill required fields!');
       return false;

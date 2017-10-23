@@ -10,6 +10,7 @@ User = get_user_model()
 class TableListSerializer(serializers.ModelSerializer):
     orders_url = serializers.HyperlinkedIdentityField(view_name='order-api:api-table-orders')
     new_orders = serializers.SerializerMethodField()
+    fully_paid_orders = serializers.SerializerMethodField()
 
     class Meta:
         model = Table
@@ -17,8 +18,12 @@ class TableListSerializer(serializers.ModelSerializer):
                   'name',
                   'sale_point',
                   'orders_url',
-                  'new_orders'
+                  'new_orders',
+                  'fully_paid_orders'
                  )
 
-    def get_new_orders(self,obj):
+    def get_new_orders(self, obj):
+        return len(Orders.objects.get_table_new_orders(obj.pk))
+
+    def get_fully_paid_orders(self, obj):
         return len(Orders.objects.get_table_orders(obj.pk))

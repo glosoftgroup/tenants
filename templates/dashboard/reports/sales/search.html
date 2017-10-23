@@ -23,7 +23,7 @@
                           <th>Receipt No</th>
                           <th>Table</th>
                           <th>Cashier</th>
-                          <th>Payment Mode</th>
+                          <th class="hidden">Payment Mode</th>
                           <th>Quantity</th>
                            <th>Total Sales (KShs)</th>
                             <th class="text-center">Total Tax (KShs)</th>
@@ -37,7 +37,9 @@
                             <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk point=point_pk %}">{{sale.invoice_number }}</td>
                             <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk point=point_pk %}">{% if sale.table.name %}{{ sale.table.name }}{% else %}Take Away{% endif %}</td>
                             <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk point=point_pk %}">{% if sale.user.name %}{{sale.user.name}}{% else %}{{sale.user.email}}{% endif %}</td>
-                            <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk point=point_pk %}">{{sale.payment_options.name}}</td>
+                            <td class="td hidden" data-href="{% url 'dashboard:sale-detail' pk=sale.pk point=point_pk %}">
+                                {{sale.payment_options.name}}
+                            </td>
                             <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk point=point_pk %}">{{sale.quantity}}</td>
                             <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk point=point_pk %}"><span class="pull-right">{{sale.total_net|intcomma }}</span></td>
                             <td class="td" data-href="{% url 'dashboard:sale-detail' pk=sale.pk point=point_pk %}"><span class="pull-right">{{sale.total_tax|intcomma }}</span></td>

@@ -173,6 +173,7 @@
                               <option value="{{cat.pk}}">{{cat}}</option>
                               {% endfor %}
                           </select>
+                          <span class="error"></span>
                       </div>
 
                   <div class="input-group-btn">
@@ -1269,7 +1270,18 @@ $('#form-product').validate({
           required:true,
           minlength:3
         },
-      }
+        categories:{
+          required:true
+          }
+
+      },
+     errorPlacement: function(error, element) {
+    if (element.hasClass('bootstrap-select')) {
+        error.insertAfter(element.next('.inputroupbtn'));
+    } else {
+        error.insertAfter(element);
+    }
+}
     });
   </script>
                   <script type="text/javascript">
