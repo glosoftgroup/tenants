@@ -147,7 +147,7 @@ def write(request):
     if request.method == 'POST':
         # get form data
         subject = request.POST.get('subject')
-        single = request.POST.get('single');
+        single = request.POST.get('write_single');
         to_customers = request.POST.get('toCustomer',0)
         to_suppliers = request.POST.get('toSupplier',0)
         email_list = json.loads(request.POST.get('emailList'))
