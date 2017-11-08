@@ -3,12 +3,24 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
 from ..sale.models import PaymentOption, Terminal
 from ..product.models import StockLocation
+from saleor.salepoints.models import SalePoint
+
 
 def add_stock_location(sender,**kwargs):
     try:
         store = StockLocation.objects.filter(name='default')
         if not store.exists():
             StockLocation.objects.create(name="default")
+    except Exception as e:
+        print(e)
+
+
+def add_sale_point(sender, **kwargs):
+    try:
+        instance = SalePoint.objects.all()
+        if not instance.exists():
+            SalePoint.objects.create(name="Bar")
+            SalePoint.objects.create(name="Restaurant")
     except Exception as e:
         print e
 
@@ -93,3 +105,4 @@ post_migrate.connect(add_view_permissions)
 post_migrate.connect(add_payment_options)
 post_migrate.connect(add_terminal)
 post_migrate.connect(add_stock_location)
+post_migrate.connect(add_sale_point)

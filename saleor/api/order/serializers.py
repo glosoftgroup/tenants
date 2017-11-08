@@ -276,7 +276,6 @@ class OrderUpdateSerializer(serializers.ModelSerializer):
         if instance.amount_paid >= instance.total_net:
             instance.status = 'fully-paid'
         else:
-            print validated_data.get('status')
             instance.status = validated_data.get('status', instance.status)
         instance.last_status_change = now()
         instance.save()
