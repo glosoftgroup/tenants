@@ -14,6 +14,7 @@ from .permgroups.urls import urlpatterns as group_urls
 from .product.urls import urlpatterns as product_urls
 from .variants.urls import urlpatterns as variants_urls
 from .reports.urls import urlpatterns as reports_urls
+from .room.urls import urlpatterns as room_urls
 from .credit.urls import urlpatterns as credit_urls
 from .search.urls import urlpatterns as search_urls
 from .sites.urls import urlpatterns as site_urls
@@ -40,6 +41,7 @@ urlpatterns = [
     url(r'^notification/',include(notification_urls)),    
     url(r'^perms/', include(group_urls)),
     url(r'^reports/', include(reports_urls)),
+    url(r'^room/', include(room_urls)),
     url(r'^search/', include(search_urls)),
     url(r'^settings/', include(site_urls)),
     url(r'^shipping/', include(shipping_urls)),
