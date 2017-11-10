@@ -18,6 +18,8 @@ urlpatterns = [
     url(r'^update/(?P<pk>[0-9]+)/$', views.edit, name='room-car'),
     url(r'^search/$', views.searchs, name='room-search'),
     url(r'^paginate/', views.paginate, name='room_paginate'),
+    url(r'fetch/amenities/$', views.fetch_amenities, name="fetch-amenities"),
+    url(r'add/amenities/$', views.add_amenities, name="add-amenities"),
 
     ]
 

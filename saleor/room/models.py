@@ -131,6 +131,21 @@ class RoomManager(models.Manager):
 
 
 @python_2_unicode_compatible
+class RoomAmenity(models.Model):
+    name = models.CharField(
+        pgettext_lazy('Room amenity field', 'display name'),
+        max_length=100, unique=True)
+
+    class Meta:
+        #ordering = ('slug', )
+        verbose_name = pgettext_lazy('Room amenity model', 'room amenity')
+        verbose_name_plural = pgettext_lazy('Room amenity model', 'room amenities')
+
+    def __str__(self):
+        return self.name
+
+
+@python_2_unicode_compatible
 class Room(models.Model, ItemRange, index.Indexed):
     room_class = models.ForeignKey(
         RoomClass, related_name='room',
@@ -145,6 +160,10 @@ class Room(models.Model, ItemRange, index.Indexed):
     categories = models.ManyToManyField(
         RoomCategory, verbose_name=pgettext_lazy('Room field', 'categories'),
         related_name='rooms_cat')
+    amenities = models.ManyToManyField(
+        RoomAmenity, verbose_name=pgettext_lazy('Room field', 'amenities'),
+        related_name='rooms_amenities')
+
     price = PriceField(
         pgettext_lazy('Room field', 'price'),
         currency=settings.DEFAULT_CURRENCY, max_digits=12,

@@ -548,7 +548,7 @@ def product_data(request):
             category = request.POST.get('categories')
             product.categories.clear()
             product.categories.add(category)
-        return HttpResponse({'message':str(product)+' Added'})
+        return HttpResponse({'message': str(product)+' Added'})
 
     return HttpResponse('Invalid Method!')
 
@@ -1152,15 +1152,6 @@ def paginate_attr(request):
         return  HttpResponse()
 
 
-# @staff_member_required
-# @permission_decorator('product.view_productattribute')
-# def attribute_list(request):
-#   attributes = [
-#       (attribute.pk, attribute.name, attribute.values.all())
-#       for attribute in ProductAttribute.objects.prefetch_related('values').order_by('-id')]
-#   ctx = {'attributes': attributes}
-#   return TemplateResponse(request, 'dashboard/product/attributes/list.html',
-#                           ctx)
 
 @staff_member_required
 @permission_decorator('product.add_productattribute')

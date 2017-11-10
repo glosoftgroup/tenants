@@ -6,6 +6,7 @@ from django.db.models import Q
 
 from ..views import staff_member_required
 from saleor.room.models import Room as Table
+from saleor.room.models import RoomAmenity
 from ...decorators import user_trail
 import logging
 import json
@@ -215,3 +216,29 @@ def paginate(request):
             return TemplateResponse(request, 'dashboard/car/paginate.html', {"options": options})
         except Exception, e:
             return HttpResponse()
+
+
+@staff_member_required
+def fetch_amenities(request):
+    search = request.GET.get('search')
+    amenities = RoomAmenity.objects.all().filter(name__icontains=str(search))
+    l = []
+    for amenity in amenities:
+        # {"text": "Afghanistan", "value": "AF"},
+        contact = {'text': amenity.name, 'value': amenity.id}
+        l.append(contact)
+    return HttpResponse(json.dumps(l), content_type='application/json')
+
+
+@staff_member_required
+def add_amenities(request):
+    if request.method == 'POST':
+        if request.POST.get('amenities'):
+            print request.POST.get('amenities')
+            choices = json.loads(request.POST.get('amenities'))
+            for choice in choices:
+                RoomAmenity.objects.create(name=choice)
+            return HttpResponse(json.dumps({choices}), content_type='application/json')
+        return HttpResponse(json.dumps({'message': 'Amenities required'}), content_type='application/json')
+    else:
+        return HttpResponse(json.dumps({'message', 'Invalid method'}))

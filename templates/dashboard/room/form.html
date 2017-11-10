@@ -15,179 +15,81 @@
 
 {% block menu_addrooms_class %}active{% endblock %}
 
+{% block custom_css %}
+<link href="{% static 'backend/js/plugins/tokenize/tokenize2.css' %}" rel="stylesheet" type="text/css">
 
+{% endblock %}
 {% block content %}
 <form action="#">
     <div class="panel panel-flat">
-        <div class="panel-heading">
-            <h5 class="panel-title">Multiple columns<a class="heading-elements-toggle"><i class="icon-more"></i></a></h5>
-            <div class="heading-elements">
-                <ul class="icons-list">
-                    <li><a data-action="collapse"></a></li>
-                    <li><a data-action="reload"></a></li>
-                    <li><a data-action="close"></a></li>
-                </ul>
-            </div>
-        </div>
+
 
         <div class="panel-body">
+
             <div class="row">
+                 <form id="room-form" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
                 <div class="col-md-6">
-                    <fieldset>
-                        <legend class="text-semibold"><i class="icon-reading position-left"></i> Personal details</legend>
 
                         <div class="form-group">
-                            <label>Enter your name:</label>
-                            <input class="form-control" placeholder="Eugene Kopyov" type="text">
+                            <label>Room Name:</label>
+                            <input required class="form-control" name="name" id="name" placeholder="Room Name" type="text">
                         </div>
 
                         <div class="form-group">
-                            <label>Enter your password:</label>
-                            <input class="form-control" placeholder="Your strong password" type="password">
+                            <label>Price:</label>
+                            <input class="form-control" id="price" name="price" placeholder="Price" type="text">
                         </div>
 
-                        <div class="form-group">
-                            <label>Select your state:</label>
-                            <select data-placeholder="Select your state" class="select select2-hidden-accessible" tabindex="-1" aria-hidden="true">
-                                <option></option>
-                                <optgroup label="Alaskan/Hawaiian Time Zone">
-                                    <option value="AK">Alaska</option>
-                                    <option value="HI">Hawaii</option>
-                                </optgroup>
-                                <optgroup label="Pacific Time Zone">
-                                    <option value="CA">California</option>
-                                    <option value="NV">Nevada</option>
-                                    <option value="WA">Washington</option>
-                                </optgroup>
-                                <optgroup label="Mountain Time Zone">
-                                    <option value="AZ">Arizona</option>
-                                    <option value="CO">Colorado</option>
-                                    <option value="WY">Wyoming</option>
-                                </optgroup>
-                                <optgroup label="Central Time Zone">
-                                    <option value="AL">Alabama</option>
-                                    <option value="AR">Arkansas</option>
-                                    <option value="KY">Kentucky</option>
-                                </optgroup>
-                                <optgroup label="Eastern Time Zone">
-                                    <option value="CT">Connecticut</option>
-                                    <option value="DE">Delaware</option>
-                                    <option value="WV">West Virginia</option>
-                                </optgroup>
-                            </select><span class="select2 select2-container select2-container--default" dir="ltr" style="width: 100%;"><span class="selection"><span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-labelledby="select2-atk7-container"><span class="select2-selection__rendered" id="select2-atk7-container"><span class="select2-selection__placeholder">Select your state</span></span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
-                        </div>
 
                         <div class="form-group">
-                            <label class="display-block">Attach screenshot:</label>
-                            <div class="uploader"><input class="file-styled" type="file"><span class="filename" style="-moz-user-select: none;">No file selected</span><span class="action btn bg-pink-400 legitRipple" style="-moz-user-select: none;">Choose File</span></div>
+                            <label>Room Description:</label>
+                            <textarea rows="5" cols="5" class="form-control" id="description" name="description" placeholder="Enter room description here"></textarea>
                         </div>
 
-                        <div class="form-group">
-                            <label>Your message:</label>
-                            <textarea rows="5" cols="5" class="form-control" placeholder="Enter your message here"></textarea>
-                        </div>
-                    </fieldset>
                 </div>
 
                 <div class="col-md-6">
-                    <fieldset>
-                        <legend class="text-semibold"><i class="icon-truck position-left"></i> Shipping details</legend>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>First name:</label>
-                                    <input placeholder="Eugene" class="form-control" type="text">
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Last name:</label>
-                                    <input placeholder="Kopyov" class="form-control" type="text">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Email:</label>
-                                    <input placeholder="eugene@kopyov.com" class="form-control" type="text">
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Phone #:</label>
-                                    <input placeholder="+99-99-9999-9999" class="form-control" type="text">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Country:</label>
-                                    <select data-placeholder="Select your country" class="select select2-hidden-accessible" tabindex="-1" aria-hidden="true">
-                                        <option></option>
-                                        <option value="Cambodia">Cambodia</option>
-                                        <option value="Cameroon">Cameroon</option>
-                                        <option value="Canada">Canada</option>
-                                        <option value="Cape Verde">Cape Verde</option>
-                                    </select><span class="select2 select2-container select2-container--default" dir="ltr" style="width: 100%;"><span class="selection"><span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-labelledby="select2-rwad-container"><span class="select2-selection__rendered" id="select2-rwad-container"><span class="select2-selection__placeholder">Select your country</span></span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>State/Province:</label>
-                                    <input placeholder="Bayern" class="form-control" type="text">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>ZIP code:</label>
-                                    <input placeholder="1031" class="form-control" type="text">
-                                </div>
-                            </div>
-
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>City:</label>
-                                    <input placeholder="Munich" class="form-control" type="text">
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Address line:</label>
-                                    <input placeholder="Ring street 12" class="form-control" type="text">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Additional message:</label>
-                            <textarea rows="5" cols="5" class="form-control" placeholder="Enter your message here"></textarea>
-                        </div>
-                    </fieldset>
+                    <div class="form-group">
+                        <label>Amenities:</label>
+                        <select class="amenities hidden" multiple></select>
+                        <span class="help-block">Did'nt find what you were looking  for? Add new
+                            <button type="button" id="add_new_amenities_btn" class="btn bg-primary btn-xs btn-icon legitRipple edit_modal-trigger" data-popup="tooltip" data-original-title="Add New category" href="#modal_add_category" id="add-new-category" data-title="Add New category" data-href="/dashboard/categories/add/cat32/" data-csrf="<input type='hidden' name='csrfmiddlewaretoken' value='wvYfCnxhR64GzQeHDIHSCPu6aXxPoxdwf8beDvBggbhlErTqdMlRyzpZC9SUmvdE' />" onclick="return false;">
+                               <i class="icon-plus-circle2"></i>
+                             </button>
+                        </span>
+                    </div>
+                    <div id="add_new_amenities" style="display:none">
+                        <label>New amenities:</label>
+                        <select class="new_amenities hidden" multiple></select>
+                        <button type="button" id="new_amenities_btn" class="btn bg-primary btn-xs btn-icon legitRipple edit_modal-trigger" data-popup="tooltip" data-original-title="Add New category" href="#modal_add_category" id="add-new-category" data-title="Add New category" data-href="/dashboard/categories/add/cat32/" data-csrf="<input type='hidden' name='csrfmiddlewaretoken' value='wvYfCnxhR64GzQeHDIHSCPu6aXxPoxdwf8beDvBggbhlErTqdMlRyzpZC9SUmvdE' />" onclick="return false;">
+                           <i class="icon-plus-circle2"></i>Add
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <div class="text-right">
-                <button type="submit" class="btn btn-primary legitRipple">Submit form <i class="icon-arrow-right14 position-right"></i></button>
+                <button onclick="return false;" id="add-room-btn" type="submit" class="btn btn-primary legitRipple">Submit form <i class="icon-arrow-right14 position-right"></i></button>
             </div>
+            </form>
         </div>
     </div>
-    </form>
+<input type="hidden" class="pageUrls"
+       data-amenitiesurl="{% url 'dashboard:fetch-amenities' %}"
+       data-addamenitiesurl="{% url 'dashboard:add-amenities' %}"
+       data-variantdetail="{% url 'dashboard:have-variants' %}"
+       data-addattrurl="{% url 'dashboard:product-attr-add' %}"
+       data-addclassurlb="{% url 'dashboard:attr_list_f32d' %}"
+       data-pk="{{product.pk}}"
+       data-roomdata="{% url 'dashboard:room-add' %}"
+       data-addclassurl="{% url 'dashboard:product-class-form32b' %}">
 {% endblock%}
 {% block custom_js %}
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/room/add-room.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/tokenize/tokenize2.js' %}"></script>
 
 {% endblock %}
