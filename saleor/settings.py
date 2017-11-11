@@ -204,6 +204,7 @@ INSTALLED_APPS = [
     'saleor.salepoints',
     'saleor.table',
     'saleor.orders',
+    'saleor.room',
     'saleor.hr',
 
     # External apps
