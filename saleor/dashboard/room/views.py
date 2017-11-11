@@ -6,7 +6,7 @@ from django.db.models import Q
 
 from ..views import staff_member_required
 from saleor.room.models import Room as Table
-from saleor.room.models import RoomAmenity
+from saleor.room.models import RoomAmenity, RoomImage
 from ...decorators import user_trail
 import logging
 import json
@@ -238,7 +238,44 @@ def add_amenities(request):
             choices = json.loads(request.POST.get('amenities'))
             for choice in choices:
                 RoomAmenity.objects.create(name=choice)
-            return HttpResponse(json.dumps({choices}), content_type='application/json')
+            return HttpResponse(json.dumps({'success': choice}), content_type='application/json')
         return HttpResponse(json.dumps({'message': 'Amenities required'}), content_type='application/json')
     else:
         return HttpResponse(json.dumps({'message', 'Invalid method'}))
+
+
+def room_image_edit(request, room_pk, img_pk=None):
+    room = get_object_or_404(Table, pk=room_pk)
+    if img_pk:
+        room_image = get_object_or_404(room.images, pk=img_pk)
+    else:
+        room_image = RoomImage(product=room)
+    show_variants = room.room_class.has_variants
+    form = forms.ProductImageForm(request.POST or None, request.FILES or None,
+                                  instance=room_image)
+    if form.is_valid():
+        room_image = form.save()
+        if img_pk:
+            msg = pgettext_lazy(
+                'Dashboard message',
+                'Updated image %s') % room_image.image.name
+        else:
+            msg = pgettext_lazy(
+                'Dashboard message',
+                'Added image %s') % product_image.image.name
+        messages.success(request, msg)
+        success_url = request.POST['success_url']
+        if is_safe_url(success_url, request.get_host()):
+            return redirect(success_url)
+    ctx = {'form': form, 'product': product, 'product_image': product_image,
+           'show_variants': show_variants}
+    if request.GET.get('url'):
+        ctx['post_url'] = request.GET.get('url')
+    if request.is_ajax():
+        return TemplateResponse(
+        request, 'dashboard/product/partials/product_image_form.html', ctx)
+
+    return TemplateResponse(
+        request, 'dashboard/product/product_image_form.html', ctx)
+
+

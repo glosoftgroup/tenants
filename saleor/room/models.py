@@ -497,14 +497,14 @@ class RoomImage(models.Model):
         Room, related_name='room_images',
         verbose_name=pgettext_lazy('Room image field', 'product'))
     image = VersatileImageField(
-        upload_to='products', ppoi_field='ppoi', blank=False,
+        upload_to='rooms', ppoi_field='ppoi', blank=False,
         verbose_name=pgettext_lazy('Room image field', 'image'))
     ppoi = PPOIField(verbose_name=pgettext_lazy('Room image field', 'ppoi'))
     alt = models.CharField(
-        pgettext_lazy('Product image field', 'short description'),
+        pgettext_lazy('Room image field', 'short description'),
         max_length=128, blank=True)
     order = models.PositiveIntegerField(
-        pgettext_lazy('Product image field', 'order'),
+        pgettext_lazy('Room image field', 'order'),
         editable=False)
 
     objects = ImageManager()
@@ -534,7 +534,7 @@ class RoomImage(models.Model):
 
 class VariantImage(models.Model):
     variant = models.ForeignKey(
-        'RoomVariant', related_name='variant_rooms_images',
+        'RoomVariant', related_name='variant_room_images',
         verbose_name=pgettext_lazy('Variant image field', 'variant'))
     image = models.ForeignKey(
         RoomImage, related_name='variant_room_images',
@@ -543,5 +543,4 @@ class VariantImage(models.Model):
     class Meta:
         verbose_name = pgettext_lazy(
             'Variant image model', 'variant image')
-        verbose_name_plural = pgettext_lazy(
-'Variant image model', 'variant images')
+        verbose_name_plural = pgettext_lazy('Variant image model', 'variant images')
