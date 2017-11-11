@@ -16,7 +16,8 @@
                      <thead>
                       <tr class="bg-primary">             
                         <th>Name</th>
-                          <th>Number</th>
+                          <th>Price</th>
+                          <th>Amenities</th>
 
                         {% if perms.sale.delete_bank %}
                         <th class="text-center">Options</th>
@@ -26,26 +27,30 @@
                     <tbody id="p-tb">
                     {% if options %}
                         {% for option in options %}
-                          <tr class='clickable-row' id="{{user.pk }}">
+                          <tr class='clickable-row' id="{{option.pk }}">
+                    <!-- name -->
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.name}}</td>
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.price.gross}}</td>
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {% if option.amenities.all %}
+                         {{option.amenities.all|join:", "}}
+                        {% endif %}
 
-                            <!-- name -->
-                            <td class="td" data-href="{% url 'dashboard:car-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.name}}</td>
-                            <td class="td" data-href="{% url 'dashboard:car-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.number}}</td>
+                    </td>
 
 
-                            
-                            {% if perms.sale.delete_table %}
-                            <!-- actions -->
+                    {% if perms.sale.delete_paymentoption %}
+                    <!-- actions -->
                     <td class="text-center">
                         <div class="btn-group">
                         <button type="button" class="btn btn-default dropdown-toggle legitRipple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        action <span class="caret"></span>
+                        action <span class="roomet"></span>
                         </button>
                         <ul class="dropdown-menu edit-dropdown">
-                              <li class="td" data-href="{% url 'dashboard:car-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail"><a><i class="icon-pencil7"></i> EDIT</a>
+                              <li class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail"><a><i class="icon-pencil7"></i> EDIT</a>
                               </li>
                             <li>
-                                <a data-ta="#modal_instance" data-title="Delete {{ option.name }} ?" data-href="{% url 'dashboard:bank2-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
+                                <a data-ta="#modal_instance" data-title="Delete   {{ option.name }} ?" data-href="{% url 'dashboard:room-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
                          class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
                             </a>
                             </li>
@@ -53,8 +58,8 @@
                         </ul>
                       </div>
                     </td>
-                            {% endif %}
-                          </tr>
+                    {% endif %}
+                  </tr>
                         {% endfor %}
                     {% else %}
                         <tr>
@@ -124,11 +129,11 @@
                 $(".pages-nav2").html("Page " + num +" of "+'{{pn}}'); 
                 var gid = '{{gid}}';
                 if(gid == 0){
-                    $.get("{% url 'dashboard:car2_paginate' %}",{page:num, psize:'{{sz}}'},function(data){
+                    $.get("{% url 'dashboard:room_paginate' %}",{page:num, psize:'{{sz}}'},function(data){
                       $('#p-tb').html(data);
                     });
                 }else{
-                    $.get("{% url 'dashboard:car2_paginate' %}",{page:num, psize:'{{sz}}',gid:'{{gid}}'},function(data){
+                    $.get("{% url 'dashboard:room_paginate' %}",{page:num, psize:'{{sz}}',gid:'{{gid}}'},function(data){
                    $('#p-tb').html(data);
                 });
                 }
@@ -188,7 +193,7 @@
         var listSizeVal = $(this).val();
         var searchData = $('.search_user').val();
         var groupSizeVal = $('.group-sz').find(":selected").val();
-        var url = "{% url 'dashboard:car-search' %}";
+        var url = "{% url 'dashboard:room-search' %}";
 
         if(searchData && groupSizeVal && groupSizeVal != 'all' && groupSizeVal !='none'){
             if(listSizeVal != '0'){
@@ -213,22 +218,22 @@
 
        }else if(groupSizeVal && (groupSizeVal != 'all' && groupSizeVal !='none')){
            if(listSizeVal != '0'){
-                $.get("{% url 'dashboard:car2_paginate' %}",{page:1,gid:groupSizeVal, size:listSizeVal},function(data){
+                $.get("{% url 'dashboard:room_paginate' %}",{page:1,gid:groupSizeVal, size:listSizeVal},function(data){
                  $('#pagination-div').html(data);
                });
            }else{
-                $.get("{% url 'dashboard:car2_paginate' %}",{page:1,gid:groupSizeVal, size:10},function(data){
+                $.get("{% url 'dashboard:room_paginate' %}",{page:1,gid:groupSizeVal, size:10},function(data){
                  $('#pagination-div').html(data);
                });
 
            }
        }else{
            if(listSizeVal != '0'){
-               $.ajax({ url: "{% url 'dashboard:car2_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal}, async:false,success: function(data){
+               $.ajax({ url: "{% url 'dashboard:room_paginate' %}",type: 'GET',data: {page:1, size:listSizeVal}, async:false,success: function(data){
                   $('#pagination-div').html(data);
               }});
            }else{
-                $.ajax({ url: "{% url 'dashboard:car2_paginate' %}",type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
+                $.ajax({ url: "{% url 'dashboard:room_paginate' %}",type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
                       $('#pagination-div').html(data);
                 }});
            }

@@ -29,8 +29,9 @@ $(function() {
     var roomUrl = pageUrls.data('roomdata');
     var getAmentiesurl = pageUrls.data('amenitiesurl');
     var addAmenitiesUrl = pageUrls.data('addamenitiesurl');
+    var roomListUrl = pageUrls.data('roomurl');
 
-    // refresh dom elementes
+    // refresh dom elements
     var newAmenitiesDiv = $('#add_new_amenities');
     var addNewAmBtn = $('#add_new_amenities_btn');
 
@@ -52,7 +53,7 @@ $(function() {
     new_amenities_btn.on('click',function(){
         if(!new_amenities.val())
         {
-            alertUser('Amenities required');
+            alertUser('Amenities required','bg-danger');
             return false;
         }
         dynamicData = {};
@@ -77,25 +78,40 @@ $(function() {
 
 
     addRoomBtn.on('click',function(){
+        //    validation
         if(!name.val()){
-            alertUser('name required');
+            alertUser('name required','bg-danger','Field Error');
             return false;
         }
         if(!description.val()){
-            alertUser('description required');
+            alertUser('description required','bg-danger','Field Error');
             return false;
         }
         if(!price.val()){
-            alertUser('room type required');
+            alertUser('room type required','bg-danger','Field Error');
+            return false;
+        }
+        if(!amenities.val())
+        {
+            alertUser('Amenities required','bg-danger','Field Error');
             return false;
         }
 
+        // add dynamic post data
+        dynamicData = {};
         dynamicData['name'] = name.val();
         dynamicData['description'] = description.val();
         dynamicData['price'] = price.val();
+        dynamicData['track'] = 'add room';
+        dynamicData['amenities'] = JSON.stringify(amenities.val());
+
+        // post form data
         addRoomDetails(dynamicData,roomUrl,'post')
         .done(function(data){
             console.log(data);
+            amenities.parents('div').find('li.token').remove();
+            amenities.val('');
+            window.location.href = roomListUrl;
         })
         .fail(function(error){
             console.log('error');

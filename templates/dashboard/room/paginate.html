@@ -1,26 +1,30 @@
              {% load staticfiles %}
                {% for option in options %}
 
-                  <tr class='clickable-row'>
+                  <tr class='clickable-row' id="{{option.pk }}">
                     <!-- name -->
-                    <td class="td" data-href="{% url 'dashboard:car-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.name}}</td>
-                    <td class="td" data-href="{% url 'dashboard:car-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.number}}</td>
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.name}}</td>
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.price.gross}}</td>
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {% if option.amenities.all %}
+                         {{option.amenities.all|join:", "}}
+                        {% endif %}
+
+                    </td>
 
 
-                    
-                    {{ option.amount }}</td>
-                    {% if perms.sale.delete_bank %}
+                    {% if perms.sale.delete_paymentoption %}
                     <!-- actions -->
                     <td class="text-center">
                         <div class="btn-group">
                         <button type="button" class="btn btn-default dropdown-toggle legitRipple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        action <span class="caret"></span>
+                        action <span class="roomet"></span>
                         </button>
                         <ul class="dropdown-menu edit-dropdown">
-                              <li class="td" data-href="{% url 'dashboard:car-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail"><a><i class="icon-pencil7"></i> EDIT</a>
+                              <li class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail"><a><i class="icon-pencil7"></i> EDIT</a>
                               </li>
                             <li>
-                                <a data-ta="#modal_instance" data-title="Delete  table {{ option.name }} ?" data-href="{% url 'dashboard:bank2-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
+                                <a data-ta="#modal_instance" data-title="Delete   {{ option.name }} ?" data-href="{% url 'dashboard:room-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
                          class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
                             </a>
                             </li>
@@ -30,6 +34,7 @@
                     </td>
                     {% endif %}
                   </tr>
+
                   {% endfor %}
                  
 

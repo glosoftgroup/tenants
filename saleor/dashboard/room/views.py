@@ -3,10 +3,14 @@ from django.template.response import TemplateResponse
 from django.http import HttpResponse
 from django.core.paginator import Paginator, PageNotAnInteger, InvalidPage, EmptyPage
 from django.db.models import Q
+from django.utils.translation import pgettext_lazy
+from django.contrib import messages
+from django.utils.http import is_safe_url
 
 from ..views import staff_member_required
 from saleor.room.models import Room as Table
 from saleor.room.models import RoomAmenity, RoomImage
+from .forms import RoomImageForm
 from ...decorators import user_trail
 import logging
 import json
@@ -54,12 +58,22 @@ def list(request):
 def add(request):
     if request.method == 'POST':
         if request.POST.get('name'):
-            option = Table()
-            option.name = request.POST.get('name')
-            if request.POST.get('number'):
-                option.number = request.POST.get('number')
-            option.save()
-            data = {'name': option.name}
+            instance = Table()
+            instance.name = request.POST.get('name')
+            if request.POST.get('price'):
+                instance.price = request.POST.get('price')
+            if request.POST.get('description'):
+                instance.description = request.POST.get('description')
+            instance.save()
+            # add amenities
+            if request.POST.get('amenities'):
+                choices = json.loads(request.POST.get('amenities'))
+                print choices
+                for choice in choices:
+                    instance.amenities.add(choice)
+                instance.save()
+
+            data = {'name': instance.name}
             return HttpResponse(json.dumps(data), content_type='application/json')
         return HttpResponse(json.dumps({'message': 'Invalid method'}))
     else:
@@ -113,10 +127,10 @@ def detail(request, pk=None):
             ctx = {'option': option}
             user_trail(request.user.name, 'access Car details of: ' + str(option.name)+' ','view')
             info_logger.info('access car details of: ' + str(option.name)+'  ')
-            return TemplateResponse(request, 'dashboard/car/detail.html', ctx)
+            return TemplateResponse(request, 'dashboard/room/detail.html', ctx)
         except Exception, e:
             error_logger.error(e)
-            return TemplateResponse(request, 'dashboard/car/detail.html', {'error': e})
+            return TemplateResponse(request, 'dashboard/room/detail.html', {'error': e})
 
 
 def searchs(request):
@@ -145,12 +159,12 @@ def searchs(request):
                 options = paginator.page(paginator.num_pages)
             if p2_sz:
                 options = paginator.page(page)
-                return TemplateResponse(request, 'dashboard/car/paginate.html', {'options': options,'sz':sz})
+                return TemplateResponse(request, 'dashboard/room/paginate.html', {'options': options,'sz':sz})
             data = {'options': options,
                     'pn': paginator.num_pages,
                     'sz': sz,
                     'q': q}
-            return TemplateResponse(request, 'dashboard/car/search.html', data)
+            return TemplateResponse(request, 'dashboard/room/search.html', data)
 
 
 @staff_member_required
@@ -164,7 +178,7 @@ def paginate(request):
         if p2_sz:
             paginator = Paginator(options, int(p2_sz))
             options = paginator.page(page)
-            return TemplateResponse(request,'dashboard/car/paginate.html',{'options':options})
+            return TemplateResponse(request,'dashboard/room/paginate.html',{'options':options})
 
         if list_sz:
             paginator = Paginator(options, int(list_sz))
@@ -173,7 +187,7 @@ def paginate(request):
                     'pn': paginator.num_pages,
                     'sz': list_sz,
                     'gid': request.GET.get('gid')}
-            return TemplateResponse(request, 'dashboard/car/p2.html',data)
+            return TemplateResponse(request, 'dashboard/room/p2.html',data)
 
         paginator = Paginator(options, 10)
         options = paginator.page(page)
@@ -181,7 +195,7 @@ def paginate(request):
                 'pn': paginator.num_pages,
                 'sz': 10,
                 'gid': request.GET.get('gid')}
-        return TemplateResponse(request,'dashboard/car/p2.html', data)
+        return TemplateResponse(request,'dashboard/room/p2.html', data)
     else:
         try:
             options = Table.objects.all().order_by('-id')
@@ -194,7 +208,7 @@ def paginate(request):
                     'sz': list_sz,
                     'gid': 0
                 }
-                return TemplateResponse(request, 'dashboard/car/p2.html', data)
+                return TemplateResponse(request, 'dashboard/room/p2.html', data)
             else:
                 paginator = Paginator(options, 10)
             if p2_sz:
@@ -203,7 +217,7 @@ def paginate(request):
                 data = {
                     "options": options
                 }
-                return TemplateResponse(request, 'dashboard/car/paginate.html', data)
+                return TemplateResponse(request, 'dashboard/room/paginate.html', data)
 
             try:
                 options = paginator.page(page)
@@ -213,7 +227,7 @@ def paginate(request):
                 options = paginator.page(1)
             except EmptyPage:
                 options = paginator.page(paginator.num_pages)
-            return TemplateResponse(request, 'dashboard/car/paginate.html', {"options": options})
+            return TemplateResponse(request, 'dashboard/room/paginate.html', {"options": options})
         except Exception, e:
             return HttpResponse()
 
@@ -234,7 +248,6 @@ def fetch_amenities(request):
 def add_amenities(request):
     if request.method == 'POST':
         if request.POST.get('amenities'):
-            print request.POST.get('amenities')
             choices = json.loads(request.POST.get('amenities'))
             for choice in choices:
                 RoomAmenity.objects.create(name=choice)
@@ -249,10 +262,9 @@ def room_image_edit(request, room_pk, img_pk=None):
     if img_pk:
         room_image = get_object_or_404(room.images, pk=img_pk)
     else:
-        room_image = RoomImage(product=room)
+        room_image = RoomImage(room=room)
     show_variants = room.room_class.has_variants
-    form = forms.ProductImageForm(request.POST or None, request.FILES or None,
-                                  instance=room_image)
+    form = RoomImageForm(request.POST or None, request.FILES or None, instance=room_image)
     if form.is_valid():
         room_image = form.save()
         if img_pk:
@@ -262,18 +274,17 @@ def room_image_edit(request, room_pk, img_pk=None):
         else:
             msg = pgettext_lazy(
                 'Dashboard message',
-                'Added image %s') % product_image.image.name
+                'Added image %s') % room_image.image.name
         messages.success(request, msg)
         success_url = request.POST['success_url']
         if is_safe_url(success_url, request.get_host()):
             return redirect(success_url)
-    ctx = {'form': form, 'product': product, 'product_image': product_image,
+    ctx = {'form': form, 'room': room, 'product_image': room_image,
            'show_variants': show_variants}
     if request.GET.get('url'):
         ctx['post_url'] = request.GET.get('url')
     if request.is_ajax():
-        return TemplateResponse(
-        request, 'dashboard/product/partials/product_image_form.html', ctx)
+        return TemplateResponse(request, 'dashboard/product/partials/product_image_form.html', ctx)
 
     return TemplateResponse(
         request, 'dashboard/product/product_image_form.html', ctx)
