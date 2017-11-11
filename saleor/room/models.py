@@ -148,7 +148,7 @@ class RoomAmenity(models.Model):
 @python_2_unicode_compatible
 class Room(models.Model, ItemRange, index.Indexed):
     room_class = models.ForeignKey(
-        RoomClass, related_name='room',
+        RoomClass, related_name='room', null=True, blank=True,
         verbose_name=pgettext_lazy('Room field', 'product class'))
     product_tax = models.ForeignKey(
         RoomTax, related_name='room_tax', blank=True, null=True,

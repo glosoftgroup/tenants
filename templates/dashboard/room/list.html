@@ -53,34 +53,7 @@
             </div>
             
 
-    <div class="col-md-12" id="addExpenseTable">
-        <form class="form" enctype="multipart/form-data" id="addoptionsform" name="addoptionsform">
-            {% csrf_token %}
-     <table class="table room-hover">
-        <thead>
-            <tr class="bg-primary">            
-            <th>Name</th>
-            <th>Number</th>
-            <th></th>
-            </tr>
-        </thead>
-        <tbody>
-          <tr>        
 
-          <td>
-            <input placeholder="name" class="form-control" id="name" required="" name="name" type="text" >           
-            </td>
-            <td>
-            <input placeholder="Number" class="form-control" id="number" required="" name="number" type="text" >
-            </td>
-
-            <td>
-              <button class="btn btn-xs btn-primary legitRipple" id="submitExpenseBtn" data-token="{% csrf_token %}" data-url="{% url 'dashboard:room-add' %}" type="submit">Submit <i class="icon-arrow-right14 position-right"></i></button>
-            </td>
-          </tr>
-        </tbody>
-      </table> </form></div>
-        </div>
       </div>
    </div>
 
@@ -97,9 +70,10 @@
                 <thead>
                   <tr class="bg-primary">                  
                     <th>Name</th>
-                      <th>Number</th>
+                    <th>Price</th>
+                    <th>Amenities</th>
 
-                    {% if perms.sale.delete_room %}
+                    {% if perms.room.delete_room %}
                     <th class="text-center">Options</th>
                     {% endif %}
                   </tr>
@@ -110,7 +84,13 @@
                   <tr class='clickable-row' id="{{option.pk }}">
                     <!-- name -->
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.name}}</td>
-                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.number}}</td>
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.price.gross}}</td>
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {% if option.amenities.all %}
+                         {{option.amenities.all|join:", "}}
+                        {% endif %}
+
+                    </td>
 
                     
                     {% if perms.sale.delete_paymentoption %}

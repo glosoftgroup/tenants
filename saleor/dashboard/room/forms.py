@@ -45,11 +45,11 @@ class RoomImageForm(forms.ModelForm):
         instance.variant_images.all().delete()
         for variant in self.cleaned_data['variants']:
             variant_images.append(
-                VariantImage(variant=variant, image=instance))
-        VariantImage.objects.bulk_create(variant_images)
+                RoomImage(variant=variant, image=instance))
+        RoomImage.objects.bulk_create(variant_images)
 
     def save(self, commit=True):
-        instance = super(ProductImageForm, self).save(commit=commit)
+        instance = super(RoomImageForm, self).save(commit=commit)
         self.save_variant_images(instance)
         return instance
 
