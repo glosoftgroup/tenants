@@ -28,19 +28,19 @@
                     <tbody id="p-tb">
                     {% if options %}
                         {% for option in options %}
-                          <tr class='clickable-row' id="{{option.pk }}">
+                       <tr class='clickable-row' id="{{option.pk }}">
                     <!-- name -->
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.name}}</td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.price.gross}}</td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
                         {% if option.amenities.all %}
-                         {{option.amenities.all|join:", "}}
+                         {{option.amenities.all|join:"<i class='text-success'>,</i> "}}
                         {% endif %}
 
                     </td>
 
 
-                    {% if perms.sale.delete_paymentoption %}
+                    {% if perms.sale.delete_room %}
                     <!-- actions -->
                     <td class="text-center">
                         <div class="btn-group">
@@ -48,7 +48,7 @@
                         action <span class="roomet"></span>
                         </button>
                         <ul class="dropdown-menu edit-dropdown">
-                              <li class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail"><a><i class="icon-pencil7"></i> EDIT</a>
+                              <li class="td"><a href="{% url 'dashboard:room-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
                               </li>
                             <li>
                                 <a data-ta="#modal_instance" data-title="Delete   {{ option.name }} ?" data-href="{% url 'dashboard:room-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
