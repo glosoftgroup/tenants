@@ -311,7 +311,7 @@
                       <label class="display-block text-semibold">Product Variant Image</label>
                       {% for permission in permissions%}
                        {% if permission.content_type.model ==  'variantimage' %}
-                          <div class="checkbox">
+                         <div class="checkbox remove-duplicates">
                             <label>
                               <input class="styled check" type="checkbox" value="{{permission.id}}">
                               {{permission.name}}
@@ -856,6 +856,16 @@ $("#permission-btn").click(function(event){
       ,error:function(){}
      });
 
+});
+
+var map = {};
+$(".remove-duplicates").each(function(){
+    var value = $(this).text();
+    if (map[value] == null){
+        map[value] = true;
+    } else {
+        $(this).remove();
+    }
 });
 </script>
 {% endblock %}

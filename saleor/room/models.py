@@ -30,7 +30,7 @@ from .utils import get_attributes_display_map
 @python_2_unicode_compatible
 class RoomCategory(MPTTModel):
     name = models.CharField(
-        pgettext_lazy('Category field', 'name'), max_length=128,unique=True)
+        pgettext_lazy('Category field', 'name'), max_length=128, unique=True)
     slug = models.SlugField(
         pgettext_lazy('Category field', 'slug'), max_length=50)
     description = models.TextField(
@@ -38,7 +38,6 @@ class RoomCategory(MPTTModel):
     parent = models.ForeignKey(
         'self', null=True, blank=True, related_name='rooms_category_children',
         verbose_name=pgettext_lazy('Category field', 'parent'))
-
     hidden = models.BooleanField(
         pgettext_lazy('Category field', 'hidden'), default=False)
 

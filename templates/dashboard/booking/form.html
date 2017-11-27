@@ -1,0 +1,104 @@
+
+{% extends "dashboard/base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% load prices_i18n %}
+
+{% block title %}
+  {{ table_name }}
+{% endblock %}
+
+ {% block breadcrumbs %}
+     <li class="">
+         <a href="{% url 'dashboard:room-list' %}">{{ table_name }} </a>
+     </li>
+     <li class="active">
+         {% if room.pk %}Edit {% else %}Add{% endif %} {{ table_name }}
+     </li>
+ {% endblock %}
+
+
+{% block menu_rooms_class %}active{% endblock %}
+
+{% block custom_css %}
+<link href="{% static 'backend/js/plugins/tokenize/tokenize2.css' %}" rel="stylesheet" type="text/css">
+
+{% endblock %}
+{% block content %}
+
+    <div class="panel panel-flat">
+
+
+        <div class="panel-body">
+
+            <div class="row">
+                 <form id="room-form" enctype="multipart/form-data" novalidate>
+
+                <div class="col-md-6">
+                        <div class="form-group hidden">
+                            {% csrf_token %}
+                        </div>
+                        <div class="form-group">
+                            <label>Customer Name:<span class="text-danger">*</span></label>
+                            <input required class="form-control" {% if room.pk %} value="{{room.name}}"{% endif %} name="name" id="name" placeholder="Customer Name" type="text">
+                            <span class="help-block text-warning"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Rooms:<span class="text-danger">*</span></label>
+                            <select class="rooms hidden" multiple>
+                                {% if room.id %}
+                                    {% for amenity in room.amenities.all %}
+                                        <option selected="selected" value="{{amenity.id}}">{{amenity.name}}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                            <span class="help-block"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label> Date From:</label>
+                            <textarea rows="5" cols="5" class="form-control" id="description" name="description" placeholder="Enter room description here">{% if room.description %}{{ room.description.strip }}{% endif %}</textarea>
+                            <span class="help-block text-warning"></span>
+                        </div>
+
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Price:<span class="text-danger">*</span></label>
+                        <input disabled="disabled" class="form-control" id="price" {% if room.pk %} value="{{room.price.gross}}"{% endif %}  name="price" placeholder="Price" type="number">
+                        <span class="help-block text-warning"></span>
+                    </div>
+            </div>
+            <input type="hidden" id="room_id" name="room_id" {% if room.id %} value="{{room.id}}" {% endif %}>
+            <div class="text-right col-md-12">
+                <button onclick="return false;" id="add-room-btn" type="submit" class="btn btn-primary legitRipple">{% if room.id %}Edit{% else %}Book{% endif %} <i class="icon-arrow-right14 position-right"></i></button>
+            </div>
+            </form>
+        </div>
+    </div>
+<input type="hidden" class="pageUrls"
+       data-bookingurl="{% url 'dashboard:booking-list' %}"
+       data-getroomsurl="{% url 'dashboard:fetch-rooms' %}"
+       data-computetotal="{% url 'dashboard:compute-room-price' %}"
+       data-instancedata="{% url 'dashboard:booking-add' %}">
+{% endblock%}
+{% block custom_js %}
+<script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/room/book-room.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/tokenize/tokenize2.js' %}"></script>
+$('#room-form').validate({
+    rules:{
+        name: {
+          required:true,
+          minlength:3
+        },
+        price: {
+          required:true,
+          minlength:3
+        },
+      }
+    });
+{% endblock %}
