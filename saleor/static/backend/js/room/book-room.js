@@ -12,7 +12,7 @@
 function alertUser(msg,status='bg-success',header='Well done!')
 { $.jGrowl(msg,{header: header,theme: status}); }
 //add productDetails
-function ajaxsky(dynamicData,url,method){
+function ajaxSky(dynamicData,url,method){
   dynamicData["csrfmiddlewaretoken"]  = jQuery("[name=csrfmiddlewaretoken]").val();
   return $.ajax({
       url: url,
@@ -21,13 +21,17 @@ function ajaxsky(dynamicData,url,method){
     });
 
 }
+
+/* global variables */
 var dynamicData = {};
+var today = moment().format('MM/DD/YYYY');
 
 $(function() {
     //  urls
     var pageUrls = $('.pageUrls');
     var roomUrl = pageUrls.data('roomdata');
     var getRoomsUrl = pageUrls.data('getroomsurl');
+    var getCustomerUrl = pageUrls.data('getcustomerurl');
     var addAmenitiesUrl = pageUrls.data('instancedata');
     var roomListUrl = pageUrls.data('bookingurl');
     var computeTotalPriceUrl = pageUrls.data('computetotal');
@@ -47,7 +51,15 @@ $(function() {
     var price  = $('#price');
     var addRoomBtn = $('#add-room-btn');
     var rooms = $('.rooms');
+    var customer = $('.customer');
+    var daysId = $('#days');
+    var stayDays = 0;
     var totalCost = 0;
+    var pk = 0;
+    var customerName = $('#c_name');
+    var mobile = $('#mobile');
+    var checkInDate = $('#check_in');
+    var checkOutDate = $('#check_out');
 
     //    remove help block
     name.on('focusin',function(){
@@ -91,9 +103,8 @@ $(function() {
         dynamicData['amenities'] = JSON.stringify(rooms.val());
 
         // post form data
-        ajaxsky(dynamicData,roomUrl,'post')
+        ajaxSky(dynamicData,roomUrl,'post')
         .done(function(data){
-            console.log(data);
             rooms.parents('div').find('li.token').remove();
             rooms.val('');
             window.location.href = roomListUrl;
@@ -106,9 +117,9 @@ $(function() {
       //sends rooms id: response total cost of selected rooms
       function computeTotalPrice(roomsArr){
         dynamicData = {};
-        console.log(JSON.stringify(roomsArr))
         dynamicData['rooms'] = JSON.stringify(roomsArr);
-        ajaxsky(dynamicData,computeTotalPriceUrl,'post')
+        dynamicData['days'] = daysId.val();
+        ajaxSky(dynamicData,computeTotalPriceUrl,'post')
         .done(function(response){
             totalCost = response.price;
             price.val(response.price);
@@ -119,7 +130,7 @@ $(function() {
         });
       }
 
-     //    take care of tokenized select field
+      //  take care of tokenized select field
       //  show rooms on focusin
       rooms.on('tokenize:select', function(container){
          $(this).tokenize2().trigger('tokenize:search', [$(this).tokenize2().input.val()]);
@@ -127,11 +138,8 @@ $(function() {
 
       rooms.on('tokenize:dropdown:hide', function(e, value){
             computeTotalPrice(rooms.val());
-            console.log(rooms.val());
       });
       rooms.on('tokenize:tokens:remove',function(e, value){
-            console.log(rooms.val());
-            console.log('you removed');
             var arr = rooms.val();
             var index = arr.indexOf(value);
 
@@ -139,19 +147,13 @@ $(function() {
                arr.splice(index, 1);
             }
             computeTotalPrice(arr);
-            console.log(value);
-      });
-      rooms.on('tokenize:tokens:change',function(e, value){
-            computeTotalPrice(rooms.val());
-            console.log(rooms.val());
-            console.log('changed');
       });
 
       // get amenities
       rooms.tokenize2({
         placeholder: 'Select Room(s)',
         displayNoResultsMessage:true,
-        //searchMinLength:3,
+        tokensMaxItems:1,
         sortable: true,
         dataSource: function(search, object){
             $.ajax(getRoomsUrl, {
@@ -167,8 +169,109 @@ $(function() {
             });
         }
     });
+    //    ./amenities
+
+    /* *******************************
+     *
+     * customer token events handler
+     *
+     *********************************/
+
+    /* change customer field detail functions */
+     function setCustomer(pk){
+        dynamicData = {};
+        dynamicData['customer'] = pk;
+        dynamicData['track'] = 'Set Customer';
+        ajaxSky(dynamicData,getCustomerUrl,'get')
+        .done(function(response){
+            console.log(response.results);
+            customerName.val(response.results.text);
+            mobile.val(response.results.mobile);
+        })
+        .fail(function(err){
+            console.log(err);
+        });
+     }
+    /* focusin event */
+    customer.on('tokenize:select', function(container){
+         $(this).tokenize2().trigger('tokenize:search', [$(this).tokenize2().input.val()]);
+    });
+
+    /* on add customer */
+    customer.on('tokenize:dropdown:hide', function(e, value){
+            console.log(customer.val()[0]);
+            pk = customer.val()[0];
+            setCustomer(pk);
+    });
+
+    /* on remove customer */
+    customer.on('tokenize:tokens:remove',function(e, value){
+            /* clear customer details */
+            customerName.val('');
+            mobile.val('');
+    });
+
+    /* customer search token */
+    customer.tokenize2({
+        placeholder: 'Select Customer',
+        displayNoResultsMessage:true,
+        tokensMaxItems:1,
+        //sortable: true,
+        dataSource: function(search, object){
+            $.ajax(getCustomerUrl, {
+                data: { search: search, start: 1, group:'users' },
+                dataType: 'json',
+                success: function(data){
+                    var $items = [];
+                    $.each(data, function(k, v){
+                        $items.push(v);
+                    });
+                    object.trigger('tokenize:dropdown:fill', [$items]);
+                }
+            });
+        }
+    });
+
+    /* *****************************
+     *
+     * datepicker functions
+     *
+     * ******************************/
+
+    var checkIn = $('.check-in');
+    var checkOut = $('.check-out');
 
 
+    function getDays(start,end){
+        var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
 
+        if(moment(end).isAfter(moment(start))){
+            var firstDate = new Date(moment(start));
+            var secondDate = new Date(moment(end));
+
+            var diffDays = Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
+            return diffDays;
+        }else{
+            return 0;
+        }
+
+
+    }
+
+    checkIn.datepicker().on('changeDate', function(e) {
+        stayDays = getDays(checkIn.val(),checkOut.val());
+        daysId.val(stayDays);
+        computeTotalPrice(rooms.val());
+    });
+
+    checkOut.datepicker().on('changeDate', function(e) {
+        stayDays = getDays(checkIn.val(),checkOut.val());
+        daysId.val(stayDays);
+        computeTotalPrice(rooms.val());
+    });
+
+    /* set default dates */
+    checkInDate.val(today);
+    checkOutDate.val(today);
 
 });

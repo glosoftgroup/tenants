@@ -4,14 +4,12 @@ from django.template.response import TemplateResponse
 from django.http import HttpResponse
 from django.core.paginator import Paginator, PageNotAnInteger, InvalidPage, EmptyPage
 from django.db.models import Q
-from django.utils.translation import pgettext_lazy
-from django.contrib import messages
-from django.utils.http import is_safe_url
 
 from ..views import staff_member_required
 from saleor.booking.models import Book as Table
 from saleor.room.models import Room
-from .forms import RoomImageForm
+from saleor.customer.models import Customer
+
 from ...decorators import user_trail
 import logging
 import json
@@ -250,21 +248,48 @@ def fetch_amenities(request):
     l = []
     for instance in dictionary:
         # {"text": "Afghanistan", "value": "AF"},
+        contact = {'text': str(instance.name)+' ('+str(instance.price.gross)+')', 'value': instance.id}
+        l.append(contact)
+    return HttpResponse(json.dumps(l), content_type='application/json')
+
+
+@staff_member_required
+def customer_token(request):
+    global table_name
+    if request.GET.get('customer'):
+        pk = int(request.GET.get('customer'))
+        instance = Customer.objects.get(pk=pk)
+        l = []
+        contact = {
+                   "results": {
+                               'text': instance.name,
+                               'value': instance.id,
+                               'mobile': instance.mobile
+                               }
+                  }
+        l.append(contact)
+        return HttpResponse(json.dumps(l[0]), content_type='application/json')
+    search = request.GET.get('search')
+    dictionary = Customer.objects.all().filter(name__icontains=str(search))
+    l = []
+    for instance in dictionary:
+        # {"text": "Afghanistan", "value": "AF"},
         contact = {'text': instance.name, 'value': instance.id}
         l.append(contact)
     return HttpResponse(json.dumps(l), content_type='application/json')
 
+
 @staff_member_required
 def compute_room_price(request):
     global table_name
-    print type(request.POST.get('rooms'))
-    print request.POST.get('rooms')
+    days = int(request.POST.get('days'))
+    print days
     rooms = json.loads(request.POST.get('rooms'))
-    l = []
     total = 0
     for instance in rooms:
         room = Room.objects.get(pk=int(instance))
-        total = total + room.price.gross
+        total = float(total + room.price.gross)
+    total *= float(int(days))
     return HttpResponse(json.dumps({"price": float(total)}), content_type='application/json')
 
 
