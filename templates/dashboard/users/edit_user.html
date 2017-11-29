@@ -442,7 +442,7 @@
                       {% for permission in permissions%}
                        {% if permission.content_type.model ==  'variantimage' %}
                             {% if permission in user_permissions %}                          
-                                <div class="checkbox">
+                                <div class="checkbox remove-duplicates">
                                   <label>
                                     <input class="styled check" checked="checked" type="checkbox" value="{{permission.id}}">
                                     {{permission.name}}
@@ -450,7 +450,7 @@
                                   <span id="granted" class="granted text-success">(granted)</span>
                                 </div>
                             {% else %}
-                               <div class="checkbox">
+                               <div class="checkbox remove-duplicates">
                                <label>          
                                    <input class="styled check" type="checkbox" 
                                   value="{{permission.id}}">
@@ -1172,6 +1172,17 @@ $("#permission-btn").click(function(event){
       ,error:function(){}
      });
 
+});
+
+
+var map = {};
+$(".remove-duplicates").each(function(){
+    var value = $(this).text();
+    if (map[value] == null){
+        map[value] = true;
+    } else {
+        $(this).remove();
+    }
 });
 </script>
 {% endblock %}

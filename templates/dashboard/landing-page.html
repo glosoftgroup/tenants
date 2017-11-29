@@ -88,6 +88,22 @@
   </div>
   <!-- ./customer -->
   {% endif %}
+  {% if perms.supplier.view_room %}
+  <!-- supplier management -->
+  <div class="col-md-3 hvr-float-shadow">
+  <a href="{% url 'dashboard:room-list' %}">
+  <div class="thumbnail no-padding">
+        <div class="thumb bg-blue">
+          <img src="{% static 'backend/images/landingpage/rooms.png' %}" alt="">
+        </div>
+        <div class="caption text-center no-padding">
+          <h6 class="text-semibold no-margin">Rooms </h6>
+        </div>
+     </div>
+    </a>
+  </div>
+  <!-- ./supplier -->
+  {% endif %}
   {% if perms.supplier.view_supplier %}
   <!-- supplier management -->
   <div class="col-md-3 hvr-float-shadow">

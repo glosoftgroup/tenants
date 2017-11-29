@@ -270,7 +270,7 @@
                 </li>
                   {% endif %}
                    {% if perms.customer.view_customer %}
-                <li class="hidden">
+                <li class="">
                   <a href="{% url 'dashboard:customers' %}"><i class="icon-theater"></i> <span>
                     Customer Management
                   </span></a>
@@ -280,13 +280,13 @@
                     <i class="icon-users2"></i> Customers
                     </a>
                     </li>
-                    <li class="{% block menu_reportCustomer_class %}{% endblock %}">
+                    <li class="hidden {% block menu_reportCustomer_class %}{% endblock %}">
                     <a href="{% url 'dashboard:customer_report_list' %}">
                     <i class="icon-gift"></i> Loyalty Points
                     </a>
                     </li>
                     <!-- credit -->
-                    <li class="{% block menu_creditCustomer_class %}{% endblock %}">
+                    <li class="hidden {% block menu_creditCustomer_class %}{% endblock %}">
                     <a href="{% url 'dashboard:customer_credit_list' %}">
                     <i class="icon-width"></i> Credit
                     </a>
@@ -344,6 +344,21 @@
                     <li class="{% block menu_table_class %}{% endblock %}">
                     <a href="{% url 'dashboard:table-list'%}">
                     <i class="icon-table2"></i>Tables
+                    </a>
+                    </li>
+                  </ul></li>
+                  <!--table-->
+                  <!--rooms-->
+                  <li>
+                  <a href="javascript:;">
+                    <i class="icon-home7"></i>
+                    <span>Rooms</span>
+                  </a>
+                  <ul>
+
+                    <li class="{% block menu_rooms_class %}{% endblock %}">
+                    <a href="{% url 'dashboard:room-list'%}">
+                    <i class="icon-table2"></i>Rooms
                     </a>
                     </li>
                   </ul></li>

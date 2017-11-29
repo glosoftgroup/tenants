@@ -1,6 +1,7 @@
 from django.conf.urls import url, include
 
 from . import views as core_views
+from .booking.urls import urlpatterns as booking_urls
 from .category.urls import urlpatterns as category_urls
 from .customer.urls import urlpatterns as customer_urls
 from .drawercash.urls import urlpatterns as drawercash_urls
@@ -26,6 +27,7 @@ from .users.urls import urlpatterns as users_urls
 
 urlpatterns = [
     url(r'^$', core_views.index, name='index'),
+    url(r'^booking/', include(booking_urls)),
     url(r'^categories/', include(category_urls)),
     url(r'^customers/', include(customer_urls)),
     url(r'^credit/', include(credit_urls)),

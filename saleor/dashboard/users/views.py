@@ -21,6 +21,7 @@ debug_logger = logging.getLogger('debug_logger')
 info_logger = logging.getLogger('info_logger')
 error_logger = logging.getLogger('error_logger')
 
+
 @staff_member_required
 @permission_decorator('userprofile.view_usertrail')
 def user_trails(request):   
@@ -44,6 +45,7 @@ def user_trails(request):
     except TypeError as e:
         error_logger.error(e)
         return HttpResponse('error accessing users')
+
 
 @staff_member_required
 @permission_decorator('userprofile.view_user')

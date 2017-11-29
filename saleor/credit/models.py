@@ -32,6 +32,7 @@ from ..sale.models import Terminal, PaymentOption
 from . import OrderStatus
 from . import TransactionStatus
 
+
 class CreditManager(models.Manager):
     def due_credits(self):        
         return self.get_queryset().filter(due_date__lte=timezone.now())

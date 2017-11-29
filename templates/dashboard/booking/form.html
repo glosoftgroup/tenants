@@ -1,0 +1,164 @@
+
+{% extends "dashboard/base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% load prices_i18n %}
+
+{% block title %}
+  {{ table_name }}
+{% endblock %}
+
+ {% block breadcrumbs %}
+     <li class="">
+         <a href="{% url 'dashboard:room-list' %}">{{ table_name }} </a>
+     </li>
+     <li class="active">
+         {% if room.pk %}Edit {% else %}Create a new {% endif %} {{ table_name }}
+     </li>
+ {% endblock %}
+
+
+{% block menu_rooms_class %}active{% endblock %}
+
+{% block custom_css %}
+<link href="{% static 'backend/js/plugins/tokenize/tokenize2.css' %}" rel="stylesheet" type="text/css">
+
+{% endblock %}
+{% block content %}
+
+    <div class="panel panel-flat">
+
+
+        <div class="panel-body" id="vue-app">
+           <div class="row">
+                 <form id="room-form" enctype="multipart/form-data" novalidate>
+
+                <div class="col-md-6">
+                    <div class="form-group hidden">
+                        {% csrf_token %}
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select Room:<span class="text-danger">*</span></label>
+                        <select class="rooms hidden" multiple>
+                            {% if room.id %}
+                                {% for amenity in room.amenities.all %}
+                                    <option selected="selected" value="{{amenity.id}}">{{amenity.name}}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                        <span class="help-block"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-4">
+                              <label>Check-in Date:</label>
+                              <div class="input-group">
+                                <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                <input type="text" name="check_in" id="check_in"  class="form-control check-in">
+                              </div>
+                            </div>
+
+                           <div class="col-md-4">
+                               <label>Check-out Date:</label>
+                              <div class="input-group">
+                                <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                <input type="text" name="check_out" id="check_out" class="form-control check-out">
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <label>Days:</label>
+                              <div class="input-group">
+                                <span class="input-group-addon"><i class="icon-comma"></i></span>
+                                <input type="number" id="days" @change="computeCheckout" v-model.number="days" class="form-control" value="">
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Price:<span class="text-danger">*</span></label>
+                        <input disabled="disabled" class="form-control" id="price" {% if room.pk %} value="{{room.price.gross}}"{% endif %}  name="price" placeholder="Price" type="number">
+                        <span class="help-block text-warning"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+
+                    <div class="form-group">
+                            <label>Search Guest:<span class="text-danger">*</span></label>
+                            <select class="customer hidden" multiple></select>
+                            <span class="help-block text-warning"></span>
+                        </div>
+                        <!--customer details-->
+                        <div class="form-group">
+                            <label class="control-label">Guest Details:<span class="text-danger">*</span></label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input placeholder="Name" id="c_name" name="c_name" class="form-control" type="text">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <input placeholder="Phone" id="mobile" name="mobile" class="form-control" type="text">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-4">
+                               <label>Adults:</label>
+                              <div class="input-group">
+                                <span class="input-group-addon"><i class="icon-user"></i></span>
+                                <input type="number" value="1" placeholder="Adults" name="adult" id="adult" class="form-control ">
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <label>Children:</label>
+                              <div class="input-group">
+                                <span class="input-group-addon"><i class="icon-users"></i></span>
+                                <input type="number" id="child" value="0" placeholder="Child" name="child" class="form-control" value="">
+                              </div>
+                            </div>
+                        </div>
+                        </div>
+
+                </div>
+            <input type="hidden" id="room_id" name="room_id" {% if room.id %} value="{{room.id}}" {% endif %}>
+            <div class="text-right col-md-12">
+                <button onclick="return false;" id="add-room-btn" type="submit" class="btn btn-primary legitRipple">{% if room.id %}Edit{% else %}Book{% endif %} <i class="icon-arrow-right14 position-right"></i></button>
+            </div>
+            </form>
+        </div>
+    </div>
+<input type="hidden" class="pageUrls"
+       data-bookingurl="{% url 'dashboard:booking-list' %}"
+       data-getroomsurl="{% url 'dashboard:fetch-rooms' %}"
+       data-getcustomerurl="{% url 'dashboard:fetch-customers-token' %}"
+       data-computetotal="{% url 'dashboard:compute-room-price' %}"
+       data-instancedata="{% url 'dashboard:booking-add' %}">
+{% endblock%}
+{% block custom_js %}
+<script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/room/book-room.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/pickers/datepicker.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/tokenize/tokenize2.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/booking/vue/booking.js' %}"></script>
+
+<script>
+
+$('#room-form').validate({
+    rules:{
+        name: {
+          required:true,
+          minlength:3
+        },
+        price: {
+          required:true,
+          minlength:3
+        },
+      }
+    });
+</script>
+{% endblock %}
