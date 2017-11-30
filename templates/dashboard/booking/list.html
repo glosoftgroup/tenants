@@ -8,7 +8,7 @@
 {% endblock %}
 
  {% block breadcrumbs %}
-     <li class="active"><a href="{% url 'dashboard:room-list' %}">{{ table_name }} </a></li>
+     <li class="active"><a href="{% url 'dashboard:booking-list' %}">{{ table_name }} </a></li>
  {% endblock %}
 
 
@@ -67,9 +67,11 @@
           <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
                 <thead>
                   <tr class="bg-primary">                  
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Amenities</th>
+                    <th>Room</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Customer</th>
+                    <th>Total Cost</th>
 
                     {% if perms.room.delete_room %}
                     <th class="text-center">Options</th>
@@ -81,14 +83,23 @@
                   {% for option in options %}
                   <tr class='clickable-row' id="{{option.pk }}">
                     <!-- name -->
-                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.name}}</td>
-                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">{{option.price.gross}}</td>
-                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                        {% if option.amenities.all %}
-                         {{option.amenities.all|join:", "}}
-                        {% endif %}
+                    <td class="td" data-href="{% url 'dashboard:booking-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {{option.room}}
+                    </td>
+                    <td>
+                        {{option.check_in}}
+                    </td>
+                    <td>
+                        {{option.check_out}}
+                    </td>
+                    <td class="td" data-href="{% url 'dashboard:booking-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {{ option.customer}}
 
                     </td>
+                    <td class="td" data-href="{% url 'dashboard:booking-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {{option.price.gross}}
+                    </td>
+
 
                     
                     {% if perms.sale.delete_room %}
@@ -99,10 +110,10 @@
                         action <span class="roomet"></span>
                         </button>
                         <ul class="dropdown-menu edit-dropdown">
-                              <li class="td"><a href="{% url 'dashboard:room-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
+                              <li class="td"><a href="{% url 'dashboard:booking-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
                               </li>
                             <li>
-                                <a data-ta="#modal_instance" data-title="Delete   {{ option.name }} ?" data-href="{% url 'dashboard:room-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
+                                <a data-ta="#modal_instance" data-title="Delete Booking ?" data-href="{% url 'dashboard:booking-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
                          class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
                             </a>
                             </li>
@@ -295,8 +306,8 @@
   <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
 <script type="text/javascript">
-  var paginationSearchUrl = "{% url 'dashboard:room-search' %}";
-  var paginationUrl = "{% url 'dashboard:room_paginate' %}";
+  var paginationSearchUrl = "{% url 'dashboard:booking-search' %}";
+  var paginationUrl = "{% url 'dashboard:booking_paginate' %}";
   $(document).ready(function() {
 
 

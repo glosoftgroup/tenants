@@ -5,7 +5,7 @@
 *  Specific JS code additions for G-POS backend pages
 *
 *  Version: 1.0
-*  Latest update: Aug 27, 2017
+*  Latest update: Nov 30, 2017
 *
 * ---------------------------------------------------------------------------- */
 // alertUser
@@ -24,7 +24,8 @@ function ajaxSky(dynamicData,url,method){
 
 /* global variables */
 var dynamicData = {};
-var today = moment().format('MM/DD/YYYY');
+var today = moment().format('YYYY-MM-DD HH:mm:ss');
+var tomorrow = moment().add(1, 'days').format('YYYY-MM-DD HH:mm:ss');
 
 $(function() {
     //  urls
@@ -32,9 +33,9 @@ $(function() {
     var roomUrl = pageUrls.data('roomdata');
     var getRoomsUrl = pageUrls.data('getroomsurl');
     var getCustomerUrl = pageUrls.data('getcustomerurl');
-    var addAmenitiesUrl = pageUrls.data('instancedata');
     var roomListUrl = pageUrls.data('bookingurl');
     var computeTotalPriceUrl = pageUrls.data('computetotal');
+    var createBookingUrl = pageUrls.data('instancedata');
 
     // refresh dom elements
     var newAmenitiesDiv = $('#add_new_amenities');
@@ -45,21 +46,23 @@ $(function() {
     var confirmDeleteBtn = $('#confirm-delete');
 
     // form data
-    var name = $('#name');
-    var roomId = $('#room_id');
-    var description = $('#description');
-    var price  = $('#price');
-    var addRoomBtn = $('#add-room-btn');
-    var rooms = $('.rooms');
-    var customer = $('.customer');
-    var daysId = $('#days');
+    var bookingForm = $('#create-booking-form');
+    var name = bookingForm.find('#name');
+    var roomId = bookingForm.find('#room_id');
+    var description = bookingForm.find('#description');
+    var price  = bookingForm.find('#price');
+    var totalPrice = bookingForm.find('#total_price');
+    var addRoomBtn = bookingForm.find('#add-room-btn');
+    var rooms = bookingForm.find('.rooms');
+    var customer = bookingForm.find('.customer');
+    var daysId = bookingForm.find('#days');
     var stayDays = 0;
     var totalCost = 0;
     var pk = 0;
-    var customerName = $('#c_name');
-    var mobile = $('#mobile');
-    var checkInDate = $('#check_in');
-    var checkOutDate = $('#check_out');
+    var customerName = bookingForm.find('#c_name');
+    var mobile = bookingForm.find('#mobile');
+    var checkInDate = bookingForm.find('#check_in');
+    var checkOutDate = bookingForm.find('#check_out');
 
     //    remove help block
     name.on('focusin',function(){
@@ -115,14 +118,21 @@ $(function() {
     });
 
       //sends rooms id: response total cost of selected rooms
-      function computeTotalPrice(roomsArr){
+      function computeTotalPrice(roomsArr,days=null){
         dynamicData = {};
         dynamicData['rooms'] = JSON.stringify(roomsArr);
-        dynamicData['days'] = daysId.val();
+        console.log(dynamicData['rooms'][0]);
+        if(!days){
+            dynamicData['days'] = daysId.val();
+        }else{
+            dynamicData['days'] = days;
+        }
+
         ajaxSky(dynamicData,computeTotalPriceUrl,'post')
         .done(function(response){
             totalCost = response.price;
             price.val(response.price);
+            totalPrice.val(response.price)
             return response.price;
         })
         .fail(function(){
@@ -184,7 +194,6 @@ $(function() {
         dynamicData['track'] = 'Set Customer';
         ajaxSky(dynamicData,getCustomerUrl,'get')
         .done(function(response){
-            console.log(response.results);
             customerName.val(response.results.text);
             mobile.val(response.results.mobile);
         })
@@ -199,7 +208,6 @@ $(function() {
 
     /* on add customer */
     customer.on('tokenize:dropdown:hide', function(e, value){
-            console.log(customer.val()[0]);
             pk = customer.val()[0];
             setCustomer(pk);
     });
@@ -258,13 +266,29 @@ $(function() {
 
     }
 
-    checkIn.datepicker().on('changeDate', function(e) {
+    /****************************************************************
+     *
+     * Compute checkout date based on check-in date and days to stay
+     * return checkout date
+     *
+     ****************************************************************/
+    function addDays(start, days)
+    {
+        return moment(start).add(parseInt(days), 'days').format('YYYY-MM-DD HH:mm:ss');
+    }
+
+    $('.days').on('keyup', function(){
+        computeTotalPrice(rooms.val(),daysId.val());
+        checkOut.val(addDays(checkIn.val(),daysId.val()));
+    });
+
+    checkIn.datetimepicker({format:'YYYY-MM-DD HH:mm:ss' }).on('dp.change', function(e) {
         stayDays = getDays(checkIn.val(),checkOut.val());
         daysId.val(stayDays);
         computeTotalPrice(rooms.val());
     });
 
-    checkOut.datepicker().on('changeDate', function(e) {
+    checkOut.datetimepicker({format:'YYYY-MM-DD HH:mm:ss' }).on('dp.change', function(e) {
         stayDays = getDays(checkIn.val(),checkOut.val());
         daysId.val(stayDays);
         computeTotalPrice(rooms.val());
@@ -272,6 +296,60 @@ $(function() {
 
     /* set default dates */
     checkInDate.val(today);
-    checkOutDate.val(today);
+    checkOutDate.val(tomorrow);
+
+
+    /****************************************
+     *
+     * create a booking script
+     *
+     ****************************************/
+     bookingForm.validate({
+        onkeyup: function(element) {$(element).valid()},
+        rules:{
+            name: {
+              required:true,
+              minlength:3
+            },
+            c_name: {
+              required:true,
+              minlength:2
+            },
+            price: {
+              required:true,
+              minlength:3
+            },
+
+          },
+          submitHandler: function() {
+              var f = document.getElementById('create-booking-form');
+              var formData = new FormData(f);
+              //formData.append(name, inputValue);
+              $.ajax({
+                  url: createBookingUrl,
+                  type: "POST",
+                  data: formData,
+                  processData: false,
+                  contentType: false,
+                  success:function(data){
+                    $.jGrowl('Created successfully', {
+                      header: 'Well done!',
+                      theme: 'bg-success'
+                    });
+                    //window.location.reload();
+                  },
+                  error:function(error){
+                    console.log(error);
+                    $.jGrowl('Error adding', {
+                        header: 'Oh snap!',
+                        theme: 'bg-danger'
+                    });
+                  }
+              });
+        }
+    });
+
+    /* end */
+
 
 });
