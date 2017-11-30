@@ -1,33 +1,37 @@
 $ = jQuery;
 //var today = new Date();
-var today = moment().format('MM/DD/YYYY');
+//var today = moment().format('MM/DD/YYYY');
 
 var parent = new Vue({
     el:"#vue-app",
     delimiters: ['${', '}'],
     data:{
        'name':'Booking',
-       'days':0,
+       'days':1,
        'check_in':null,
        'check_out':null
     },
     created:function(){
        console.log('vue running in parent');
-       console.log(today);
-       this.check_in = today
-       $('#check_in').val(this.check_in);
-       this.check_out = today
-       $('#check_out').val(today);
+       //console.log(today);
     },
     methods:{
         checkIn:function(){
 
         },
         computeCheckout:function(){
-            console.log(this.days);
-            console.log(this.check_in);
-            console.log(this.check_out);
+            console.log('vue onchange days');
+        },
+        computeTotalPrice:function(rooms){
+            console.log('vue change days');
         }
+    },
+     watch: {
+    	'days': function(val, oldVal){
+                console.log($('#check_out').val());
+                //this.check_out = moment($('#check_in').val()).add(parseInt(this.days), 'days').format('MM/DD/YYYY');
+                //$('#check_out').val(this.check_out);
 
+             }
     }
 });

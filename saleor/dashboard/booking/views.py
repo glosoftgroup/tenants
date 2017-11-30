@@ -61,24 +61,36 @@ def add(request):
             instance = Table.objects.get(pk=request.POST.get('pk'))
         else:
             instance = Table()
-        if request.POST.get('name'):
-            instance.name = request.POST.get('name')
-            if request.POST.get('price'):
-                instance.price = request.POST.get('price')
-            if request.POST.get('description'):
-                instance.description = request.POST.get('description')
-            instance.save()
-            # add amenities
-            if request.POST.get('amenities'):
-                choices = json.loads(request.POST.get('amenities'))
-                instance.amenities.clear()
-                for choice in choices:
-                    instance.amenities.add(choice)
-                instance.save()
-
-            data = {'name': instance.name}
-            return HttpResponse(json.dumps(data), content_type='application/json')
-        return HttpResponse(json.dumps({'message': 'Invalid method'}))
+        if request.POST.get('c_name'):
+            customer_name = request.POST.get('c_name')
+        if request.POST.get('mobile'):
+            mobile = request.POST.get('mobile')
+        try:
+            customer = Customer.objects.get(mobile=mobile)
+        except:
+            customer = Customer.objects.create(name=customer_name, mobile=mobile)
+        instance.customer = customer
+        if request.POST.get('room'):
+            instance.room = request.POST.get('room')
+        if request.POST.get('total_price'):
+            instance.price = request.POST.get('total_price')
+        if request.POST.get('check_in'):
+            instance.check_in = request.POST.get('check_in')
+        if request.POST.get('check_out'):
+            instance.check_out = request.POST.get('check_out')
+        if request.POST.get('days'):
+            instance.days = request.POST.get('days')
+        if request.POST.get('child'):
+            instance.child = request.POST.get('child')
+        if request.POST.get('adult'):
+            instance.adult = request.POST.get('adult')
+        if request.POST.get('description'):
+            instance.description = request.POST.get('description')
+        instance.user = request.user
+        instance.save()
+        data = {'name': instance.room}
+        return HttpResponse(json.dumps(data), content_type='application/json')
+        #return HttpResponse(json.dumps({'message': 'Invalid method'}))
     else:
         ctx = {'table_name': table_name}
         return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/form.html', ctx)

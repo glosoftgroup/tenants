@@ -10,7 +10,7 @@
 
  {% block breadcrumbs %}
      <li class="">
-         <a href="{% url 'dashboard:room-list' %}">{{ table_name }} </a>
+         <a href="{% url 'dashboard:booking-list' %}">{{ table_name }} </a>
      </li>
      <li class="active">
          {% if room.pk %}Edit {% else %}Create a new {% endif %} {{ table_name }}
@@ -21,8 +21,14 @@
 {% block menu_rooms_class %}active{% endblock %}
 
 {% block custom_css %}
-<link href="{% static 'backend/js/plugins/tokenize/tokenize2.css' %}" rel="stylesheet" type="text/css">
+<style>
+  .error {
+    color:red;
+}
+</style>
 
+<link href="{% static 'backend/js/plugins/tokenize/tokenize2.css' %}" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="{% static 'backend/js/plugins/pickers/datetimepicker/bootstrap-datetimepicker-standalone.min.css' %}" />
 {% endblock %}
 {% block content %}
 
@@ -31,7 +37,7 @@
 
         <div class="panel-body" id="vue-app">
            <div class="row">
-                 <form id="room-form" enctype="multipart/form-data" novalidate>
+                 <form id="create-booking-form" enctype="multipart/form-data" novalidate>
 
                 <div class="col-md-6">
                     <div class="form-group hidden">
@@ -40,7 +46,7 @@
 
                     <div class="form-group">
                         <label>Select Room:<span class="text-danger">*</span></label>
-                        <select class="rooms hidden" multiple>
+                        <select required="required" class="rooms hidden" multiple>
                             {% if room.id %}
                                 {% for amenity in room.amenities.all %}
                                     <option selected="selected" value="{{amenity.id}}">{{amenity.name}}</option>
@@ -56,7 +62,7 @@
                               <label>Check-in Date:</label>
                               <div class="input-group">
                                 <span class="input-group-addon"><i class="icon-calendar22"></i></span>
-                                <input type="text" name="check_in" id="check_in"  class="form-control check-in">
+                                <input required="required" type="text" name="check_in" id="check_in"  class="form-control check-in">
                               </div>
                             </div>
 
@@ -64,21 +70,22 @@
                                <label>Check-out Date:</label>
                               <div class="input-group">
                                 <span class="input-group-addon"><i class="icon-calendar22"></i></span>
-                                <input type="text" name="check_out" id="check_out" class="form-control check-out">
+                                <input required="required" type="text" name="check_out" id="check_out" class="form-control check-out">
                               </div>
                             </div>
-                            <div class="col-md-4">
-                              <label>Days:</label>
+                            <div class="col-md-3">
+                              <label class="text-right">Days:</label>
                               <div class="input-group">
                                 <span class="input-group-addon"><i class="icon-comma"></i></span>
-                                <input type="number" id="days" @change="computeCheckout" v-model.number="days" class="form-control" value="">
+                                <input required="required" name="days" type="number" id="days" @change="computeCheckout()" v-model.number="days" class="form-control days" value="1">
                               </div>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Price:<span class="text-danger">*</span></label>
-                        <input disabled="disabled" class="form-control" id="price" {% if room.pk %} value="{{room.price.gross}}"{% endif %}  name="price" placeholder="Price" type="number">
+                        <input required="required" disabled="disabled" class="form-control" id="price" name="price" placeholder="Price" type="number">
+                        <input required="required" class="form-control" id="total_price" name="total_price" placeholder="hidden" type="hidden">
                         <span class="help-block text-warning"></span>
                     </div>
                 </div>
@@ -87,7 +94,7 @@
 
                     <div class="form-group">
                             <label>Search Guest:<span class="text-danger">*</span></label>
-                            <select class="customer hidden" multiple></select>
+                            <select name="customer" class="customer hidden" multiple></select>
                             <span class="help-block text-warning"></span>
                         </div>
                         <!--customer details-->
@@ -95,11 +102,11 @@
                             <label class="control-label">Guest Details:<span class="text-danger">*</span></label>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <input placeholder="Name" id="c_name" name="c_name" class="form-control" type="text">
+                                    <input required="required" placeholder="Name" id="c_name" name="c_name" class="form-control" type="text">
                                 </div>
 
                                 <div class="col-md-6">
-                                    <input placeholder="Phone" id="mobile" name="mobile" class="form-control" type="text">
+                                    <input required="required" placeholder="Phone" id="mobile" name="mobile" class="form-control" type="text">
                                 </div>
                             </div>
                         </div>
@@ -121,14 +128,15 @@
                         </div>
                         </div>
 
-                </div>
+
             <input type="hidden" id="room_id" name="room_id" {% if room.id %} value="{{room.id}}" {% endif %}>
             <div class="text-right col-md-12">
-                <button onclick="return false;" id="add-room-btn" type="submit" class="btn btn-primary legitRipple">{% if room.id %}Edit{% else %}Book{% endif %} <i class="icon-arrow-right14 position-right"></i></button>
+                <button id="create-book-btn" type="submit" class="btn btn-primary legitRipple">{% if room.id %}Edit{% else %}Book{% endif %} <i class="icon-arrow-right14 position-right"></i></button>
             </div>
             </form>
         </div>
     </div>
+        <!--page urls-->
 <input type="hidden" class="pageUrls"
        data-bookingurl="{% url 'dashboard:booking-list' %}"
        data-getroomsurl="{% url 'dashboard:fetch-rooms' %}"
@@ -142,23 +150,11 @@
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/room/book-room.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/datepicker.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/pickers/datetimepicker/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/tokenize/tokenize2.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/booking/vue/booking.js' %}"></script>
 
 <script>
-
-$('#room-form').validate({
-    rules:{
-        name: {
-          required:true,
-          minlength:3
-        },
-        price: {
-          required:true,
-          minlength:3
-        },
-      }
-    });
 </script>
 {% endblock %}
