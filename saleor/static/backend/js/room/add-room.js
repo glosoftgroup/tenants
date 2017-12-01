@@ -40,21 +40,25 @@ $(function() {
     var confirmDeleteBtn = $('#confirm-delete');
 
     // form data
-    var name = $('#name');
-    var roomId = $('#room_id');
-    var description = $('#description');
-    var price  = $('#price');
-    var addRoomBtn = $('#add-room-btn');
-    var amenities = $('.amenities');
-    var new_amenities = $('.new_amenities');
-    var new_amenities_btn = $('#new_amenities_btn');
+    var dataForm = $('#room-form');
+    var name = dataForm.find('#name');
+    var roomId = dataForm.find('#room_id');
+    var description = dataForm.find('#description');
+    var price  = dataForm.find('#price');
+    var addRoomBtn = dataForm.find('#add-room-btn');
+    var amenities = dataForm.find('.amenities');
+    var new_amenities = dataForm.find('.new_amenities');
+    var new_amenities_btn = dataForm.find('#new_amenities_btn');
+    var dayTime = dataForm.find('#daytime');
+    var nightly = dataForm.find('#nightly');
+    var daily = dataForm.find('#daily');
+    var weekly = dataForm.find('#weekly');
+    var monthly = dataForm.find('#monthly');
 
     // handle deleting a room
     deleteBtn.on('click',function(e){
         $(this).nextAll('.confirm-delete:first').html('sdfe').toggle('slow');
     });
-
-
 
     //  toggle new amenities division
     addNewAmBtn.on('click',function(){
@@ -101,6 +105,21 @@ $(function() {
     new_amenities.on('focusin',function(){
           $(this).nextAll('.help-block:first').html('');
     });
+    dayTime.on('focusin',function(){
+          $(this).nextAll('.help-block:first').html('');
+    });
+    daily.on('focusin',function(){
+          $(this).nextAll('.help-block:first').html('');
+    });
+    nightly.on('focusin',function(){
+          $(this).nextAll('.help-block:first').html('');
+    });
+    weekly.on('focusin',function(){
+          $(this).nextAll('.help-block:first').html('');
+    });
+    monthly.on('focusin',function(){
+          $(this).nextAll('.help-block:first').html('');
+    });
 
     addRoomBtn.on('click',function(){
         dynamicData = {}; //clear dynamic data
@@ -115,13 +134,42 @@ $(function() {
         if(roomId.val()){
             dynamicData['pk'] = roomId.val();
         }
-        if(!price.val()){
-            price.nextAll('.help-block:first').addClass('text-warning').html('This field is required. Please enter a number');
-            return false;
-        }
+
         if(!amenities.val())
         {
             amenities.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
+            return false;
+        }
+
+        if(daily.val()){
+            dynamicData['daily'] = daily.val();
+        }else{
+            daily.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
+            return false;
+        }
+
+        if(nightly.val()){
+            dynamicData['nightly'] = nightly.val();
+        }else{
+            nightly.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
+            return false;
+        }
+        if(dayTime.val()){
+            dynamicData['daytime'] = dayTime.val();
+        }else{
+            dayTime.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
+            return false;
+        }
+        if(weekly.val()){
+            dynamicData['weekly'] = weekly.val();
+        }else{
+            weekly.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
+            return false;
+        }
+        if(monthly.val()){
+            dynamicData['monthly'] = monthly.val();
+        }else{
+            monthly.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
             return false;
         }
 
@@ -176,6 +224,25 @@ $(function() {
         tokensAllowCustom: true
         });
     //./tokenize
+
+
+     dataForm.validate({
+        onkeyup: function(element) {$(element).valid()},
+        rules:{
+            name: {
+              required:true
+            },
+            daily: {
+              required:true
+            },
+            weekly: {
+              required:true
+            },
+            nightly: {
+              required:true
+            },
+          }
+        });
 
 
 });

@@ -60,6 +60,7 @@ class Category(MPTTModel):
 
     def get_product_num(self):
         return len(self.products.all())
+
     def get_absolute_url(self, ancestors=None):
         return reverse('product:category',
                        kwargs={'path': self.get_full_path(ancestors),

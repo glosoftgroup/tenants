@@ -27,6 +27,19 @@ from ..search import index
 from .utils import get_attributes_display_map
 
 
+class Package(models.Model):
+    name = models.CharField(
+        pgettext_lazy('Package field', 'name'), max_length=128, unique=True)
+
+    class Meta:
+        verbose_name = pgettext_lazy('Package model', 'package')
+        verbose_name_plural = pgettext_lazy('Package model', 'package')
+        app_label = 'room'
+
+    def __str__(self):
+        return self.name
+
+
 @python_2_unicode_compatible
 class RoomCategory(MPTTModel):
     name = models.CharField(
@@ -146,7 +159,7 @@ class RoomAmenity(models.Model):
 
 @python_2_unicode_compatible
 class Room(models.Model, ItemRange, index.Indexed):
-    room_class = models.ForeignKey(
+    room_classas = models.ForeignKey(
         RoomClass, related_name='room', null=True, blank=True,
         verbose_name=pgettext_lazy('Room field', 'product class'))
     product_tax = models.ForeignKey(
@@ -268,6 +281,43 @@ class Room(models.Model, ItemRange, index.Indexed):
         else:
             return super(Room, self).get_price_range(
                 discounts=discounts, **kwargs)
+
+
+class Pricing(models.Model):
+    room = models.ForeignKey(
+        Room, related_name='room_price', blank=True, null=True,
+        verbose_name=pgettext_lazy('Pricing field', 'room'))
+    package = models.ForeignKey(
+        Package, related_name='package_price', blank=True, null=True,
+        verbose_name=pgettext_lazy('Pricing field', 'package'))
+    daily = PriceField(
+        pgettext_lazy('Pricing field', 'daily price'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    nightly = PriceField(
+        pgettext_lazy('Pricing field', 'nightly price'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    daytime = PriceField(
+        pgettext_lazy('Pricing field', 'daytime price'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    weekly = PriceField(
+        pgettext_lazy('Pricing field', 'weekly price'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    monthly = PriceField(
+        pgettext_lazy('Pricing field', 'monthly price'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+
+    class Meta:
+        verbose_name = pgettext_lazy('RoomPricing model', 'pricing')
+        verbose_name_plural = pgettext_lazy('RoomPricing model', 'pricing')
+        app_label = 'room'
+
+    def __str__(self):
+        return str(self.room.name) + ' ' + str(self.daily)
 
 
 class RoomVariantManager(models.Manager):
