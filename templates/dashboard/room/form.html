@@ -1,4 +1,3 @@
-
 {% extends "dashboard/base.html" %}
 {% load staticfiles %}
 {% load i18n %}
@@ -22,13 +21,13 @@
 
 {% block custom_css %}
 <link href="{% static 'backend/js/plugins/tokenize/tokenize2.css' %}" rel="stylesheet" type="text/css">
-
+<style>
+    .error{color:red;}
+</style>
 {% endblock %}
 {% block content %}
 
-    <div class="panel panel-flat">
-
-
+    <div class="panel panel-flat animated fadeIn" id="vue-app">
         <div class="panel-body">
 
             <div class="row">
@@ -44,13 +43,66 @@
                             <input required class="form-control" {% if room.pk %} value="{{room.name}}"{% endif %} name="name" id="name" placeholder="Room Name" type="text">
                             <span class="help-block text-warning"></span>
                         </div>
-
                         <div class="form-group">
-                            <label>Price:<span class="text-danger">*</span></label>
-                            <input class="form-control" id="price" {% if room.pk %} value="{{room.price.gross}}"{% endif %}  name="price" placeholder="Price" type="number">
-                            <span class="help-block text-warning"></span>
-                        </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                  <label>Room Pricing Types:<span class="text-danger">*</span> </label>
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="checkbox" style="margin-top: 0px;">
+                                        <label>
+                                          <input v-model="autoComplete" name="creditable" class="styled check" type="checkbox">
+                                            <span v-show="autoComplete">Disable auto-complete</span>
+                                            <span v-show="!autoComplete">Activate auto-complete</span>
+                                        </label>
+                                        <span id="glranted" class="ganted text-success"></span>
+                                  </div>
+                                </div>
+                            </div>
 
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="text-bold">Daily:</label>
+                                        <input @keyup="computeFullDay" name="daily" id="daily" v-model.number="daily" placeholder="Day & night" class="form-control packages" type="number"  required="required" {% if room.id %} value="{{pricing.daily.gross}}" {% endif %}>
+                                        <span class="help-block text-warning"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="text-bold">Nightly:</label>
+                                        <input @keyup="computeHalfDay" v-model.number="nightly" id="nightly" placeholder="Night only" class="form-control packages" type="number"  required="required" {% if room.id %} value="{{pricing.nightly.gross}}" {% endif %}>
+                                        <span class="help-block text-warning"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="text-bold">DayTime:</label>
+                                        <input @keyup="computeHalfDay" id="daytime" v-model.number="daytime" placeholder="Day time only" class="form-control packages" type="number" required="required" {% if pricing.pk %} value="{{pricing.daytime.gross}}" {% endif %}>
+                                        <span class="help-block text-warning"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="text-bold">Weekly:</label>
+                                        <input id="weekly" v-model.number="weekly" name="weekly" placeholder="Weekly" class="form-control packages" type="number"  required="required">
+                                        <span class="help-block text-warning"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label class="text-bold">Monthly:</label>
+                                        <input id="monthly" v-model.number="monthly" name="monthly" placeholder="Monthly" class="form-control packages" type="number"  required="required">
+                                        <span class="help-block text-warning"></span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
 
                         <div class="form-group">
                             <label>Room Description:</label>
@@ -89,7 +141,7 @@
             </div>
             <input type="hidden" id="room_id" name="room_id" {% if room.id %} value="{{room.id}}" {% endif %}>
             <div class="text-right col-md-12">
-                <button onclick="return false;" id="add-room-btn" type="submit" class="btn btn-primary legitRipple">{% if room.id %}Edit{% else %}{% endif %} <i class="icon-arrow-right14 position-right"></i></button>
+                <button onclick="return false;" id="add-room-btn" type="submit" class="btn btn-primary legitRipple">{% if room.id %}Edit{% else %}Add Room{% endif %} <i class="icon-arrow-right14 position-right"></i></button>
             </div>
             </form>
         </div>
@@ -101,7 +153,7 @@
        data-variantdetail="{% url 'dashboard:have-variants' %}"
        data-addattrurl="{% url 'dashboard:product-attr-add' %}"
        data-addclassurlb="{% url 'dashboard:attr_list_f32d' %}"
-       data-pk="{{product.pk}}"
+       data-pk="{{room.pk}}"
        data-roomdata="{% url 'dashboard:room-add' %}"
        data-addclassurl="{% url 'dashboard:product-class-form32b' %}">
 {% endblock%}
@@ -111,16 +163,31 @@
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/room/add-room.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/tokenize/tokenize2.js' %}"></script>
-$('#room-form').validate({
-    rules:{
-        name: {
-          required:true,
-          minlength:3
-        },
-        price: {
-          required:true,
-          minlength:3
-        },
-      }
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/room/vue/add_app.js' %}"></script>
+
+<script>
+
+
+     // Checkboxes/radios (Uniform)
+    // ------------------------------
+
+    // Default initialization
+    $(".styled, .multiselect-container input").uniform({
+        radioClass: 'choice'
     });
+
+    // File input
+    $(".file-styled").uniform({
+        wrapperClass: 'bg-blue',
+        fileButtonHtml: '<i class="icon-file-plus"></i>'
+    });
+
+     // Primary
+    $(".control-primary").uniform({
+        radioClass: 'choice',
+        wrapperClass: 'border-primary-600 text-primary-800'
+    });
+</script>
+
 {% endblock %}

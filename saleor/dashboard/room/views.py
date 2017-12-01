@@ -9,7 +9,7 @@ from django.utils.http import is_safe_url
 
 from ..views import staff_member_required
 from saleor.room.models import Room as Table
-from saleor.room.models import RoomAmenity, RoomImage
+from saleor.room.models import RoomAmenity, RoomImage, Package, Pricing
 from .forms import RoomImageForm
 from ...decorators import user_trail
 import logging
@@ -58,9 +58,11 @@ def list(request):
 def add(request):
     if request.method == 'POST':
         if request.POST.get('pk'):
-            instance = Table.objects.get(pk=request.POST.get('pk'))
+            instance = Table.objects.get(pk=int(request.POST.get('pk')))
+            pricing = Pricing.objects.get(room__pk=int(request.POST.get('pk')))
         else:
             instance = Table()
+            pricing = Pricing()
         if request.POST.get('name'):
             instance.name = request.POST.get('name')
             if request.POST.get('price'):
@@ -75,12 +77,29 @@ def add(request):
                 for choice in choices:
                     instance.amenities.add(choice)
                 instance.save()
+            # add price packages
+            pricing.room = instance
+            if request.POST.get('daily'):
+                pricing.daily = request.POST.get('daily')
+            if request.POST.get('nightly'):
+                pricing.nightly = request.POST.get('nightly')
+            if request.POST.get('daytime'):
+                pricing.daytime = request.POST.get('daytime')
+            if request.POST.get('weekly'):
+                pricing.weekly = request.POST.get('weekly')
+            if request.POST.get('monthly'):
+                pricing.monthly = request.POST.get('monthly')
+            pricing.save()
 
             data = {'name': instance.name}
             return HttpResponse(json.dumps(data), content_type='application/json')
         return HttpResponse(json.dumps({'message': 'Invalid method'}))
     else:
-        ctx = {'table_name': table_name}
+        packages = Package.objects.all()
+        package_json = []
+        for package in packages:
+            package_json.append({'name': str(package.name)})
+        ctx = {'table_name': table_name, 'packages': packages, 'package_json': package_json}
         return TemplateResponse(request, 'dashboard/room/form.html', ctx)
 
 
@@ -101,8 +120,9 @@ def delete(request, pk=None):
 @staff_member_required
 def edit(request, pk=None):
     room = get_object_or_404(Table, pk=pk)
+    pricing = Pricing.objects.get(room__pk=room.pk)
     if request.method == 'GET':
-        ctx = {'table_name': table_name, 'room': room}
+        ctx = {'table_name': table_name, 'room': room, 'pricing': pricing}
         return TemplateResponse(request, 'dashboard/room/form.html', ctx)
     if request.method == 'POST':
         try:

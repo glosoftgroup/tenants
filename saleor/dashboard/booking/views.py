@@ -71,7 +71,12 @@ def add(request):
             customer = Customer.objects.create(name=customer_name, mobile=mobile)
         instance.customer = customer
         if request.POST.get('room'):
-            instance.room = request.POST.get('room')
+            try:
+                room = Room.objects.get(pk=int(request.POST.get('room')))
+                instance.room = room
+            except Exception as e:
+                return HttpResponse(json.dumps({'error': str(e)}), content_type="application/json")
+
         if request.POST.get('total_price'):
             instance.price = request.POST.get('total_price')
         if request.POST.get('check_in'):
@@ -88,7 +93,7 @@ def add(request):
             instance.description = request.POST.get('description')
         instance.user = request.user
         instance.save()
-        data = {'name': instance.room}
+        data = {'name': instance.room.name}
         return HttpResponse(json.dumps(data), content_type='application/json')
         #return HttpResponse(json.dumps({'message': 'Invalid method'}))
     else:

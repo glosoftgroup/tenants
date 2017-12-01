@@ -54,6 +54,7 @@ $(function() {
     var totalPrice = bookingForm.find('#total_price');
     var addRoomBtn = bookingForm.find('#add-room-btn');
     var rooms = bookingForm.find('.rooms');
+    var room  = bookingForm.find('#room');
     var customer = bookingForm.find('.customer');
     var daysId = bookingForm.find('#days');
     var stayDays = 0;
@@ -121,7 +122,7 @@ $(function() {
       function computeTotalPrice(roomsArr,days=null){
         dynamicData = {};
         dynamicData['rooms'] = JSON.stringify(roomsArr);
-        console.log(dynamicData['rooms'][0]);
+        room.val(roomsArr[0]);
         if(!days){
             dynamicData['days'] = daysId.val();
         }else{
@@ -242,7 +243,7 @@ $(function() {
 
     /* *****************************
      *
-     * datepicker functions
+     * datetimepicker functions
      *
      * ******************************/
 
