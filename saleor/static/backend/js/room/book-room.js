@@ -355,7 +355,8 @@ $(function() {
                     }else{
                        $('#ribbon'+boolRedirect.data('pk')).removeClass('hidden');
                        $('#available'+boolRedirect.data('pk')).html('Available on '+data.check_out);
-                       $('#bookbtn'+boolRedirect.data('pk')).html('');
+                       $('#bookbtn'+boolRedirect.data('pk')).addClass('hidden');
+                       $('#invoicebtn'+boolRedirect.data('pk')).removeClass('hidden')
                        $('#bookbtn'+boolRedirect.data('pk')).removeClass('label-success');
                        $('#booking-modal').modal('hide');
                     }

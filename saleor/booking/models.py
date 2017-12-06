@@ -12,14 +12,25 @@ from ..customer.models import Customer
 
 
 class Book(models.Model):
+    invoice_number = models.CharField(
+        pgettext_lazy('Book invoice', 'invoice number'),
+        max_length=152, unique=True, null=True)
     description = models.CharField(
-        pgettext_lazy('Book field', 'Table name'),
+        pgettext_lazy('Book field', 'description'),
         max_length=152, default='', null=True, blank=True)
     price_type = models.CharField(
         pgettext_lazy('Book field', 'price type'),
         max_length=152, default='', null=True, blank=True)
     price = PriceField(
         pgettext_lazy('Book field', 'price'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    amount_paid = PriceField(
+        pgettext_lazy('Book field', 'paid'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    balance = PriceField(
+        pgettext_lazy('Book field', 'balance'),
         currency=settings.DEFAULT_CURRENCY, max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
     days = models.IntegerField(default=Decimal(1))

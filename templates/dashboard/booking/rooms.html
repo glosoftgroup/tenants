@@ -106,19 +106,19 @@
                                     <div class="heading-elements not-collapsible">
                                         <span class="heading-text">
                                             <i class="icon-history position-left"></i>
-                                            <span id="available{{instance.pk}}" class="text-uppercase text-size-mini text-muted">
-                                                {% if instance.is_booked %}
-                                                 Available on {{instance.available_on}}
-                                                {% else %}
-                                                 Available
-                                                {% endif %}
+                                             <span id="detailbtn{{instance.id}}" data-pk="{{instance.pk}}" data-name="{{instance.name}}" class=" pull-right label label-primary cursor-pointer animated bounceIn invoice-room-btn {% if not instance.is_booked %} x {% endif %} hvr-glow btn-raised legitRipple">
+                                                Detail
                                             </span>
+
                                         </span>
-                                        {% if not instance.is_booked %}
-                                        <span id="bookbtn{{instance.id}}" data-pk="{{instance.pk}}" data-name="{{instance.name}}" class="heading-text pull-right label label-success cursor-pointer animated bounceIn book-room-btn">
+                                        <!--book button-->
+                                        <span id="bookbtn{{instance.id}}" data-pk="{{instance.pk}}" data-name="{{instance.name}}" class="heading-text pull-right label label-success cursor-pointer animated bounceIn book-room-btn {% if instance.is_booked %} hidden {% endif %} hvr-glow btn-raised legitRipple">
                                             Book
                                         </span>
-                                        {% endif %}
+                                        <!--invoice button -->
+                                        <span id="invoicebtn{{instance.id}}" data-pk="{{instance.pk}}" data-name="{{instance.name}}" class="heading-text pull-right label label-success cursor-pointer animated bounceIn invoice-room-btn {% if not instance.is_booked %} hidden {% endif %} hvr-grow-shadow hvr-glow btn-raised legitRipple">
+                                            <a href="{% url 'dashboard:booking-invoice' pk=instance.pk %}" class="text-white" >Invoice</a>
+                                        </span>
                                     </div>
                                 </div>
                             </div>

@@ -9,6 +9,7 @@ from ..views import staff_member_required
 from saleor.booking.models import Book as Table
 from saleor.room.models import Room
 from saleor.customer.models import Customer
+from saleor.sale.models import PaymentOption
 
 from ...decorators import user_trail
 import logging
@@ -23,37 +24,6 @@ table_name = 'Booking'
 
 
 @staff_member_required
-def list(request):
-    global table_name
-    try:
-        options = Table.objects.all().order_by('-id')
-        page = request.GET.get('page', 1)
-        paginator = Paginator(options, 10)
-        try:
-            options = paginator.page(page)
-        except PageNotAnInteger:
-            options = paginator.page(1)
-        except InvalidPage:
-            options = paginator.page(1)
-        except EmptyPage:
-            options = paginator.page(paginator.num_pages)
-        data = {
-            "table_name": table_name,
-            "options": options,            
-            "pn": paginator.num_pages
-        }
-        user_trail(request.user.name, 'accessed '+table_name+' List', 'views')
-        info_logger.info('User: ' + str(request.user.name) + 'accessed '+table_name+' List Page')
-        if request.GET.get('initial'):
-            return HttpResponse(paginator.num_pages)
-        else:
-            return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/list.html', data)
-    except TypeError as e:
-        error_logger.error(e)
-        return HttpResponse('error accessing payment options')
-
-
-@staff_member_required
 def add(request):
     global table_name
     if request.method == 'POST':
@@ -61,6 +31,10 @@ def add(request):
             instance = Table.objects.get(pk=request.POST.get('pk'))
         else:
             instance = Table()
+            try:
+                instance.invoice_number = 'inv/bk/0'+str(Table.objects.latest('id').id)
+            except Exception as e:
+                instance.invoice_number = 'inv/bk/01'
         if request.POST.get('c_name'):
             customer_name = request.POST.get('c_name')
         if request.POST.get('mobile'):
@@ -79,6 +53,8 @@ def add(request):
 
         if request.POST.get('total_price'):
             instance.price = request.POST.get('total_price')
+        if request.POST.get('amount_paid'):
+            instance.amount_paid = request.POST.get('amount_paid')
         if request.POST.get('check_in'):
             instance.check_in = request.POST.get('check_in')
         if request.POST.get('price_type'):
@@ -94,6 +70,9 @@ def add(request):
         if request.POST.get('description'):
             instance.description = request.POST.get('description')
         instance.user = request.user
+        instance.save()
+        # compute balance
+        instance.balance = instance.price.gross - instance.amount_paid.gross
         instance.save()
         room.is_booked = True
         room.available_on = request.POST.get("check_out")
@@ -117,6 +96,19 @@ def add(request):
 
 
 @staff_member_required
+def book(request):
+    global table_name
+    objects = Room.objects.all().order_by('floor')
+    floors = []
+    for floor in objects:
+        if floor.floor not in floors:
+            floors.append(floor.floor)
+    print floors
+    ctx = {'table_name': table_name, 'objects': objects, "floors": floors}
+    return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/rooms.html', ctx)
+
+
+@staff_member_required
 def delete(request, pk=None):
     global table_name
     option = get_object_or_404(Table, pk=pk)
@@ -129,30 +121,6 @@ def delete(request, pk=None):
         except Exception, e:
             error_logger.error(e)
             return HttpResponse(e)
-
-
-@staff_member_required
-def edit(request, pk=None):
-    global table_name
-    instance = get_object_or_404(Table, pk=pk)
-    if request.method == 'GET':
-        ctx = {'table_name': table_name, 'instance': instance}
-        return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/form.html', ctx)
-    if request.method == 'POST':
-        return HttpResponse('Invalid Request method')
-
-
-@staff_member_required
-def book(request):
-    global table_name
-    objects = Room.objects.all().order_by('floor')
-    floors = []
-    for floor in objects:
-        if floor.floor not in floors:
-            floors.append(floor.floor)
-    print floors
-    ctx = {'table_name': table_name, 'objects': objects, "floors": floors}
-    return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/rooms.html', ctx)
 
 
 @staff_member_required
@@ -170,6 +138,60 @@ def detail(request, pk=None):
             return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/detail.html', {'error': e})
 
 
+@staff_member_required
+def edit(request, pk=None):
+    global table_name
+    instance = get_object_or_404(Table, pk=pk)
+    if request.method == 'GET':
+        ctx = {'table_name': table_name, 'instance': instance}
+        return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/form.html', ctx)
+    if request.method == 'POST':
+        return HttpResponse('Invalid Request method')
+
+
+@staff_member_required
+def invoice(request, pk=None):
+    global table_name
+    if pk:
+        payment_options = PaymentOption.objects.all()
+        instance = Table.objects.filter(room__pk=pk).first()
+        ctx = {'table_name': table_name, 'instance': instance, 'payment_options': payment_options}
+        return TemplateResponse(request, 'dashboard/' + table_name.lower() + '/invoice.html', ctx)
+    return HttpResponse('Invalid Request. Booking id required')
+
+
+@staff_member_required
+def listing(request):
+    global table_name
+    try:
+        options = Table.objects.all().order_by('-id')
+        page = request.GET.get('page', 1)
+        paginator = Paginator(options, 10)
+        try:
+            options = paginator.page(page)
+        except PageNotAnInteger:
+            options = paginator.page(1)
+        except InvalidPage:
+            options = paginator.page(1)
+        except EmptyPage:
+            options = paginator.page(paginator.num_pages)
+        data = {
+            "table_name": table_name,
+            "options": options,
+            "pn": paginator.num_pages
+        }
+        user_trail(request.user.name, 'accessed '+table_name+' List', 'views')
+        info_logger.info('User: ' + str(request.user.name) + 'accessed '+table_name+' List Page')
+        if request.GET.get('initial'):
+            return HttpResponse(paginator.num_pages)
+        else:
+            return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/list.html', data)
+    except TypeError as e:
+        error_logger.error(e)
+        return HttpResponse('error accessing payment options')
+
+
+@staff_member_required
 def searchs(request):
     global table_name
     if request.is_ajax():

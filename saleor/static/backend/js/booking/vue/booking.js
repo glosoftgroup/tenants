@@ -1,6 +1,4 @@
 $ = jQuery;
-//var today = new Date();
-//var today = moment().format('MM/DD/YYYY');
 
 var parent = new Vue({
     el:"#vue-app",
