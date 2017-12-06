@@ -95,10 +95,23 @@ def add(request):
             instance.description = request.POST.get('description')
         instance.user = request.user
         instance.save()
-        data = {'name': instance.room.name}
+        room.is_booked = True
+        room.available_on = request.POST.get("check_out")
+        room.save()
+        data = {
+                'name': instance.room.name,
+                'check_out': instance.check_out,
+                'room_pk': instance.room.id
+                }
         return HttpResponse(json.dumps(data), content_type='application/json')
         #return HttpResponse(json.dumps({'message': 'Invalid method'}))
     else:
+        if request.is_ajax():
+            ctx = {'table_name': table_name}
+            if request.GET.get("room_pk"):
+                room = Room.objects.get(pk=int(request.GET.get("room_pk")))
+                ctx['room'] = room
+            return TemplateResponse(request, 'dashboard/' + table_name.lower() + '/modal_form.html', ctx)
         ctx = {'table_name': table_name}
         return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/form.html', ctx)
 
@@ -127,6 +140,19 @@ def edit(request, pk=None):
         return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/form.html', ctx)
     if request.method == 'POST':
         return HttpResponse('Invalid Request method')
+
+
+@staff_member_required
+def book(request):
+    global table_name
+    objects = Room.objects.all().order_by('floor')
+    floors = []
+    for floor in objects:
+        if floor.floor not in floors:
+            floors.append(floor.floor)
+    print floors
+    ctx = {'table_name': table_name, 'objects': objects, "floors": floors}
+    return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/rooms.html', ctx)
 
 
 @staff_member_required
@@ -249,7 +275,7 @@ def paginate(request):
 def fetch_amenities(request):
     global table_name
     search = request.GET.get('search')
-    dictionary = Room.objects.all().filter(name__icontains=str(search))
+    dictionary = Room.objects.all().exclude(is_booked=True).filter(name__icontains=str(search))
     l = []
     for instance in dictionary:
         # {"text": "Afghanistan", "value": "AF"},
@@ -294,7 +320,7 @@ def compute_room_price(request):
     for instance in rooms:
         room = Room.objects.get(pk=int(instance))
         total = float(total + eval('room.get_'+str(price_type)+'_price()'))
-        print eval('room.get_' + str(price_type) + '_price()')
+        print room.get_weekly_price()
     total *= float(int(days))
     return HttpResponse(json.dumps({"price": float(total)}), content_type='application/json')
 
