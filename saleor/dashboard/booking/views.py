@@ -7,6 +7,7 @@ from django.db.models import Q
 
 from ..views import staff_member_required
 from saleor.booking.models import Book as Table
+from saleor.booking.models import Payment
 from saleor.room.models import Room
 from saleor.customer.models import Customer
 from saleor.sale.models import PaymentOption
@@ -42,15 +43,14 @@ def add(request):
         try:
             customer = Customer.objects.get(mobile=mobile)
         except:
-            customer = Customer.objects.create(name=customer_name, mobile=mobile)
-        instance.customer = customer
-        if request.POST.get('room'):
             try:
-                room = Room.objects.get(pk=int(request.POST.get('room')))
-                instance.room = room
-            except Exception as e:
-                return HttpResponse(json.dumps({'error': str(e)}), content_type="application/json")
-
+                customer = Customer.objects.create(name=customer_name, mobile=mobile)
+            except:
+                pass
+        try:
+            instance.customer = customer
+        except:
+            pass
         if request.POST.get('total_price'):
             instance.price = request.POST.get('total_price')
         if request.POST.get('amount_paid'):
@@ -69,17 +69,29 @@ def add(request):
             instance.adult = request.POST.get('adult')
         if request.POST.get('description'):
             instance.description = request.POST.get('description')
+        if request.POST.get('active'):
+            b = lambda x: True if x > 0 else False
+            instance.active = b(int(request.POST.get('active')))
+        else:
+            instance.active = True
         instance.user = request.user
         instance.save()
+        if request.POST.get('room'):
+            try:
+                room = Room.objects.get(pk=int(request.POST.get('room')))
+                instance.room = room
+                room.is_booked = True
+                room.available_on = request.POST.get("check_out")
+                room.save()
+            except Exception as e:
+                return HttpResponse(json.dumps({'error': str(e)}), content_type="application/json")
         # compute balance
         instance.balance = instance.price.gross - instance.amount_paid.gross
         instance.save()
-        room.is_booked = True
-        room.available_on = request.POST.get("check_out")
-        room.save()
+
         data = {
                 'name': instance.room.name,
-                'check_out': instance.check_out,
+                'active': instance.active,
                 'room_pk': instance.room.id
                 }
         return HttpResponse(json.dumps(data), content_type='application/json')
@@ -189,6 +201,38 @@ def listing(request):
     except TypeError as e:
         error_logger.error(e)
         return HttpResponse('error accessing payment options')
+
+
+@staff_member_required
+def pay(request):
+    global table_name
+    # create instance
+    instance = Payment()
+    if request.method == 'POST':
+        if request.POST.get('invoice_number'):
+            instance.invoice_number = request.POST.get('invoice_number')
+        if request.POST.get('book'):
+            book = Table.objects.get(pk=int(request.POST.get('book')))
+            instance.book = book
+            instance.customer = book.customer
+        if request.POST.get('amount_paid'):
+            instance.amount_paid = request.POST.get('amount_paid')
+        if request.POST.get('payment_option'):
+            instance.payment_option = PaymentOption.objects.get(pk=int(request.POST.get('payment_option')))
+        if request.POST.get('date'):
+            instance.date = request.POST.get('date')
+        if request.POST.get('description'):
+            instance.description = request.POST.get('description')
+        instance.save()
+        book.amount_paid = book.amount_paid.gross + instance.amount_paid.gross
+        book.balance = book.balance.gross - instance.amount_paid.gross
+        book.save()
+        data = {'balance': float(book.balance.gross),
+                'total_paid': float(book.amount_paid.gross)}
+
+        return HttpResponse(json.dumps(data), content_type='application/json')
+
+    return HttpResponse('Invalid request method')
 
 
 @staff_member_required
