@@ -1,3 +1,4 @@
+
 <div class="modal-body">
     <div class="panelpanel-flat">
         <div class="panel-heading">
@@ -6,16 +7,21 @@
 
             <div class="heading-elements">
                 <ul class="list-inline list-inline-separate heading-text">
-                   <li>
-                        <span class="text-muted position-right">
-                            {% if room.is_booked %}
-                             (booked)
+                    <li>
+                       {% if room.is_booked %}
+                             <span class="label label-success hvr-glow btn-raised legitRipple">
+                                 <a href="{% url 'dashboard:booking-invoice' pk=book.pk %}" class="text-white" >
+                                     Open invoice
+                                 </a>
+                             </span>
                             {% else %}
                              (available)
                             {% endif %}
-                        </span>
+
                     </li>
+
                 </ul>
+
             </div>
 
             <a class="heading-elements-toggle"><i class="icon-more"></i></a>
@@ -26,14 +32,20 @@
                 <ul class="nav nav-tabs nav-tabs-highlight" style="width:145px;">
                     <li class="active">
                         <a href="#room-detail" data-toggle="tab" class="legitRipple" aria-expanded="true">
-                            <i class="position-left"></i>
+
                             Room Detail
                         </a>
                     </li>
                     <li class="">
                         <a href="#left-tab2" data-toggle="tab" class="legitRipple" aria-expanded="false">
-                            <i class="icon-mention position-left"></i>
+
                             Availability
+                        </a>
+                    </li>
+                    <li class="">
+                        <a href="#room-history" data-toggle="tab" class="legitRipple" aria-expanded="false">
+
+                            History
                         </a>
                     </li>
 
@@ -97,6 +109,36 @@
                         <!--./avalibilty-->
                     </div>
 
+                    <!--history-->
+                    <div class="tab-pane has-padding" id="room-history">
+                        {% if history %}
+                        <table class="table">
+                            <thead>
+                             <tr class="bg-primary">
+                                <th>Date</th>
+                                <th>Invoice</th>
+                                <th>Price</th>
+                                <th>Customer</th>
+                                <th>Check-in</th>
+                                <th>Check-out</th>
+                             </tr>
+                            </thead>
+                            <tbody>
+                                {% for info in history %}
+                                <tr>
+                                    <td> {{info.created}}</td>
+                                    <td> {{info.invoice_number}}</td>
+                                    <td> {{info.price.gross}}</td>
+                                    <td> {{info.customer.name}}</td>
+                                    <td> {{info.check_in}}</td>
+                                    <td> {{info.check_out}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% endif %}
+                    </div>
+                    <!--./history-->
 
                 </div>
             </div>

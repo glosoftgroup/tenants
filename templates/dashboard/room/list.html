@@ -16,9 +16,7 @@
 {% block menu_rooms_class %}active{% endblock %}
  {% block custom_css %}
    <style type="text/css">
-     .clickable-row td.td{
-      cursor: pointer;
-     }
+
      tr.nb td{border:0px;}
      .nb{border:0px;}
      .table{border:1px solid #ccc}
@@ -30,6 +28,41 @@
  {% endblock %}
 
 {% block content %}
+<!-- Mini clone -->
+<div id="modal_clone" class="modal fade">
+    <div class="modal-dialog modal-xs">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h5 class="modal-title">Clone Room</h5>
+            </div>
+            <form id="cloning-form">
+            <div class="modal-body">
+                <h6 class="text-semibold">Number of rooms to clone</h6>
+
+                {% csrf_token %}
+                <div class="form-group">
+                     <input id="times" value="1" class="form-control" type="number">
+                     <span class="help-text"></span>
+                </div>
+                <div class="form-group hidden">
+                     <input id="room-id" class="form-control" type="number">
+                     <span class="help-text"></span>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                <button type="button" id="clone-btn" onclick="return false;" class="btn btn-primary">Clone</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- /mini modal -->
+<input type="hidden" id="pageUrls" data-roomurl="{% url 'dashboard:room-list' %}" >
+
  <div class="row animated fadeIn">
    <div class="col-md-12">
       <div class="panel panel-flat">
@@ -122,6 +155,14 @@
                         <ul class="dropdown-menu edit-dropdown">
                               <li class="td"><a href="{% url 'dashboard:room-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
                               </li>
+                            <li>
+                                <a data-ta="#modal_instance" data-pk="{{option.pk}}" data-cloneurl="{% url 'dashboard:clone-room' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
+                               class="clone">
+                                    <i class="icon-copy" href="#modal_instance"></i>
+                                    CLONE
+                               </a>
+                            </li>
+                            </li>
                             <li>
                                 <a data-ta="#modal_instance" data-title="Delete   {{ option.name }} ?" data-href="{% url 'dashboard:room-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
                          class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
@@ -310,11 +351,12 @@
    </div>
  </div>
 
-{% endblock%}
+ {% endblock%}
 {% block custom_js %}
   <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
   <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'backend/js/room/clone.js' %}"></script>
 <script type="text/javascript">
   var paginationSearchUrl = "{% url 'dashboard:room-search' %}";
   var paginationUrl = "{% url 'dashboard:room_paginate' %}";
@@ -413,8 +455,8 @@
       $('body').on('click', '.td', function(){
           <!--window.location = $(this).data("href");-->
           var url = $(this).data('href');
-          var modal = $(this).data('m');
-          var modalTitle = $(this).data('mtitle');
+          //var modal = $(this).data('m');
+          //var modalTitle = $(this).data('mtitle');
            $(modal+' .modal-title').html(modalTitle);
 
           $.ajax({
@@ -692,6 +734,9 @@
 
 
   });
+
+
+
 
 </script>
 {% endblock %}

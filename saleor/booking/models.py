@@ -97,3 +97,30 @@ class Payment(models.Model):
         pgettext_lazy('Payment field', 'created'),
         default=now, editable=False)
 
+
+class BookingHistory(models.Model):
+    invoice_number = models.CharField(
+        pgettext_lazy('BookingHistory field', 'invoice number'),
+        max_length=152, default='', blank=True, null=True)
+    price = PriceField(
+        pgettext_lazy('Book field', 'price'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    book = models.ForeignKey(
+        Book, related_name='booking_history_payment', blank=True, null=True, default='', on_delete=models.SET_NULL,
+        verbose_name=pgettext_lazy('BookingHistory field', 'table'))
+    room = models.ForeignKey(
+        Room, verbose_name=pgettext_lazy('Book field', 'rooms'),
+        related_name='booking_history_room', blank=True, null=True, on_delete=models.SET_NULL )
+    customer = models.ForeignKey(
+        Customer, blank=True, null=True, on_delete=models.SET_NULL, related_name='booking_history_customers',
+        verbose_name=pgettext_lazy('Book field', 'customer'))
+    check_in = models.DateTimeField(
+        pgettext_lazy('BookingHistory field', 'Date from'),
+        default=now)
+    check_out = models.DateTimeField(
+        pgettext_lazy('BookingHistory field', 'Date until'),
+        default=now)
+    created = models.DateField(
+        pgettext_lazy('BookingHistory field', 'created'),
+        default=now, editable=False)

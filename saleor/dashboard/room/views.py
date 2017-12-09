@@ -9,7 +9,7 @@ from django.utils.http import is_safe_url
 
 from ..views import staff_member_required
 from saleor.room.models import Room as Table
-from saleor.booking.models import Book
+from saleor.booking.models import Book, BookingHistory
 from saleor.room.models import RoomAmenity, RoomImage, Package, Pricing
 from .forms import RoomImageForm
 from ...decorators import user_trail
@@ -97,6 +97,39 @@ def add_amenities(request):
 
 
 @staff_member_required
+def clone(request, pk=None):
+    if pk:
+        obj = Table.objects.get(pk=pk)
+        temp = []
+        for amenity in obj.amenities.all():
+            temp.append(amenity)
+        print temp
+        pricing = Pricing.objects.get(room__pk=pk)
+        instance = int(obj.pk) + 2
+        floor = obj.floor
+        if request.POST.get('times'):
+            for i in range(int(request.POST.get('times'))):
+                obj.pk = None
+                pricing.pk = None
+                if floor == '0':
+                    obj.name = 'G' + str(floor) + '-' + str(i) + str(instance)
+                else:
+                    obj.name = 'F'+str(floor) + '-' + str(i) + str(instance)
+                obj.is_booked = False
+                try:
+                    obj.save()
+                    pricing.room = obj
+                    pricing.save()
+                    for amenity in temp:
+                        obj.amenities.add(amenity)
+                except Exception as e:
+                    pass
+
+        return HttpResponse(json.dumps({'message': obj.name}), content_type='application/json')
+    return HttpResponse('Invalid request')
+
+
+@staff_member_required
 def delete(request, pk=None):
     option = get_object_or_404(Table, pk=pk)
     if request.method == 'POST':
@@ -116,7 +149,8 @@ def detail(request, pk=None):
         try:
             room = get_object_or_404(Table, pk=pk)
             book = Book.objects.filter(room__pk=pk).first()
-            ctx = {'room': room, 'book': book}
+            history = BookingHistory.objects.filter(room__pk=pk)
+            ctx = {'room': room, 'book': book, 'history': history}
             return TemplateResponse(request, 'dashboard/room/detail.html', ctx)
         except Exception, e:
             error_logger.error(e)

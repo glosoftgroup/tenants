@@ -69,6 +69,14 @@
                               <li class="td"><a href="{% url 'dashboard:room-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
                               </li>
                             <li>
+                                <a data-ta="#modal_instance" data-pk="{{option.pk}}" data-cloneurl="{% url 'dashboard:clone-room' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
+                               class="clone">
+                                    <i class="icon-copy" href="#modal_instance"></i>
+                                    CLONE
+                               </a>
+                            </li>
+                            </li>
+                            <li>
                                 <a data-ta="#modal_instance" data-title="Delete   {{ option.name }} ?" data-href="{% url 'dashboard:room-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
                          class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
                             </a>
@@ -79,6 +87,7 @@
                     </td>
                     {% endif %}
                   </tr>
+
                    {% endfor %}
                     {% else %}
                         <tr>
@@ -139,6 +148,7 @@
       <script type="text/javascript" src="{% static 'backend/js/plugins/pagination/bootpag.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'backend/js/plugins/pagination/bs_pagination.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/room/clone.js' %}"></script>
  <script type="text/javascript">
   var paginateUrl = "{% url 'dashboard:room_paginate' %}";
    $(document).ready(function(){    

@@ -7,7 +7,7 @@ from django.db.models import Q
 
 from ..views import staff_member_required
 from saleor.booking.models import Book as Table
-from saleor.booking.models import Payment
+from saleor.booking.models import Payment, BookingHistory
 from saleor.room.models import Room
 from saleor.customer.models import Customer
 from saleor.sale.models import PaymentOption
@@ -30,12 +30,19 @@ def add(request):
     if request.method == 'POST':
         if request.POST.get('pk'):
             instance = Table.objects.get(pk=request.POST.get('pk'))
+            try:
+                history = BookingHistory.objects.get(book__pk=int(request.POST.get('pk')))
+            except Exception as e:
+                print e
+                history = BookingHistory()
         else:
             instance = Table()
+            history = BookingHistory()
             try:
                 instance.invoice_number = 'inv/bk/0'+str(Table.objects.latest('id').id)
             except Exception as e:
                 instance.invoice_number = 'inv/bk/01'
+            history.invoice_number = instance.invoice_number
         if request.POST.get('c_name'):
             customer_name = request.POST.get('c_name')
         if request.POST.get('mobile'):
@@ -51,16 +58,23 @@ def add(request):
             instance.customer = customer
         except:
             pass
+        try:
+            history.customer = customer
+        except:
+            pass
         if request.POST.get('total_price'):
             instance.price = request.POST.get('total_price')
+            history.price = request.POST.get('total_price')
         if request.POST.get('amount_paid'):
             instance.amount_paid = request.POST.get('amount_paid')
         if request.POST.get('check_in'):
             instance.check_in = request.POST.get('check_in')
+            history.check_in = request.POST.get('check_in')
         if request.POST.get('price_type'):
             instance.price_type = request.POST.get('price_type')
         if request.POST.get('check_out'):
             instance.check_out = request.POST.get('check_out')
+            history.check_out = request.POST.get('check_out')
         if request.POST.get('days'):
             instance.days = request.POST.get('days')
         if request.POST.get('child'):
@@ -80,6 +94,7 @@ def add(request):
             try:
                 room = Room.objects.get(pk=int(request.POST.get('room')))
                 instance.room = room
+                history.room = room
                 room.is_booked = True
                 room.available_on = request.POST.get("check_out")
                 room.save()
@@ -88,6 +103,7 @@ def add(request):
         # compute balance
         instance.balance = instance.price.gross - instance.amount_paid.gross
         instance.save()
+        history.save()
 
         data = {
                 'name': instance.room.name,
