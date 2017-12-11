@@ -66,7 +66,7 @@
  <div class="row animated fadeIn">
    <div class="col-md-12">
       <div class="panel panel-flat">
-        <div class="panel-body">
+        <div class="panel-body search-panel">
             <div class="col-md-2">
               <label style="visibility: hidden;"> add</label>
               <div class="form-group">
@@ -104,6 +104,7 @@
                 <thead>
                   <tr class="bg-primary">                  
                     <th>Name</th>
+                    <th>Floor</th>
                     <th>Pricing</th>
                     <th>Amenities</th>
 
@@ -124,6 +125,13 @@
                         <mark class="text-size-small">Booked</mark>
                         {% endif %}
 
+                    </td>
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {% if option.floor == '0' %}
+                        <mark class="text-size-small">Ground</mark>
+                        {% else %}
+                        <mark class="text-size-small">{{option.floor}}</mark>
+                        {% endif %}
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
                       <div class="">

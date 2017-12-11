@@ -12,6 +12,13 @@
 
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {% if option.floor == '0' %}
+                        <mark class="text-size-small">Ground</mark>
+                        {% else %}
+                        <mark class="text-size-small">{{option.floor}}</mark>
+                        {% endif %}
+                    </td>
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
                       <div class="">
                        <span class="text-size-small" data-popup="tooltip" title="Day time" data-placement="top">
                            <i class="icon-sun3 text-muted"></i>

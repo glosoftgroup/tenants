@@ -84,9 +84,9 @@
                                 <div class="col-md-6">
                                   <div class="checkbox" style="margin-top: 0px;">
                                         <label>
-                                          <input v-model="autoComplete" name="creditable" class="styled check" type="checkbox">
-                                            <span v-show="autoComplete">Disable auto-complete</span>
-                                            <span v-show="!autoComplete">Activate auto-complete</span>
+                                          <input v-model="autoComplete" name="creditable" class="text-primary styled check" type="checkbox">
+                                            <span class="text-primary" v-show="autoComplete">Disable auto-complete</span>
+                                            <span class="text-primary" v-show="!autoComplete">Activate auto-complete</span>
                                         </label>
                                         <span id="glranted" class="ganted text-success"></span>
                                   </div>
@@ -94,7 +94,7 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label class="text-bold">Daily:</label>
                                         <input @keyup="computeFullDay" name="daily" id="daily" v-model.number="daily" placeholder="Day & night" class="form-control packages" type="number"  required="required" {% if room.id %} value="{{pricing.daily.gross}}" {% endif %}>
@@ -102,7 +102,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label class="text-bold">Nightly:</label>
                                         <input @keyup="computeHalfDay" v-model.number="nightly" id="nightly" placeholder="Night only" class="form-control packages" type="number"  required="required" {% if room.id %} value="{{pricing.nightly.gross}}" {% endif %}>
@@ -110,7 +110,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label class="text-bold">DayTime:</label>
                                         <input @keyup="computeHalfDay" id="daytime" v-model.number="daytime" placeholder="Day time only" class="form-control packages" type="number" required="required" {% if pricing.pk %} value="{{pricing.daytime.gross}}" {% endif %}>
@@ -118,7 +118,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label class="text-bold">Weekly:</label>
                                         <input id="weekly" v-model.number="weekly" name="weekly" placeholder="Weekly" class="form-control packages" type="number"  required="required" {% if pricing.pk %} value="{{pricing.weekly.gross}}" {% endif %}>
@@ -126,7 +126,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label class="text-bold">Monthly:</label>
                                         <input id="monthly" v-model.number="monthly" name="monthly" placeholder="Monthly" class="form-control packages" type="number"  required="required" {% if pricing.pk %} value="{{pricing.monthly.gross}}" {% endif %}>

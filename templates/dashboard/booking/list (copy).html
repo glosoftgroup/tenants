@@ -28,7 +28,7 @@
  {% endblock %}
 
 {% block content %}
- <div class="row animated " id="vue-app">
+ <div class="row animated fadeIn" id="vue-app">
    <div class="col-md-12">
       <div class="panel panel-flat">
         <div class="panel-body  search-panel">
@@ -46,7 +46,7 @@
             <div class="col-md-4">
              <label>Search {{ table_name }}</label>
               <div class="form-group form-group-material has-feedback">
-                <input class="form-control" v-model="search" @keyup="inputChangeEvent" placeholder="Search ..." type="text">
+                <input class="form-control search_user" placeholder="Search ..." type="text">
                 <div class="form-control-feedback">
                   <i class="icon-search4 text-size-base"></i>
                 </div>
@@ -65,10 +65,8 @@
         <div class="room-responsive">
           <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
                 <thead>
-                  <tr class="bg-primary">
-                    <th>Invoice No.</th>
+                  <tr class="bg-primary">                  
                     <th>Room</th>
-                    <th>Days In</th>
                     <th>Check-in</th>
                     <th>Check-out</th>
                     <th>Customer</th>
@@ -81,38 +79,54 @@
                 </thead>
                 <tbody id="tb">
                 <template v-for="item in items">
-                    <tr>
-                        <td>${item.invoice_number}</td>
-                        <td>${item.room}</td>
-                        <td>${item.days}</td>
-                        <td>${item.check_in}</td>
-                        <td>${item.check_out}</td>
-                        <td>${item.customer}</td>
-                        <td>${item.price_amount}</td>
-                        {% if perms.sale.delete_room %}
-                        <!-- actions -->
-                        <td class="text-center">
-                            <div class="btn-group">
-                            <button type="button" class="btn btn-default dropdown-toggle legitRipple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            action <span class="roomet"></span>
-                            </button>
-                            <ul class="dropdown-menu edit-dropdown">
-                                  <li class="td"><a :href="item.booking_edit"><i class="icon-pencil7"></i> EDIT</a>
-                                  </li>
-                                <li>
-                                    <a data-ta="#modal_instance" @click="deleteBooking(item.booking_delete,item.id)" data-title="" :data-href="item.booking_edit" data-id="${item.id}"
-                                     class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
-                                    </a>
-                                </li>
-
-                            </ul>
-                          </div>
-                        </td>
-                        {% endif %}
-                    </tr>
+                    ${item.invoice_number}
                 </template>
                 {% if options %}
+                  {% for option in options %}
 
+                  <tr class='clickable-row' id="{{option.pk }}">
+                    <!-- name -->
+                    <td class="td" data-href="{% url 'dashboard:booking-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {{option.room}}
+                    </td>
+                    <td>
+                        {{option.check_in}}
+                    </td>
+                    <td>
+                        {{option.check_out}}
+                    </td>
+                    <td class="td" data-href="{% url 'dashboard:booking-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {{ option.customer}}
+
+                    </td>
+                    <td class="td" data-href="{% url 'dashboard:booking-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {{option.price.gross}}
+                    </td>
+
+
+                    
+                    {% if perms.sale.delete_room %}
+                    <!-- actions -->
+                    <td class="text-center">
+                        <div class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle legitRipple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        action <span class="roomet"></span>
+                        </button>
+                        <ul class="dropdown-menu edit-dropdown">
+                              <li class="td"><a href="{% url 'dashboard:booking-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
+                              </li>
+                            <li>
+                                <a data-ta="#modal_instance" data-title="Delete Booking ?" data-href="{% url 'dashboard:booking-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
+                         class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
+                            </a>
+                            </li>
+
+                        </ul>
+                      </div>
+                    </td>
+                    {% endif %}
+                  </tr>
+                  {% endfor %}
                 {% else %}
                     <tr>
                       <td colspan="6">
@@ -140,8 +154,8 @@
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                 <select v-model="page_size" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
-                    <option value="10" selected>No:</option>
+                 <select class="bootstrap-select list-sz" style="display: none;" data-width="100%" tabindex="-98">
+                    <option value="0" selected>No:</option>
                     <option value="5">5</option>
                     <option value="10">10</option>
                     <option value="20">20</option>
@@ -151,12 +165,15 @@
           </div>
           </div>
           <div class="col-md-4">
-              <div class="text-center bootpag-callback p2-pag" style="">
+           <div class="text-center bootpag-callback p2-pag" style="">
+             <div class="my-paginate">
+             <ul class="pagination bootpag pagination-flat pagination-sm" style="margin-bottom: 0px;"></ul>
+             </div>
             </div>
            </div>
             <div class="col-md-4">
-             <div class="col-md-12 mt-5">
-              <div class="pull-right pages-nav">Page 1 of {{pn}}</div>
+             <div class="col-md-12">
+              <div class="pull-right pages-nav2">Page 1 of {{pn}}</div>
              </div>
             </div>
           </div>
@@ -176,7 +193,7 @@
      <div class="modal-content">
        <div class="modal-header bg-blue">
          <button type="button" class="close" data-dismiss="modal">&times;</button>
-         <h6 class="modal-title text-white text-center">Delete Booking ?</h6>
+         <h6 class="modal-title text-white text-center"></h6>
        </div>
        <div class="modal-body">
 
@@ -285,15 +302,12 @@
      </div>
    </div>
  </div>
-<input type="hidden" class="pageUrls"
-  data-bookinglisturl="{% url 'booking-api:api-booking-list' %}"
->
+
 {% endblock%}
 {% block custom_js %}
   <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
   <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
-     <script type="text/javascript" src="{% static 'backend/js/plugins/pagination/jquery.twbsPagination.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/booking/vue/listing.js' %}"></script>
@@ -301,8 +315,144 @@
   var paginationSearchUrl = "{% url 'dashboard:booking-search' %}";
   var paginationUrl = "{% url 'dashboard:booking_paginate' %}";
   $(document).ready(function() {
-  $('.bootstrap-select').selectpicker()
 
+
+    $('.input-group').on('change', '.sel', function(){
+       var v = $(this).val();
+
+       if(v == 'add'){
+             var selected = $(this).find('option:selected');
+
+             var url = selected.data('href')
+             var prompt_text = selected.data('title');
+             var modal = selected.data('ta');
+             var select = selected.data('select');
+             var cat = selected.data('cat');
+             var label = selected.data('label');
+             $('.cat_label').html(label);
+             $('.eitem-url').val(url);
+             $('.eitem-select').val(select);
+             $('.modal-title').html(prompt_text);
+             $('.edit_class').attr('name', cat)
+             $(modal).modal();
+             $('.delete_form').attr('action',url);
+
+             var form = $("#editform"), validator = form.validate();
+             validator.resetForm();
+             form.find(".error").removeClass("error");
+
+             $("#editform input[name='" + cat + "']").rules("add", {required:true});
+       }
+    });
+
+
+
+    $('#editform').validate({
+        onkeyup: function(element) {$(element).valid()},
+        rules:{
+           name: {
+              required:true
+            }
+        },
+        messages:{
+          name:{
+            required: "please fill in the required field"
+          }
+        },
+        submitHandler: function() {
+              var name = $('.edit_class').data('name');
+              var inputValue = $('.edit_class').val();
+              var f = document.getElementById('editform');
+              var formData = new FormData(f);
+              //formData.append(name, inputValue);
+              var url = $('.eitem-url').val();
+              var selectClass = $('.eitem-select').val();
+              $.ajax({
+                  url: url,
+                  type: "POST",
+                  data: formData,
+                  processData: false,
+                  contentType: false,
+                  success:function(data){
+                    $('#edit_modal_instance').modal('hide');
+                    $('.edit_class').val('');
+                    var replaceDiv = $('.eitem-select').val()
+                    $(replaceDiv).replaceWith(data);
+                    $.jGrowl('Created successfully', {
+                      header: 'Well done!',
+                      theme: 'bg-success'
+                    });
+                    //window.location.reload();
+                  },
+                  error:function(error){
+                    console.log(error);
+                    $.jGrowl('Error Updating', {
+                        header: 'Oh snap!',
+                        theme: 'bg-danger'
+                    });
+                  }
+              });
+        }
+    });
+
+//vue
+var parent = new Vue({
+    el:"#vue-app",
+    delimiters: ['${', '}'],
+    data:{
+       'name':'Book Listing',
+       items:[]
+    },
+    methods:{
+        listItems:function(num){
+            console.log(num);
+        }
+    },
+    created:function(){
+        this.$http.get("{% url 'booking-api:api-booking-list' %}")
+            .then(function(data){
+                data = JSON.parse(data.bodyText);
+                console.log(data.results);
+                this.items = data.results;
+            }, function(error){
+                console.log(error.statusText);
+            });
+    }
+
+});
+<!--endvue-->
+    $('.bootpag-callback').bootpag({
+        total: parseInt({{pn}}),
+        maxVisible: 3,
+        leaps: false
+        }).on("page", function(event, num){
+            parent.listItems(num);
+            $(".pages-nav").html("Page " + num +" of "+{{pn}}); // or some ajax content loading...
+            $.get(paginationUrl,{page:num},function(data){
+               $('#tb').html(data);
+            });
+    }).children('.pagination').addClass('pagination-flat pagination-sm')
+
+      $('body').on('click', '.td', function(){
+          <!--window.location = $(this).data("href");-->
+          var url = $(this).data('href');
+          var modal = $(this).data('m');
+          var modalTitle = $(this).data('mtitle');
+           $(modal+' .modal-title').html(modalTitle);
+
+          $.ajax({
+              url: url,
+              type: "GET",
+              data: {csrfmiddlewaretoken:'{{csrf_token}}'},
+              processData: false,
+              contentType: false,
+              success:function(data){
+                $(modal+' .modal-body').html(data);
+                $(modal).modal();
+              },
+              error:function(error){}
+          });
+      });
       $('.dele-btn').on('click',function(){
         alert('sdfsdfsdd');
         $('#modal_mini').modal();

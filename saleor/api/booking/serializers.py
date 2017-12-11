@@ -7,6 +7,36 @@ from saleor.booking.models import Payment
 User = get_user_model()
 
 
+class BookingListSerializer(serializers.ModelSerializer):
+    price_amount = serializers.SerializerMethodField()
+    booking_edit = serializers.HyperlinkedIdentityField(view_name='dashboard:booking-edit')
+    booking_delete = serializers.HyperlinkedIdentityField(view_name='dashboard:booking-delete')
+
+    class Meta:
+        model = Table
+        fields = (
+                  'id',
+                  'invoice_number',
+                  'price_type',
+                  'days',
+                  'child',
+                  'adult',
+                  'check_in',
+                  'check_out',
+                  'active',
+                  'customer',
+                  'room',
+                  'user',
+                  'price_amount',
+                  'created',
+                  'booking_edit',
+                  'booking_delete'
+                 )
+
+    def get_price_amount(self, obj):
+        return obj.price.gross
+
+
 class PaymentListSerializer(serializers.ModelSerializer):
     amount = serializers.SerializerMethodField()
     customer_name = serializers.SerializerMethodField()

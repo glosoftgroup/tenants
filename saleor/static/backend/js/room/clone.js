@@ -50,6 +50,7 @@ $(function() {
         /* validate */
         if(!times.val()){
             alertUser('Enter how many rooms do you want cloned', 'bg-warning','Field required');
+            return false;
         }
         dynamicData = {};
         dynamicData['room'] = roomId;

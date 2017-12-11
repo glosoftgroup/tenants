@@ -16,8 +16,9 @@
                      <thead>
                       <tr class="bg-primary">             
                         <th>Name</th>
-                          <th>Price</th>
-                          <th>Amenities</th>
+                        <th>Floor</th>
+                        <th>Price</th>
+                        <th>Amenities</th>
 
                         {% if perms.sale.delete_bank %}
                         <th class="text-center">Options</th>
@@ -36,6 +37,13 @@
                         <mark class="text-size-small">Booked</mark>
                         {% endif %}
 
+                    </td>
+                           <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {% if option.floor == '0' %}
+                        <mark class="text-size-small">Ground</mark>
+                        {% else %}
+                        <mark class="text-size-small">{{option.floor}}</mark>
+                        {% endif %}
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
                       <div class="">
