@@ -4,12 +4,83 @@ from decimal import Decimal
 from django.conf import settings
 from django.db import models
 from django.utils.timezone import now
+from django.utils import timezone
+from django.utils.dateformat import DateFormat
 from django.utils.translation import pgettext_lazy
 from django.core.validators import MinValueValidator, RegexValidator
 from django_prices.models import PriceField
 from ..room.models import Room
 from saleor.sale.models import PaymentOption
 from ..customer.models import Customer
+
+
+class ModelManager(models.Manager):
+    def monthly_visits_data(self, year=None):
+        final_data = []
+        last_instance = self.get_queryset().latest('id')
+        if not year:
+            year = DateFormat(last_instance.created).format('Y')
+        for day in xrange(1, 30):
+            count = self.get_queryset().filter(
+                                models.Q(created__year=year) &
+                                models.Q(created__day=day)).count()
+            final_data.append(count)
+        return final_data
+
+    def yearly_visits_data(self, year=None):
+        """
+        :param year:
+        :return: Total visits each month
+        """
+        final_data = []
+        last_instance = self.get_queryset().latest('id')
+        if not year:
+            year = DateFormat(last_instance.created).format('Y')
+        for month in range(1, 13):
+            count = self.get_queryset().filter(created__year=year)\
+                                       .filter(created__month=month).count()
+            final_data.append([str(year)+str(1)+str(month), count])
+        return final_data
+
+    def yearly_amount_data(self, year=None):
+        """
+        :param year:
+        :return: total amount received in each month
+        """
+        final_data = []
+        last_instance = self.get_queryset().latest('id')
+        if not year:
+            year = DateFormat(last_instance.created).format('Y')
+        for month in range(1, 13):
+            amount = self.get_queryset().filter(created__year=year)\
+                                       .filter(created__month=month) \
+                                       .aggregate(models.Sum('price'))['price__sum']
+            if not amount:
+                amount = 0
+            else:
+                amount = amount.gross
+            final_data.append([str(year)+str(1)+str(month), float(str(amount))])
+        return final_data
+
+    def total_bookings(self, date, amount=False):
+        """
+        :param date: filter by this date
+        :param amount: if set return total amount
+        :return: return total booking in that date
+        """
+        if amount:
+            total = self.get_queryset() \
+                .filter(created__icontains=DateFormat(date)
+                        .format('Y-m-d')).aggregate(models.Sum('price'))['price__sum']
+            if total:
+                total = float(str(total.gross))
+            else:
+                total = 0
+            return total
+
+        return self.get_queryset()\
+                   .filter(created__icontains=DateFormat(date)
+                           .format('Y-m-d')).count()
 
 
 class Book(models.Model):
@@ -57,13 +128,14 @@ class Book(models.Model):
     created = models.DateTimeField(
         pgettext_lazy('Book field', 'created'),
         default=now, editable=False)
+    objects = ModelManager()
 
     class Meta:
         verbose_name = pgettext_lazy('Booking model', 'Booking')
         verbose_name_plural = pgettext_lazy('Booking model', 'Bookings')
 
     def __str__(self):
-        return str(self.name) + ' #' + str(self.number)
+        return str(self.id) + ' #' + str(self.invoice_number)
 
 
 class Payment(models.Model):

@@ -22,9 +22,12 @@ class BookingListAPIView(generics.ListAPIView):
     queryset = Table.objects.all()
 
     def get_queryset(self, *args, **kwargs):
-        if self.kwargs['pk']:
-            queryset_list = Table.objects.filter(customer__pk=self.kwargs['pk']).select_related()
-        else:
+        try:
+            if self.kwargs['pk']:
+                queryset_list = Table.objects.filter(customer__pk=self.kwargs['pk']).select_related()
+            else:
+                queryset_list = Table.objects.all().order_by('-id').select_related()
+        except Exception as e:
             queryset_list = Table.objects.all().select_related()
         query = self.request.GET.get('q')
         page_size = 'page_size'
@@ -45,7 +48,7 @@ class BookingListAPIView(generics.ListAPIView):
                 Q(customer__name__icontains=query) |
                 Q(room__name__icontains=query)
                 ).distinct()
-        return queryset_list
+        return queryset_list.order_by('-id')
 
 
 class CustomerBookingListAPIView(generics.ListAPIView):

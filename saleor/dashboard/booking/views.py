@@ -1,9 +1,7 @@
-from decimal import Decimal
 from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.response import TemplateResponse
 from django.http import HttpResponse
-from django.core.paginator import Paginator, PageNotAnInteger, InvalidPage, EmptyPage
-from django.db.models import Q
+from django.utils.dateformat import DateFormat
 
 from ..views import staff_member_required
 from saleor.booking.models import Book as Table
@@ -12,7 +10,6 @@ from saleor.room.models import Room
 from saleor.customer.models import Customer
 from saleor.sale.models import PaymentOption
 
-from ...decorators import user_trail
 import logging
 import json
 
@@ -86,8 +83,6 @@ def add(request):
         if request.POST.get('active'):
             b = lambda x: True if x > 0 else False
             instance.active = b(int(request.POST.get('active')))
-        else:
-            instance.active = True
         instance.user = request.user
         instance.save()
         if request.POST.get('room'):
@@ -143,9 +138,10 @@ def delete(request, pk=None):
     if request.method == 'POST':
         try:
             option.delete()
-            user_trail(request.user.name, 'deleted room : '+ str(option.name), 'delete')
-            info_logger.info('deleted room: '+ str(option.name))
-            return HttpResponse('success')
+            data = {
+                "table_name": table_name,
+            }
+            return TemplateResponse(request, 'dashboard/' + table_name.lower() + '/list.html', data)
         except Exception, e:
             error_logger.error(e)
             return HttpResponse(e)
@@ -156,7 +152,7 @@ def detail(request, pk=None):
     global table_name
     if pk:
         payment_options = PaymentOption.objects.all()
-        instance = Table.objects.filter(room__pk=pk).first()
+        instance = Table.objects.filter(pk=pk).first()
         ctx = {'table_name': table_name, 'instance': instance, 'payment_options': payment_options}
         return TemplateResponse(request, 'dashboard/' + table_name.lower() + '/detail.html', ctx)
     return HttpResponse('Invalid Request. Booking id required')
@@ -190,9 +186,40 @@ def listing(request):
     data = {
             "table_name": table_name,
         }
-    user_trail(request.user.name, 'accessed '+table_name+' List', 'views')
-
     return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/list.html', data)
+
+
+@staff_member_required
+def charts(request):
+    global table_name
+    data = {"table_name": table_name}
+    if request.is_ajax():
+        # get last 30 room bookings
+        last_thirty_booking = Table.objects.all().order_by('id')[:30]
+        last_visits_booking = []
+        for obj in last_thirty_booking:
+            last_visits_booking.append(
+                {'date':  DateFormat(obj.created).format('Y-m-d'),
+                 'total': Table.objects.total_bookings(obj.created)})
+        last_amount_booking = []
+        for obj in last_thirty_booking:
+            last_amount_booking.append(
+                {'date': DateFormat(obj.created).format('Y-m-d'),
+                 'total': Table.objects.total_bookings(obj.created, 'amount')})
+
+        yearly_visits = Table.objects.yearly_visits_data()
+        yearly_amount = Table.objects.yearly_amount_data()
+        monthly = Table.objects.monthly_visits_data()
+        return HttpResponse(
+                     json.dumps(
+                         {"results":
+                              {'last_amount': last_amount_booking,
+                               'last_visits': last_visits_booking,
+                               'yearly_visits': yearly_visits,
+                               'yearly_amount': yearly_amount,
+                               "monthly":  monthly}
+                          }), content_type='application/json')
+    return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/charts.html', data)
 
 
 @staff_member_required
@@ -225,108 +252,6 @@ def pay(request):
         return HttpResponse(json.dumps(data), content_type='application/json')
 
     return HttpResponse('Invalid request method')
-
-
-@staff_member_required
-def searchs(request):
-    global table_name
-    if request.is_ajax():
-        page = request.GET.get('page', 1)
-        list_sz = request.GET.get('size', 10)
-        p2_sz = request.GET.get('psize')
-        q = request.GET.get('q')
-        if list_sz is None:
-            sz = 10
-        else:
-            sz = list_sz
-
-        if q is not None:
-            options = Table.objects.filter(
-                Q(name__icontains=q)
-            ).order_by('-id')
-            paginator = Paginator(options, 10)
-            try:
-                options = paginator.page(page)
-            except PageNotAnInteger:
-                options = paginator.page(1)
-            except InvalidPage:
-                options = paginator.page(1)
-            except EmptyPage:
-                options = paginator.page(paginator.num_pages)
-            if p2_sz:
-                options = paginator.page(page)
-                return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/paginate.html', {'options': options,'sz':sz})
-            data = {'options': options,
-                    'pn': paginator.num_pages,
-                    'sz': sz,
-                    'q': q}
-            return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/search.html', data)
-
-
-@staff_member_required
-def paginate(request):
-    global table_name
-    page = int(request.GET.get('page', 1))
-    list_sz = request.GET.get('size')
-    p2_sz = request.GET.get('psize')
-    select_sz = request.GET.get('select_size')
-    if request.GET.get('gid'):
-        options = Table.objects.filter(name=type.name)
-        if p2_sz:
-            paginator = Paginator(options, int(p2_sz))
-            options = paginator.page(page)
-            return TemplateResponse(request,'dashboard/'+table_name.lower()+'/paginate.html',{'options':options})
-
-        if list_sz:
-            paginator = Paginator(options, int(list_sz))
-            options = paginator.page(page)
-            data = {'options': options,
-                    'pn': paginator.num_pages,
-                    'sz': list_sz,
-                    'gid': request.GET.get('gid')}
-            return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/p2.html',data)
-
-        paginator = Paginator(options, 10)
-        options = paginator.page(page)
-        data = {'options': options,
-                'pn': paginator.num_pages,
-                'sz': 10,
-                'gid': request.GET.get('gid')}
-        return TemplateResponse(request,'dashboard/'+table_name.lower()+'/p2.html', data)
-    else:
-        try:
-            options = Table.objects.all().order_by('-id')
-            if list_sz:
-                paginator = Paginator(options, int(list_sz))
-                options = paginator.page(page)
-                data = {
-                    'options': options,
-                    'pn': paginator.num_pages,
-                    'sz': list_sz,
-                    'gid': 0
-                }
-                return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/p2.html', data)
-            else:
-                paginator = Paginator(options, 10)
-            if p2_sz:
-                paginator = Paginator(options, int(p2_sz))
-                options = paginator.page(page)
-                data = {
-                    "options": options
-                }
-                return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/paginate.html', data)
-
-            try:
-                options = paginator.page(page)
-            except PageNotAnInteger:
-                options = paginator.page(1)
-            except InvalidPage:
-                options = paginator.page(1)
-            except EmptyPage:
-                options = paginator.page(paginator.num_pages)
-            return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/paginate.html', {"options": options})
-        except Exception, e:
-            return HttpResponse()
 
 
 @staff_member_required
