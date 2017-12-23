@@ -65,19 +65,27 @@
     <div class="navbar-header" style="padding-right: : 30px;">
       <a class="navbar-brand logo" href="{% url 'dashboard:index' %}">
           <span style="font-size: 1.8em;font-family: monospace;font-weight: bolder;">{% business_name %}</span>
-        <svg data-src="{% static 'dashboard/images/saleor_logo.svg' %}" height="38px" width="176px" />
+        <svg data-src="{% static 'dashboard/images/saleor_logo.svg' %}"
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+
 
       </a>
 
       <ul class="nav navbar-nav pull-right visible-xs-block">
         <li><a data-toggle="collapse" data-target="#navbar-mobile"><i class="icon-tree5"></i></a></li>
         <li><a class="sidebar-mobile-main-toggle"><i class="icon-paragraph-justify3"></i></a></li>
+
       </ul>
     </div>
 
     <div class="navbar-collapse collapse" id="navbar-mobile">
       <ul class="nav navbar-nav">
         <li><a class="sidebar-control sidebar-main-toggle hidden-xs"><i class="icon-paragraph-justify3"></i></a></li>
+        <li>
+            <a href="{% url 'dashboard:landing-page' %}">
+            <i class="icon-grid"></i>
+                </a>
+        </li>
       </ul>
 
       <ul class="nav navbar-nav navbar-right">
