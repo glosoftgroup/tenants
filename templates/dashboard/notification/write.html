@@ -273,10 +273,12 @@ var userEmails = $('#useremails');
 var pageUrls   = $('.pageUrls');
 var url = pageUrls.data('contacts');
 var sendspinnerId = $('#sendspinner');
+
 // tokenize
 userEmails.on('tokenize:select', function(container){
   $(this).tokenize2().trigger('tokenize:search', [$(this).tokenize2().input.val()]);
 });
+
 // user contacts
 userEmails.tokenize2({
     placeholder: 'Select user(s)',
@@ -399,8 +401,7 @@ function alertUser(msg,status,header='Well done!')
       url = $(this).data('href');
       spk = $(this).data('tid'); 
       appendTemplate(spk,'select',url).done(function(data){
-        $(".rebody").replaceWith(data); 
-        //$('#ebody').replaceWith(data);
+        $("#body").summernote('code',data);
 
           alertUser('Template selected','bg-success');
           $('#accordion-group1').removeClass('in');

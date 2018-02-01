@@ -15,6 +15,7 @@ from .api.customer.urls import urlpatterns as api_customer_urls
 from .api.discount.urls import urlpatterns as api_discount_urls
 from .api.invoice.urls import urlpatterns as api_invoice_urls
 from .api.credit.urls import urlpatterns as api_credit_urls
+from .api.notification.urls import urlpatterns as api_notification_urls
 from .api.order.urls import urlpatterns as api_order_urls
 from .api.order_number.urls import urlpatterns as api_order_number_urls
 from .api.payment.urls import urlpatterns as api_payment_urls
@@ -40,7 +41,6 @@ from .search.urls import urlpatterns as search_urls
 from .userprofile.urls import urlpatterns as userprofile_urls
 from .salepoints.urls import urlpatterns as salepoints_urls
 import notifications.urls
-from .api.product import views as api_views
 from .api.login import ObtainJSONWebToken
 from . import decorators
 
@@ -56,6 +56,7 @@ urlpatterns = [
     url(r'^api/credit/', include(api_credit_urls, namespace='credit-api')),
     url(r'^api/discount/', include(api_discount_urls, namespace='discount-api')),
     url(r'^api/invoice/', include(api_invoice_urls, namespace='invoice-api')),
+    url(r'^api/notification/', include(api_notification_urls, namespace='notification-api')),
     url(r'^api/order/', include(api_order_urls, namespace='order-api')),
     url(r'^api/order/number', include(api_order_number_urls, namespace='order-number-api')),
     url(r'^api/products/', include(api_urls, namespace='product-api')),
@@ -63,7 +64,7 @@ urlpatterns = [
     url(r'^api/sale/', include(api_sale_urls, namespace='sale-api')),
     url(r'^api/setting/', include(api_settings_urls, namespace='setting-api')),
     url(r'^api/sale-point/', include(api_salepoint_urls, namespace='sale_point-api')),
-    url(r'^api/sms/', include(api_sms_urls, namespace='terminal-api')),
+    url(r'^api/sms/', include(api_sms_urls, namespace='sms-api')),
     url(r'^api/table/', include(api_table_urls, namespace='table-api')),
     url(r'^api/terminal/', include(api_terminal_urls, namespace='terminal-api')),
     url(r'^api/variant/', include(api_variant_urls, namespace='variant-api')),

@@ -4,7 +4,6 @@ from django.template.response import TemplateResponse
 from django.http import HttpResponse
 from ..views import staff_member_required
 from django.db.models import Q
-from ...decorators import permission_decorator, user_trail
 import logging
 import json
 
@@ -33,21 +32,23 @@ def add_template(request):
         return HttpResponse(temp.pk)
     return HttpResponse('Post request expected')
 
+
 @staff_member_required
-def get_template(request,pk=None):
+def get_template(request, pk=None):
     if request.method == 'GET':
         if request.is_ajax():
             if request.GET.get('pk'):
                 stemplate = get_object_or_404(EmailTemplate,pk=(int(request.GET.get('pk'))))
-                ctx = {'template':stemplate}
-                if request.GET.get('template'):                
+                ctx = {'template': stemplate}
+                if request.GET.get('template'):
                     template = request.GET.get('template')
-                    return TemplateResponse(request, 'dashboard/notification/includes/'+template+'.html', ctx)
+                    return HttpResponse(json.dumps(stemplate.content), content_type='application/json')
                 
                 return TemplateResponse(request, 'dashboard/notification/includes/single-template.html', ctx)
         sms_templates = EmailTemplate.objects.all().order_by('-id')
         ctx = {'sms_templates':sms_templates}
         return TemplateResponse(request, 'dashboard/notification/includes/templates.html', ctx)
+
 
 @staff_member_required
 def delete_template(request,pk=None):
@@ -147,7 +148,7 @@ def write(request):
     if request.method == 'POST':
         # get form data
         subject = request.POST.get('subject')
-        single = request.POST.get('write_single');
+        single = request.POST.get('single');
         to_customers = request.POST.get('toCustomer',0)
         to_suppliers = request.POST.get('toSupplier',0)
         email_list = json.loads(request.POST.get('emailList'))
@@ -220,9 +221,9 @@ def write(request):
             try:
                 product = ProductVariant.objects.get(pk=int(request.GET.get('pk')))
                 ctx = {
-                        'product':product,
-                        'users':User.objects.all().order_by('-id'),
-                        'templates':EmailTemplate.objects.all().order_by('-id')
+                        'product': product,
+                        'users': User.objects.all().order_by('-id'),
+                        'templates': EmailTemplate.objects.all().order_by('-id')
                         }
                 return TemplateResponse(request,
                                 'dashboard/notification/write_single.html',
