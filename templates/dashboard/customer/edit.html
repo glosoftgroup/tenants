@@ -6,12 +6,12 @@
 {% load get_countries %}
 
 {% block title %}
-  Customer Update
+  Tenant Update
 {% endblock %}
 
 {% block menu_addCustomer_class %}active{% endblock %}
  {% block breadcrumbs %}
-     <li class="active"><a href="{% url 'dashboard:customers' %}">Customer</a></li>
+     <li class="active"><a href="{% url 'dashboard:customers' %}">Tenant</a></li>
     <li><a href="{% url 'dashboard:customer-detail' pk=user.pk %}">{{user.name|title}}</a></li>
  {% endblock %}
  {% block custom_css %}
@@ -32,7 +32,7 @@
       <div class="panel-body">
         <div class="tabbable">
           <ul class="nav nav-tabs nav-tabs-highlight">
-            <li class="active" id="profile-tab"><a href="#profile" data-toggle="tab" class="legitRipple" aria-expanded="false">edit customer profile</a></li>
+            <li class="active" id="profile-tab"><a href="#profile" data-toggle="tab" class="legitRipple" aria-expanded="false">Edit Tenant profile</a></li>
             <li class="" id="contacts-tab"><a href="#contacts" data-toggle="tab" class="legitRipple" aria-expanded="false">Dependants</a></li>    
 
           </ul>
@@ -106,7 +106,7 @@
               {% csrf_token %}
           <div class="row">
             <div class="col-md-4">
-            <label for="exampleInputEmail1">Customer Photo</label>
+            <label for="exampleInputEmail1">Tenant Photo</label>
               <div class="form-group">              
                 <div class="fileinput fileinput-new" data-provides="fileinput">
                   <div class="fileinput-new thumbnail" style="width: 150px; height: auto;">
@@ -148,16 +148,6 @@
                         </div>
 
                         <div class="col-md-4">
-                          <div class="form-group">
-                            <label>Date of Birth (DOB)</label>
-                              <div class="form-group">
-                                <div class="input-group">
-                                    <span v-datepicker></span>
-                                  <input id="dob" name="dob" class="form-control daterange-single" tabindex="-98" type="text" placeholder="yyyy-mm-dd" {% if user.dob %} value="{{ user.dob }}" {% endif %}>
-                                  <span class="input-group-addon"><i class="icon-calendar22"></i></span>
-                                </div>
-                              </div>
-                           </div>
                            <div class="form-group">
                               <label>Nationality</label>
                                 <div class="form-group">
@@ -198,7 +188,7 @@
              <div class="pull-rights" style="margin-top:40px;">
               <a href="{% url 'dashboard:customers' %}" class="pull-left btn btn-default waves-effect waves-light">Cancel</a>
               
-              <button class="btn btn-primary waves-effect waves-light pull-right" id="submit" type="submit">Update Customer<i class="icon-arrow-right14 position-right"></i></button>
+              <button class="btn btn-primary waves-effect waves-light pull-right" id="submit" type="submit">Update Tenant<i class="icon-arrow-right14 position-right"></i></button>
              </div>
             </div>
           </div>
@@ -241,9 +231,6 @@ function disable_profile_tab(){
           digits: true
         },
         nid:{
-          required:true
-        },
-        dob:{
           required:true
         },
         email:{

@@ -6,18 +6,18 @@
 {% load get_countries %}
 
 {% block title %}
-  {% trans "Customer" context "Dashboard customer list" %} - {{ block.super }}
+  {% trans "Tenant" context "Dashboard customer list" %} - {{ block.super }}
 {% endblock %}
 {% block header_extra %}
 {% endblock %}
 {% block breadcrumbs %}
    <li>
       <a href="{% url 'dashboard:customers' %}">
-      Customer
+      Tenant
       </a>
     </li>
     <li class="active">
-      Add Customer
+      Add Tenant
     </li>
 {% endblock %}
 
@@ -37,7 +37,7 @@
       <div class="panel-body">
         <div class="tabbable">
           <ul class="nav nav-tabs nav-tabs-highlight">
-            <li class="active" id="profile-tab"><a href="#profile" data-toggle="tab" class="legitRipple" aria-expanded="false">add customer profile</a></li>
+            <li class="active" id="profile-tab"><a href="#profile" data-toggle="tab" class="legitRipple" aria-expanded="false">add tenant profile</a></li>
             <li  id="contacts-tab"><a href="#contacts-disabled" class="legitRipple disabled contacts-tab" aria-expanded="false">Dependants</a></li>
           </ul>
 
@@ -96,16 +96,6 @@
                         </div>
 
                         <div class="col-md-4">
-                          <div class="form-group">
-                            <label>Date of Birth (DOB)</label>
-                              <div class="form-group">
-                                <div class="input-group">
-                                    <span v-datepicker></span>
-                                  <input id="dob" name="dob" class="form-control daterange-single" tabindex="-98" type="text" placeholder="yyyy-mm-dd">
-                                  <span class="input-group-addon"><i class="icon-calendar22"></i></span>
-                                </div>
-                              </div>
-                           </div>
                            <div class="form-group">
                               <label>Nationality</label>
                                 <div class="form-group">
@@ -135,7 +125,7 @@
                      <div class="pull-rights" style="margin-top:40px;">
                       <a href="{% url 'dashboard:customers' %}" class="pull-left btn btn-default waves-effect waves-light">Cancel</a>
 
-                      <button class="btn btn-primary waves-effect waves-light pull-right" id="submit" type="submit">Create Customer <i class="icon-arrow-right14 position-right"></i></button>
+                      <button class="btn btn-primary waves-effect waves-light pull-right" id="submit" type="submit">Create Tenant <i class="icon-arrow-right14 position-right"></i></button>
                      </div>
                     </div>
                   </div>
@@ -179,9 +169,6 @@ function disable_profile_tab(){
         nid:{
           required:true
         },
-        dob:{
-          required:true
-        },
         mobile:{
             required:true,
             digits: true
@@ -219,7 +206,6 @@ function disable_profile_tab(){
                        $("#email").val('');
                        $("#id_no").val('');
                        $("#mobile").val('');
-                       $("#dob").val('');
                        $("#nationality").val('');
 
                        $.jGrowl('Customer added successfully', {

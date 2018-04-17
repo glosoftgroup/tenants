@@ -50,7 +50,6 @@ def user_process(request):
         name = request.POST.get('name')
         email = request.POST.get('email')
         nid = request.POST.get('nid')
-        dob = request.POST.get('dob')
         nationality = request.POST.get('nationality')
         mobile = request.POST.get('mobile')
         description = request.POST.get('description')
@@ -58,7 +57,6 @@ def user_process(request):
         new_user = Customer.objects.create(
             name=name,
             email=email,
-            dob=dob,
             nid=nid,
             nationality=nationality,
             mobile=mobile,
@@ -161,7 +159,6 @@ def user_update(request, pk):
         name = request.POST.get('name')
         email = request.POST.get('email')
         nid = request.POST.get('nid')
-        dob = request.POST.get('dob')
         nationality = request.POST.get('nationality')
         mobile = request.POST.get('mobile')
         description = request.POST.get('description')
@@ -171,7 +168,6 @@ def user_update(request, pk):
 
         user.name = name
         user.email = email
-        user.dob = dob
         user.nid = nid
         user.nationality = nationality
         user.mobile = mobile
@@ -464,11 +460,9 @@ def add_dependency(request, pk):
             phone = request.POST.get('phone').replace('(', '').replace(')', '').replace('-', '')
             maturity_status = request.POST.get('maturity_status')
             relation = request.POST.get('relation')
-            dob = request.POST.get('dob')
             supplier = get_object_or_404(Customer, pk=pk)
             address = AddressBook.objects.create(
                 name=name,
-                dob=dob,
                 id_no=id_no,
                 phone=phone,
                 nationality=nationality,

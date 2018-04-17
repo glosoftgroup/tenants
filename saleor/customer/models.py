@@ -46,9 +46,6 @@ class AddressBook(models.Model):
     nationality = models.CharField(
         pgettext_lazy('AddressBook field', 'Nationality'),
         max_length=256, blank=True)
-    dob = models.CharField(
-        pgettext_lazy('AddressBook field', 'Date of Birth'),
-        max_length=256, blank=True)
     relation = models.CharField(
         pgettext_lazy('AddressBook field', 'Relation'),
         max_length=256, blank=True)
@@ -106,7 +103,6 @@ class Customer(models.Model):
     email = models.EmailField(pgettext_lazy('Customer field', 'Email'), null=True, blank=True)
     nid = models.CharField(pgettext_lazy('Customer field', 'ID No / Passport'), max_length=128, null=True, blank=True)
     nationality = models.CharField(pgettext_lazy('Customer field', 'Country'), max_length=128, null=True, blank=True)
-    dob = models.CharField(pgettext_lazy('Customer field', 'Date of Birth'), max_length=128, null=True, blank=True)
     description = models.CharField(pgettext_lazy('Customer field', 'User Description'), max_length=500, null=True, blank=True)
     addresses = models.ManyToManyField(
         AddressBook, blank=True,
