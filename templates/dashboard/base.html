@@ -24,7 +24,7 @@
     
 
     <!-- Global stylesheets -->
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">
+  <link href="{% static 'backend/css/roboto/roboto.css' %}" rel="stylesheet" type="text/css">
   <link href="{% static 'backend/css/icons/icomoon/styles.css' %}" rel="stylesheet" type="text/css">
  <link href="{% static 'backend/css/icons/fontawesome/styles.min.css' %}" rel="stylesheet" type="text/css">
   <link href="{% static 'backend/css/bootstrap.css' %}" rel="stylesheet" type="text/css">
@@ -63,7 +63,7 @@
   <!-- Main navbar -->
   <div class="navbar navbar-inverse navbar-fixed-top bg-primary-600" >
     <div class="navbar-header" style="padding-right: : 30px;">
-      <a class="navbar-brand logo" href="{% url 'dashboard:index' %}">
+      <a class="navbar-brand logo" href="{% url 'dashboard:landing-page' %}">
           <span style="font-size: 1.8em;font-family: monospace;font-weight: bolder;">{% business_name %}</span>
         <svg data-src="{% static 'dashboard/images/saleor_logo.svg' %}"
              <svg data-src="{% static 'dashboard/images/saleor_logo.svg' %}" height="38px" width="176px" />
@@ -153,7 +153,7 @@
                 <!-- Main -->
                 <li class="navigation-header"><span>Home</span> <i class="icon-menu" title="Main pages"></i></li>
 
-                <li>
+                <li class="hidden">
                   <a href="{% url 'dashboard:index' %}">
                     <i class="icon-home4"></i> 
                     <span>Dashboard</span>
@@ -185,7 +185,7 @@
                 </li>
                   {% endif %}
                   {% if perms.hr.view_employee %}
-                <li>
+                <li class="hidden">
                   <a href="javascript:;">
                     <i class="icon-height"></i>
                     <span>Human Resource</span>
@@ -216,7 +216,7 @@
                 </li>
                   {% endif %}
                 {% if perms.product.view_product or perms.product.view_stock or perms.product.view_category or perms.product.view_productclass or perms.product.view_productattribute or perms.product.view_stocklocation %}
-                <li id="first">
+                <li id="first" class="hidden">
                   <a href="{% url 'dashboard:product-list' %}"><i class="icon-stack"></i> <span>
                      {% trans "Inventory Management" context "Dashboard catalogue" %}
                   </span></a>
@@ -279,12 +279,12 @@
                    {% if perms.customer.view_customer %}
                 <li class="">
                   <a href="{% url 'dashboard:customers' %}"><i class="icon-theater"></i> <span>
-                    Customer Management
+                    Tenant Management
                   </span></a>
                   <ul>
                     <li class="{% block menu_addCustomer_class %}{% endblock %}">
                     <a href="{% url 'dashboard:customers' %}">
-                    <i class="icon-users2"></i> Customers
+                    <i class="icon-users2"></i> Tenants
                     </a>
                     </li>
                     <li class="hidden {% block menu_reportCustomer_class %}{% endblock %}">
@@ -302,7 +302,7 @@
                 </li>
                   {% endif %}
                    {% if perms.supplier.view_supplier %}
-                <li >
+                <li class="hidden">
                   <a href="{% url 'dashboard:supplier' %}"><i class="icon-collaboration"></i> <span>
                     Supplier Management
                   </span></a>
@@ -315,7 +315,7 @@
                   </ul>
                 </li>
                 <!-- communications -->
-                <li>
+                <li class="hidden">
                   <a href="#"><i class=" icon-bubbles4"></i> <span>Communications</span></a>
                   <ul>
                     <li
@@ -330,7 +330,7 @@
                 <!-- ./communications -->
                   {% endif %}
                    {% if perms.discount.add_voucher %}
-                <li><a href="#"><i class="icon-coins"></i> <span>{% trans "Customer Rewards" context "Dashboard discounts list" %}</span></a>
+                <li class="hidden"><a href="#"><i class="icon-coins"></i> <span>{% trans "Customer Rewards" context "Dashboard discounts list" %}</span></a>
                   <ul>
                     <li class="{% block menu_sales_class %}{% endblock %}">
                     <a href="{% url 'dashboard:sale-list' %}">
@@ -341,7 +341,7 @@
                     </ul>
                 </li>
                   {% endif %}
-                  <li>
+                  <li class="hidden">
                   <a href="javascript:;">
                     <i class="icon-table"></i>
                     <span>Tables</span>
@@ -351,7 +351,7 @@
                     <li class="{% block menu_table_class %}{% endblock %}">
                     <a href="{% url 'dashboard:table-list'%}">
                     <i class="icon-table2"></i>Tables
-                    </a>
+                    </a> 
                     </li>
                   </ul></li>
                   <!--table-->
@@ -359,7 +359,7 @@
                   <li>
                   <a href="javascript:;">
                     <i class="icon-home7"></i>
-                    <span>Booking Management</span>
+                    <span>Property Management</span>
                   </a>
                   <ul>
                     <li class="{% block menu_book_class %}{% endblock %}">
@@ -397,7 +397,7 @@
                   </li>
 
                    {% if perms.sale.view_terminal or perms.sale.view_paymentoption or perms.sale.view_drawercash %}
-                 <li>
+                 <li class="hidden">
                   <a href="javascript:;">
                     <i class="icon-wallet"></i> 
                     <span>Cash Drawer</span>
@@ -430,7 +430,7 @@
                 </li>
                   {% endif %}
                    {% if perms.accounts.view_expenses %}
-                <li><a href="#"><i class="icon-coins"></i> <span>Accounting</span></a>
+                <li class="hidden"><a href="#"><i class="icon-coins"></i> <span>Accounting</span></a>
                   <ul>
                     <li class="{% block menu_personal_expenses_class %}{% endblock %}">
                         <a href="{% url 'accounts:personal_expenses' %}">
@@ -453,7 +453,7 @@
                   {% endif %}
 
                   {% if perms.reports.view_sale_reports or perms.reports.view_products_reports or perms.reports.view_purchase_reports or perms.reports.view_balancesheet %}
-                <li>
+                <li class="hidden">
                   <a href="javascript:;">
                     <i class="icon-notebook"></i> 
                     <span>Reports</span>
@@ -514,7 +514,7 @@
                 </li>
                {% endif %}
                {% if request.user.is_active %}
-                 <li><a href="#"><i class="icon-cogs"></i> <span> {% trans "Configuration"  context "Dashboard configuration" %}</span></a>
+                 <li class="hidden"><a href="#"><i class="icon-cogs"></i> <span> {% trans "Configuration"  context "Dashboard configuration" %}</span></a>
                   <ul>                 
                     
                     <li class="{% block menu_settings_class %}{% endblock %}">
@@ -549,7 +549,7 @@
       <div class="page-header page-header-default">
           <div class="breadcrumb-line fix-breadcrumb" style="position: fixed;width: 100%;">
             <ul class="breadcrumb">
-               <li><a href="{% url 'dashboard:index' %}"><span class="icon-home">
+               <li class="hidden"><a href="{% url 'dashboard:index' %}"><span class="icon-home">
                  
                <span data-popup="tooltip" tite='Edit product' data-placement="bottom" data-original-title="Back to dashboard"> Home</span></a></li>
                {% block breadcrumbs %}
