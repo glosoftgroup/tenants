@@ -25,8 +25,8 @@ function ajaxSky(dynamicData,url,method){
 
 /* global variables */
 var dynamicData = {};
-var today = moment().format('YYYY-MM-DD HH:mm:ss');
-var tomorrow = moment().add(1, 'days').format('YYYY-MM-DD HH:mm:ss');
+var today = moment().format('YYYY-MM-DD');
+var tomorrow = moment().add(1, 'days').format('YYYY-MM-DD');
 
 $(function() {
     //  urls
@@ -126,7 +126,12 @@ $(function() {
         dynamicData = {};
         dynamicData['rooms'] = JSON.stringify(roomsArr);
         dynamicData['price_type'] = priceType.val();
-        room.val(roomsArr[0]);
+        try{
+            room.val(roomsArr[0]);
+        }catch(error){
+            console.error(error);
+        }
+
         if(!days){
             dynamicData['days'] = daysId.val();
         }else{
@@ -218,8 +223,13 @@ $(function() {
 
     /* on add customer */
     customer.on('tokenize:dropdown:hide', function(e, value){
-            pk = customer.val()[0];
-            setCustomer(pk);
+            try{
+             pk = customer.val()[0];
+             setCustomer(pk);
+            }catch(error){
+                // console.error(error);
+            }
+
     });
 
     /* on remove customer */
@@ -267,7 +277,8 @@ $(function() {
             var firstDate = new Date(moment(start));
             var secondDate = new Date(moment(end));
 
-            var diffDays = Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
+            // var diffDays = Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
+            var diffDays = moment(end).diff(moment(start), 'months', true)
             return diffDays;
         }else{
             return 0;
@@ -284,7 +295,7 @@ $(function() {
      ****************************************************************/
     function addDays(start, days)
     {
-        return moment(start).add(parseInt(days), 'days').format('YYYY-MM-DD HH:mm:ss');
+        return moment(start).add(parseInt(days), 'months').format('YYYY-MM-DD');
     }
 
     $('.days').on('keyup', function(){
@@ -292,20 +303,19 @@ $(function() {
         checkOut.val(addDays(checkIn.val(),daysId.val()));
     });
 
-    checkIn.datetimepicker({format:'YYYY-MM-DD HH:mm:ss' }).on('dp.change', function(e) {
+    checkIn.datetimepicker({format:'YYYY-MM-DD' }).on('dp.change', function(e) {
         stayDays = getDays(checkIn.val(),checkOut.val());
         daysId.val(stayDays);
         computeTotalPrice(rooms.val());
     });
 
-    checkOut.datetimepicker({format:'YYYY-MM-DD HH:mm:ss' }).on('dp.change', function(e) {
+    checkOut.datetimepicker({format:'YYYY-MM-DD' }).on('dp.change', function(e) {
         stayDays = getDays(checkIn.val(),checkOut.val());
         daysId.val(stayDays);
         computeTotalPrice(rooms.val());
     });
 
     /* if not editing booking info, set default dates */
-    console.log(checkInDate.val());
     if(!checkInDate.val()){ checkInDate.val(today); }
     if(!checkOutDate.val()){ checkOutDate.val(tomorrow); }
 
@@ -334,6 +344,7 @@ $(function() {
 
           },
           submitHandler: function() {
+              console.log(room.val());
               var f = document.getElementById('create-booking-form');
               var formData = new FormData(f);
               //formData.append(name, inputValue);

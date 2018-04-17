@@ -16,7 +16,6 @@
 {% block menu_rooms_class %}active{% endblock %}
  {% block custom_css %}
    <style type="text/css">
-
      tr.nb td{border:0px;}
      .nb{border:0px;}
      .table{border:1px solid #ccc}
@@ -105,8 +104,10 @@
                   <tr class="bg-primary">
                     <th width="14%">Image</th>
                     <th>Name</th>
-                    <th>Floor</th>
-                    <th>Pricing</th>
+                    <th>Wing</th>
+                    <th>Type</th>
+                    <th>Price</th>
+                    <th>Service Charges</th>
                     <th>Amenities</th>
 
                     {% if perms.room.delete_room %}
@@ -135,23 +136,25 @@
 
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                        {% if option.floor == '0' %}
-                        <mark class="text-size-small">Ground</mark>
-                        {% else %}
-                        <mark class="text-size-small">{{option.floor}}</mark>
+                        {% if option.room_wing %}
+                            <mark class="text-size-small">{{ option.room_wing }}</mark>
                         {% endif %}
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                      <div class="">
-                       <span class="text-size-small" data-popup="tooltip" title="Day time" data-placement="top">
-                           <i class="icon-sun3 text-muted"></i>
-                           <span class="text-size-small">{{option.get_daytime_price}}</span>
-                       </span> |
-                        <span class="text-size-small" data-popup="tooltip" title="Nightly charge" data-placement="top">
-                           <i class="icon-contrast text-muted"></i>
-                            <span class="text-size-small">{{option.get_nightly_price}}</span>
-                       </span>
-                      </div>
+                        {% if option.room_type %}
+                            <mark class="text-size-small">{{ option.room_type }}</mark>
+                        {% endif %}
+                    </td>
+
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {% if option.price %}
+                           {{ option.price.gross }} {{ option.price.currency }}
+                        {% endif %}
+                    </td>
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {% if option.price %}
+                           {{ option.service_charges }}
+                        {% endif %}
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
                         {% if option.amenities.all %}

@@ -1,54 +1,157 @@
 $ = jQuery;
-
+//var dataForm = $('#room-form');
+var amenities = $('.amenities');
 var uploadImageUrl = $('.pageUrls').data('uploadimages');
 var csrfmiddlewaretoken  = jQuery("[name=csrfmiddlewaretoken]").val();
 
 function alertUser(msg,status='bg-success',header='Well done!')
 { $.jGrowl(msg,{header: header,theme: status}); }
 
+Vue.component('select2',{
+    props: ['options', 'value'],
+    template: '#select2-template',
+    mounted: function(){
+        var vm = this;
+        $(this.$el)
+        // init select2
+        .select2({ data: this.options })
+        .val(this.value)
+        .trigger('change')
+        // emit event on chage
+        .on('change', function(){
+            vm.$emit('input', this.value)
+        })
+    },
+    watch: {
+        value: function(value){
+            //update value
+            $(this.$el)
+            .val(value)
+            .trigger('change')
+        },
+        options: function(options){
+            // update options
+            if(this.value){
+                $(this.$el).empty().select2({ data: options}).val(this.value).trigger('change')
+            }else{
+                $(this.$el).empty().select2({ data: options})
+            }
+        }
+    },
+    destroyed: function(){
+        $(this.$el).off().select2('destroy')
+    }
+});
+
 var parent = new Vue({
     el:"#vue-app",
     delimiters: ['${', '}'],
     data:{
-       'name': 'Add room',
-       'autoComplete': true,
-       'nightly': null,
-       'daytime': null,
-       'weekly' : null,
-       'daily'  : null,
-       'monthly': null
+       name: '',
+       bedrooms: '',
+       amenities: [],
+       units: 0,
+       floor_space: 0,
+       price: 0,
+       description: '',
+       service_charges: 0,
+       autoComplete: true,
+       nightly: null,
+       daytime: null,
+       weekly : null,
+       daily  : null,
+       monthly: null,
+       wing: 1,
+       wing_options: [],
+       errors: {},
+       propertytype: 3,
+       propertytype_options: []
     },
     components: {
         UploadImage
     },
-    created:function(){
-       console.log('vue running in parent');
-       if($('#room_id').val()){
-           this.daily = $('#daily').val();
-           this.nightly = $('#nightly').val();
-           this.daytime = $('#daytime').val();
-           this.weekly = $('#weekly').val();
-           this.monthly = $('#monthly').val();
+    mounted:function(){
+
+       var self = this;
+       axios.defaults.xsrfHeaderName = "X-CSRFToken";
+       axios.defaults.xsrfCookieName = 'csrftoken';
+
+       // fetch wing options
+       axios.get('/wing/api/list/')
+       .then(function (response) {
+           self.wing_options = response.data.results
+       })
+       .catch(function (error) {
+            console.log(error);
+       });
+
+       // fetch property types
+       axios.get('/propertytype/api/list/')
+       .then(function (response) {
+           self.propertytype_options = response.data.results
+       })
+       .catch(function (error) {
+            console.log(error);
+       });
+
+       if($('#wing_id').val()){
+           this.wing = $('#wing_id').val();
+       }
+       if($('#type_id').val()){
+           this.propertytype = $('#type_id').val();
        }
 
        //console.log(today);
     },
     methods:{
-        computeFullDay: function(){
-          /* check if field auto complete is enabled */
-          if(this.autoComplete){
-            this.nightly = this.daily / 2;
-            this.daytime = this.daily / 2;
-            this.weekly = (parseInt(this.daytime) + parseInt(this.nightly)) * 7;
-            this.monthly = (parseInt(this.daytime) + parseInt(this.nightly)) * 30;
-          }
-        },
-        computeHalfDay:function(){
-            /* check if field auto complete is enabled */
-            if(this.autoComplete){
-                this.monthly = (parseInt(this.daytime) + parseInt(this.nightly)) * 30
-                this.weekly  = (parseInt(this.daytime) + parseInt(this.nightly)) * 7
+        handleChange(event){
+            const target = event.target;
+            const name = target.name;
+
+            if(!!this.errors[name]){
+                delete this.errors[name];
             }
+        },
+        addInstance(e){
+            e.preventDefault()
+            // validation
+            let errors = {};
+            if(this.name === '') errors.name = 'This field is required';
+            if(this.bedrooms === 0) errors.bedrooms = 'This field is required';
+            if(!this.wing) errors.wing = 'This field is required';
+            if(!this.propertytype) errors.propertytype = 'This field is required';
+            if(!this.units) errors.units = 'This field is required';
+            if(!this.price) errors.price = 'This field is required';
+            if(!this.service_charges) errors.service_charges = 'This field is required';
+            if(!this.floor_space) errors.floor_space = 'This field is required';
+            this.errors = errors;
+            console.error(amenities);
+            console.error(amenities.val());
+            if(!amenities.val())
+            {
+                amenities.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
+                return false;
+            }
+
+            // prepare data
+            var data = new FormData()
+
+            data.append('name', this.name)
+            data.append('bedrooms', this.bedrooms)
+            data.append('units', this.units)
+            data.append('price', this.price)
+            data.append('service_charges', this.service_charges)
+            data.append('floor_space', this.floor_space)
+            data.append('wing', this.wing)
+            data.append('propertytype', this.propertytype)
+            data.append('amenities', JSON.stringify(amenities.val()))
+            console.log('sending details')
+
+        }
+    },
+    watch:{
+        wing: function(value,old){
+
         }
     }
 });

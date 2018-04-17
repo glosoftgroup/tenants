@@ -9,7 +9,10 @@ from saleor.booking.models import Payment, BookingHistory
 from saleor.room.models import Room
 from saleor.customer.models import Customer
 from saleor.sale.models import PaymentOption
+from saleor.wing.models import Wing
 
+from decimal import Decimal
+import random
 import logging
 import json
 
@@ -37,8 +40,9 @@ def add(request):
             history = BookingHistory()
             try:
                 instance.invoice_number = 'inv/bk/0'+str(Table.objects.latest('id').id)
+                instance.invoice_number += ''.join(random.choice('0123456789ABCDEF') for i in range(4))
             except Exception as e:
-                instance.invoice_number = 'inv/bk/01'
+                instance.invoice_number = 'inv/bk/1'+''.join(random.choice('0123456789ABCDEF') for i in range(4))
             history.invoice_number = instance.invoice_number
         if request.POST.get('c_name'):
             customer_name = request.POST.get('c_name')
@@ -124,10 +128,19 @@ def book(request):
     objects = Room.objects.all().order_by('floor')
     floors = []
     for floor in objects:
-        if floor.floor not in floors:
-            floors.append(floor.floor)
-    print floors
-    ctx = {'table_name': table_name, 'objects': objects, "floors": floors}
+        if floor.room_wing not in floors:
+            floors.append(floor.room_wing)
+    number_of_floors = len(floors)
+    wings = Wing.objects.all()
+    active = wings.first()
+    ctx = {
+        'active': active,
+        'table_name': table_name,
+        'objects': objects,
+        "floors": floors,
+        "wings": wings,
+        "number_of_floors": number_of_floors
+    }
     return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/rooms.html', ctx)
 
 
@@ -262,7 +275,12 @@ def fetch_amenities(request):
     l = []
     for instance in dictionary:
         # {"text": "Afghanistan", "value": "AF"},
-        contact = {'text': instance.name, 'value': instance.id}
+        text = instance.name
+        try:
+            text = str(instance.name)+' '+str(instance.room_wing.name)
+        except Exception as e:
+            print(e)
+        contact = {'text': text, 'value': instance.id}
         l.append(contact)
     return HttpResponse(json.dumps(l), content_type='application/json')
 
@@ -299,12 +317,17 @@ def compute_room_price(request):
     days = int(request.POST.get('days'))
     price_type = request.POST.get('price_type')
     rooms = json.loads(request.POST.get('rooms'))
-    total = 0
+    total = Decimal(0)
     for instance in rooms:
         room = Room.objects.get(pk=int(instance))
-        total = float(total + eval('room.get_'+str(price_type)+'_price()'))
-        print room.get_weekly_price()
-    total *= float(int(days))
+        # total = float(total + eval('room.get_'+str(price_type)+'_price()'))
+        print(room.price.gross)
+        total = total + Decimal(room.price.gross)
+
+    try:
+        total *= Decimal(days)
+    except:
+        pass
     return HttpResponse(json.dumps({"price": float(total)}), content_type='application/json')
 
 
