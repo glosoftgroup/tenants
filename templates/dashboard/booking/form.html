@@ -46,7 +46,7 @@
 
                     <div class="form-group">
                        <div class="row">
-                          <div class="col-md-9">
+                          <div class="col-md-12">
                             <label>Select Room:<span class="text-danger">*</span></label>
                             <select required="required" class="rooms hidden" multiple>
                                 {% if instance.id %}
@@ -55,13 +55,13 @@
                             </select>
                             <span class="help-block"></span>
                           </div>
-                          <div class="col-md-3">
+                          <div class="col-md-3 hidden">
                               <label>Charge Type:</label>
                               <select id="price_type" name="price_type" class="form-control bootstrap-select">
                                   {% if instance.id %}
                                   <option value="{{instance.price_type}}">{{instance.price_type}}</option>
                                   {% endif %}
-                                  <option value="nightly">Nightly</option>
+                                  <option value="Monthly">Nightly</option>
                                   <option value="daytime">DateTime</option>
                                   <option value="weekly">Weekly</option>
                                   <option value="monthly">Monthly</option>
@@ -88,7 +88,7 @@
                               </div>
                             </div>
                             <div class="col-md-3">
-                              <label class="text-right">Days:</label>
+                              <label class="text-right">Months:</label>
                               <div class="input-group">
                                 <span class="input-group-addon"><i class="icon-comma"></i></span>
                                 <input required="required" name="days" type="number" id="days" @change="computeCheckout()" v-model.number="days" class="form-control days" {% if instance.id %} value="{{instance.days}}" {% endif %}>

@@ -48,6 +48,14 @@
 
 {% block content %}
  <div class="row animated fadeIn" id="vue-app">
+     <div class="animated bounceIn" v-show="server_error">
+        <div class="panel-body">
+             <div class="alert alert-warning no-border text-center">
+                 <button type="button" class="close" data-dismiss="alert"><span>×</span><span class="sr-only">Close</span></button>
+                <span class="text-semibold">Heads up!</span> Add <a href="{% url 'dashboard:room-add' %}" class="alert-link text-primary"> rooms</a>, no rooms found.
+            </div>
+        </div>
+    </div>
    <div class="col-md-6 animated zoomIn">
         <!--yearly amount-->
         <div id="yearly-amount-chart" style="min-width: 310px; height: 400px; margin: 0 auto">

@@ -13,6 +13,8 @@ from saleor.room.models import Room as Table
 from saleor.booking.models import Book, BookingHistory
 from saleor.room.models import RoomAmenity, RoomImage, Package, Pricing
 from saleor.site.models import SiteSettings
+from saleor.wing.models import Wing
+from saleor.propertytype.models import PropertyType
 from .forms import RoomImageForm
 from ...decorators import user_trail
 import logging
@@ -38,9 +40,28 @@ def add(request):
         if request.POST.get('name'):
             instance.name = request.POST.get('name')
         if request.POST.get('price'):
+            print request.POST.get('price')
             instance.price = request.POST.get('price')
+        if request.POST.get('service_charges'):
+            instance.service_charges = request.POST.get('service_charges')
         if request.POST.get('floor'):
             instance.floor = request.POST.get('floor')
+        if request.POST.get('units'):
+            instance.units = request.POST.get('units')
+        if request.POST.get('floor_space'):
+            instance.floor_space = request.POST.get('floor_space')
+        if request.POST.get('parking_space'):
+            instance.parking_space = request.POST.get('parking_space')
+        if request.POST.get('wing'):
+            try:
+                instance.room_wing = Wing.objects.get(pk=request.POST.get('wing'))
+            except Exception as e:
+                print(e)
+        if request.POST.get('propertytype'):
+            try:
+                instance.room_type = PropertyType.objects.get(pk=request.POST.get('propertytype'))
+            except Exception as e:
+                print(e)
         if request.POST.get('description'):
             instance.description = request.POST.get('description')
         if request.POST.get('is_booked'):

@@ -26,6 +26,9 @@ from ..discount.models import calculate_discounted_price
 from ..search import index
 from .utils import get_attributes_display_map
 
+from saleor.wing.models import Wing
+from saleor.propertytype.models import PropertyType
+
 
 class Package(models.Model):
     name = models.CharField(
@@ -159,12 +162,12 @@ class RoomAmenity(models.Model):
 
 @python_2_unicode_compatible
 class Room(models.Model, ItemRange, index.Indexed):
-    room_class = models.ForeignKey(
-        RoomClass, related_name='room', null=True, blank=True,
-        verbose_name=pgettext_lazy('Room field', 'product class'))
-    product_tax = models.ForeignKey(
-        RoomTax, related_name='room_tax', blank=True, null=True,
-        verbose_name=pgettext_lazy('Room field', 'product class'))
+    room_type = models.ForeignKey(
+        PropertyType, related_name='room_type', null=True, blank=True,
+        verbose_name=pgettext_lazy('Room field', 'room type'))
+    room_wing = models.ForeignKey(
+        Wing, related_name='room_wing', blank=True, null=True,
+        verbose_name=pgettext_lazy('Room field', 'room wing'))
     name = models.CharField(
         pgettext_lazy('Room field', 'name'), unique=True, max_length=128)
     floor = models.CharField(
@@ -181,6 +184,22 @@ class Room(models.Model, ItemRange, index.Indexed):
         pgettext_lazy('Room field', 'price'),
         currency=settings.DEFAULT_CURRENCY, max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    service_charges = models.DecimalField(max_digits=125, decimal_places=2, default=Decimal(0),
+                                          verbose_name=pgettext_lazy('Room field', 'service charges')
+                                          )
+    bedrooms = models.IntegerField(
+        pgettext_lazy('Room field', 'bedrooms'),
+        validators=[MinValueValidator(0)], null=True, blank=True, default=Decimal(10))
+    parking_space = models.IntegerField(
+        pgettext_lazy('Room field', 'parking space'),
+        validators=[MinValueValidator(0)], null=True, blank=True, default=Decimal(1))
+
+    units = models.IntegerField(
+        pgettext_lazy('Room field', 'units'),
+        validators=[MinValueValidator(0)], null=True, blank=True, default=Decimal(10))
+    floor_space = models.DecimalField(max_digits=125, decimal_places=2, default=Decimal(0),
+                                      verbose_name=pgettext_lazy('Room field', 'service charges')
+                                      )
     available_on = models.DateTimeField(
         pgettext_lazy('Room field', 'available on'), blank=True, null=True)
     attributes = HStoreField(pgettext_lazy('Room field', 'attributes'),

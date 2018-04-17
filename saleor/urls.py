@@ -40,6 +40,8 @@ from .registration.urls import urlpatterns as registration_urls
 from .search.urls import urlpatterns as search_urls
 from .userprofile.urls import urlpatterns as userprofile_urls
 from .salepoints.urls import urlpatterns as salepoints_urls
+from .wing.urls import urlpatterns as wing_urls
+from .propertytype.urls import urlpatterns as propertytype_urls
 import notifications.urls
 from .api.login import ObtainJSONWebToken
 from . import decorators
@@ -80,6 +82,8 @@ urlpatterns = [
     url(r'^profile/', include(userprofile_urls, namespace='profile')),
     url(r'^search/', include(search_urls, namespace='search')),
     url(r'^feeds/', include(feed_urls, namespace='data_feeds')),
+    url(r'^propertytype/', include(propertytype_urls, namespace="propertytype")),
+    url(r'^wing/', include(wing_urls, namespace='wing')),
     url(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps},
         name='django.contrib.sitemaps.views.sitemap'),
     url(r'^sale/points/', include(salepoints_urls, namespace='salepoints')),
