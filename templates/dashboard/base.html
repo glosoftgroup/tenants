@@ -370,7 +370,7 @@
                     </li>
                     <li class="{% block menu_rooms_class %}{% endblock %}">
                         <a href="{% url 'dashboard:room-list'%}">
-                         <i class="icon-table2"></i>Rooms
+                         <i class="icon-table2"></i>Properties
                         </a>
                     </li>
                     <li class="{% block menu_booking_class %}{% endblock %}">
@@ -383,7 +383,18 @@
                          <i class="icon-graph"></i>Report Charts
                         </a>
                     </li>
-                  </ul></li>
+                    <li class="{% block menu_bookingwing_class %}{% endblock %}">
+                        <a href="{% url 'wing:index'%}">
+                         <i class="icon-location4"></i>Wings
+                        </a>
+                    </li>
+                    <li class="{% block menu_bookingtype_class %}{% endblock %}">
+                        <a href="{% url 'propertytype:index'%}">
+                         <i class="icon-price-tags"></i>Property Types
+                        </a>
+                    </li>
+                  </ul>
+                  </li>
 
                    {% if perms.sale.view_terminal or perms.sale.view_paymentoption or perms.sale.view_drawercash %}
                  <li class="hidden">

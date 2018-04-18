@@ -204,6 +204,8 @@ INSTALLED_APPS = [
     'saleor.credit',
     'saleor.salepoints',
     'saleor.table',
+    'saleor.wing',
+    'saleor.propertytype',
     'saleor.orders',
     'saleor.room',
     'saleor.hr',

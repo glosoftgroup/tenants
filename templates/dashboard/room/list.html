@@ -5,18 +5,17 @@
 {% load prices_i18n %}
 
 {% block title %}
-  {{ table_name }}
+  Properties
 {% endblock %}
 
  {% block breadcrumbs %}
-     <li class="active"><a href="{% url 'dashboard:room-list' %}">{{ table_name }} </a></li>
+     <li class="active"><a href="{% url 'dashboard:room-list' %}">Properties </a></li>
  {% endblock %}
 
 
 {% block menu_rooms_class %}active{% endblock %}
  {% block custom_css %}
    <style type="text/css">
-
      tr.nb td{border:0px;}
      .nb{border:0px;}
      .table{border:1px solid #ccc}
@@ -82,7 +81,7 @@
               </div>
             </div>
             <div class="col-md-4">
-             <label>Search {{ table_name }}</label>
+             <label>Search Properties</label>
               <div class="form-group form-group-material has-feedback">
                 <input class="form-control search_user" placeholder="Search ..." type="text">
                 <div class="form-control-feedback">
@@ -109,10 +108,10 @@
                   <tr class="bg-primary">
                     <th width="14%">Image</th>
                     <th>Name</th>
-                    <th>Floor</th>
-                    <th>Pricing</th>
-                    <th>Amenities</th>
-
+                    <th>Wing</th>
+                    <th>Type</th>
+                    <th>Price</th>
+                    <th>Service Charges</th>
                     {% if perms.room.delete_room %}
                     <th class="text-center">Options</th>
                     {% endif %}
@@ -139,32 +138,27 @@
 
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                        {% if option.floor == '0' %}
-                        <mark class="text-size-small">Ground</mark>
-                        {% else %}
-                        <mark class="text-size-small">{{option.floor}}</mark>
+                        {% if option.room_wing %}
+                            <mark class="text-size-small">{{ option.room_wing }}</mark>
                         {% endif %}
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                      <div class="">
-                       <span class="text-size-small" data-popup="tooltip" title="Day time" data-placement="top">
-                           <i class="icon-sun3 text-muted"></i>
-                           <span class="text-size-small">{{option.get_daytime_price}}</span>
-                       </span> |
-                        <span class="text-size-small" data-popup="tooltip" title="Nightly charge" data-placement="top">
-                           <i class="icon-contrast text-muted"></i>
-                            <span class="text-size-small">{{option.get_nightly_price}}</span>
-                       </span>
-                      </div>
+                        {% if option.room_type %}
+                            <mark class="text-size-small">{{ option.room_type }}</mark>
+                        {% endif %}
+                    </td>
+
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {% if option.price %}
+                           {{ option.price.gross }}
+                        {% endif %}
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                        {% if option.amenities.all %}
-                         {{option.amenities.all|join:", "}}
+                        {% if option.price %}
+                           {{ option.service_charges }}
                         {% endif %}
-
                     </td>
 
-                    
                     {% if perms.sale.delete_room %}
                     <!-- actions -->
                     <td class="text-center">
@@ -477,7 +471,7 @@
       $('body').on('click', '.td', function(){
           <!--window.location = $(this).data("href");-->
           var url = $(this).data('href');
-          //var modal = $(this).data('m');
+           var modal = $(this).data('m');
           //var modalTitle = $(this).data('mtitle');
            $(modal+' .modal-title').html(modalTitle);
 

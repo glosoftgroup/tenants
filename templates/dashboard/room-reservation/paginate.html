@@ -1,0 +1,130 @@
+             {% load staticfiles %}
+               {% for option in options %}
+
+                  <tr  id="{{option.pk }}">
+                      <!-- image -->
+                    <td>
+                        {% if option.room_images.first.image %}
+                        <img src="{{ option.room_images.first.image.crop.40x40 }}">
+                        {% endif %}
+                    </td>
+                    <!-- name -->
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {{option.name}}<br>
+                        {% if option.is_booked %}
+                        <mark class="text-size-small">Booked</mark>
+                        {% endif %}
+
+                    </td>
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {% if option.floor == '0' %}
+                        <mark class="text-size-small">Ground</mark>
+                        {% else %}
+                        <mark class="text-size-small">{{option.floor}}</mark>
+                        {% endif %}
+                    </td>
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                      <div class="">
+                       <span class="text-size-small" data-popup="tooltip" title="Day time" data-placement="top">
+                           <i class="icon-sun3 text-muted"></i>
+                           <span class="text-size-small">{{option.get_daytime_price}}</span>
+                       </span> |
+                        <span class="text-size-small" data-popup="tooltip" title="Nightly charge" data-placement="top">
+                           <i class="icon-contrast text-muted"></i>
+                            <span class="text-size-small">{{option.get_nightly_price}}</span>
+                       </span>
+                      </div>
+                    </td>
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {% if option.amenities.all %}
+                         {{option.amenities.all|join:", "}}
+                        {% endif %}
+
+                    </td>
+
+
+                    {% if perms.sale.delete_room %}
+                    <!-- actions -->
+                    <td class="text-center">
+                        <div class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle legitRipple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        action <span class="roomet"></span>
+                        </button>
+                        <ul class="dropdown-menu edit-dropdown">
+                              <li class="td"><a href="{% url 'dashboard:room-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
+                              </li>
+                            <li>
+                                <a data-ta="#modal_instance" data-pk="{{option.pk}}" data-cloneurl="{% url 'dashboard:clone-room' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
+                               class="clone">
+                                    <i class="icon-copy" href="#modal_instance"></i>
+                                    CLONE
+                               </a>
+                            </li>
+                            </li>
+                            <li>
+                                <a data-ta="#modal_instance" data-title="Delete   {{ option.name }} ?" data-href="{% url 'dashboard:room-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
+                         class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
+                            </a>
+                            </li>
+
+                        </ul>
+                      </div>
+                    </td>
+                    {% endif %}
+                  </tr>
+
+                  {% endfor %}
+                 
+
+<script type="text/javascript" src="{% static 'backend/js/room/clone.js' %}"></script>
+            <script type="text/javascript">
+                 $(document).ready(function(){
+
+                    $('.modal-trigger').on('click', function (e) {
+                       var url = $(this).data('href')
+                       var prompt_text = $(this).data('title');
+                       var username = $(this).data('name');
+                       var modal = $(this).data('ta');
+                       var id = $(this).data('id');
+                       $('.del').attr('data-id', id);
+                       $('.del').attr('data-href', url);
+                       $('.modal-title').html(prompt_text);
+                       $(modal).modal();
+                       $('.delete_form').attr('action',url);
+                    });
+
+                    /* clicked the submit button */
+                    $('.del').on('click', function (e) {
+                        var f = document.getElementById('delform');
+                        var formData = new FormData(f);
+                        var id = $(this).data('id');
+                        var url = $(this).data('href');
+                        $.ajax({
+                            url: url,
+                            type: "POST",
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success:function(data){        
+                              $('#modal_instance').modal('hide');
+                              $('#tb #'+id).remove();            
+                              $.jGrowl('User deleted successfully', {
+                                header: 'Well done!',
+                                theme: 'bg-success'
+                              });
+                              window.location.reload();
+                           // $("#mydiv").load(location.href + " #mydiv");
+                            },
+                            error:function(error){
+                              console.log(error);
+                              $.jGrowl('Error deleting Staff', {
+                                  header: 'Oh snap!',
+                                  theme: 'bg-danger'
+                              });
+                            }
+                        });
+                    });
+      
+                 });
+                 
+               </script>

@@ -55,6 +55,13 @@ $(function() {
     var daily = dataForm.find('#daily');
     var weekly = dataForm.find('#weekly');
     var monthly = dataForm.find('#monthly');
+    var bedrooms = dataForm.find('#bedrooms');
+    var units = dataForm.find('#units');
+    var service_charges = dataForm.find('#service_charges');
+    var floor_space = dataForm.find('#floor_space');
+    var wing = dataForm.find('#wing');
+    var propertytype = dataForm.find('#propertytype');
+    var parking_space = dataForm.find('#parking_space');
 
     // handle deleting a room
     deleteBtn.on('click',function(e){
@@ -91,7 +98,7 @@ $(function() {
 
     });
 
-    //    ./new amenities
+    // ./new amenities
 
     //    remove help block
     name.on('focusin',function(){
@@ -100,7 +107,25 @@ $(function() {
     price.on('focusin',function(){
           $(this).nextAll('.help-block:first').html('');
     });
+    service_charges.on('focusin',function(){
+          $(this).nextAll('.help-block:first').html('');
+    });
+    units.on('focusin',function(){
+          $(this).nextAll('.help-block:first').html('');
+    });
+    floor_space.on('focusin',function(){
+          $(this).nextAll('.help-block:first').html('');
+    });
+    wing.on('focusin',function(){
+          $(this).nextAll('.help-block:first').html('');
+    });
+    propertytype.on('focusin',function(){
+          $(this).nextAll('.help-block:first').html('');
+    });
     amenities.on('focusin',function(){
+          $(this).nextAll('.help-block:first').html('');
+    });
+    bedrooms.on('focusin',function(){
           $(this).nextAll('.help-block:first').html('');
     });
     new_amenities.on('focusin',function(){
@@ -122,21 +147,26 @@ $(function() {
           $(this).nextAll('.help-block:first').html('');
     });
 
-    addRoomBtn.on('click',function(){
+    addRoomBtn.on('click',function(e){
+        e.preventDefault()
         dynamicData = {}; //clear dynamic data
         //    validation
         if(!name.val()){
             name.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
             return false;
         }
+        /*
         if(!floor.val())
         {
             floor.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
             return false;
-        }
+        }*/
 
         if(description.val()){
             dynamicData['description'] = description.val();
+        }
+        if(parking_space.val()){
+            dynamicData['parking_space'] = parking_space.val();
         }
         if(roomId.val()){
             dynamicData['pk'] = roomId.val();
@@ -144,55 +174,46 @@ $(function() {
 
         if(!amenities.val())
         {
+            console.log('amenities invalid')
             amenities.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
             return false;
         }
 
-        if(daily.val()){
-            dynamicData['daily'] = daily.val();
-        }else{
-            daily.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
-            return false;
-        }
-
-        if(nightly.val()){
-            dynamicData['nightly'] = nightly.val();
-        }else{
-            nightly.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
-            return false;
-        }
-        if(dayTime.val()){
-            dynamicData['daytime'] = dayTime.val();
-        }else{
-            dayTime.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
-            return false;
-        }
-        if(weekly.val()){
-            dynamicData['weekly'] = weekly.val();
-        }else{
-            weekly.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
-            return false;
-        }
-        if(monthly.val()){
+        if(bedrooms.val()){
             dynamicData['monthly'] = monthly.val();
         }else{
-            monthly.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
+            bedrooms.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
             return false;
         }
 
+        if(service_charges.val()){
+            dynamicData['service_charges'] = service_charges.val();
+        }
+        if(units.val()){
+            dynamicData['units'] = units.val();
+        }
+        if(floor_space.val()){
+            dynamicData['floor_space'] = floor_space.val();
+        }
+        if(parent.wing){
+            dynamicData['wing'] = parent.wing;
+        }
+
+        if(parent.propertytype){
+            dynamicData['propertytype'] = parent.propertytype;
+        }
         // add dynamic post data
         dynamicData['name'] = name.val();
         dynamicData['price'] = price.val();
         dynamicData['track'] = 'add room';
         dynamicData['amenities'] = JSON.stringify(amenities.val());
-        dynamicData['floor'] = floor.val()[0];
+        // dynamicData['floor'] = floor.val()[0];
 
         // post form data
         addRoomDetails(dynamicData,roomUrl,'post')
         .done(function(data){
-            console.log(data);
-            //amenities.parents('div').find('li.token').remove();
-            //amenities.val('');
+            alertUser('Data sent successfully');
+            // redirect
             window.location.href= data.edit_url; //window.location.href = roomListUrl;
         })
         .fail(function(error){
@@ -260,6 +281,15 @@ $(function() {
         rules:{
             name: {
               required:true
+            },
+            price: {
+              required: true
+            },
+            bedrooms: {
+              required: true
+            },
+            propertytype: {
+              required: true
             },
             daily: {
               required:true

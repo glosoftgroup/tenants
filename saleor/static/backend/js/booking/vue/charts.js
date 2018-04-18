@@ -7,7 +7,8 @@ var chart = new Vue({
     data:{
        'name':'Book Listing',
        items:[],
-       loader:true
+       loader:true,
+       server_error: false
     },
     methods:{
         yearlyVisitsChart:function(data){
@@ -163,6 +164,7 @@ var chart = new Vue({
 
                 this.loader = false;
             }, function(error){
+                this.server_error = true
                 console.log(error.statusText);
         });
 

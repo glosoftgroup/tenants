@@ -10,7 +10,7 @@
 {% block menu_book_class %}active{% endblock %}
 
 {% block breadcrumbs %}
-     <li class="active"><a href="{% url 'dashboard:room-list' %}">{{ table_name }} </a></li>
+     <li class="active"><a href="{% url 'dashboard:room-list' %}">Book </a></li>
 {% endblock %}
 
 {% block custom_css %}
@@ -52,16 +52,27 @@
 {% block content %}
 
 <div class="row">
+    {% if not wings %}
+    <div class="animated bounceIn">
+        <div class="panel-body">
+             <div class="alert alert-warning no-border text-center">
+                 <button type="button" class="close" data-dismiss="alert"><span>×</span><span class="sr-only">Close</span></button>
+                <span class="text-semibold">Heads up!</span> Add <a href="{% url 'wing:index' %}" class="alert-link text-primary"> wings</a>, no wings found.
+            </div>
+        </div>
+    </div>
+    {% endif %}
     {% if objects %}
     <div class="panel panel-flat">
         <div class="panel-body">
+
             <div class="tabbable row">
                 <ul class="nav nav-tabs nav-tabs-solid nav-justified">
 
-                    {% for floor in floors %}
-                    <li class="{% if floor == '0' %}active{% endif %}">
-                        <a href="#dynamic-floor{{floor}}" data-toggle="tab"    class="legitRipple" aria-expanded="false">
-                         <span class="text-bold">Floor:</span> {{floor}}
+                    {% for wing in wings %}
+                    <li class="{% if wing == active %}active{% endif %}">
+                        <a href="#dynamic-floor{{wing.id}}" data-toggle="tab" class="legitRipple" aria-expanded="false">
+                         <span class="text-bold">Wing:</span> {{wing}}
                         </a>
                     </li>
                     {% endfor %}
@@ -69,10 +80,10 @@
                 </ul>
 
                 <div class="tab-content row">
-                    {% for floor in floors %}
-                    <div class="tab-pane {% if floor == '0' %}active{% endif %}" id="dynamic-floor{{floor}}">
+                    {% for wing in wings %}
+                    <div class="tab-pane {% if wing == active %}active{% endif %}" id="dynamic-floor{{wing.id}}">
                         {% for instance in objects %}
-                        {% if instance.floor == floor %}
+                        {% if instance.room_wing == wing %}
                          <div class="col-sm-6 col-md-4">
                             <div class="panel" {% if instancej.room_images.first.image %} style="z-index:1;background-image: url('{{ instance.room_images.first.image.crop.400x400 }}');" {% endif %}>
                                 <div class="panel-body">
@@ -137,6 +148,15 @@
 
 
                 </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="animated bounceIn">
+        <div class="panel-body">
+             <div class="alert alert-warning no-border text-center">
+                 <button type="button" class="close" data-dismiss="alert"><span>×</span><span class="sr-only">Close</span></button>
+                <span class="text-semibold">Heads up!</span> Add <a href="{% url 'dashboard:room-add' %}" class="alert-link text-primary"> rooms</a>, no rooms found.
             </div>
         </div>
     </div>

@@ -51,10 +51,16 @@ class BookingListSerializer(serializers.ModelSerializer):
         return "{:,}".format(obj.price.gross)
 
     def get_room_name(self, obj):
-        return obj.room.name
+        try:
+            return obj.room.name
+        except:
+            return ''
 
     def get_room_id(self, obj):
-        return obj.room.pk
+        try:
+            return obj.room.pk
+        except:
+             return ''
 
     def get_customer_name(self, obj):
         return obj.customer.name

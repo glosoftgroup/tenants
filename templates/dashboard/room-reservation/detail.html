@@ -1,0 +1,270 @@
+<style lang="css" scoped>
+    .vue_component__upload--image{
+        padding: 5px;
+        cursor: pointer;
+        min-height: 80px;
+        border-radius: 5px;
+    }
+    .vue_component__upload--image.dragover{}
+
+    .vue_component__upload--image form > div{
+        text-align: center;
+    }
+
+    .vue_component__upload--image .upload_image_form__thumbnails{
+        margin-bottom: 1em;
+    }
+    .vue_component__upload--image .upload_image_form__thumbnail{
+        border-radius: 2.5px;
+        position:relative;
+        width:20%;
+        padding:20% 0 0;
+        overflow: hidden;
+        margin:10px;
+        display:inline-block;
+    }
+
+    .vue_component__upload--image .upload_image_form__thumbnail img{
+        position: absolute;
+        top:50%;
+        left: 50%;
+        min-width: 100%;
+        min-height: 100%;
+        max-height: 150%;
+        opacity: 0;
+        transform: translateX(-50%) translateY(-50%);
+        transition: 1s opacity;
+    }
+    .vue_component__upload--image .upload_image_form__thumbnail img.show{
+        opacity: 1;
+    }
+    .vue_component__upload--image .upload_image_form__thumbnail img:hover{
+        filter: blur(2px);
+    }
+    .vue_component__upload--image .upload_image_form__thumbnail.bad-size img{
+        filter: grayscale(100%);
+    }
+    .vue_component__upload--image .upload_image_form__thumbnail.uploaded img{
+        opacity: 0.1;
+    }
+    .vue_component__upload--image .upload_image_form__thumbnail span{
+        position: absolute;
+        top: -5px;
+        left: 0px;
+        z-index: 100;
+        padding: 0px 1px;
+        border-radius: 2px;
+        background-color: grey;
+    }
+</style>
+
+<div class="modal-body">
+    <div class="panelpanel-flat">
+        <div class="panel-heading">
+
+            <h6 class="panel-title text-semibold">Floor:{{room.floor}} | {{room.name}}<a class="heading-elements-toggle"><i class="icon-more"></i></a></h6>
+
+            <div class="heading-elements">
+                <ul class="list-inline list-inline-separate heading-text">
+                    <li>
+                       {% if room.is_booked %}
+                             <span class="label label-success hvr-glow btn-raised legitRipple">
+                                 <a href="{% url 'dashboard:booking-invoice' pk=room.pk %}" class="text-white" >
+                                     Open invoice
+                                 </a>
+                             </span>
+                            {% else %}
+                             (available)
+                            {% endif %}
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+            <a class="heading-elements-toggle"><i class="icon-more"></i></a>
+        </div>
+
+        <div class="panel-body" style="padding: 0px;">
+            <div class="tabbable nav-tabs-vertical nav-tabs-left">
+                <ul class="nav nav-tabs nav-tabs-highlight" style="width:145px;">
+                    <li class="active">
+                        <a href="#room-detail" data-toggle="tab" class="legitRipple" aria-expanded="true">
+
+                            Room Detail
+                        </a>
+                    </li>
+                    <li class="">
+                        <a href="#left-tab2" data-toggle="tab" class="legitRipple" aria-expanded="false">
+
+                            Availability
+                        </a>
+                    </li>
+                    <li class="">
+                        <a href="#room-images" data-toggle="tab" class="legitRipple" aria-expanded="false">
+
+                            Images
+                        </a>
+                    </li>
+                    <li class="">
+                        <a href="#room-history" data-toggle="tab" class="legitRipple" aria-expanded="false">
+
+                            History
+                        </a>
+                    </li>
+
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane has-padding active" id="room-detail">
+                        <!--content-->
+                        <div class="content-group-lg">
+
+                            <h6 class="text-semibold">Pricing</h6>
+                            <ul class="list-inline list-inline-separate heading-text">
+                                <li><span class="text-semibold">{{room.get_nightly_price}}</span> {{room.price.currency}}<span>/night</span></li>
+                                <li><span class="text-semibold">{{room.get_daytime_price}}</span> {{room.price.currency}}<span>/daytime</span></li>
+                                <li><span class="text-semibold">{{room.get_daily_price}}</span> {{room.price.currency}}<span>/Daily</span></li>
+                                <li><span class="text-semibold">{{room.get_weekly_price}}</span> {{room.price.currency}}<span>/Weekly</span></li>
+                                <li><span class="text-semibold">{{room.get_monthly_price}}</span> {{room.price.currency}}<span>/Monthly</span></li>
+                            </ul>
+                            <hr>
+                            <h6 class="text-semibold">Description</h6>
+                            <p>{{room.description}}.</p>
+                            <div class="row">
+                                <div class="content-group">
+                                    <dl>
+                                        {% for amenity in room.amenities.all %}
+                                        <dt class="col-sm-3 text-size-small text-bold text-uppercase">
+                                            <i class="icon-checkmark3 text-blue position-left"></i>
+                                            {{ amenity }}
+                                        </dt>
+                                        {% endfor %}
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        <!--./content-->
+                    </div>
+
+                    <div class="tab-pane has-padding" id="left-tab2">
+                        <!--Availability-->
+                        {% if book %}
+                          <h6 class="text-semibold">Dates</h6>
+                           <div class="form-group">
+                               <div class="col-md-6">
+                                <label>Check-in Date: </label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                    <span>{{book.check_in}}</span>
+                                </div>
+                                   <!-- Calendar widget -->
+                                    <div class="panel has-scroll">
+                                        <div class="datepicker-check-in no-border"></div>
+                                    </div>
+                                    <!-- /calendar widget -->
+                               </div>
+                               <div class="col-md-6">
+                                <label>Check-out Date: </label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                    <span style="margin-top:6px;">{{book.check_out}}</span>
+
+                                </div>
+                                   <!-- Calendar widget -->
+                                    <div class="panel has-scroll">
+                                        <div class="datepicker no-border"></div>
+                                    </div>
+                                    <!-- /calendar widget -->
+                               </div>
+                            </div>
+                        {% else %}
+                        <span class="text-semibold">No booking details</span>
+                        {% endif %}
+                        <!--./avalibilty-->
+                    </div>
+                    <!--room images-->
+                    <div class="tab-pane has-padding" id="room-images">
+                        <div class="vue_component__upload--image">
+                            <div class="upload_image_form__thumbnails">
+                                {% for image in room.room_images.all %}
+                                <div class="upload_image_form__thumbnail" id="delete-image{{image.pk}}"  >
+
+                                    <img src="{{ image.image.url }}" style="opacity: 9;">
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <!--./room-->
+                    <!--history-->
+                    <div class="tab-pane has-padding" id="room-history">
+                        {% if history %}
+                        <table class="table">
+                            <thead>
+                             <tr class="bg-primary">
+                                <th>Date</th>
+                                <th>Invoice</th>
+                                <th>Price</th>
+                                <th>Customer</th>
+                                <th>Check-in</th>
+                                <th>Check-out</th>
+                             </tr>
+                            </thead>
+                            <tbody>
+                                {% for info in history %}
+                                <tr>
+                                    <td> {{info.created}}</td>
+                                    <td> {{info.invoice_number}}</td>
+                                    <td> {{info.price.gross}}</td>
+                                    <td> {{info.customer.name}}</td>
+                                    <td> {{info.check_in}}</td>
+                                    <td> {{info.check_out}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% endif %}
+                    </div>
+                    <!--./history-->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <a href="{% url 'dashboard:room-edit' pk=room.pk %}" type="button" class="btn btn-primary" >Edit</a>
+    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+
+</div>
+<style>
+    .ui-datepicker-header { display:none }
+</style>
+<script>
+    $('.daterange-basic').daterangepicker({
+        applyClass: 'bg-slate-600',
+        cancelClass: 'btn-default',
+    });
+
+    // Date picker
+    // ------------------------------
+
+    // Default functionality
+    var check_out = "{{book.check_out|date:'Y-m-d'}}";
+    var check_in = "{{book.check_in|date:'Y-m-d'}}";
+
+    $(".datepicker").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat : 'dd-mm-yy',
+        defaultDate: new Date(new Date(moment(check_out)))
+        }).datepicker( "option", "disabled", true );
+    $(".datepicker-check-in").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat : 'dd-mm-yy',
+        defaultDate: new Date(new Date(moment(check_in)))
+        }).datepicker( "option", "disabled", true );
+</script>
