@@ -151,6 +151,15 @@
             </div>
         </div>
     </div>
+    {% else %}
+    <div class="animated bounceIn">
+        <div class="panel-body">
+             <div class="alert alert-warning no-border text-center">
+                 <button type="button" class="close" data-dismiss="alert"><span>×</span><span class="sr-only">Close</span></button>
+                <span class="text-semibold">Heads up!</span> Add <a href="{% url 'dashboard:room-add' %}" class="alert-link text-primary"> rooms</a>, no rooms found.
+            </div>
+        </div>
+    </div>
     {% endif %}
 </div>
 <!--booking modal-->
