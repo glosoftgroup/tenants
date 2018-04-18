@@ -563,3 +563,50 @@ class VariantImage(models.Model):
         verbose_name = pgettext_lazy(
             'Variant image model', 'variant image')
         verbose_name_plural = pgettext_lazy('Variant image model', 'variant images')
+
+
+@python_2_unicode_compatible
+class Maintenance(models.Model):
+    room = models.ForeignKey(
+        Room, related_name='maintenance', null=True, blank=True,
+        verbose_name=pgettext_lazy('Maintenance field', 'room'))
+    issue = models.CharField(
+        pgettext_lazy('Maintenance field', 'issue'), max_length=255, null=True, blank=True)
+    is_fixed = models.BooleanField(
+        pgettext_lazy('Maintenance field', 'status'), default=False)
+    paid_by = models.CharField(
+        pgettext_lazy('Maintenance field', 'the one to pay for the damages'),
+        max_length=255, null=True, blank=True)
+    cost = models.CharField(
+        pgettext_lazy('Maintenance field', 'cost'),
+        max_length=255, null=True, blank=True)
+    date_reported = models.CharField(
+        pgettext_lazy('Maintenance field', 'date_reported'),
+        max_length=255, null=True, blank=True)
+    date_resolved = models.CharField(
+        pgettext_lazy('Maintenance field', 'date_resolved'),
+        max_length=255, null=True, blank=True)
+
+    created = models.DateTimeField(
+        pgettext_lazy('Maintenance field', 'created'),
+        default=now, editable=False)
+    updated_at = models.DateTimeField(
+        pgettext_lazy('Maintenance field', 'updated at'), auto_now=True, null=True)
+
+    objects = models.Manager()
+
+    class Meta:
+        app_label = 'room'
+
+    def __str__(self):
+        return self.issue
+
+    def get_tenant(self):
+        tenant = None
+        if self.room:
+            try:
+                tenant = self.room.booking_room.customer.name
+            except:
+                tenant = None
+
+        return tenant

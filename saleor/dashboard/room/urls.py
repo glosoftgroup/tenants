@@ -26,6 +26,9 @@ urlpatterns = [
     url(r'^search/$', views.searchs, name='room-search'),
     url(r'^update/(?P<pk>[0-9]+)/$', views.edit, name='room-edit'),
 
+    #maintenance
+    url(r'^maintenance/(?P<pk>[0-9]+)/$', views.maintain, name='room-maintain'),
+
 
     ]
 

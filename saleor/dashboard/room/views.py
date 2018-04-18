@@ -11,7 +11,7 @@ from django.utils.http import is_safe_url
 from ..views import staff_member_required
 from saleor.room.models import Room as Table
 from saleor.booking.models import Book, BookingHistory
-from saleor.room.models import RoomAmenity, RoomImage, Package, Pricing
+from saleor.room.models import RoomAmenity, RoomImage, Package, Pricing, Maintenance
 from saleor.site.models import SiteSettings
 from .forms import RoomImageForm
 from ...decorators import user_trail
@@ -394,4 +394,40 @@ def searchs(request):
                     'sz': sz,
                     'q': q}
             return TemplateResponse(request, 'dashboard/room/search.html', data)
+
+'''
+------------------
+Maintenance
+------------------'''
+
+@staff_member_required
+def maintain(request, pk=None):
+    room = get_object_or_404(Table, pk=pk)
+    pricing = Pricing.objects.get(room__pk=room.pk)
+    issues = Maintenance.objects.filter(room=room)
+    if request.method == 'GET':
+        from ...customer.models import Customer
+        user = get_object_or_404(Customer, pk=4)
+
+        ctx = {'table_name': table_name, 'room': room, 'pricing': pricing, 'issues': issues, 'user': user,}
+        return TemplateResponse(request, 'dashboard/room/maintenance/maintain.html', ctx)
+    if request.method == 'POST':
+        try:
+            if request.POST.get('name'):
+                room.name = request.POST.get('name')
+            if request.POST.get('price'):
+                room.number = request.POST.get('price')
+                room.save()
+                user_trail(request.user.name, 'updated room : '+ str(room.name),'edit')
+                info_logger.info('updated room : '+ str(room.name))
+                return HttpResponse('success')
+            else:
+                return HttpResponse('invalid response')
+        except Exception, e:
+            error_logger.error(e)
+            print e
+            return HttpResponse(e)
+
+   
+
 
