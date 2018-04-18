@@ -89,9 +89,9 @@ def add(request):
             instance.active = b(int(request.POST.get('active')))
         instance.user = request.user
         instance.save()
-        if request.POST.get('room'):
+        if request.POST.get('room_pk'):
             try:
-                room = Room.objects.get(pk=int(request.POST.get('room')))
+                room = Room.objects.get(pk=int(request.POST.get('room_pk')))
                 instance.room = room
                 history.room = room
                 room.is_booked = True
@@ -188,6 +188,7 @@ def invoice(request, pk=None):
     if pk:
         payment_options = PaymentOption.objects.all()
         instance = Table.objects.filter(room__pk=pk).first()
+        print instance
         ctx = {'table_name': table_name, 'instance': instance, 'payment_options': payment_options}
         return TemplateResponse(request, 'dashboard/' + table_name.lower() + '/invoice.html', ctx)
     return HttpResponse('Invalid Request. Booking id required')

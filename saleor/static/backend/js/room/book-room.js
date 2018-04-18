@@ -33,10 +33,10 @@ $(function() {
     var pageUrls = $('.pageUrls');
     var roomUrl = pageUrls.data('roomdata');
     var getRoomsUrl = pageUrls.data('getroomsurl');
-    var getCustomerUrl = pageUrls.data('getcustomerurl');
+    var getCustomerUrl = '/dashboard/booking/fetch/customers/';
     var roomListUrl = pageUrls.data('bookingurl');
     var computeTotalPriceUrl = pageUrls.data('computetotal');
-    var createBookingUrl = pageUrls.data('instancedata');
+    var createBookingUrl = '/dashboard/booking/add/'; // pageUrls.data('instancedata');
 
     // refresh dom elements
     var newAmenitiesDiv = $('#add_new_amenities');
@@ -52,7 +52,7 @@ $(function() {
     var name = bookingForm.find('#name');
     var roomId = bookingForm.find('#room_id');
     var description = bookingForm.find('#description');
-    var price  = bookingForm.find('#price');
+    var price  = bookingForm.find('#booking_price');
     var priceType = bookingForm.find('#price_type');
     var totalPrice = bookingForm.find('#total_price');
     var addRoomBtn = bookingForm.find('#add-room-btn');
@@ -67,6 +67,9 @@ $(function() {
     var mobile = bookingForm.find('#mobile');
     var checkInDate = bookingForm.find('#check_in');
     var checkOutDate = bookingForm.find('#check_out');
+
+    // price assigned to property per month
+    var realPrice = bookingForm.find('#real_price');
 
     //    remove help block
     name.on('focusin',function(){
@@ -122,32 +125,16 @@ $(function() {
     });
 
       //sends rooms id: response total cost of selected rooms
-      function computeTotalPrice(roomsArr,days=null){
-        dynamicData = {};
-        dynamicData['rooms'] = JSON.stringify(roomsArr);
-        dynamicData['price_type'] = priceType.val();
-        try{
-            room.val(roomsArr[0]);
-        }catch(error){
-            console.error(error);
-        }
-
+      function computeTotalPrice(days=null){
         if(!days){
-            dynamicData['days'] = daysId.val();
+            totalCost = daysId.val * realPrice.val();
+            price.val(totalCost);
+            totalPrice.val(totalCost);
         }else{
-            dynamicData['days'] = days;
+            totalCost = days * realPrice.val();
+            price.val(totalCost);
+            totalPrice.val(totalCost);
         }
-
-        ajaxSky(dynamicData,computeTotalPriceUrl,'post')
-        .done(function(response){
-            totalCost = response.price;
-            price.val(response.price);
-            totalPrice.val(response.price)
-            return response.price;
-        })
-        .fail(function(){
-         return 0;
-        });
       }
 
       /* compute price on price type change */
@@ -299,7 +286,7 @@ $(function() {
     }
 
     $('.days').on('keyup', function(){
-        computeTotalPrice(rooms.val(),daysId.val());
+        computeTotalPrice(daysId.val());
         checkOut.val(addDays(checkIn.val(),daysId.val()));
     });
 
@@ -362,7 +349,7 @@ $(function() {
                       theme: 'bg-success'
                     });
                     if(!boolRedirect.val()){
-                       window.location.href = roomListUrl;
+                       // window.location.href = roomListUrl;
                     }else{
                        $('#ribbon'+boolRedirect.data('pk')).removeClass('hidden');
                        $('#available'+boolRedirect.data('pk')).html('Available on '+data.check_out);

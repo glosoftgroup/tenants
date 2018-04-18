@@ -5,11 +5,11 @@
 {% load prices_i18n %}
 
 {% block title %}
-  {{ table_name }}
+  Properties
 {% endblock %}
 
  {% block breadcrumbs %}
-     <li class="active"><a href="{% url 'dashboard:room-list' %}">{{ table_name }} </a></li>
+     <li class="active"><a href="{% url 'dashboard:room-list' %}">Properties </a></li>
  {% endblock %}
 
 
@@ -77,7 +77,7 @@
               </div>
             </div>
             <div class="col-md-4">
-             <label>Search {{ table_name }}</label>
+             <label>Search Properties</label>
               <div class="form-group form-group-material has-feedback">
                 <input class="form-control search_user" placeholder="Search ..." type="text">
                 <div class="form-control-feedback">
@@ -108,8 +108,6 @@
                     <th>Type</th>
                     <th>Price</th>
                     <th>Service Charges</th>
-                    <th>Amenities</th>
-
                     {% if perms.room.delete_room %}
                     <th class="text-center">Options</th>
                     {% endif %}
@@ -148,7 +146,7 @@
 
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
                         {% if option.price %}
-                           {{ option.price.gross }} {{ option.price.currency }}
+                           {{ option.price.gross }}
                         {% endif %}
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
@@ -156,14 +154,7 @@
                            {{ option.service_charges }}
                         {% endif %}
                     </td>
-                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                        {% if option.amenities.all %}
-                         {{option.amenities.all|join:", "}}
-                        {% endif %}
 
-                    </td>
-
-                    
                     {% if perms.sale.delete_room %}
                     <!-- actions -->
                     <td class="text-center">
@@ -474,7 +465,7 @@
       $('body').on('click', '.td', function(){
           <!--window.location = $(this).data("href");-->
           var url = $(this).data('href');
-          //var modal = $(this).data('m');
+           var modal = $(this).data('m');
           //var modalTitle = $(this).data('mtitle');
            $(modal+' .modal-title').html(modalTitle);
 

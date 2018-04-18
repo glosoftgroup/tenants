@@ -22,9 +22,7 @@
 
 {% block custom_css %}
 <style>
-  .error {
-    color:red;
-}
+  .error { color:red;}
 </style>
 
 <link href="{% static 'backend/js/plugins/tokenize/tokenize2.css' %}" rel="stylesheet" type="text/css">
@@ -157,7 +155,7 @@
        data-getroomsurl="{% url 'dashboard:fetch-rooms' %}"
        data-getcustomerurl="{% url 'dashboard:fetch-customers-token' %}"
        data-computetotal="{% url 'dashboard:compute-room-price' %}"
-       data-instancedata="{% url 'dashboard:booking-add' %}">
+       data-instancedata="{% url 'dashboard:booking-add' %}" >
 {% endblock%}
 {% block custom_js %}
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
