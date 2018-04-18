@@ -148,7 +148,7 @@ def book(request):
 def delete(request, pk=None):
     global table_name
     option = get_object_or_404(Table, pk=pk)
-    if request.method == 'POST':
+    if request.method == 'POST' or request.method == 'DELETE':
         try:
             option.delete()
             data = {
