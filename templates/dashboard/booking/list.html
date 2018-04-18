@@ -113,94 +113,93 @@
             <div class="col-md-12">
                 <h5 class="text-center text-bold">Room Booking List</h5>
             </div>
-        <div class="">
-          <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
-                <thead>
-                  <tr class="bg-primary">
-                    <th>Invoice</th>
-                    <th>Room</th>
-                    <th>Days</th>
-                    <th>Check-in</th>
-                    <th>Check-out</th>
-                    <th>Customer</th>
-                    <th>Cost</th>
+            <div class="">
+              <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
+                    <thead>
+                      <tr class="bg-primary">
+                        <th>Invoice</th>
+                        <th>Room</th>
+                        <th>Days</th>
+                        <th>Check-in</th>
+                        <th>Check-out</th>
+                        <th>Customer</th>
+                        <th>Cost</th>
 
-                    {% if perms.room.delete_room %}
-                    <th class="text-center">Options</th>
-                    {% endif %}
-                  </tr>
-                </thead>
-                <tbody id="tb">
-                <!--loader-->
-                <tr v-if="loader" class="text-center">
-                    <td colspan="8">
-                        <div class="pace-demo">
-                            <div class="theme_xbox"><div class="pace_progress" data-progress-text="60%" data-progress="60"></div><div class="pace_activity"></div></div>
-                        </div>
-                    </td>
-                </tr>
-                <!--no data template-->
-                <template  v-else>
-                <tr v-if="items.length == 0" class="text-center">
-                    <td colspan="8" class="text-bold animated zoomIn">
-                        No Data Found !
-                    </td>
-                </tr>
-                </template>
-                <!--listing template-->
-                <template v-for="item in items">
-                    <tr>
-                        <td>
-                            ${item.invoice_number}<br>
-                            <span v-show="item.active"><mark>active</mark></span>
+                        {% if perms.room.delete_room %}
+                        <th class="text-center">Options</th>
+                        {% endif %}
+                      </tr>
+                    </thead>
+                    <tbody id="tb">
+                    <!--loader-->
+                    <tr v-if="loader" class="text-center">
+                        <td colspan="8">
+                            <div class="pace-demo">
+                                <div class="theme_xbox"><div class="pace_progress" data-progress-text="60%" data-progress="60"></div><div class="pace_activity"></div></div>
+                            </div>
                         </td>
-                        <td>${item.room_name}</td>
-                        <td>${item.days}</td>
-                        <td>${item.date_in}</td>
-                        <td>${item.date_out}</td>
-                        <td>${item.customer_name}</td>
-                        <td>${item.price_amount}</td>
-
-                        <!-- actions -->
-                        <style>
-                        .is-open {
-                            z-index: 100 !important;
-                            }
-                         .input-group .btn-group .form-control, .input-group-btn .btn { z-index: inherit !important; }</style>
-                        <td class="text-center">
-                            <div class="btn-group">
-                            <button  type="button" class="btn btn-default dropdown-toggle legitRipple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            action <span class="roomet"></span>
-                            </button>
-                            <ul class="dropdown-menu edit-dropdown" >
-                                <li class="td">
-                                    <a :href="item.booking_detail">
-                                    <i class="icon-eye2"></i>
-                                    Detail</a>
-                                </li>
-                                <li class="td">
-                                    <a :href="item.booking_edit">
-                                    <i class="icon-pencil7"></i>
-                                    EDIT</a>
-                                </li>
-                                <li>
-                                    <a data-ta="#modal_instance" @click="deleteBooking(item.booking_delete,item.id)" data-title="" :data-href="item.booking_edit" data-id="${item.id}"
-                                     class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
-                                    </a>
-                                </li>
-
-                            </ul>
-                          </div>
-                        </td>
-
                     </tr>
-                </template>
+                    <!--no data template-->
+                    <template  v-else>
+                    <tr v-if="items.length == 0" class="text-center">
+                        <td colspan="8" class="text-bold animated zoomIn">
+                            No Data Found !
+                        </td>
+                    </tr>
+                    </template>
+                    <!--listing template-->
+                    <template v-for="item in items">
+                        <tr>
+                            <td>
+                                ${item.invoice_number}<br>
+                                <span v-show="item.active"><mark>active</mark></span>
+                            </td>
+                            <td>${item.room_name}</td>
+                            <td>${item.days}</td>
+                            <td>${item.date_in}</td>
+                            <td>${item.date_out}</td>
+                            <td>${item.customer_name}</td>
+                            <td>${item.price_amount}</td>
+
+                            <!-- actions -->
+                            <style>
+                            .is-open {
+                                z-index: 100 !important;
+                                }
+                             .input-group .btn-group .form-control, .input-group-btn .btn { z-index: inherit !important; }</style>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                <button  type="button" class="btn btn-default dropdown-toggle legitRipple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                action <span class="roomet"></span>
+                                </button>
+                                <ul class="dropdown-menu edit-dropdown" >
+                                    <li class="td">
+                                        <a :href="item.booking_detail">
+                                        <i class="icon-eye2"></i>
+                                        Detail</a>
+                                    </li>
+                                    <li class="td">
+                                        <a :href="item.booking_edit">
+                                        <i class="icon-pencil7"></i>
+                                        EDIT</a>
+                                    </li>
+                                    <li>
+                                        <a data-ta="#modal_instance" @click="deleteBooking(item.booking_delete,item.id)" data-title="" :data-href="item.booking_edit" data-id="${item.id}"
+                                         class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
+                                        </a>
+                                    </li>
+
+                                </ul>
+                              </div>
+                            </td>
+
+                        </tr>
+                    </template>
 
 
-                </tbody>
-           </table>
-
-        </div>
+                    </tbody>
+               </table>
+            </div>
         </div>
 
          <style type="text/css">

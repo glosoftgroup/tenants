@@ -83,6 +83,35 @@
         height: 68px;
     }
 </style>
+<style type="text/css">
+      .theme_xbox .pace_activity, .theme_xbox .pace_activity::after, .theme_xbox .pace_activity::before, .theme_xbox_sm .pace_activity, .theme_xbox_sm .pace_activity::after, .theme_xbox_sm .pace_activity::before, .theme_xbox_xs .pace_activity, .theme_xbox_xs .pace_activity::after, .theme_xbox_xs .pace_activity::before {
+        border-radius: 50%;
+        border: 1px solid transparent;
+            border-top-width: 1px;
+            border-right-width: 1px;
+            border-bottom-width: 1px;
+            border-left-width: 1px;
+            border-top-color: transparent;
+        border-top-color: #1649fc;
+    }
+    .pace-demo {
+        background-color:#fff;
+    }
+    @media print {
+       #printBtn {
+          display: none;
+       }
+       #addPayment {
+          display: none;
+       }
+       .media-none {
+          display: none;
+       }
+       #media-none {
+          display: none;
+       }
+    }
+   </style>
 <style>
     .error{color:red;}
 </style>
@@ -248,7 +277,280 @@
                     </div>
                     <!--./room details-->
                 </div>
+                <!--booking tab-->
+                <div class="tab-pane " id="room-booking">
+                    <div class="panelbody">
+                        <div class="tabbable">
+                            <ul class="nav nav-pills nav-pills-toolbar">
+                                <li class="active"><a href="#toolbar-list" id="pill-toolbar-list" data-toggle="tab" class="legitRipple" aria-expanded="true">List</a></li>
+                                <li class=""><a href="#toolbar-add" id="pill-toolbar-add" data-toggle="tab" class="legitRipple" aria-expanded="false">Add</a></li>
 
+                            </ul>
+
+                            <div class="tab-content">
+                                <div class="tab-pane active" id="toolbar-list">
+                                    <div >
+                                         <!--listbooks-->
+                                        <div class="panel panel-flat" id="vue-list">
+                                            <div class="panel-body no-padding">
+
+                                                <div class="">
+                                                  <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
+                                                        <thead>
+                                                          <tr class="bg-primary">
+                                                            <th>Invoice</th>
+                                                            <th>Room</th>
+                                                            <th>Days</th>
+                                                            <th>Check-in</th>
+                                                            <th>Check-out</th>
+                                                            <th>Customer</th>
+                                                            <th>Cost</th>
+
+                                                            {% if perms.room.delete_room %}
+                                                            <th class="text-center">Options</th>
+                                                            {% endif %}
+                                                          </tr>
+                                                        </thead>
+                                                        <tbody id="tb">
+                                                        <!--loader-->
+                                                        <tr v-if="loader" class="text-center">
+                                                            <td colspan="8">
+                                                                <div class="pace-demo">
+                                                                    <div class="theme_xbox"><div class="pace_progress" data-progress-text="60%" data-progress="60"></div><div class="pace_activity"></div></div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <!--no data template-->
+                                                        <template  v-else>
+                                                        <tr v-if="items.length == 0" class="text-center">
+                                                            <td colspan="8" class="text-bold animated zoomIn">
+                                                                No Data Found !
+                                                            </td>
+                                                        </tr>
+                                                        </template>
+                                                        <!--listing template-->
+                                                        <template v-for="item in items">
+                                                            <tr>
+                                                                <td>
+                                                                    ${item.invoice_number}<br>
+                                                                    <span v-show="item.active"><mark>active</mark></span>
+                                                                </td>
+                                                                <td>${item.room_name}</td>
+                                                                <td>${item.days}</td>
+                                                                <td>${item.date_in}</td>
+                                                                <td>${item.date_out}</td>
+                                                                <td>${item.customer_name}</td>
+                                                                <td>${item.price_amount}</td>
+
+                                                                <!-- actions -->
+                                                                <style>
+                                                                .is-open {
+                                                                    z-index: 100 !important;
+                                                                    }
+                                                                 .input-group .btn-group .form-control, .input-group-btn .btn { z-index: inherit !important; }</style>
+                                                                <td class="text-center">
+                                                                    <div class="btn-group">
+                                                                    <button  type="button" class="btn btn-default dropdown-toggle legitRipple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                    action <span class="roomet"></span>
+                                                                    </button>
+                                                                    <ul class="dropdown-menu edit-dropdown" >
+                                                                        <li class="td">
+                                                                            <a :href="item.booking_detail">
+                                                                            <i class="icon-eye2"></i>
+                                                                            Detail</a>
+                                                                        </li>
+                                                                        <li class="td">
+                                                                            <a :href="item.booking_edit">
+                                                                            <i class="icon-pencil7"></i>
+                                                                            EDIT</a>
+                                                                        </li>
+                                                                        <li>
+                                                                            <a data-ta="#modal_instance" @click="deleteBooking(item.booking_delete,item.id)" data-title="" :data-href="item.booking_edit" data-id="${item.id}"
+                                                                             class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
+                                                                            </a>
+                                                                        </li>
+
+                                                                    </ul>
+                                                                  </div>
+                                                                </td>
+
+                                                            </tr>
+                                                        </template>
+
+
+                                                        </tbody>
+                                                   </table>
+                                                </div>
+                                            </div>
+
+                                             <style type="text/css">
+                                               .pagination{margin-bottom: 0px;}
+                                             </style>
+                                             <div class="row mt-15 media-none">
+                                             <div class="col-md-12">
+                                              <div class="col-md-4">
+                                               <div class="col-md-12">
+                                                <div class="col-md-6 mt-10">
+                                                 <label>display list size</label>
+                                                </div>
+                                                <div class="col-md-6 media-none">
+                                                  <div class="form-group">
+                                                     <select v-model="page_size" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                                                        <option value="10" selected>No:</option>
+                                                        <option value="5">5</option>
+                                                        <option value="10">10</option>
+                                                        <option value="20">20</option>
+                                                      </select>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                              </div>
+                                              <div class="col-md-4" id="media-none">
+                                                  <div class="text-center bootpag-callback p2-pag" style="">
+                                                </div>
+                                               </div>
+                                                <div class="col-md-4">
+                                                 <div class="col-md-12 mt-5">
+                                                  <div class="pull-right pages-nav"></div>
+                                                 </div>
+                                                </div>
+                                              </div>
+                                             </div>
+                                             <input type="hidden" id="page_size" val="">
+                                        </div>
+                                        <!--./list books-->
+                                        <!--delete modal-->
+                                        <div id="modal_instance" class="modal fade">
+                                           <div class="modal-dialog modal-sm">
+                                             <div class="modal-content">
+                                               <div class="modal-header bg-blue">
+                                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                 <h6 class="modal-title text-white text-center"></h6>
+                                               </div>
+                                               <div class="modal-body">
+
+
+                                                 <div class="">
+                                                   <h5 class="text-center">
+                                                     Confirm delete !
+                                                   </h5>
+                                                   <input type="hidden" class="item-id" />
+                                                </div>
+
+
+                                                   <div class="modal-footer">
+                                                     <button type="submit" onclick="deleteThis()" id='modal_delete(bak)' class="btn pull-right bg-danger deluu"  data-id="" data-href="">Delete</button>
+                                                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                                                   </div>
+
+                                             </div>
+                                           </div>
+                                         </div>
+                                        <input type="hidden" class="pageUrls"
+                                          data-bookinglisturl="{% url 'booking-api:api-booking-list' %}"
+                                        >
+                                        </div>
+                                        <!--./delete-->
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane" id="toolbar-add">
+                                    <!-- reservation -->
+                                    <div class="vue-book panel panel-body">
+                                     <form id="create-booking-form" enctype="multipart/form-data" novalidate>
+                                        <div class="col-md-6">
+                                            <div class="form-group hidden">
+                                                {% csrf_token %}
+                                            </div>
+
+                                            <div class="form-group">
+                                                <div class="row">
+                                                    <div class="col-md-4">
+                                                      <label>Check-in Date:</label>
+                                                      <div class="input-group">
+                                                        <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                                        <input required="required" type="text" name="check_in" id="check_in"  class="form-control check-in" {% if instance.id %} value='{{instance.check_in|date:"c"}}' {% endif %}>
+                                                      </div>
+                                                    </div>
+
+                                                   <div class="col-md-4">
+                                                       <label>Check-out Date:</label>
+                                                      <div class="input-group">
+                                                        <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                                        <input required="required" type="text" name="check_out" id="check_out" class="form-control check-out" {% if instance.id %} value="{{instance.check_out|date:'c'}}" {% endif %}>
+                                                      </div>
+                                                    </div>
+                                                    <div class="col-md-3">
+                                                      <label class="text-right">Months:</label>
+                                                      <div class="input-group">
+                                                        <span class="input-group-addon"><i class="icon-comma"></i></span>
+                                                        <input required="required" name="days" type="number" id="days" @change="computeCheckout()" v-model.number="days" class="form-control days" {% if instance.id %} value="{{instance.days}}" {% endif %}>
+                                                      </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Price:<span class="text-danger">*</span></label>
+                                                <input required="required" disabled="disabled" class="form-control" id="booking_price" name="price" {% if room.id %} value="{{room.price.gross}}" {% endif %} placeholder="Price" type="number">
+                                                <input required="required" class="form-control hidden" id="total_price" {% if instance.id %} value="{{instance.price}}" {% endif %} name="total_price" placeholder="hidden" type="hidden">
+                                                <input required="required" class="form-control hidden" id="room" name="room" placeholder="hidden" type="hidden">
+                                                <span class="help-block text-warning"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                    <label>Search Guest:<span class="text-danger">*</span></label>
+                                                    <select name="customer" class="customer hidden" multiple></select>
+                                                    <span class="help-block text-warning"></span>
+                                                </div>
+                                                <!--customer details-->
+                                                <div class="form-group">
+                                                    <label class="control-label">Guest Details:<span class="text-danger">*</span></label>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <input required="required" {% if instance.id %} value="{{instance.customer.name}}"{% endif %}  placeholder="Name" id="c_name" name="c_name" class="form-control" type="text">
+                                                        </div>
+
+                                                        <div class="col-md-6">
+                                                            <input required="required" placeholder="Phone" id="mobile" name="mobile" class="form-control" type="text" {% if instance.id %} value="{{instance.customer.mobile}}"{% endif %}>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="col-md-4">
+                                                       <label>Adults:</label>
+                                                      <div class="input-group">
+                                                        <span class="input-group-addon"><i class="icon-user"></i></span>
+                                                        <input type="number" {% if instance.id %} value="{{instance.adult}}" {% else %} value="1" {% endif %} placeholder="Adults" name="adult" id="adult" class="form-control ">
+                                                      </div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                      <label>Children:</label>
+                                                      <div class="input-group">
+                                                        <span class="input-group-addon"><i class="icon-users"></i></span>
+                                                        <input type="number" id="child" {% if instance.id %} value="{{instance.child}}" {% endif %} placeholder="No children" name="child" class="form-control">
+                                                      </div>
+                                                    </div>
+                                                </div>
+                                                </div>
+
+                                        <input type="hidden" id="room_pk" name="room_pk" {% if room.pk %} value="{{room.pk}}" {% endif %}>
+                                        <input type="hidden" id="real_price" name="real_price" {% if room.pk %} value="{{room.price.gross}}" {% endif %}>
+                                        <input type="hidden" id="pk" name="pk" {% if instance.id %} value="{{instance.id}}" {% endif %}>
+                                        <div class="text-right col-md-12">
+                                            <button id="create-book-btn" type="submit" class="btn btn-primary legitRipple">{% if room.id %}Submit{% else %}Submit{% endif %} <i class="icon-arrow-right14 position-right"></i></button>
+                                        </div>
+                                     </form>
+                                    </div>
+                                    <!--/reservation-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--image tab-->
                 <div class="tab-pane has-padding" id="room-images">
                     <!--image -->
                      <div class="panel panel-flat animated fadeIn" >
@@ -278,97 +580,7 @@
 
                 </div>
 
-                <div class="tab-pane has-padding" id="room-booking">
-                    <!-- reservation -->
-                    <div class="vue-book">
-                     <form id="create-booking-form" enctype="multipart/form-data" novalidate>
-                        <div class="col-md-6">
-                            <div class="form-group hidden">
-                                {% csrf_token %}
-                            </div>
 
-                            <div class="form-group">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                      <label>Check-in Date:</label>
-                                      <div class="input-group">
-                                        <span class="input-group-addon"><i class="icon-calendar22"></i></span>
-                                        <input required="required" type="text" name="check_in" id="check_in"  class="form-control check-in" {% if instance.id %} value='{{instance.check_in|date:"c"}}' {% endif %}>
-                                      </div>
-                                    </div>
-
-                                   <div class="col-md-4">
-                                       <label>Check-out Date:</label>
-                                      <div class="input-group">
-                                        <span class="input-group-addon"><i class="icon-calendar22"></i></span>
-                                        <input required="required" type="text" name="check_out" id="check_out" class="form-control check-out" {% if instance.id %} value="{{instance.check_out|date:'c'}}" {% endif %}>
-                                      </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                      <label class="text-right">Months:</label>
-                                      <div class="input-group">
-                                        <span class="input-group-addon"><i class="icon-comma"></i></span>
-                                        <input required="required" name="days" type="number" id="days" @change="computeCheckout()" v-model.number="days" class="form-control days" {% if instance.id %} value="{{instance.days}}" {% endif %}>
-                                      </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Price:<span class="text-danger">*</span></label>
-                                <input required="required" disabled="disabled" class="form-control" id="booking_price" name="price" {% if room.id %} value="{{room.price.gross}}" {% endif %} placeholder="Price" type="number">
-                                <input required="required" class="form-control hidden" id="total_price" {% if instance.id %} value="{{instance.price}}" {% endif %} name="total_price" placeholder="hidden" type="hidden">
-                                <input required="required" class="form-control hidden" id="room" name="room" placeholder="hidden" type="hidden">
-                                <span class="help-block text-warning"></span>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                    <label>Search Guest:<span class="text-danger">*</span></label>
-                                    <select name="customer" class="customer hidden" multiple></select>
-                                    <span class="help-block text-warning"></span>
-                                </div>
-                                <!--customer details-->
-                                <div class="form-group">
-                                    <label class="control-label">Guest Details:<span class="text-danger">*</span></label>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <input required="required" {% if instance.id %} value="{{instance.customer.name}}"{% endif %}  placeholder="Name" id="c_name" name="c_name" class="form-control" type="text">
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <input required="required" placeholder="Phone" id="mobile" name="mobile" class="form-control" type="text" {% if instance.id %} value="{{instance.customer.mobile}}"{% endif %}>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <div class="col-md-4">
-                                       <label>Adults:</label>
-                                      <div class="input-group">
-                                        <span class="input-group-addon"><i class="icon-user"></i></span>
-                                        <input type="number" {% if instance.id %} value="{{instance.adult}}" {% else %} value="1" {% endif %} placeholder="Adults" name="adult" id="adult" class="form-control ">
-                                      </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                      <label>Children:</label>
-                                      <div class="input-group">
-                                        <span class="input-group-addon"><i class="icon-users"></i></span>
-                                        <input type="number" id="child" {% if instance.id %} value="{{instance.child}}" {% endif %} placeholder="No children" name="child" class="form-control">
-                                      </div>
-                                    </div>
-                                </div>
-                                </div>
-
-                        <input type="hidden" id="room_pk" name="room_pk" {% if room.pk %} value="{{room.pk}}" {% endif %}>
-                        <input type="hidden" id="real_price" name="real_price" {% if room.pk %} value="{{room.price.gross}}" {% endif %}>
-                        <input type="hidden" id="pk" name="pk" {% if instance.id %} value="{{instance.id}}" {% endif %}>
-                        <div class="text-right col-md-12">
-                            <button id="create-book-btn" type="submit" class="btn btn-primary legitRipple">{% if room.id %}Edit{% else %}Book{% endif %} <i class="icon-arrow-right14 position-right"></i></button>
-                        </div>
-                     </form>
-                    </div>
-                    <!--/reservation-->
-                </div>
             </div>
         </div>
     </div>
@@ -376,6 +588,7 @@
 
 
 <input type="hidden" class="pageUrls"
+       data-bookinglisturl="{% url 'booking-api:api-booking-list' %}"
        data-roomurl="{% url 'dashboard:room-list' %}"
        data-amenitiesurl="{% url 'dashboard:fetch-amenities' %}"
        data-addamenitiesurl="{% url 'dashboard:add-amenities' %}"
@@ -415,7 +628,7 @@
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/datetimepicker/bootstrap-datetimepicker.min.js' %}"></script>
-
+<script type="text/javascript" src="{% static 'backend/js/plugins/pagination/jquery.twbsPagination.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/room/add-room.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/tokenize/tokenize2.js' %}"></script>
@@ -426,6 +639,7 @@
 <script type="text/javascript" src="{% static 'backend/js/room/vue/add_app.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/booking/vue/booking.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/room/book-room.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/booking/vue/listing-single.js' %}"></script>
 <script>
 
 
@@ -451,7 +665,7 @@
         radioClass: 'choice',
         wrapperClass: 'border-primary-600 text-primary-800'
     });
-
+    $('.bootstrap-select').selectpicker();
     //  disable image tab when room is not added
     var tabImages = $('#tab-images');
     {% if not room.pk %}

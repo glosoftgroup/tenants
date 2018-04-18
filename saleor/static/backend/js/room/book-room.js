@@ -26,7 +26,7 @@ function ajaxSky(dynamicData,url,method){
 /* global variables */
 var dynamicData = {};
 var today = moment().format('YYYY-MM-DD');
-var tomorrow = moment().add(1, 'days').format('YYYY-MM-DD');
+var tomorrow = moment().add(1, 'months').format('YYYY-MM-DD');
 
 $(function() {
     //  urls
@@ -117,7 +117,8 @@ $(function() {
         .done(function(data){
             rooms.parents('div').find('li.token').remove();
             rooms.val('');
-            window.location.href = roomListUrl;
+            // window.location.href = roomListUrl;
+            console.log('data added ');
         })
         .fail(function(error){
             console.log('error');
@@ -348,8 +349,11 @@ $(function() {
                       header: 'Well done!',
                       theme: 'bg-success'
                     });
+
                     if(!boolRedirect.val()){
                        // window.location.href = roomListUrl;
+                       parentList.inputChangeEvent();
+                       document.getElementById('pill-toolbar-list').click();
                     }else{
                        $('#ribbon'+boolRedirect.data('pk')).removeClass('hidden');
                        $('#available'+boolRedirect.data('pk')).html('Available on '+data.check_out);
