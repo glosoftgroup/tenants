@@ -63,10 +63,10 @@
         <a class="btn btn-primary pull-right legitRipple" data-url="" href="{% url 'dashboard:room-edit' pk=room.pk %}"><i class="icon-pencil position-left"></i> EDIT</a>
   </div>
   <div class="col-md-3">
-  {% include 'dashboard/customer/partials/profile.html' with customer=user %}
+  {% include 'dashboard/room/maintenance/partials/profile.html' with customer=user room=room %}
   </div>
   <div class="col-md-9">
-  {% include 'dashboard/customer/partials/report_summary.html' with customer=user %}
+  {% include 'dashboard/room/maintenance/partials/report_summary.html' with customer=user %}
   </div>
   
 

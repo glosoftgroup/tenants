@@ -4,11 +4,19 @@
    <div class="col-md-12">
       <div class="panel panel-flat">
         <div class="panel-body  search-panel">
-
+            <div class="col-md-2">
+              <label style="visibility: hidden;"> add</label>
+              <div class="form-group">
+                {% if perms.sale.add_paymentoption %}
+                  <a href="{% url 'dashboard:room-add' %}"  class=" btn-primary btn-lg hvr-glow btn-raised legitRipple">
+                      <i class="icon-plus2"></i> ADD</a>
+                {% endif %}
+              </div>
+            </div>
             <div class="col-md-4">
              <label>Search</label>
               <div class="form-group form-group-material has-feedback">
-                <input class="form-control" v-model="search" @keyup="inputChangeEvent" placeholder="Search (invoice | room name)" type="text">
+                <input class="form-control" v-model="search" @keyup="inputChangeEvent" placeholder="Search (issue | room name)" type="text">
                 <div class="form-control-feedback">
                   <i class="icon-search4 text-size-base"></i>
                 </div>
@@ -19,8 +27,8 @@
                  <label>Status</label>
                  <select v-model="status" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
                     <option value="all" selected>All</option>
-                    <option value="True">Booked</option>
-                    <option value="False">Not Booked</option>
+                    <option value="True">Fixed</option>
+                    <option value="False">Not Fixed</option>
                   </select>
               </div>
             </div>
@@ -56,7 +64,7 @@
       <div class="panel panel-flat" id="printme">
         <div class="panel-body">
             <div class="col-md-12">
-                <h5 class="text-center text-bold">Room Booking List</h5>
+                <h5 class="text-center text-bold">Maintenance Issues</h5>
             </div>
         <div class="">
           <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
