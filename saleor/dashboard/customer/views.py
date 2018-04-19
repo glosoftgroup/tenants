@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, Min, Sum, Avg, F, Q
 
 from ..views import staff_member_required
-from ...customer.models import Customer, AddressBook
+from ...customer.models import Customer, AddressBook, Payment
 from ...sale.models import (Sales, SoldItem)
 from ...credit.models import Credit
 from ...decorators import permission_decorator, user_trail
@@ -507,4 +507,35 @@ def dependency_delete(request, pk):
     return TemplateResponse(request,
                             'dashboard/customer/modal_delete.html',
                             ctx)
+
+@staff_member_required
+def pay(request):
+    # global table_name
+    # # create instance
+    # instance = Payment()
+    # if request.method == 'POST':
+    #     if request.POST.get('invoice_number'):
+    #         instance.invoice_number = request.POST.get('invoice_number')
+    #     if request.POST.get('issue'):
+    #         issue = Maintenance.objects.get(pk=int(request.POST.get('issue')))
+    #         instance.issue = issue
+    #     if request.POST.get('amount_paid'):
+    #         instance.amount_paid = request.POST.get('amount_paid')
+    #     if request.POST.get('date'):
+    #         instance.date = request.POST.get('date')
+    #     if request.POST.get('description'):
+    #         instance.description = request.POST.get('description')
+    #     instance.save()
+    #     issue.amount_paid = issue.amount_paid.gross + instance.amount_paid.gross
+    #     issue.balance = issue.balance.gross - instance.amount_paid.gross
+    #     if (issue.balance.gross - instance.amount_paid.gross) == 0:
+    #         issue.is_fixed = True
+    #         issue.date_resolved = datetime.datetime.today().strftime('%Y-%m-%d')
+    #     issue.save()
+    #     data = {'balance': float(issue.balance.gross),
+    #             'total_paid': float(issue.amount_paid.gross)}
+
+    #     return HttpResponse(json.dumps(data), content_type='application/json')
+
+    return HttpResponse('Invalid request method')
 

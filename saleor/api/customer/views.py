@@ -1,5 +1,7 @@
 from django.db.models import Q
 from rest_framework import pagination
+from rest_framework.request import Request
+from rest_framework.response import Response
 from rest_framework import generics
 from django.contrib.auth import get_user_model
 
@@ -8,9 +10,11 @@ from .serializers import (
      CustomerListSerializer,
      CreditWorthyCustomerSerializer,
      CustomerUpdateSerializer,
+     PaymentListSerializer
      )
 
 from ...customer.models import Customer as Table
+from saleor.customer.models import Payment
 import logging
 
 User = get_user_model()
@@ -78,3 +82,15 @@ class CustomerPagListAPIView(generics.ListAPIView):
                 Q(email__icontains=query)
                 ).distinct()
         return queryset_list
+
+class PaymentListAPIView(generics.ListAPIView):
+    serializer_class = PaymentListSerializer
+    queryset = Payment.objects.all()
+
+    def list(self, request, pk=None):
+        serializer_context = {
+            'request': Request(request),
+        }
+        queryset = self.get_queryset().filter(customer__pk=pk)
+        serializer = PaymentListSerializer(queryset, context=serializer_context, many=True)
+        return Response(serializer.data)
