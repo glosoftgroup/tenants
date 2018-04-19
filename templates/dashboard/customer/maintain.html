@@ -1,0 +1,97 @@
+{% extends "dashboard/base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% load prices_i18n %}
+
+{% block title %}
+  Tenant
+{% endblock %}
+{% block breadcrumbs %}
+<li class="active"><a href="{% url 'dashboard:customers' %}">Tenant</a></li>
+<li class="active"><a href="javascript:;">Detail</a></li>
+{% endblock %}
+{% block menu_addCustomer_class %}active{% endblock %}
+
+{% block custom_css %}
+   <style type="text/css">
+      .theme_xbox .pace_activity, .theme_xbox .pace_activity::after, .theme_xbox .pace_activity::before, .theme_xbox_sm .pace_activity, .theme_xbox_sm .pace_activity::after, .theme_xbox_sm .pace_activity::before, .theme_xbox_xs .pace_activity, .theme_xbox_xs .pace_activity::after, .theme_xbox_xs .pace_activity::before {
+        border-radius: 50%;
+        border: 1px solid transparent;
+            border-top-width: 1px;
+            border-right-width: 1px;
+            border-bottom-width: 1px;
+            border-left-width: 1px;
+            border-top-color: transparent;
+        border-top-color: #1649fc;
+    }
+    .pace-demo {
+        background-color:#fff;
+    }
+    @media print {
+       #printBtn {
+          display: none;
+       }
+       #addPayment {
+          display: none;
+       }
+       .media-none {
+          display: none;
+       }
+       #media-none {
+          display: none;
+       }
+    }
+    .customer-details{
+      list-style-type: none;
+      padding-left:0px !important;
+    }
+    .customer-details li {
+        padding: 10px 15px;
+        border-top: 1px solid #efefef;
+    }
+    .customer-details li span{
+      padding-bottom: 15px;
+    }
+   </style>
+ {% endblock %}
+
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12" style="margin-bottom:10px;">
+        <a class="btn btn-primary pull-left legitRipple" href="{% url 'dashboard:customers' %}"><i class="icon-arrow-left13 position-left"></i> Back to Tenants list</a>
+        <a class="btn btn-primary pull-right legitRipple" data-url="" href="{% url 'dashboard:customer-edit' pk=user.pk %}"><i class="icon-pencil position-left"></i> EDIT</a>
+  </div>
+  <div class="col-md-3">
+  {% include 'dashboard/customer/partials/profile.html' with customer=user %}
+  </div>
+  <div class="col-md-9">
+  {% include 'dashboard/customer/partials/report_summary.html' with customer=user %}
+  </div>
+  
+
+</div>
+
+{% endblock %}
+
+{% block custom_js %}
+  <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
+  <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/pagination/jquery.twbsPagination.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/booking/vue/listing.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('.bootstrap-select').selectpicker();
+
+    $('.td').on('click',function(){
+      windows.location.href = $(this).data('href');
+    });
+
+  });
+
+</script>
+{% endblock %}

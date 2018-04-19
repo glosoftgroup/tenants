@@ -4,11 +4,19 @@
    <div class="col-md-12">
       <div class="panel panel-flat">
         <div class="panel-body  search-panel">
-
+            <div class="col-md-2">
+              <label style="visibility: hidden;"> add</label>
+              <div class="form-group">
+                {% if perms.sale.add_paymentoption %}
+                  <a href="javascript:;"  class=" btn-primary btn-sm modalbtn hvr-glow btn-raised legitRipple">
+                      <i class="icon-plus2"></i> ADD ISSUE</a>
+                {% endif %}
+              </div>
+            </div>
             <div class="col-md-4">
              <label>Search</label>
               <div class="form-group form-group-material has-feedback">
-                <input class="form-control" v-model="search" @keyup="inputChangeEvent" placeholder="Search (invoice | room name)" type="text">
+                <input class="form-control" v-model="search" @keyup="inputChangeEvent" placeholder="Search (issue | room name)" type="text">
                 <div class="form-control-feedback">
                   <i class="icon-search4 text-size-base"></i>
                 </div>
@@ -19,8 +27,8 @@
                  <label>Status</label>
                  <select v-model="status" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
                     <option value="all" selected>All</option>
-                    <option value="True">Booked</option>
-                    <option value="False">Not Booked</option>
+                    <option value="True">Fixed</option>
+                    <option value="False">Not Fixed</option>
                   </select>
               </div>
             </div>
@@ -56,19 +64,17 @@
       <div class="panel panel-flat" id="printme">
         <div class="panel-body">
             <div class="col-md-12">
-                <h5 class="text-center text-bold">Room Booking List</h5>
+                <h5 class="text-center text-bold">Maintenance Issues</h5>
             </div>
         <div class="">
           <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
                 <thead>
                   <tr class="bg-primary">
-                    <th>Invoice</th>
-                    <th>Room</th>
-                    <th>Days</th>
-                    <th>Check-in</th>
-                    <th>Check-out</th>
-                    <th>Cost</th>
-
+                    <th>Date Reported</th>
+                    <th>Issue</th>
+                    <th>Chargable</th>
+                    <th>Status</th>
+                    <th>Options</th>
                   </tr>
                 </thead>
                 <tbody id="tb">
@@ -91,17 +97,45 @@
                 <!--listing template-->
                 <template v-for="item in items">
                     <tr>
-                        <td class="td" :data-href="item.booking_detail">
-                            ${item.invoice_number}<br>
+                        <td class="td" :data-href="item.booking_detail" :id='item.id'>
+                            ${item.date_reported}<br>
                             <span v-show="item.active"><mark>active</mark></span>
                         </td>
-                        <td class="td" :data-href="item.booking_detail">${item.room_name}</td>
-                        <td class="td" :data-href="item.booking_detail">${item.days}</td>
-                        <td class="td" :data-href="item.booking_detail">${item.date_in}</td>
-                        <td class="td" :data-href="item.booking_detail">${item.date_out}</td>
-                        <td class="td" :data-href="item.booking_detail">${item.price_amount}</td>
+                        <td class="td" :data-href="item.booking_detail">${item.issue}</td>
+                        <td class="td" :data-href="item.booking_detail">
+                            ${item.is_chargeable} 
+                              <span v-if="item.is_chargeable"> - ${item.cost}</span>
+                            </td>
+                        <td class="td" :data-href="item.booking_detail">
+                          <span class="bg-success btn btn-sm" v-if="item.is_fixed" style="padding: 5px 10px;border-radius: 5px;">Fixed</span>
+                          <span class="bg-warning btn btn-sm"  v-else style="padding: 5px 10px;border-radius: 5px;">Not Fixed</span>
+                        </td>
+                        
+                        <!-- actions -->
+                        <td class="text-center">
+                            <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle legitRipple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            action <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu edit-dropdown">
+                                  <li class="td" v-if="!item.is_fixed">
+                                    <a data-ta="#modal_fix" data-title="" :data-href="item.fix_issue_url" data-id="${item.id}"
+                                     class="apply_fix del-btn"><i class="icon-trash" href="#modal_fix" data-toggle="modal"></i> APPLY FIXTURE
+                                    </a>
+                                  </li>
+                                  <li class="td" v-if="item.is_chargeable"><a :href="item.invoice_url" data-href="item.invoice_url" class="toInvoice"><i class="icon-pencil7"></i>INVOICE</a>
+                                  </li>
+                                  <li class="td"><a href="javascript:;" data-url="item.update_url"><i class="icon-pencil7"></i> EDIT</a>
+                                  </li>
+                                  <li>
+                                      <a data-ta="#modal_instance" data-title="" :data-href="item.delete_url" data-id="${item.id}"
+                                     class="modal-triggers del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
+                                    </a>
+                                  </li>
 
-
+                            </ul>
+                          </div>
+                        </td>
                     </tr>
                 </template>
 
@@ -159,6 +193,6 @@
 
 
 <input type="hidden" class="pageUrls"
-  data-bookinglisturl="{% url 'booking-api:api-customer-booking-list' pk=user.pk %}"
+  data-bookinglisturl="{% url 'maintenance-api:api-room-maintenance-list' pk=room.pk %}"
 >
 <!--end listing-->
