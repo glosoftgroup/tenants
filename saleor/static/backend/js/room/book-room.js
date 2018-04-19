@@ -55,6 +55,7 @@ $(function() {
     var price  = bookingForm.find('#booking_price');
     var priceType = bookingForm.find('#price_type');
     var totalPrice = bookingForm.find('#total_price');
+    var amount = bookingForm.find('#amount')
     var addRoomBtn = bookingForm.find('#add-room-btn');
     var rooms = bookingForm.find('.rooms');
     var room  = bookingForm.find('#room');
@@ -69,7 +70,7 @@ $(function() {
     var checkOutDate = bookingForm.find('#check_out');
 
     // price assigned to property per month
-    var realPrice = bookingForm.find('#real_price');
+    var realPrice = bookingForm.find('#price');
 
     //    remove help block
     name.on('focusin',function(){
@@ -130,13 +131,16 @@ $(function() {
         if(!days){
             totalCost = daysId.val * realPrice.val();
             price.val(totalCost);
+            amount.val(totalCost);
             totalPrice.val(totalCost);
         }else{
             totalCost = days * realPrice.val();
             price.val(totalCost);
+            amount.val(totalCost);
             totalPrice.val(totalCost);
         }
       }
+
 
       /* compute price on price type change */
       priceType.on('change',function(){
@@ -229,7 +233,7 @@ $(function() {
 
     /* customer search token */
     customer.tokenize2({
-        placeholder: 'Select Customer',
+        placeholder: 'Select tenant',
         displayNoResultsMessage:true,
         tokensMaxItems:1,
         //sortable: true,
@@ -351,7 +355,7 @@ $(function() {
                     });
 
                     if(!boolRedirect.val()){
-                       // window.location.href = roomListUrl;
+                       window.location.href = '/dashboard/booking/';
                        parentList.inputChangeEvent();
                        document.getElementById('pill-toolbar-list').click();
                     }else{

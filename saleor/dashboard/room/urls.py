@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^paginate/', views.paginate, name='room_paginate'),
     url(r'^search/$', views.searchs, name='room-search'),
     url(r'^update/(?P<pk>[0-9]+)/$', views.edit, name='room-edit'),
+    url(r'^view/(?P<pk>[0-9]+)/$', views.view, name='room-view'),
 
 
     ]

@@ -89,9 +89,9 @@ def add(request):
             instance.active = b(int(request.POST.get('active')))
         instance.user = request.user
         instance.save()
-        if request.POST.get('room_pk'):
+        if request.POST.get('room_id'):
             try:
-                room = Room.objects.get(pk=int(request.POST.get('room_pk')))
+                room = Room.objects.get(pk=int(request.POST.get('room_id')))
                 instance.room = room
                 history.room = room
                 room.is_booked = True
@@ -112,13 +112,12 @@ def add(request):
         return HttpResponse(json.dumps(data), content_type='application/json')
         #return HttpResponse(json.dumps({'message': 'Invalid method'}))
     else:
-        if request.is_ajax():
-            ctx = {'table_name': table_name}
-            if request.GET.get("room_pk"):
-                room = Room.objects.get(pk=int(request.GET.get("room_pk")))
-                ctx['room'] = room
-            return TemplateResponse(request, 'dashboard/' + table_name.lower() + '/modal_form.html', ctx)
         ctx = {'table_name': table_name}
+        if request.GET.get("room_pk"):
+            room = Room.objects.get(pk=int(request.GET.get("room_pk")))
+            ctx['room'] = room
+        if request.is_ajax():
+            return TemplateResponse(request, 'dashboard/' + table_name.lower() + '/modal_form.html', ctx)
         return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/form.html', ctx)
 
 
@@ -188,8 +187,10 @@ def invoice(request, pk=None):
     if pk:
         payment_options = PaymentOption.objects.all()
         instance = Table.objects.filter(room__pk=pk).first()
-        print instance
-        ctx = {'table_name': table_name, 'instance': instance, 'payment_options': payment_options}
+        ctx = {
+            'table_name': table_name,
+            'instance': instance, 'payment_options': payment_options
+        }
         return TemplateResponse(request, 'dashboard/' + table_name.lower() + '/invoice.html', ctx)
     return HttpResponse('Invalid Request. Booking id required')
 
