@@ -27,9 +27,9 @@ $(function() {
     //  urls
     var pageUrls = $('.pageUrls');
     var roomUrl = pageUrls.data('roomdata');
-    var getAmentiesurl = pageUrls.data('amenitiesurl');
-    var addAmenitiesUrl = pageUrls.data('addamenitiesurl');
-    var roomListUrl = pageUrls.data('roomurl');
+    var getAmentiesurl = '/dashboard/room/fetch/amenities/'; //pageUrls.data('amenitiesurl');
+    var addAmenitiesUrl = '/dashboard/room/add/amenities/';
+    var roomListUrl = '/dashboard/room/'; // pageUrls.data('roomurl');
 
     // refresh dom elements
     var newAmenitiesDiv = $('#add_new_amenities');

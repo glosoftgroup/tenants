@@ -243,6 +243,15 @@ def edit(request, pk=None):
 
 
 @staff_member_required
+def view(request, pk=None):
+    room = get_object_or_404(Table, pk=pk)
+    pricing = Pricing.objects.get(room__pk=room.pk)
+    if request.method == 'GET':
+        ctx = {'table_name': table_name, 'room': room, 'pricing': pricing}
+        return TemplateResponse(request, 'dashboard/room/view.html', ctx)
+
+
+@staff_member_required
 def fetch_amenities(request):
     search = request.GET.get('search')
     amenities = RoomAmenity.objects.all().filter(name__icontains=str(search))

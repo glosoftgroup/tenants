@@ -54,7 +54,7 @@
               <label style="visibility: hidden;"> Book</label>
               <div class="form-group">
                 {% if perms.sale.add_paymentoption %}
-                  <a href="{% url 'dashboard:booking-add' %}" id="addExpenseBtn" class="btn-block btn-primary btn-lg">
+                  <a href="/dashboard/booking/book/" id="addExpenseBtn" class="btn-block btn-primary btn-lg">
                       <i class="icon-plus2"></i> Book
                   </a>
                 {% endif %}
@@ -111,7 +111,7 @@
       <div class="panel panel-flat" id="printme">
         <div class="panel-body">
             <div class="col-md-12">
-                <h5 class="text-center text-bold">Room Booking List</h5>
+                <h5 class="text-center text-bold">Property Reservation List</h5>
             </div>
             <div class="">
               <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
@@ -122,7 +122,7 @@
                         <th>Days</th>
                         <th>Check-in</th>
                         <th>Check-out</th>
-                        <th>Customer</th>
+                        <th>Tenant</th>
                         <th>Cost</th>
 
                         {% if perms.room.delete_room %}

@@ -153,8 +153,7 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <label>Property Name:<span class="text-danger">*</span></label>
-                                                <input  required class="form-control" {% if room.pk %} value="{{room.name}}"{% endif %} name="name" id="name" placeholder="Name" type="text">
-                                                <span class="help-block text-warning"></span>
+                                                <span class="help-block text-warni">{{room.name}}</span>
                                             </div>
 
                                         </div>
@@ -163,57 +162,34 @@
                                             <div class="row">
                                                 <div class="col-md-6" id="-div">
                                                     <label >Wing:<span class="text-danger">*</span></label>
-                                                    <select2 id="wing" :options="wing_options"  v-model="wing">
-                                                        {% if room.room_wing.id %}
-                                                        <option value="{{room.room_wing.id}}">{{room.room_wing}}</option>
-                                                        {% else %}
-                                                        <option disabled value="0">Select wing</option>
-                                                        {% endif %}
-
-                                                    </select2>
-                                                    <span class="help-block text-warning"></span>
+                                                    <span class="help-block ">{{room.room_wing.name}}</span>
                                                 </div>
 
                                                 <div class="col-md-6" id="-v">
                                                     <label >Property Type:<span class="text-danger">*</span></label>
-                                                    <select2 :options="propertytype_options" v-model="propertytype">
-                                                        {% if room.room_wing.id %}
-                                                        <option value="{{room.room_type.id}}">{{room.room_type}}</option>
-                                                        {% else %}
-                                                        <option disabled value="0">Select type</option>
-                                                        {% endif %}
-                                                    </select2>
-                                                    <span class="help-block text-warning"></span>
+
+                                                    <span class="help-block">{{room.room_type}}</span>
                                                 </div>
 
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label class="text-bold">Bedrooms:</label>
-                                                        <input name="bedrooms" id="bedrooms" placeholder="Bedrooms" class="form-control packages" type="number"  required="required" {% if room.id %} value="{{room.bedrooms}}" {% endif %}>
-                                                        <span class="help-block text-warning"></span>
+                                                        <span class="help-block">{{room.bedrooms}}</span>
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-6">
-                                                    <div class="form-group">
-                                                        <label class="text-bold">Units:</label>
-                                                        <input name="units" id="units" placeholder="units" class="form-control packages" type="number"  required="required" {% if room.id %} value="{{room.units}}" {% endif %}>
-                                                        <span class="help-block text-warning"></span>
-                                                    </div>
-                                                </div>
+
 
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label class="text-bold">Floor Space:</label>
-                                                        <input name="floor_space" id="floor_space"  placeholder="space in sq" class="form-control packages" type="number" required="required" {% if room.pk %} value="{{ room.floor_space }}" {% endif %}>
-                                                        <span class="help-block text-warning"></span>
+                                                        <span class="help-block">{{room.floor_space}}</span>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label class="text-bold">Parking Space:</label>
-                                                        <input name="parking_space" id="parking_space"  placeholder="number of parking" class="form-control packages" type="number" required="required" {% if room.pk %} value="{{ room.parking_space }}" {% endif %}>
-                                                        <span class="help-block text-warning"></span>
+                                                        <span class="help-block">{{room.parking_space}}</span>
                                                     </div>
                                                 </div>
 
@@ -225,47 +201,37 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label class="text-bold">Price:</label>
-                                                <input name="price" id="price"  placeholder="price" class="form-control packages" type="number" required="required" {% if room.pk %} value="{{room.price.gross}}" {% endif %}>
-                                                <span class="help-block text-warning"></span>
+                                                <span class="help-block">{{room.price.gross}}</span>
                                             </div>
                                         </div>
 
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label class="text-bold">Service charge:</label>
-                                                <input name="service_charges" id="service_charges"  placeholder="service charges" class="form-control packages" type="number" required="required" {% if room.pk %} value="{{room.service_charges}}" {% endif %}>
-                                                <span class="help-block text-warning"></span>
+
+                                                <span class="help-block">{{room.service_charges}}</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group col-md-12">
                                         <label>Amenities:<span class="text-danger">*</span></label>
-                                        <select class="amenities hidden" multiple>
-                                            {% if room.id %}
-                                                {% for amenity in room.amenities.all %}
-                                                    <option selected="selected" value="{{amenity.id}}">{{amenity.name}}</option>
-                                                {% endfor %}
-                                            {% endif %}
-                                        </select>
-                                        <span class="help-block"></span>
-                                        <span class="help-block">Did'nt find what you were looking  for? Add new
-                                            <button type="button" id="add_new_amenities_btn" class="btn bg-primary btn-xs btn-icon legitRipple edit_modal-trigger" data-popup="tooltip" data-original-title="Add New amenity" href="#modal_add_category" id="add-new-category" data-title="Add New category" data-href="/dashboard/categories/add/cat32/" data-csrf="<input type='hidden' name='csrfmiddlewaretoken' value='wvYfCnxhR64GzQeHDIHSCPu6aXxPoxdwf8beDvBggbhlErTqdMlRyzpZC9SUmvdE' />" onclick="return false;">
-                                               <i class="icon-plus-circle2"></i>
-                                             </button>
-                                        </span>
+                                       {% if room.id %}
+                                            <div class="content-group">
+                                                <dl style="display:flex">
+                                                    {% for amenity in room.amenities.all %}
+                                                    <dt class="col-sm- mr-5 text-size-small text-bold text-uppercase">
+                                                        <i class="icon-checkmark3 text-blue position-left"></i>
+                                                        {{ amenity }}
+                                                    </dt>
+                                                    {% endfor %}
+                                                </dl>
+                                            </div>
+                                        {% endif %}
+
                                     </div>
-                                    <div id="add_new_amenities" style="display:none">
-                                        <label>New amenities:<span class="text-danger">*</span></label>
-                                        <select class="new_amenities hidden" multiple></select>
-                                        <span class="help-block"></span>
-                                        <button type="button" id="new_amenities_btn" class="btn bg-primary btn-xs btn-icon legitRipple edit_modal-trigger" onclick="return false;">
-                                           <i class="icon-plus-circle2"></i> Add
-                                        </button>
-                                    </div>
-                                    <div class="form-group">
+                                    <div class="form-group col-md-12">
                                         <label>Description:</label>
-                                        <textarea v-model="description" rows="5" cols="5" class="form-control" id="description" name="description" placeholder="Enter description here">{% if room.description %}{{ room.description.strip }}{% endif %}</textarea>
-                                        <span class="help-block text-warning"></span>
+                                        <span class="help-block ">{{room.description}}</span>
                                     </div>
                                 </div>
                                 <input type="hidden" id="room_id" name="room_id" {% if room.id %} value="{{room.id}}" {% endif %}>
@@ -441,11 +407,6 @@
                                         {% endfor %}
                                     </div>
                                 </div>
-
-
-                                 <div class="form-group" id="vue-app2">
-                                    <upload-image class="form-control styled" url="" name="" max_files=""></upload-image>
-                                 </div>
                             </div>
                         </div>
                      </div>

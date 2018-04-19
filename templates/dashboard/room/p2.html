@@ -83,22 +83,22 @@
                         action <span class="roomet"></span>
                         </button>
                         <ul class="dropdown-menu edit-dropdown">
-                              <li class="td"><a href="{% url 'dashboard:room-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
-                              </li>
-                            <li>
+                            <li class="td"><a href="{% url 'dashboard:room-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
+                            </li>
+                             <li class="td"><a href="{% url 'dashboard:room-view' pk=option.pk %}">
+                                 <i class="icon-eye"></i> View</a>
+                            </li>
+                            <li class="hidden">
                                 <a data-ta="#modal_instance" data-pk="{{option.pk}}" data-cloneurl="{% url 'dashboard:clone-room' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
                                class="clone">
                                     <i class="icon-copy" href="#modal_instance"></i>
                                     CLONE
                                </a>
                             </li>
-                            <li class="td"><a href="{% url 'dashboard:room-maintain' pk=option.pk %}"><i class="icon-pencil7">
-                                </i> MAINTENANCE</a>
-                              </li>
                             <li>
                                 <a data-ta="#modal_instance" data-title="Delete   {{ option.name }} ?" data-href="{% url 'dashboard:room-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
-                         class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
-                            </a>
+                                class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
+                                </a>
                             </li>
 
                         </ul>
