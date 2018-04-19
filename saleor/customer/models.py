@@ -227,12 +227,15 @@ def cool_format(value):
         return str("%.2f" % value/Decimal(1000000.0)) + 'M'
 
 class Payment(models.Model):
+    date = models.DateField(
+        pgettext_lazy('Payment field', 'Date from'),
+        default=now)
+    created = models.DateField(
+        pgettext_lazy('Payment field', 'created'),
+        default=now, editable=False)
     invoice_number = models.CharField(
         pgettext_lazy('Payment invoice', 'invoice number'),
         max_length=152, default='', blank=True, null=True)
-    description = models.CharField(
-        pgettext_lazy('Payment field', 'description'),
-        max_length=152, default='', null=True, blank=True)
     price_type = models.CharField(
         pgettext_lazy('Payment field', 'price type'),
         max_length=152, default='', null=True, blank=True)
@@ -240,12 +243,16 @@ class Payment(models.Model):
         pgettext_lazy('Payment field', 'price'),
         currency=settings.DEFAULT_CURRENCY, max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    balance = models.CharField(
+        pgettext_lazy('Payment field', 'balance'),
+        max_length=152, default='', null=True, blank=True)
+    service_charges = models.CharField(
+        pgettext_lazy('Payment field', 'service charges'),
+        max_length=152, default='', null=True, blank=True)
     customer = models.ForeignKey(
-        Customer, related_name='issue_payment', blank=True, null=True, default='', on_delete=models.SET_NULL,
+        Customer, related_name='tenant_payment', blank=True, null=True, default='', on_delete=models.SET_NULL,
         verbose_name=pgettext_lazy('Payment field', 'table'))
-    date = models.DateField(
-        pgettext_lazy('Payment field', 'Date from'),
-        default=now)
-    created = models.DateField(
-        pgettext_lazy('Payment field', 'created'),
-        default=now, editable=False)
+
+    description = models.CharField(
+        pgettext_lazy('Payment field', 'description'),
+        max_length=152, default='', null=True, blank=True)

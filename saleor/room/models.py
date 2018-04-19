@@ -642,5 +642,8 @@ class Maintenance(models.Model):
                 tenant = self.room.booking_room.customer.name
             except:
                 tenant = None
-
         return tenant
+        
+    @property
+    def room__pk(self):
+        return self.room.pk

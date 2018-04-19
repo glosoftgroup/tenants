@@ -28,10 +28,27 @@
 
 			<div class="panel panel-body no-border-top no-border-radius-top" style="padding: 0px !important;">
 				<ul class="customer-details">
-					<li class="text-semibold"><span class="text-bold">Email:</span> <span class="pull-right">{{user.email }}</span></li>
-					<li class="text-semibold"><span class="text-bold">Mobile No:</span> <span class="pull-right">{{user.mobile }}</span></li>
-					<li class="text-semibold"><span class="text-bold">ID/Passport No:</span> <span class="pull-right">{{user.nid }}</span></li>
-					<li class="text-semibold"><span class="text-bold">Description:</span> <span class="pull-right">{{user.description }}</span></li>
+					<li class="text-semibold"><span class="text-bold">House :</span> <span class="pull-right">
+					{% if room.name %}
+						{{room.name}}
+					{% else %}
+						---
+					{% endif %}
+
+					({% if room.room_type %}
+						{{room.room_type}}
+					{% else %}
+						---
+					{% endif %})
+					
+				</span></li>
+				<li class="text-semibold"><span class="text-bold">Wing :</span> <span class="pull-right">
+					{% if room.room_wing %}
+						{{room.room_wing}}
+					{% else %}
+						---
+					{% endif %}
+				</span></li>
 				</ul>
 			</div>
 		</div>
