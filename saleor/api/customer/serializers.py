@@ -8,7 +8,7 @@ from rest_framework.serializers import (
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
-from ...customer.models import Customer
+from ...customer.models import Customer, Payment
 from ...sale.models import PaymentOption
 from ...utils import image64
 
@@ -90,3 +90,32 @@ class CustomerUpdateSerializer(serializers.ModelSerializer):
         instance.redeemed_loyalty_points += Decimal(self.points)
         instance.save()
         return instance
+
+class PaymentListSerializer(serializers.ModelSerializer):
+    amount = serializers.SerializerMethodField()
+    customer_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Payment
+        fields = ('id',
+                  'invoice_number',
+                  'customer',
+                  'amount',
+                  'date',
+                  'customer_name',
+                  'description',
+                  'created'
+                 )
+
+    def get_amount(self, obj):
+        try:
+            return obj.amount_paid.gross
+        except Exception as e:
+            return 0
+
+    def get_customer_name(self, obj):
+        try:
+            return obj.customer.name
+        except Exception as e:
+            print e
+            return 'None Set'

@@ -11,7 +11,7 @@ from django.utils.http import is_safe_url
 from ..views import staff_member_required
 from saleor.room.models import Room as Table
 from saleor.booking.models import Book, BookingHistory
-from saleor.room.models import RoomAmenity, RoomImage, Package, Pricing
+from saleor.room.models import RoomAmenity, RoomImage, Package, Pricing, Maintenance
 from saleor.site.models import SiteSettings
 from saleor.wing.models import Wing
 from saleor.propertytype.models import PropertyType
@@ -19,6 +19,8 @@ from .forms import RoomImageForm
 from ...decorators import user_trail
 import logging
 import json
+import datetime
+import random
 
 debug_logger = logging.getLogger('debug_logger')
 info_logger = logging.getLogger('info_logger')
@@ -415,4 +417,113 @@ def searchs(request):
                     'sz': sz,
                     'q': q}
             return TemplateResponse(request, 'dashboard/room/search.html', data)
+
+'''
+------------------
+Maintenance
+------------------'''
+
+@staff_member_required
+def add_room_issue(request, pk=None):
+    room = get_object_or_404(Table, pk=pk)
+    pricing = Pricing.objects.get(room__pk=room.pk)
+    issues = Maintenance.objects.filter(room=room)
+    if request.method == 'GET':
+        from ...customer.models import Customer
+        try:
+            customer = Book.objects.get(room=pk).customer.name
+        except:
+            customer = None
+        
+        user = get_object_or_404(Customer, pk=4)
+
+        ctx = {'table_name': table_name, 'room': room, 'pricing': pricing, 'issues': issues, 'customer': customer, 'user':user}
+        return TemplateResponse(request, 'dashboard/room/maintenance/maintain.html', ctx)
+    if request.method == 'POST':
+        try:
+            issues = Maintenance()
+            issues.room = room
+            if request.POST.get('issue'):
+                issues.issue = request.POST.get('issue')
+            if request.POST.get('date_reported'):
+                issues.date_reported = request.POST.get('date_reported')
+            if request.POST.get('is_chargeable'):
+                issues.is_chargeable = request.POST.get('is_chargeable')
+            if request.POST.get('cost'):
+                issues.cost = request.POST.get('cost')
+                issues.balance = request.POST.get('cost')
+            issues.save()
+            user_trail(request.user.name, 'added an issue : '+ str(issues.issue),'edit')
+            info_logger.info('added an issue : '+ str(issues.issue))
+            return HttpResponse('success')
+        except Exception, e:
+            error_logger.error(e)
+            return HttpResponse(e)
+    else:
+        return HttpResponse('invalid response')
+
+@staff_member_required
+def room_maintenance(request):
+    global table_name
+
+    ctx = {'table_name': table_name}
+    return TemplateResponse(request, 'dashboard/room/maintenance/list.html', ctx)
+
+@staff_member_required
+def fix_issue(request, pk=None):
+    if request.method == 'POST' and pk:
+        instance = get_object_or_404(Maintenance, pk=pk)
+        try:
+            instance.invoice_number = 'inv/fx/0'+str(Maintenance.objects.latest('id').id)
+            instance.invoice_number += ''.join(random.choice('0123456789ABCDEF') for i in range(4))
+        except Exception as e:
+            instance.invoice_number = 'inv/fx/1'+''.join(random.choice('0123456789ABCDEF') for i in range(4))
+
+        instance.is_fixed = True
+        instance.date_resolved = datetime.datetime.today().strftime('%Y-%m-%d')
+        instance.save()
+        return HttpResponse('fixed successfully')
+    else:
+        return HttpResponse('Invalid method or PK')
+
+@staff_member_required
+def fix_issue_invoice(request, pk=None):
+    if request.method == 'GET':
+        instance = get_object_or_404(Maintenance, pk=pk)
+        if not instance.invoice_number:
+            try:
+                instance.invoice_number = 'inv/fx/0'+str(Maintenance.objects.latest('id').id)
+                instance.invoice_number += ''.join(random.choice('0123456789ABCDEF') for i in range(4))
+            except Exception as e:
+                instance.invoice_number = 'inv/fx/1'+''.join(random.choice('0123456789ABCDEF') for i in range(4))
+            instance.save()
+
+        ctx = {'table_name': table_name, 'instance': instance,}
+        return TemplateResponse(request, 'dashboard/room/maintenance/invoice.html', ctx)
+    if request.method == 'POST':
+        try:
+            issues = Maintenance()
+            issues.room = room
+            if request.POST.get('issue'):
+                issues.issue = request.POST.get('issue')
+                user_trail(request.user.name, 'updated issue : '+ str(issues.issue),'edit')
+                info_logger.info('updated issue : '+ str(issues.issue))
+                return HttpResponse('success')
+            else:
+                return HttpResponse('invalid response')
+        except Exception, e:
+            error_logger.error(e)
+            return HttpResponse(e)
+
+@staff_member_required
+def delete_issue(request, pk=None):
+    if request.method == 'POST' and pk:
+        instance = get_object_or_404(Maintenance, pk=pk)
+        instance.delete()
+        return HttpResponse('deleted successfully')
+    else:
+        return HttpResponse('Invalid method or PK')
+
+   
+
 

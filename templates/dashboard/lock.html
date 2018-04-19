@@ -45,12 +45,39 @@
 
     {% block custom_css %}
        <style type="text/css">
+             .slideShowContainter{
+        z-index: -1;
+        position: fixed;
+        width:100%;
+      }
+      .slideShow{
+          list-style-type:none;
+          padding-left:0px !important;
+      }
+      .slideShow li img{
+        /*width:auto;
+        height: 100%;*/
+      }
+      #loginForm .panel {
+        background-color: rgba(255,255,255, 0.7) !important;
+      }
+      .form-control{border-color: transparent transparent #bdb2b2;}
        </style>
     {% endblock %}
   </head>
 
   <body class="{% block body_class %}{% endblock %} login-container">
-    
+    <div class="slideShowContainter">
+      <ul class="slideShow">
+          <li><img src="{% static 'backend/images/backgrounds/1.jpg' %}"/></li>
+          <li><img src="{% static 'backend/images/backgrounds/2.jpg' %}"/></li>
+          <li><img src="{% static 'backend/images/backgrounds/3.jpg' %}"/></li>
+          <li><img src="{% static 'backend/images/backgrounds/4.jpg' %}"/></li>
+          <li><img src="{% static 'backend/images/backgrounds/5.jpg' %}"/></li>
+          <li><img src="{% static 'backend/images/backgrounds/6.jpg' %}"/></li>
+
+      </ul>
+    </div>
      <!-- Page container -->
   <div class="page-container">
     <!-- Page content -->
@@ -212,6 +239,36 @@
 
         
        // });
+              $(function(){
+          var slides = $('.slideShow>li');
+          var slideCount = 0;
+          var totalSlides = slides.length;
+          var slideCache = [];
+
+          (function preloader(){
+            if(slideCount<totalSlides){
+              //load images
+              slideCache[slideCount] = new Image();
+              slideCache[slideCount].src = slides.eq(slideCount).find('img').attr('src');
+              slideCache[slideCount].onload = function(){
+                  slideCount++;
+                  preloader();
+                }
+              }else {
+                slideCount = 0;
+                SlideShow();
+              }
+          }());
+
+          function SlideShow(){
+            slides.eq(slideCount).fadeIn(1000).delay(5000).fadeOut(1000, function(){
+                slideCount < totalSlides - 1 ? slideCount++ : slideCount = 0;
+                SlideShow();
+            });
+          }
+
+
+       });
     </script>
    </div>
   </body>

@@ -1,0 +1,352 @@
+{% extends "dashboard/base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% load prices_i18n %}
+
+{% block title %}
+  Room Maintenance
+{% endblock %}
+{% block breadcrumbs %}
+<li class="active"><a href="{% url 'dashboard:room-list' %}">Rooms</a></li>
+<li class="active"><a href="javascript:;">{{room.name|title}} Maintenance</a></li>
+{% endblock %}
+{% block menu_rooms_class %}active{% endblock %}
+
+{% block custom_css %}
+   <style type="text/css">
+      .theme_xbox .pace_activity, .theme_xbox .pace_activity::after, .theme_xbox .pace_activity::before, .theme_xbox_sm .pace_activity, .theme_xbox_sm .pace_activity::after, .theme_xbox_sm .pace_activity::before, .theme_xbox_xs .pace_activity, .theme_xbox_xs .pace_activity::after, .theme_xbox_xs .pace_activity::before {
+        border-radius: 50%;
+        border: 1px solid transparent;
+            border-top-width: 1px;
+            border-right-width: 1px;
+            border-bottom-width: 1px;
+            border-left-width: 1px;
+            border-top-color: transparent;
+        border-top-color: #1649fc;
+    }
+    .pace-demo {
+        background-color:#fff;
+    }
+    @media print {
+       #printBtn {
+          display: none;
+       }
+       #addPayment {
+          display: none;
+       }
+       .media-none {
+          display: none;
+       }
+       #media-none {
+          display: none;
+       }
+    }
+    .customer-details{
+      list-style-type: none;
+      padding-left:0px !important;
+    }
+    .customer-details li {
+        padding: 10px 15px;
+        border-top: 1px solid #efefef;
+    }
+    .customer-details li span{
+      padding-bottom: 15px;
+    }
+    .daterangepicker.dropdown-menu{z-index: 1051 !important}
+    .dropdown-menu{left:auto;right:0;}
+    #cost_group{display: none;}
+   </style>
+ {% endblock %}
+
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12" style="margin-bottom:10px;">
+        <a class="btn btn-primary pull-left legitRipple" href="{% url 'dashboard:room-list' %}"><i class="icon-arrow-left13 position-left"></i> Back to Rooms list</a>
+        <a class="btn btn-primary pull-right legitRipple" data-url="" href="{% url 'dashboard:room-edit' pk=room.pk %}"><i class="icon-pencil position-left"></i> EDIT</a>
+  </div>
+  <div class="col-md-3">
+  {% include 'dashboard/room/maintenance/partials/profile.html' with customer=customer room=room %}
+  </div>
+  <div class="col-md-9">
+  {% include 'dashboard/room/maintenance/partials/report_summary.html' with customer=customer user=user%}
+  </div>
+
+  <!-- modal -->
+  <div class="modal fade" tabindex="-1" role="dialog" id="issue-modal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header  bg-primary">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title text-center">Add Issue</h4>
+      </div>
+      <div class="modal-body">
+        <form method="post" id="issues-form" enctype="multipart/form-data">
+          {% csrf_token %} 
+
+          <input type="hidden" id="addIssueUrl" value="{% url 'dashboard:add_room_issue' pk=room.pk%}"/>
+         <div class="col-md-6">
+            <div class="form-group">
+              <label>Date Reported</label>
+              <input type="text" id="date_reported" name="date_reported" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Is Chargeable (cost added to arrears)</label>
+                <div class="checkbox">
+                    <label>
+                      <input class="styled checks" name="is_chargeable" id="chargeable" type="checkbox" value="False">
+                      is chargeable
+                    </label>
+                    <span id="granted" class="granted text-success"></span>
+                  </div>
+            </div>
+         </div>
+         <div class="col-md-6">
+            <div class="form-group">
+              <label>Issue.</label>
+              <input type="text" id="issue" name="issue" class="form-control id_no">
+            </div>
+            <div class="form-group" id="cost_group">
+              <label>Cost.</label>
+              <input type="text" id="cost" name="cost" class="form-control id_no">
+            </div>
+         </div>
+
+      <!-- action buttons -->
+         <div class="row text-right">
+             <div class="col-md-6 col-md-offset-3">
+                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="submit"  class="btn btn-primary pull-right" id="submit">Submit</button>
+             </div>
+     </div>
+      </form>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+  <!-- end of modal -->
+
+  <!-- delete modal -->
+  <div id="modal_instance" class="modal fade">
+   <div class="modal-dialog modal-sm">
+     <div class="modal-content">
+       <div class="modal-header bg-blue">
+         <button type="button" class="close" data-dismiss="modal">&times;</button>
+         <h6 class="modal-title text-white text-center"></h6>
+       </div>
+       <div class="modal-body">
+
+         <form action="" class="delete_form" method="post" id="delform" novalidate>
+         {% csrf_token %}
+         <div class="">
+           <h5 class="text-center">
+             Confirm delete !
+           </h5>
+           <input type="hidden" class="item-id" />
+        </div>
+
+
+       <div class="modal-footer">
+         <button type="submit" id='modal_delete' class="btn pull-right bg-danger dels"  data-id="" data-href="" onclick="return false">Delete</button>
+         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+       </div>
+      </form>
+     </div>
+   </div>
+ </div>
+<input type="hidden" class="pageUrls"
+  data-bookinglisturl="{% url 'maintenance-api:api-room-maintenance-list' pk=room.pk %}"
+>
+</div>
+  <!-- end of delete modal-->
+
+    <!-- delete modal -->
+  <div id="modal_fix" class="modal fade">
+   <div class="modal-dialog modal-sm">
+     <div class="modal-content">
+       <div class="modal-header bg-blue">
+         <button type="button" class="close" data-dismiss="modal">&times;</button>
+         <h6 class="modal-title text-white text-center"></h6>
+       </div>
+       <div class="modal-body">
+
+         <form action="" class="fix_form" method="post" id="fixform" novalidate>
+         {% csrf_token %}
+         <div class="">
+           <h5 class="text-center">
+             Apply Fix!
+           </h5>
+           <input type="hidden" class="item-id" />
+        </div>
+
+
+       <div class="modal-footer">
+         <button type="submit" id='modal_delete' class="btn pull-right bg-danger fix"  data-id="" data-href="" onclick="return false">Fix</button>
+         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+       </div>
+      </form>
+     </div>
+   </div>
+ </div>
+<input type="hidden" class="pageUrls"
+  data-bookinglisturl="{% url 'maintenance-api:api-room-maintenance-list' pk=room.pk %}"
+>
+</div>
+  <!-- end of delete modal-->
+  
+
+</div>
+
+{% endblock %}
+
+{% block custom_js %}
+  <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
+  <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/pagination/jquery.twbsPagination.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/booking/vue/listing.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/room/maintenance.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('.bootstrap-select').selectpicker();
+
+    $('body').on('click', 'toInvoice', function(){
+        var url = $(this).data('href')
+        window.location = url;
+    });
+
+    $('body').on('click', '.modal-triggers', function (e) {
+        
+         var url = $(this).data('href')
+         var prompt_text = $(this).data('title');
+         var username = $(this).data('name');
+         var modal = $(this).data('ta');
+         var id = $(this).data('id');
+         $('.dels').attr('data-id', id);
+         $('.dels').attr('data-href', url);
+         $('modal-title').html(prompt_text);
+         $(modal).modal();
+         $('.delete_form').attr('action',url);
+      });
+
+      /* clicked the submit button */
+      $('.dels').on('click', function (e) {
+          var f = document.getElementById('delform');
+          var formData = new FormData(f);
+          var id = $(this).data('id');
+          var url = $(this).data('href');
+          console.log(this);
+          $.ajax({
+              url: url,
+              type: "POST",
+              data: formData,
+              processData: false,
+              contentType: false,
+              success:function(data){
+                $('#modal_instance').modal('hide');
+                if(!data.error){
+                $.jGrowl('Issue deleted successfully', {
+                  header: 'Well done!',
+                  theme: 'bg-success'
+                });
+                $('#tb #'+id).remove();
+                window.location.reload();
+               }else{
+                $.jGrowl(data.error, {
+                  header: 'Error!',
+                  theme: 'bg-danger'
+                });
+               
+               }            
+              },
+              error:function(error){
+                console.log(error);
+                $.jGrowl('Error deleting ', {
+                    header: 'Oh snap!',
+                    theme: 'bg-danger'
+                });
+              }
+          });
+      });
+
+
+
+
+      $('body').on('click', '.apply_fix', function (e) {
+        
+         var url = $(this).data('href')
+         var prompt_text = $(this).data('title');
+         var username = $(this).data('name');
+         var modal = $(this).data('ta');
+         var id = $(this).data('id');
+         $('.fix').attr('data-id', id);
+         $('.fix').attr('data-href', url);
+         $(modal+'modal-title').html(prompt_text);
+         $(modal).modal();
+         $('.delete_form').attr('action',url);
+      });
+
+      /* clicked the submit button */
+      $('.fix').on('click', function (e) {
+          var f = document.getElementById('fixform');
+          var formData = new FormData(f);
+          var id = $(this).data('id');
+          var url = $(this).data('href');
+          console.log(this);
+          $.ajax({
+              url: url,
+              type: "POST",
+              data: formData,
+              processData: false,
+              contentType: false,
+              success:function(data){
+                $('#modal_instance').modal('hide');
+                if(!data.error){
+                $.jGrowl('Issue fixed successfully', {
+                  header: 'Well done!',
+                  theme: 'bg-success'
+                });
+                // $('#tb #'+id).remove();
+                window.location.reload();
+               }else{
+                $.jGrowl(data.error, {
+                  header: 'Error!',
+                  theme: 'bg-danger'
+                });
+               
+               }            
+              },
+              error:function(error){
+                console.log(error);
+                $.jGrowl('Error deleting ', {
+                    header: 'Oh snap!',
+                    theme: 'bg-danger'
+                });
+              }
+          });
+      });
+
+      $("#chargeable").click(function () {
+        var checked = $(this).is(':checked');
+        if(checked){
+            $(this).prop("checked", true);
+            $(this).val('True')
+            $('#cost_group').fadeIn('slow');
+        }else{
+            $(this).val('False')
+            $(this).prop("checked", false);
+            $(this).parent('span').removeClass('checked');
+            $('#cost_group').fadeOut('slow');
+        }
+      });
+
+
+
+  });
+
+</script>
+{% endblock %}

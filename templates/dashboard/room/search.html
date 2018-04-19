@@ -84,7 +84,9 @@
                                     CLONE
                                </a>
                             </li>
-                            </li>
+                            <li class="td"><a href="{% url 'dashboard:room-maintain' pk=option.pk %}"><i class="icon-pencil7">
+                                </i> MAINTENANCE</a>
+                              </li>
                             <li>
                                 <a data-ta="#modal_instance" data-title="Delete   {{ option.name }} ?" data-href="{% url 'dashboard:room-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
                          class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE

@@ -1,0 +1,214 @@
+<div class="row">
+<div class="col-md-12">
+    <div class="panel panel-flat">
+      <div class="panel-body">
+        <div class="tabbable">
+          <ul class="nav nav-tabs nav-tabs-highlight">
+            <li class="active" id="bio-tab"><a href="#bio" data-toggle="tab" class="legitRipple" aria-expanded="false">bio data</a></li>
+            <li class="" id="dependants-tab"><a href="#dependants" data-toggle="tab" class="legitRipple" aria-expanded="true">dependants</a></li>
+            <li class="" id="house-tab"><a href="#house" data-toggle="tab" class="legitRipple" aria-expanded="true">House Details</a></li>
+            <li class="" id="payment-tab2"><a href="#payment" data-toggle="tab" class="legitRipple" aria-expanded="true">payments</a></li>
+          </ul>
+
+          <div class="tab-content">
+             <!-- contact -->
+            <div class="tab-pane animated fadeIn active" id="bio">
+              <div class="rows">
+                <div class="col-md-12">
+                  <form class="form" enctype="multipart/form-data" id="user-details" name="user-details">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="row">
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label class="display_label">Name</label>
+                            <h6>{{user.name}}</h6>
+                          </div> 
+                          <div class="form-group">
+                            <label class="display_label">Mobile No.</label>
+                            <h6>{{user.mobile}}</h6>
+                           </div>
+                           
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label class="display_label">Id / Passport No.</label>
+                            <h6>{{user.nid}}</h6>
+                          </div>
+                           <div class="form-group">
+                              <label class="display_label">Email address</label>
+                              <h6>{{user.email}}</h6>
+                           </div>          
+                           
+                        </div>
+
+                        <div class="col-md-4">
+                           <div class="form-group">
+                              <label class="display_label">Nationality</label>
+                                <h6>{{user.nationality}}</h6>
+                            </div>                  
+                           
+                        </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-md-12">
+                            <label class="display_label">Description</label>
+                              <h6>{{user.description}}</h6>
+                       </div>
+                     </div>
+                    </div>
+                  </div>
+                </form>
+                </div>
+              </div>
+            </div>
+             <!-- ./contact -->
+            <div class="tab-pane animated fadeIn" id="dependants">
+              <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                     <div class="col-md-12">
+                       <table class="table table-striped table-hover fixed_headers"style="margin-top:20px;">
+                             <thead>
+                               <tr class="bg-slate">
+                                 <th>Name</th>
+                                 <th>ID/Passport No</th>
+                                 <th>Nationality</th>
+                                 <th>Phone</th>
+                                 <th>Relation</th>
+                                 <th>Maturity Status</th>
+                               </tr>
+                             </thead>
+                             <tbody id="contact-list">
+                              {% if  user.get_addresses %}
+                             {% for address in user.get_addresses %}
+                               <tr id="tr{{address.pk}}">
+                                 <!-- contact name -->
+                                 <td>{{ address.name }}</td>
+                                 <!-- job position -->
+                                 <td>{{ address.id_no }}</td>
+                                 <!-- email -->
+                                 <TD>{{ address.nationality }}</TD>
+                                 <!-- pphone -->
+                                 <td>{{ address.phone }}</td>
+                                 <!-- adddress -->
+                                 <td>{{ address.relation|title }}</td>
+                                 <td>{{ address.maturity_status | title}}</td>
+                                 
+                               </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                  <td colspan="6">
+                                    <span class="text-mute">
+                                      No Contacts
+                                    </span>
+                                  </td>
+                                </tr>
+                                 {% endif %}
+                             </tbody>
+                           </table>
+                         </div>              
+                       </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane animated fadeIn" id="house">            
+              <div class="row">
+                <div class="col-md-12">
+                   <form class="form" enctype="multipart/form-data" id="user-details" name="user-details">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="row">
+                          <div class="col-md-4">
+                            <div class="form-group">
+                              <label class="display_label">Name</label>
+                              <h6>{{room.name}}</h6>
+                            </div> 
+                            <div class="form-group">
+                              <label class="display_label">Period</label>
+                              <h6>Check In: {{booking.check_in}} <br>Check Out: {{booking.check_out}}</h6>
+                             </div>
+                             
+                          </div>
+
+                          <div class="col-md-4">
+                            <div class="form-group">
+                              <label class="display_label">Room Type</label>
+                              <h6>{% if room.room_type %}{{room.room_type}} {% else %} ---{% endif %}</h6>
+                            </div>
+                             <div class="form-group">
+                                <label class="display_label">Booked On</label>
+                                <h6>{{booking.created}}</h6>
+                             </div>          
+                             
+                          </div>
+
+                          <div class="col-md-4">
+                              <div class="form-group">
+                                <label class="display_label">Room Wing</label>
+                                <h6>{% if room.room_wing %}{{room.room_wing}} {% else %} ---{% endif %}</h6>
+                              </div>
+                              <div class="form-group">
+                                <label class="display_label">Amount</label>
+                                <h6>{% if room.price %}{{room.price.gross}} {% else %} ---{% endif %}</h6>
+                              </div>                 
+                             
+                          </div>
+                        </div>
+
+                          <div class="row">
+                             <div class="col-md-4">
+                               <label class="display_label">Service Charges</label>
+                               <h6>{{room.service_charges}}</h6>
+                             </div>
+                           </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                              <label class="display_label">Features</label>
+                                <h6>
+                                  <span class="bg-slate house_span">Bedrooms: {{room.bedrooms}}</span>
+                                  <span class="bg-slate house_span">Packing Space(s): {{room.parking_space}}</span>
+                                  <span class="bg-slate house_span">Units: {{room.units}}</span>
+                                  <span class="bg-slate house_span">Floor Space: {{room.floor_space}}</span>
+                                </h6>
+                         </div>
+                       </div>
+                       <div class="row">
+                         <div class="col-md-12">
+                           <label class="display_label">Amenities</label>
+                              <h6>
+                                {% for i in room.amenities.all %}
+                                  <span class="bg-slate house_span" style="padding:6px 12px;border-radius: 20px;margin-right:3px; ">{{i.name}}</span> 
+                                {% endfor %}
+                              </h6>
+                         </div>
+                       </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-pane animated fadeIn" id="payment">            
+              {% include 'dashboard/customer/partials/payment_tab.html' with customer=user room=room booking=booking %}
+            </div>
+
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<input type="hidden" class="pageUrls"
+  data-bookinglisturl="{% url 'booking-api:api-customer-booking-list' pk=user.pk %}"
+>
+<!--end listing-->

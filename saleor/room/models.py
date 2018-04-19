@@ -582,3 +582,68 @@ class VariantImage(models.Model):
         verbose_name = pgettext_lazy(
             'Variant image model', 'variant image')
         verbose_name_plural = pgettext_lazy('Variant image model', 'variant images')
+
+
+@python_2_unicode_compatible
+class Maintenance(models.Model):
+    invoice_number = models.CharField(
+        pgettext_lazy('Maintenance field', 'invoice number'),
+        max_length=152, unique=True, null=True)
+    room = models.ForeignKey(
+        Room, related_name='maintenance', null=True, blank=True,
+        verbose_name=pgettext_lazy('Maintenance field', 'room'))
+    issue = models.CharField(
+        pgettext_lazy('Maintenance field', 'issue'), max_length=255, null=True, blank=True)
+    is_fixed = models.BooleanField(
+        pgettext_lazy('Maintenance field', 'is_fixed'), default=False)
+    is_chargeable = models.BooleanField(
+        pgettext_lazy('Maintenance field', 'is_chargeable'), default=False)
+    cost = PriceField(
+        pgettext_lazy('Book field', 'paid'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    balance = PriceField(
+        pgettext_lazy('Book field', 'balance'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    amount_paid = PriceField(
+        pgettext_lazy('Book field', 'paid'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    balance = PriceField(
+        pgettext_lazy('Book field', 'balance'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    date_reported = models.CharField(
+        pgettext_lazy('Maintenance field', 'date_reported'),
+        max_length=255, null=True, blank=True)
+    date_resolved = models.CharField(
+        pgettext_lazy('Maintenance field', 'date_resolved'),
+        max_length=255, null=True, blank=True)
+
+    created = models.DateTimeField(
+        pgettext_lazy('Maintenance field', 'created'),
+        default=now, editable=False)
+    updated_at = models.DateTimeField(
+        pgettext_lazy('Maintenance field', 'updated at'), auto_now=True, null=True)
+
+    objects = models.Manager()
+
+    class Meta:
+        app_label = 'room'
+
+    def __str__(self):
+        return self.issue
+
+    def get_tenant(self):
+        tenant = None
+        if self.room:
+            try:
+                tenant = self.room.booking_room.customer.name
+            except:
+                tenant = None
+        return tenant
+        
+    @property
+    def room__pk(self):
+        return self.room.pk
