@@ -1,19 +1,17 @@
-
 {% extends "dashboard/base.html" %}
 {% load staticfiles %}
 {% load i18n %}
-{% load prices_i18n %}
 
 {% block title %}
   Properties
 {% endblock %}
 
  {% block breadcrumbs %}
-     <li class="active"><a href="{% url 'dashboard:room-list' %}">Properties </a></li>
+     <li class="active"><a> Properties</a></li>
  {% endblock %}
 
 
-{% block menu_rooms_class %}active{% endblock %}
+ {% block menu_rooms_class %}active{% endblock %}
  {% block custom_css %}
    <style type="text/css">
      tr.nb td{border:0px;}
@@ -23,64 +21,56 @@
      .detail-column p{font-size:14px;}
      #addoptionsform label.error{color:#ff7043}
      .dropdown-menu{left:auto;right:0;}
+    <style type="text/css">
+      .theme_xbox .pace_activity, .theme_xbox .pace_activity::after, .theme_xbox .pace_activity::before, .theme_xbox_sm .pace_activity, .theme_xbox_sm .pace_activity::after, .theme_xbox_sm .pace_activity::before, .theme_xbox_xs .pace_activity, .theme_xbox_xs .pace_activity::after, .theme_xbox_xs .pace_activity::before {
+        border-radius: 50%;
+        border: 1px solid transparent;
+            border-top-width: 1px;
+            border-right-width: 1px;
+            border-bottom-width: 1px;
+            border-left-width: 1px;
+            border-top-color: transparent;
+        border-top-color: #1649fc;
+    }
+    .pace-demo {
+        background-color:#fff;
+    }
+    @media print {
+       #printBtn {
+          display: none;
+       }
+       #addPayment {
+          display: none;
+       }
+       .media-none {
+          display: none;
+       }
+       #media-none {
+          display: none;
+       }
+    }
+    .pagination{margin-bottom: 0px;}
    </style>
-
  {% endblock %}
 
 {% block content %}
-<!-- Mini clone -->
-<div id="modal_clone" class="modal fade">
-    <div class="modal-dialog modal-xs">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h5 class="modal-title">Clone Room</h5>
-            </div>
-            <form id="cloning-form">
-            <div class="modal-body">
-                <h6 class="text-semibold">Number of rooms to clone</h6>
+ <div class="row animated " id="vue-app">
 
-                {% csrf_token %}
-                <div class="form-group">
-                     <input id="times" value="1" class="form-control" type="number">
-                     <span class="help-text"></span>
-                </div>
-                <div class="form-group hidden">
-                     <input id="room-id" class="form-control" type="number">
-                     <span class="help-text"></span>
-                </div>
-
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-                <button type="button" id="clone-btn" onclick="return false;" class="btn btn-primary">Clone</button>
-            </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!-- /mini modal -->
-<input type="hidden" id="pageUrls" data-roomurl="{% url 'dashboard:room-list' %}" >
-
- <div class="row animated fadeIn">
    <div class="col-md-12">
       <div class="panel panel-flat">
-        <div class="panel-body search-panel">
+      <div class="panel-body  search-panel" style="padding:5px;">
             <div class="col-md-2">
               <label style="visibility: hidden;"> add</label>
               <div class="form-group">
-                {% if perms.sale.add_paymentoption %}
-                   
-                  <a href="{% url 'dashboard:room-add' %}"  class=" btn-primary btn-lg hvr-glow btn-raised legitRipple">
-                      <i class="icon-plus2"></i> Add</a>
-                {% endif %}
+                    <a id="toggle-add-form" href="/dashboard/room/add/" class="btn btn-primary hvr-glow btn-raised legitRipple waves-effect waves-light">
+                        <i class="icon-plus2 position-left"></i>Add
+                    </a>
               </div>
             </div>
             <div class="col-md-4">
-             <label>Search Properties</label>
+             <label>Search </label>
               <div class="form-group form-group-material has-feedback">
-                <input class="form-control search_user" placeholder="Search ..." type="text">
+                <input class="form-control" v-model="search" @keyup="inputChangeEvent" placeholder="Search ..." type="text">
                 <div class="form-control-feedback">
                   <i class="icon-search4 text-size-base"></i>
                 </div>
@@ -217,542 +207,288 @@
              <label>display list size</label>
             </div>
             <div class="col-md-6">
+            <div class="col-md-2 hidden">
               <div class="form-group">
-                 <select class="bootstrap-select list-sz" style="display: none;" data-width="100%" tabindex="-98">
-                    <option value="0" selected>No:</option>
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
+                 <label>Status</label>
+                 <select v-model="status" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                    <option value="all" selected>All</option>
+                    <option value="True">Booked</option>
+                    <option value="False">Not Booked</option>
                   </select>
               </div>
             </div>
-          </div>
-          </div>
-          <div class="col-md-4">
-           <div class="text-center bootpag-callback p2-pag" style="">
-             <div class="my-paginate"> 
-             <ul class="pagination bootpag pagination-flat pagination-sm" style="margin-bottom: 0px;"></ul>
-             </div>
+            <div class="col-md-2">
+              <label>pick a date</label>
+              <div class="form-group">
+                <div class="input-group">
+                    <span v-datepicker></span>
+                  <input v-model="date" id="date" hello="inputChangeEvent" hi="inputChangeEvent" class="form-control daterange-single" type="text" placeholder="yyyy-mm-dd">
+                  <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                </div>
+              </div>
             </div>
-           </div>
-            <div class="col-md-4">
-             <div class="col-md-12">
-              <div class="pull-right pages-nav2">Page 1 of {{pn}}</div>
-             </div>
+            <div class="col-md-2">
+             <label>Export</label>
+              <div class="form-group">
+                 <select v-model="exportType" @change="exportItems" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                    <option value="none" >Option</option>
+                    <option value="pdf" >export pdf</option>
+                    <option value="excel" >export excel</option>
+                  </select>
+              </div>
             </div>
+          <div class="col-md-2">
+              <label class="text-center">View</label>
+              <div class="grid-list mt-15">
+                  <span class="cursor-pointer" @click="toggleView">
+                     <i class="icon-paragraph-justify3"></i>
+                  </span>
+                  <span class="ml-15 cursor-pointer" @click="toggleView">
+                     <i class="icon-grid"></i>
+                  </span>
+              </div>
           </div>
-         </div>                 
-         <input type="hidden" id="page_size" val="">
-              
-          {% endif %}
       </div>
-    </div><!-- pagination -->
+   </div>
+
+<div class="row">
+
+  <div class="col-md-12">
+   <div id="pagination-div">
+      <div class="panel panel-flat" id="printme">
+        <div class="col-md-12">
+                <h5 class="text-center text-bold">Properties</h5>
+        </div>
+        <span v-show="list_grid">
+            <!--list view-->
+            <div class="panel-body">
+                <div class="">
+                  <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
+                        <thead>
+                          <tr class="bg-primary">
+                            <th width="14%">Image</th>
+                            <th>Name</th>
+                            <th>Wing</th>
+                            <th>Type</th>
+                            <th>Price</th>
+                            <th>Service Charges</th>
+                            {% if perms.room.delete_room %}
+                            <th class="text-center">Options</th>
+                            {% endif %}
+                          </tr>
+                        </thead>
+                        <tbody id="tb">
+                        <!--loader-->
+                        <tr v-if="loader" class="text-center">
+                            <td colspan="8">
+                                <div class="pace-demo">
+                                    <div class="theme_xbox"><div class="pace_progress" data-progress-text="60%" data-progress="60"></div><div class="pace_activity"></div></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <!--no data template-->
+                        <template  v-else>
+                        <tr v-if="items.length == 0" class="text-center">
+                            <td colspan="8" class="text-bold animated zoomIn">
+                                No Data Found !
+                            </td>
+                        </tr>
+                        </template>
+                        <!--listing template-->
+                        <template v-for="item in items">
+                            <tr class="td " :id="item.id">
+                                <!--image&ndash;&gt;-->
+                                <td class="cursor-pointer" @click="goTo(item.view_url)">
+                                    <span>
+                                        <img width="50" height="50" :src="processImage(item.room_images[0])" alt="Image">
+                                    </span>
+                                </td>
+                                <td class="cursor-pointer" @click="goTo(item.view_url)">
+                                    ${item.name}
+                                </td>
+                                <td class="cursor-pointer" @click="goTo(item.view_url)"> ${ item.room_wing }</td>
+                                <td class="cursor-pointer" @click="goTo(item.view_url)">${item.room_type}</td>
+                                <td class="cursor-pointer" @click="goTo(item.view_url)">${item.price}</td>
+                                <td class="cursor-pointer" @click="goTo(item.view_url)">${item.service_charges}</td>
+
+                                <td class="text-center">
+                                    <ul class="icons-list">
+                                        <li class="dropdown">
+                                            <button type="button" class="btn btn-primary  btn-sm dropdown-toggle legitRipple" data-toggle="dropdown" aria-expanded="true">
+                                                Actions<span class="caret"></span></button>
+
+                                            <ul class="dropdown-menu dropdown-menu-right">
+                                                <li><a @click="goTo(item.view_url)" href="javascript:;"><i class="icon-eye"></i> view</a></li>
+                                                <li><a @click="goTo(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> Edit</a></li>
+                                                <li><a @click="deleteInstance(item.delete_url,item.id)" href="javascript:;"><i class=" icon-trash-alt"></i> Delete</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </template>
+
+
+                        </tbody>
+                   </table>
+                </div>
+            </div>
+            <div class="row media-none">
+             <div class="col-md-12">
+              <div class="col-md-4">
+               <div class="col-md-12">
+                <div class="col-md-6 mt-10">
+                 <label>display list size</label>
+                </div>
+                <div class="col-md-6 media-none">
+                  <div class="form-group">
+                     <select v-model="page_size" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                        <option value="10" selected>No:</option>
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                      </select>
+                  </div>
+                </div>
+              </div>
+              </div>
+              <div class="col-md-4" id="media-none">
+                  <div class="text-center bootpag-callback p2-pag" style="">
+                </div>
+               </div>
+                <div class="col-md-4">
+                 <div class="col-md-12 mt-5">
+                  <div class="pull-right pages-nav"></div>
+                 </div>
+                </div>
+              </div>
+             </div>
+            <!--./list view-->
+        </span>
+
+        <span v-show="grid_list">
+            <!--grid view -->
+            <div class="panel-body">
+                <div class="tabbable col-md-12 row">
+                    <ul class="nav nav-tabs nav-tabs-solid nav-justified">
+                        <template v-for="wing in wings">
+                            <li :class="activeWing(wing.id)" @click="getRooms(wing.id)">
+                                <a :href="'#dynamic-floor'+wing.id" data-toggle="tab" class="legitRipple" aria-expanded="false">
+                                 <span class="text-bold">Wing:</span>  ${wing.name}
+                                </a>
+                            </li>
+                        </template>
+                        <template>
+                            <div class="tab-contentf row">
+                                <div class="tab-panefactive" >
+                                    <div v-for="room in rooms" class="col-md-3 mt-15">
+                                        <div class="thumbnail">
+                                            <div class="thumb">
+                                                <a :href="room.view_url" data-toggle="modal">
+                                                    <img :src="processImage(room.room_images[0], true)" class="img-responsive img-rounded" alt="">
+                                                    <span class="zoom-image"><i class="icon-eye"></i></span>
+                                                </a>
+                                            </div>
+
+                                            <div class="caption">
+                                                <div class="content-group-sm media">
+                                                    <div class="media-body">
+                                                        <h6 class="text-semibold no-margin">
+                                                            <a href="#" class="text-default">${room.name}</a>
+                                                        </h6>
+                                                        <span class="label bg-success">
+                                                            <a class="text-white" :href="'/dashboard/room/update/'+room.id">
+                                                                Edit Room
+                                                            </a>
+                                                        </span>
+                                                    </div>
+                                                    <h6 class="text-danger-300 text-semibold media-right no-margin-bottom">
+                                                        ${roomStatus(room.is_booked)}
+                                                        <span class="label bg-warning" v-if="room.is_booked">
+                                                            <a class="text-white" :href="'/dashboard/room/view/'+room.id">
+                                                                View Room
+                                                            </a>
+                                                        </span>
+                                                        <span class="label bg-success" v-else="room.is_booked">
+                                                            <a class="text-white" :href="'/dashboard/booking/add/?room_pk='+room.id">
+                                                                Book
+                                                            </a>
+                                                        </span>
+
+                                                    </h6>
+
+                                                </div>
+                                            </div>
+                                            <div class="panel-footer panel-footer-transparent"><a class="heading-elements-toggle"><i class="icon-more"></i></a>
+                                                <div class="heading-elements">
+                                                    <ul class="list-inline list-inline-separate heading-text">
+                                                        <li><i class="icon-cash position-left"></i> ${room.price | formatCurrency}</li>
+                                                    </ul>
+                                                </div>
+										    </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                    </ul>
+                </div>
+            </div>
+            <!--./grid-->
+        </span>
+
+      </div>
+    </div>
+    <!-- pagination -->
   </div>
- </div>
+</div>
 </div>
 
-<!-- Blue modal -->
- <div id="modal_instancje" class="modal fade">
-   <div class="modal-dialog modal-sm">
-     <div class="modal-content">
-       <div class="modal-header bg-blue">
-         <button type="button" class="close" data-dismiss="modal">&times;</button>
-         <h6 class="modal-title text-white text-center"></h6>
-       </div>
-       <div class="modal-body">
+   <!--delete modal  -->
+    <div id="modal_delete" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h6 class="modal-title text-center">Confirm Delete</h6>
+                </div>
 
-         <form action="" class="delete_form" method="post" id="delform" novalidate>
-         {% csrf_token %}
-         <div class="">
-           <h5 class="text-center">
-             Confirm delete !
-           </h5>
-           <input type="hidden" class="item-id" />
+                <div class="modal-body">
+                    <h6 class="text-semibold">Are you sure you want to delete ?</h6>
+                </div>
+
+                <div class="modal-footer text-center">
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                    <button @click="deleteInstance(false,false)" type="button" class="btn btn-danger animated shake">Delete</button>
+                </div>
+            </div>
         </div>
-
-
-       <div class="modal-footer">
-         <button type="submit" id='modal_delete' class="btn pull-right bg-danger del" onclick="return false" data-id="" data-href="">Delete</button>
-         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-       </div>
-      </form>
-     </div>
-   </div>
+    </div>
+   <!--./delete-->
  </div>
 
- <div class="info"></div>
- <!-- /blue modal -->
-<!-- expense detail modal -->
- <div id="pdetail" class="modal fade">
-   <div class="modal-dialog modal-sm">
-     <div class="modal-content">
-       <div class="modal-header bg-blue">
-         <button type="button" class="close" data-dismiss="modal">&times;</button>
-         <h6 class="modal-title text-white text-center"> Details</h6>
-       </div>
-       <div class="modal-body">
-
-       </div>
-       <div class="modal-footer">
-         <button type="button" class="btn btn-default btn-link btn-xs" data-dismiss="modal">Close</button>
-         <button type="button" class="btn btn-primary btn-xs" id="updateOption" onclick="return false;">Update</button>
-       </div>
-     </div>
-   </div>
- </div>
- <!-- /expense detail modal-->
-<!-- edit modal -->
- <div id="edit_modal_instance" class="modal fade">
-   <div class="modal-dialog modal-sm">
-     <div class="modal-content">
-       <div class="modal-header bg-blue">
-         <button type="button" class="close" data-dismiss="modal">&times;</button>
-         <h6 class="modal-title text-white text-center"></h6>
-       </div>
-       <form action="" class="edit_form" method="post" id="editform" novalidate>
-           <div class="modal-body">
-            {% csrf_token %}
-                 <div class="form-group">
-                     <label class="cat_label"> </label>
-                     <input class="form-control edit_class" name=""/>
-                 </div>
-                  <input type="hidden" class="eitem-url"/>
-                  <input type="hidden" class="eitem-select"/>
-                 <input type="hidden" name="option" value="option"/>
-
-           </div>
-           <div class="modal-footer">
-               <button class="btn btn-primary waves-effect waves-light pull-right data_update"
-                       id='modal_edit' type="submit">
-                   Create
-                   <i class="icon-arrow-right14 position-right"></i>
-               </button>
-
-             <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-           </div>
-       </form>
-     </div>
-   </div>
- </div>
- <!-- /edit modal -->
-
- </div>
- </div>
-<!-- Blue modal -->
- <div id="modal_instance" class="modal fade">
-   <div class="modal-dialog modal-sm">
-     <div class="modal-content">
-       <div class="modal-header bg-blue">
-         <button type="button" class="close" data-dismiss="modal">&times;</button>
-         <h6 class="modal-title text-white text-center"></h6>
-       </div>
-       <div class="modal-body">
-
-         <form action="" class="delete_form" method="post" id="delform" novalidate>
-         {% csrf_token %}
-         <div class="">
-           <h5 class="text-center">
-             Confirm delete !
-           </h5>
-           <input type="hidden" class="item-id" />
-        </div>
-
-
-       <div class="modal-footer">
-         <button type="submit" id='modal_delete' class="btn pull-right bg-danger del" onclick="return false" data-id="" data-href="">Delete</button>
-         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-       </div>
-      </form>
-     </div>
-   </div>
- </div>
-
- {% endblock%}
+<input type="hidden" class="pageUrls"
+  data-listurl="/api/property/" data-createurl="/api/property/"
+>
+{% endblock%}
 {% block custom_js %}
-  <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
-  <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
-  <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'backend/js/room/clone.js' %}"></script>
-<script type="text/javascript">
-  var paginationSearchUrl = "{% url 'dashboard:room-search' %}";
-  var paginationUrl = "{% url 'dashboard:room_paginate' %}";
-  $(document).ready(function() {
 
+    <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
 
-    $('.input-group').on('change', '.sel', function(){
-       var v = $(this).val();
+    <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
+<!-- datepicker -->
+  <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/daterangepicker.js' %}"></script>
 
-       if(v == 'add'){
-             var selected = $(this).find('option:selected');
-
-             var url = selected.data('href')
-             var prompt_text = selected.data('title');
-             var modal = selected.data('ta');
-             var select = selected.data('select');
-             var cat = selected.data('cat');
-             var label = selected.data('label');
-             $('.cat_label').html(label);
-             $('.eitem-url').val(url);
-             $('.eitem-select').val(select);
-             $('.modal-title').html(prompt_text);
-             $('.edit_class').attr('name', cat)
-             $(modal).modal();
-             $('.delete_form').attr('action',url);
-
-             var form = $("#editform"), validator = form.validate();
-             validator.resetForm();
-             form.find(".error").removeClass("error");
-
-             $("#editform input[name='" + cat + "']").rules("add", {required:true});
-       }
-    });
-
-
-
-    $('#editform').validate({
-        onkeyup: function(element) {$(element).valid()},
-        rules:{
-           name: {
-              required:true
-            }
-        },
-        messages:{
-          name:{
-            required: "please fill in the required field"
-          }
-        },
-        submitHandler: function() {
-              var name = $('.edit_class').data('name');
-              var inputValue = $('.edit_class').val();
-              var f = document.getElementById('editform');
-              var formData = new FormData(f);
-              //formData.append(name, inputValue);
-              var url = $('.eitem-url').val();
-              var selectClass = $('.eitem-select').val();
-              $.ajax({
-                  url: url,
-                  type: "POST",
-                  data: formData,
-                  processData: false,
-                  contentType: false,
-                  success:function(data){
-                    $('#edit_modal_instance').modal('hide');
-                    $('.edit_class').val('');
-                    var replaceDiv = $('.eitem-select').val()
-                    $(replaceDiv).replaceWith(data);
-                    $.jGrowl('Created successfully', {
-                      header: 'Well done!',
-                      theme: 'bg-success'
-                    });
-                    //window.location.reload();
-                  },
-                  error:function(error){
-                    console.log(error);
-                    $.jGrowl('Error Updating', {
-                        header: 'Oh snap!',
-                        theme: 'bg-danger'
-                    });
-                  }
-              });
-        }
-    });
-
-    $('.bootpag-callback').bootpag({
-        total: parseInt({{pn}}),
-        maxVisible: 3,
-        leaps: false
-        }).on("page", function(event, num){
-            $(".pages-nav").html("Page " + num +" of "+{{pn}}); // or some ajax content loading...
-            $.get(paginationUrl,{page:num},function(data){
-               $('#tb').html(data);
-            });
-    }).children('.pagination').addClass('pagination-flat pagination-sm')
-
-      $('body').on('click', '.td', function(){
-          <!--window.location = $(this).data("href");-->
-          var url = $(this).data('href');
-           var modal = $(this).data('m');
-          //var modalTitle = $(this).data('mtitle');
-           $(modal+' .modal-title').html(modalTitle);
-
-          $.ajax({
-              url: url,
-              type: "GET",
-              data: {csrfmiddlewaretoken:'{{csrf_token}}'},
-              processData: false,
-              contentType: false,
-              success:function(data){
-                $(modal+' .modal-body').html(data);
-                $(modal).modal();
-              },
-              error:function(error){}
-          });
+    <script type="text/javascript" src="{% static 'backend/js/plugins/pagination/jquery.twbsPagination.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
+    <script src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/common/listing-room.js' %}"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('.bootstrap-select').selectpicker();
       });
-      $('.dele-btn').on('click',function(){
-        alert('sdfsdfsdd');
-        $('#modal_mini').modal();
-    });
-
-      $('.modal-trigger').on('click', function (e) {
-
-         var url = $(this).data('href')
-         var prompt_text = $(this).data('title');
-         var username = $(this).data('name');
-         var modal = $(this).data('ta');
-         var id = $(this).data('id');
-         $('.del').attr('data-id', id);
-         $('.del').attr('data-href', url);
-         $('.modal-title').html(prompt_text);
-         $(modal).modal();
-         $('.delete_form').attr('action',url);
-      });
-
-      /* clicked the submit button */
-      $('.del').on('click', function (e) {
-          var f = document.getElementById('delform');
-          var formData = new FormData(f);
-          var id = $(this).data('id');
-          var url = $(this).data('href');
-          console.log(this);
-          $.ajax({
-              url: url,
-              type: "POST",
-              data: formData,
-              processData: false,
-              contentType: false,
-              success:function(data){
-                $('#modal_instance').modal('hide');
-                if(!data.error){
-                $.jGrowl('room deleted successfully', {
-                  header: 'Well done!',
-                  theme: 'bg-success'
-                });
-                $('#tb #'+id).remove();
-                window.location.reload();
-               }else{
-                $.jGrowl(data.error, {
-                  header: 'Error!',
-                  theme: 'bg-danger'
-                });
-               
-               }            
-              },
-              error:function(error){
-                console.log(error);
-                $.jGrowl('Error deleting ', {
-                    header: 'Oh snap!',
-                    theme: 'bg-danger'
-                });
-              }
-          });
-      });
-
-
-      var delay = (function(){
-        var timer = 0;
-        return function(callback, ms){
-          clearTimeout (timer);
-          timer = setTimeout(callback, ms);
-        };
-      })();
-
-
-
-    var petty_cash_balance = 0;
-    
-
-    jQuery.validator.addMethod("greaterThanZero", function(value, element) {
-        return this.optional(element) || (parseFloat(value) <= petty_cash_balance);
-    }, "* more than petty cash amount (KShs."+ petty_cash_balance +" )");
-
-      //** validate form & submit
-      $('#addoptionsform').validate({
-        onkeyup: function(element) {$(element).valid()},
-        rules:{           
-          name:{
-            required: "please provide the name"
-          },
-          
-        },
-        submitHandler: function() {
-          var f = document.getElementById('addoptionsform');
-          var formData = new FormData(f);
-          if (formData) {
-                $.ajax({
-                    url: "{% url 'dashboard:room-add' %}",
-                    type: "POST",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success:function(data){
-                         $('#addoptionsform')[0].reset();
-                         $('#addExpenseTable').slideUp();
-
-                         $.ajax({ url: paginationUrl,type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
-                            $('#pagination-div').html(data);
-                         }});
-                         $.jGrowl('message sent successfully.', {
-                            header: 'Well done!',
-                            theme: 'bg-success'
-                         });
-
-
-                    },
-                    error:function(error){
-                      console.log(error);
-                      $.jGrowl('Change a few things up and try sending again', {
-                          header: 'Oh snap!',
-                          theme: 'bg-danger'
-                      });
-                    }
-                });
-            }
-        }
-      });
-
-
-     //**@ display size select
-    $('.list-sz').selectpicker().on('change', function(){
-        var listSizeVal = $(this).val();
-        var searchData = $('.search_user').val();
-        var groupSizeVal = $('.group-sz').find(":selected").val();
-        var url = paginationSearchUrl;
-
-        if(searchData && groupSizeVal && groupSizeVal != 'all' && groupSizeVal !='none'){
-            if(listSizeVal != '0'){
-               $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, size:listSizeVal, gid:groupSizeVal},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-            }else{
-               $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, size:10, gid:groupSizeVal},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-            }
-       }else if(searchData){
-           if(listSizeVal != '0'){
-                $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, size:listSizeVal},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-           }else{
-               $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, size:10},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-            }
-
-       }else if(groupSizeVal && (groupSizeVal != 'all' && groupSizeVal !='none')){
-           if(listSizeVal != '0'){
-                $.get(paginationUrl,{page:1,gid:groupSizeVal, size:listSizeVal},function(data){
-                 $('#pagination-div').html(data);
-               });
-           }else{
-                $.get(paginationUrl,{page:1,gid:groupSizeVal, size:10},function(data){
-                 $('#pagination-div').html(data);
-               });
-
-           }
-       }else{
-           if(listSizeVal != '0'){
-               $.ajax({ url: paginationUrl,type: 'GET',data: {page:1, size:listSizeVal}, async:false,success: function(data){
-                  $('#pagination-div').html(data);
-              }});
-           }else{
-                $.ajax({ url: paginationUrl,type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
-                      $('#pagination-div').html(data);
-                }});
-           }
-       }
-
-     });
-
-     //**@ group name select
-    $('.group-sz').selectpicker({
-          iconBase: 'fa',
-          tickIcon: 'fa-dot-circle-o'
-    }).on('change', function(){
-
-       var group_id = $(this).val();
-       var searchData = $('.search_user').val();
-       var listSizeVal = $('.list-sz').find(":selected").val();
-       var url = paginationSearchUrl;
-
-       if(searchData && listSizeVal && listSizeVal != '0'){
-            if(group_id == 'all' || group_id=='none'){
-               $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, size:listSizeVal},success: function(data){
-                      $('#pagination-div').html(data);
-               }});
-            }else{
-               $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, size:listSizeVal, gid:group_id},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-           }
-       }else if(searchData){
-            if(group_id == 'all' || group_id=='none'){
-               $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData},success: function(data){
-                      $('#pagination-div').html(data);
-               }});
-            }else{
-               $.ajax({ url:url, type: 'GET',data: {page:1, q:searchData, size:10, gid:group_id},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-           }
-       }else if(listSizeVal && listSizeVal != '0'){
-           if(group_id == 'all' || group_id=='none'){
-               $.ajax({ url: paginationUrl,type: 'GET',data: {page:1, size:listSizeVal}, async:false,success: function(data){
-                  $('#pagination-div').html(data);
-              }});
-           }else{
-                $.get(paginationUrl,{page:1,gid:group_id, size:listSizeVal},function(data){
-                 $('#pagination-div').html(data);
-               });
-           }
-       }else{
-           if(group_id == 'all' || group_id=='none'){
-               $.ajax({ url: paginationUrl,type: 'GET',data: {page:1, size:10}, async:false,success: function(data){
-                  $('#pagination-div').html(data);
-              }});
-           }else{
-                $.get(paginationUrl,{page:1,gid:group_id},function(data){
-                 $('#pagination-div').html(data);
-               });
-           }
-       }
-
-    });
-
-    $('.search_user').keyup(function() {
-        var search_text = $(this).val();
-        var listSizeVal = $('.list-sz').find(":selected").val();
-        var groupSizeVal = $('.group-sz').find(":selected").val();
-        var url = paginationSearchUrl;
-
-        delay(function(){
-            if((listSizeVal && listSizeVal != '0') && groupSizeVal && (groupSizeVal != 'all' && groupSizeVal !='none')){
-                $.ajax({ url:url, type: 'GET',data: {page:1, q:search_text, size:listSizeVal, gid:groupSizeVal},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-            }else if(listSizeVal && listSizeVal != '0'){
-                $.ajax({ url:url, type: 'GET',data: {page:1, q:search_text, size:listSizeVal},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-            }else if(groupSizeVal && (groupSizeVal != 'all' && groupSizeVal !='none')){
-                $.ajax({ url:url, type: 'GET',data: {page:1, q:search_text, size:10, gid:groupSizeVal},success: function(data){
-                          $('#pagination-div').html(data);
-                }});
-            }else{
-               $.ajax({ url:url, type: 'GET',data: {page:1, q:search_text},success: function(data){
-                      $('#pagination-div').html(data);
-               }});
-            }
-        }, 500 );
-
-      });
-
-
-
-  });
-
-
-
-
-</script>
+    </script>
 {% endblock %}

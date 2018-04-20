@@ -20,6 +20,7 @@ from .api.order.urls import urlpatterns as api_order_urls
 from .api.order_number.urls import urlpatterns as api_order_number_urls
 from .api.payment.urls import urlpatterns as api_payment_urls
 from .api.product.urls import urlpatterns as api_urls
+from .api.property.urls import urlpatterns as api_property_urls
 from .api.room.urls import urlpatterns as api_maintenance_urls
 from .api.sale.urls import urlpatterns as api_sale_urls
 from .api.salepoint.urls import urlpatterns as api_salepoint_urls
@@ -63,6 +64,7 @@ urlpatterns = [
     url(r'^api/order/', include(api_order_urls, namespace='order-api')),
     url(r'^api/order/number', include(api_order_number_urls, namespace='order-number-api')),
     url(r'^api/products/', include(api_urls, namespace='product-api')),
+    url(r'^api/property/', include(api_property_urls, namespace='property-api')),
     url(r'^api/payment/', include(api_payment_urls, namespace='payment-api')),
     url(r'^api/maintenance/', include(api_maintenance_urls, namespace='maintenance-api')),
     url(r'^api/sale/', include(api_sale_urls, namespace='sale-api')),

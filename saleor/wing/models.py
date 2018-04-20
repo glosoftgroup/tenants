@@ -13,7 +13,7 @@ class Wing(models.Model):
 
     updated_at = models.DateTimeField(
         pgettext_lazy('Wing field', 'updated at'), auto_now=True, null=True)
-    created = models.DateTimeField(pgettext_lazy('AcademicYear field', 'created'),
+    created = models.DateTimeField(pgettext_lazy('wing field', 'created'),
                                    default=now, editable=False)
 
     class Meta:
