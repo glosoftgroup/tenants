@@ -83,8 +83,9 @@
       <div class="modal-body">
         <form method="post" id="issues-form" enctype="multipart/form-data">
           {% csrf_token %} 
-
-          <input type="hidden" id="addIssueUrl" value="{% url 'dashboard:add_room_issue' pk=room.pk%}"/>
+          {% if room.pk %}
+            <input type="hidden" id="addIssueUrl" value="{% url 'dashboard:add_room_issue' pk=room.pk%}"/>
+          {% endif %}
          <div class="col-md-6">
             <div class="form-group">
               <label>Date Reported</label>
@@ -253,7 +254,6 @@
                   header: 'Well done!',
                   theme: 'bg-success'
                 });
-                $('#tb #'+id).remove();
                 window.location.reload();
                }else{
                 $.jGrowl(data.error, {

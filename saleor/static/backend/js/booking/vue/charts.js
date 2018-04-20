@@ -38,7 +38,7 @@ var chart = new Vue({
                 },
                 series: [
                     {
-                        name: 'Room Booking',
+                        name: 'Property Booking',
                         data: data
                     },
                 ]
@@ -74,7 +74,7 @@ var chart = new Vue({
                 },
                 series: [
                     {
-                        name: 'Room Booking',
+                        name: 'Property Booking',
                         data: data
                     },
                 ]
@@ -86,7 +86,7 @@ var chart = new Vue({
         lastVisitsChart: function(data){
             $('#last-visits-chart').highcharts({
                 title: {
-                  text: 'Last Room Booking Report',
+                  text: 'Last Property Booking Report',
                 },
                 xAxis: {
                   type: 'datetime'

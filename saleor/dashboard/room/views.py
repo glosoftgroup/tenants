@@ -46,6 +46,8 @@ def add(request):
             instance.price = request.POST.get('price')
         if request.POST.get('service_charges'):
             instance.service_charges = request.POST.get('service_charges')
+        if request.POST.get('bedrooms'):
+            instance.bedrooms = request.POST.get('bedrooms')
         if request.POST.get('floor'):
             instance.floor = request.POST.get('floor')
         if request.POST.get('units'):
@@ -434,20 +436,28 @@ Maintenance
 
 @staff_member_required
 def add_room_issue(request, pk=None):
-    room = get_object_or_404(Table, pk=pk)
-    pricing = Pricing.objects.get(room__pk=room.pk)
-    issues = Maintenance.objects.filter(room=room)
-    if request.method == 'GET':
-        from ...customer.models import Customer
-        try:
-            customer = Book.objects.get(room=pk).customer.name
-        except:
-            customer = None
-        
-        user = get_object_or_404(Customer, pk=4)
+    try:
+        room = Table.objects.get(pk=pk)
+        book = Book.objects.get(room__pk=room.pk, active=True)
+    except:
+        room = None
+        book = None
+    try:
+        pricing = Pricing.objects.get(room__pk=room.pk)
+        issues = Maintenance.objects.filter(room=room)
+        if request.method == 'GET':
+            from ...customer.models import Customer
+            try:
+                customer = Book.objects.get(room=pk).customer.name
+            except:
+                customer = None
+            
+            user = get_object_or_404(Customer, pk=4)
 
-        ctx = {'table_name': table_name, 'room': room, 'pricing': pricing, 'issues': issues, 'customer': customer, 'user':user}
-        return TemplateResponse(request, 'dashboard/room/maintenance/maintain.html', ctx)
+            ctx = {'table_name': table_name, 'room': room, 'pricing': pricing, 'issues': issues, 'customer': customer, 'user':user}
+            return TemplateResponse(request, 'dashboard/room/maintenance/maintain.html', ctx)
+    except:
+        return TemplateResponse(request, 'dashboard/room/maintenance/maintain.html', {})
     if request.method == 'POST':
         try:
             issues = Maintenance()
@@ -461,6 +471,11 @@ def add_room_issue(request, pk=None):
             if request.POST.get('cost'):
                 issues.cost = request.POST.get('cost')
                 issues.balance = request.POST.get('cost')
+                try:
+                    book.service_charges = request.POST.get('cost')
+                    book.save()
+                except:
+                    pass
             issues.save()
             user_trail(request.user.name, 'added an issue : '+ str(issues.issue),'edit')
             info_logger.info('added an issue : '+ str(issues.issue))

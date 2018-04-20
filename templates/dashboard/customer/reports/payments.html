@@ -1,13 +1,56 @@
+{% extends "dashboard/base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% load prices_i18n %}
 
-<!--booking list-->
-<div class="row animated " id="vue-app">
+{% block title %}
+ Payments
+{% endblock %}
+
+ {% block breadcrumbs %}
+      <li class="active"><a href="{% url 'dashboard:rent-payments' %}">Payments</a></li>
+ {% endblock %}
+
+
+{% block menu_payments %}active{% endblock %}
+ {% block custom_css %}
+   <style type="text/css">
+      .theme_xbox .pace_activity, .theme_xbox .pace_activity::after, .theme_xbox .pace_activity::before, .theme_xbox_sm .pace_activity, .theme_xbox_sm .pace_activity::after, .theme_xbox_sm .pace_activity::before, .theme_xbox_xs .pace_activity, .theme_xbox_xs .pace_activity::after, .theme_xbox_xs .pace_activity::before {
+        border-radius: 50%;
+        border: 1px solid transparent;
+            border-top-width: 1px;
+            border-right-width: 1px;
+            border-bottom-width: 1px;
+            border-left-width: 1px;
+            border-top-color: transparent;
+        border-top-color: #1649fc;
+    }
+    .pace-demo {
+        background-color:#fff;
+    }
+    @media print {
+       #printBtn {
+          display: none;
+       }
+       #addPayment {
+          display: none;
+       }
+       .media-none {
+          display: none;
+       }
+       #media-none {
+          display: none;
+       }
+    }
+    .td:hover{cursor: pointer;}
+   </style>
+ {% endblock %}
+
+{% block content %}
+ <div class="row animated " id="vue-app">
    <div class="col-md-12">
-        <div class="col-md-4">
-          <label style="visibility: hidden;" class="text-bold"> add</label> 
-          <div class="form-group">
-            <a data-ta="#modal_instance" data-title="" href="javascript:;" class="btn bg-slate btn-sm showModalBtn hvr-glow btn-raised legitRipple add_payment-btn"><i class="icon-plus2"></i> ADD PAYMENT</a>
-          </div>
-        </div>
+      <div class="panel panel-flat">
+        <div class="panel-body  search-panel">
         <div class="col-md-4">
          <label>Search</label>
           <div class="form-group form-group-material has-feedback">
@@ -27,17 +70,34 @@
             </div>
           </div>
         </div>
+        <div class="col-md-2">
+             <label>Export</label>
+              <div class="form-group">
+                 <select v-model="exportType" @change="exportItems" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                    <option value="none" >Option</option>
+                    <option value="pdf" >export pdf</option>
+                    <option value="excel" >export excel</option>
+                  </select>
+              </div>
+            </div>
+
+      </div>
+   </div>
 
 <div class="row">
 
   <div class="col-md-12">
    <div id="pagination-div">
+      <!-- Header and footer fixed -->
+      <div class="panel panel-flat" id="printme">
+
+        <div class="panel-body">
         <div class="">
           <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
                 <thead>
-                  <tr class="bg-slate">
-                    <th>Invoice</th>
-                    <th>Date</th>
+                  <tr class="bg-primary">
+                    <th>Date/Invoice</th>
+                    <th>Tenant</th>
                     <th>Total Amount</th>
                     <th>Property</th>
                     <th>Amount Paid</th>
@@ -68,10 +128,10 @@
                 <template v-for="item in items">
                     <tr>
                         <td class="td" :data-href="item.booking_detail">
-                            ${item.invoice_number}<br>
-                            <span v-show="item.active"><mark>active</mark></span>
+                            ${item.date_paid}<br>
+                            <span><mark>${item.invoice_number}</mark></span>
                         </td>
-                        <td class="td" :data-href="item.booking_detail">${item.date_paid}</td>
+                        <td class="td" :data-href="item.booking_detail">${item.customer.name}</td>
                         <td class="td" :data-href="item.booking_detail">${item.total_amount}</td>
                         <td class="td" :data-href="item.booking_detail">${item.room.name}</td>
                         <td class="td" :data-href="item.booking_detail">${item.amount_paid}</td>
@@ -82,8 +142,6 @@
 
                     </tr>
                 </template>
-
-
                 </tbody>
            </table>
 
@@ -112,7 +170,7 @@
             </div>
           </div>
           </div>
-          <div class="col-md-4 pt-15" id="media-none">
+          <div class="col-md-4" id="media-none">
               <div class="text-center bootpag-callback p2-pag" style="">
             </div>
            </div>
@@ -124,10 +182,19 @@
           </div>
          </div>
          <input type="hidden" id="page_size" val="">
+
+      </div>
     </div><!-- pagination -->
   </div>
 </div>
 </div>
+
+<!-- Blue modal -->
+ <div id="modal_instancje" class="modal fade">
+
+ <div class="info"></div>
+ <!-- /blue modal -->
+<!-- edit modal -->
 
 
  </div>
@@ -135,6 +202,22 @@
 
 
 <input type="hidden" class="pageUrls"
-  data-bookinglisturl="{% url 'customer-api:api-customer-payment-list' pk=user.pk %}"
+  data-bookinglisturl="{% url 'customer-api:api-payment-list' %}"
 >
-<!--end listing-->
+{% endblock%}
+{% block custom_js %}
+  <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
+  <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/pagination/jquery.twbsPagination.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/booking/vue/listing.js' %}"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+   $('.bootstrap-select').selectpicker();
+});
+
+</script>
+{% endblock %}

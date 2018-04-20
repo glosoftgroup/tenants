@@ -590,7 +590,7 @@ class Maintenance(models.Model):
         pgettext_lazy('Maintenance field', 'invoice number'),
         max_length=152, unique=True, null=True)
     room = models.ForeignKey(
-        Room, related_name='maintenance', null=True, blank=True,
+        Room, related_name='maintenance', on_delete=models.CASCADE, null=True, blank=True,
         verbose_name=pgettext_lazy('Maintenance field', 'room'))
     issue = models.CharField(
         pgettext_lazy('Maintenance field', 'issue'), max_length=255, null=True, blank=True)

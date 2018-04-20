@@ -179,9 +179,12 @@
                                                 Actions<span class="caret"></span></button>
 
                                             <ul class="dropdown-menu dropdown-menu-right">
-                                                <li><a @click="goTo(item.view_url)" href="javascript:;"><i class="icon-eye"></i> view</a></li>
-                                                <li><a @click="goTo(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> Edit</a></li>
-                                                <li><a @click="deleteInstance(item.delete_url,item.id)" href="javascript:;"><i class=" icon-trash-alt"></i> Delete</a></li>
+                                                <li><a @click="goTo(item.view_url)" href="javascript:;"><i class="icon-eye"></i> VIEW</a></li>
+                                                <li><a @click="goTo(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> EDIT</a></li>
+                                                <li class="td"><a @click="goTo(item.maintenance_url)" href="javascript:;">
+                                                     <i class="icon-toggle"></i> MAINTENANCE</a>
+                                                </li>
+                                                <li><a @click="deleteInstance(item.delete_url,item.id)" href="javascript:;"><i class=" icon-trash-alt"></i> DELETE</a></li>
                                             </ul>
                                         </li>
                                     </ul>
@@ -286,7 +289,7 @@
                                                         <li><i class="icon-cash position-left"></i> ${room.price | formatCurrency}</li>
                                                     </ul>
                                                 </div>
-										    </div>
+                        </div>
                                         </div>
                                     </div>
                                 </div>
