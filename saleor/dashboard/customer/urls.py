@@ -46,7 +46,9 @@ urlpatterns = [
         url(r'^delete/contact/(?P<pk>[0-9]+)/$', views.dependency_delete, name='dependency-delete'),
         url(r'^refresh/contact/(?P<pk>[0-9]+)/$', views.refresh_dependency, name='refresh-dependency'),
         url(r'^address/add/(?P<pk>[0-9]+)/$', views.add_dependency, name='add_dependency'),
-        url(r'^invoice/pay/', views.pay, name='issue-invoice-pay'),
+        # rent payments
+        url(r'^rent/payment/$', views.payments, name='rent-payments'),
+        url(r'^rent/payment/(?P<pk>[0-9]+)/$', views.pay, name='rent-payment'),
 
 
         

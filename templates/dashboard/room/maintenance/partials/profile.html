@@ -28,16 +28,42 @@
 
 			<div class="panel panel-body no-border-top no-border-radius-top" style="padding: 0px !important;">
 				<ul class="customer-details">
-					<li class="text-semibold"><span class="text-bold">{{room.room_type|title}} - {{room.room_wing}}</span></li>
-					<li class="text-semibold"><span class="text-bold">Bedrooms: {{room.bedrooms}}</span></li>
-					<li class="text-semibold"><span class="text-bold">Packing Spaces: {{ room.parking_space }}</span></li>
-					<li class="text-semibold"><span class="text-bold">Amenities:</span>
-					<li class="text-semibold"><span class="text-bold">Status: 
-						{% if room.is_booked %}
-							Booked {% if customer.name %} {{customer.name}} {% endif %}
-						{% else %}
-							Not Booked
-						{% endif %}
+					<li class="text-semibold">
+						<span class="text-bold">
+							{% if room.room_type or room.room_wing %}
+								{{room.room_type|title}} - {{room.room_wing}} 
+							{% else %}
+							---
+							{% endif %}
+						</span>
+					</li>
+					<li class="text-semibold">
+						<span class="text-bold">
+							Bedrooms: 
+							{% if room.bedrooms %}
+								 {{room.bedrooms}}
+							{% else %}
+								---
+							{% endif %}
+						</span>
+					</li>
+					<li class="text-semibold">
+						<span class="text-bold">
+							Packing Spaces: 
+							{% if room.parking_space %}
+							{{ room.parking_space }}
+							{% else %}
+								---
+							{% endif %}
+						</span>
+					</li>
+					<li class="text-semibold">
+						<span class="text-bold">Status: 
+							{% if room.is_booked %}
+								Booked {% if customer.name %} {{customer.name}} {% endif %}
+							{% else %}
+								Not Booked
+							{% endif %}
 						</span>
 					</li>
 				</ul>

@@ -5,8 +5,8 @@
         <div class="tabbable">
           <ul class="nav nav-tabs nav-tabs-highlight">
             <li class="active" id="bio-tab"><a href="#bio" data-toggle="tab" class="legitRipple" aria-expanded="false">bio data</a></li>
-            <li class="" id="dependants-tab"><a href="#dependants" data-toggle="tab" class="legitRipple" aria-expanded="true">dependants</a></li>
-            <li class="" id="house-tab"><a href="#house" data-toggle="tab" class="legitRipple" aria-expanded="true">House Details</a></li>
+            <li class="" id="dependants-tab"><a href="#dependants" data-toggle="tab" class="legitRipple" aria-expanded="true">Next of Kin</a></li>
+            <li class="" id="house-tab"><a href="#house" data-toggle="tab" class="legitRipple" aria-expanded="true">Property Details</a></li>
             <li class="" id="payment-tab2"><a href="#payment" data-toggle="tab" class="legitRipple" aria-expanded="true">payments</a></li>
           </ul>
 
@@ -22,11 +22,11 @@
                         <div class="col-md-4">
                           <div class="form-group">
                             <label class="display_label">Name</label>
-                            <h6>{{user.name}}</h6>
+                            <h6>{% if user.name %}{{user.name}}{% else %} --- {% endif %}</h6>
                           </div> 
                           <div class="form-group">
                             <label class="display_label">Mobile No.</label>
-                            <h6>{{user.mobile}}</h6>
+                            <h6>{% if user.mobile %}{{user.mobile}}{% else %} --- {% endif %}</h6>
                            </div>
                            
                         </div>
@@ -34,11 +34,11 @@
                         <div class="col-md-4">
                           <div class="form-group">
                             <label class="display_label">Id / Passport No.</label>
-                            <h6>{{user.nid}}</h6>
+                            <h6>{% if user.nid %}{{user.nid}}{% else %} --- {% endif %}</h6>
                           </div>
                            <div class="form-group">
                               <label class="display_label">Email address</label>
-                              <h6>{{user.email}}</h6>
+                              <h6>{% if user.email %}{{user.email}}{% else %} --- {% endif %}</h6>
                            </div>          
                            
                         </div>
@@ -46,7 +46,7 @@
                         <div class="col-md-4">
                            <div class="form-group">
                               <label class="display_label">Nationality</label>
-                                <h6>{{user.nationality}}</h6>
+                                <h6>{% if user.nationality %}{{user.nationality}}{% else %} --- {% endif %}</h6>
                             </div>                  
                            
                         </div>
@@ -54,7 +54,7 @@
                       <div class="row">
                           <div class="col-md-12">
                             <label class="display_label">Description</label>
-                              <h6>{{user.description}}</h6>
+                              <h6>{% if user.description %}{{user.description}}{% else %} --- {% endif %}</h6>
                        </div>
                      </div>
                     </div>
@@ -100,7 +100,7 @@
                                 {% endfor %}
                                 {% else %}
                                 <tr>
-                                  <td colspan="6">
+                                  <td colspan="6" class="text-center">
                                     <span class="text-mute">
                                       No Contacts
                                     </span>
@@ -124,31 +124,33 @@
                         <div class="row">
                           <div class="col-md-4">
                             <div class="form-group">
-                              <label class="display_label">Name</label>
-                              <h6>{{room.name}}</h6>
+                              <label class="display_label">Property Name</label>
+                              <h6>{% if room.name %}{{room.name}}{% else %}---{% endif %}</h6>
                             </div> 
                             <div class="form-group">
                               <label class="display_label">Period</label>
-                              <h6>Check In: {{booking.check_in}} <br>Check Out: {{booking.check_out}}</h6>
+                              <h6>
+                                Check In: {% if booking.check_in %} {{booking.check_in}} {% else %} --- {% endif %} <br>
+                              Check Out: {% if booking.check_out %}  {{booking.check_out}} {% else %} ---{% endif %}</h6>
                              </div>
                              
                           </div>
 
                           <div class="col-md-4">
                             <div class="form-group">
-                              <label class="display_label">Room Type</label>
+                              <label class="display_label">Property Type</label>
                               <h6>{% if room.room_type %}{{room.room_type}} {% else %} ---{% endif %}</h6>
                             </div>
                              <div class="form-group">
                                 <label class="display_label">Booked On</label>
-                                <h6>{{booking.created}}</h6>
+                                <h6>{% if booking.created %}{{booking.created}}{% else %} ---{% endif %}</h6>
                              </div>          
                              
                           </div>
 
                           <div class="col-md-4">
                               <div class="form-group">
-                                <label class="display_label">Room Wing</label>
+                                <label class="display_label">Wing</label>
                                 <h6>{% if room.room_wing %}{{room.room_wing}} {% else %} ---{% endif %}</h6>
                               </div>
                               <div class="form-group">
@@ -162,28 +164,52 @@
                           <div class="row">
                              <div class="col-md-4">
                                <label class="display_label">Service Charges</label>
-                               <h6>{{room.service_charges}}</h6>
+                               <h6>{% if room.service_charges %}{{room.service_charges}}{% else %} ---{% endif %}</h6>
                              </div>
                            </div>
 
                         <div class="row">
                             <div class="col-md-12">
                               <label class="display_label">Features</label>
+                              
                                 <h6>
-                                  <span class="bg-slate house_span">Bedrooms: {{room.bedrooms}}</span>
-                                  <span class="bg-slate house_span">Packing Space(s): {{room.parking_space}}</span>
-                                  <span class="bg-slate house_span">Units: {{room.units}}</span>
-                                  <span class="bg-slate house_span">Floor Space: {{room.floor_space}}</span>
+                                  {% if room%}
+                                    {% if room.bedrooms%} 
+                                      <span class="bg-slate house_span">
+                                        Bedrooms: {{room.bedrooms}}
+                                      </span>
+                                    {% endif %}
+                                    {% if room.parking_space %}
+                                      <span class="bg-slate house_span">
+                                        Packing Space(s): {{room.parking_space}}
+                                      </span>
+                                    {% endif %}
+                                    {% if room.units %}
+                                      <span class="bg-slate house_span">
+                                        Units: {{room.units}} 
+                                      </span>
+                                    {% endif %}
+                                    {% if room.floor_space%}
+                                      <span class="bg-slate house_span">
+                                        Floor Space: {{room.floor_space}}
+                                      </span>
+                                    {% endif %}
+                                  {% else %} ---{% endif %}
                                 </h6>
+                                
                          </div>
                        </div>
                        <div class="row">
                          <div class="col-md-12">
                            <label class="display_label">Amenities</label>
                               <h6>
-                                {% for i in room.amenities.all %}
-                                  <span class="bg-slate house_span" style="padding:6px 12px;border-radius: 20px;margin-right:3px; ">{{i.name}}</span> 
-                                {% endfor %}
+                                {% if room.amenities %}
+                                  {% for i in room.amenities.all %}
+                                    <span class="bg-slate house_span" style="padding:6px 12px;border-radius: 20px;margin-right:3px; ">{{i.name}}</span> 
+                                  {% endfor %}
+                                {% else %} 
+                                  ---
+                                {% endif %}
                               </h6>
                          </div>
                        </div>

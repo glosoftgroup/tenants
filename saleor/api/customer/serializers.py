@@ -8,7 +8,8 @@ from rest_framework.serializers import (
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
-from ...customer.models import Customer, Payment
+from ...customer.models import Customer
+from ...booking.models import RentPayment
 from ...sale.models import PaymentOption
 from ...utils import image64
 
@@ -92,30 +93,71 @@ class CustomerUpdateSerializer(serializers.ModelSerializer):
         return instance
 
 class PaymentListSerializer(serializers.ModelSerializer):
-    amount = serializers.SerializerMethodField()
-    customer_name = serializers.SerializerMethodField()
+    total_amount = serializers.SerializerMethodField()
+    amount_paid = serializers.SerializerMethodField()
+    balance = serializers.SerializerMethodField()
+    total_balance = serializers.SerializerMethodField()
+    service_charges = serializers.SerializerMethodField()
+    customer = serializers.SerializerMethodField()
+    room = serializers.SerializerMethodField()
 
     class Meta:
-        model = Payment
+        model = RentPayment
         fields = ('id',
                   'invoice_number',
                   'customer',
-                  'amount',
-                  'date',
-                  'customer_name',
+                  'total_amount',
+                  'amount_paid',
+                  'service_charges',
+                  'balance',
+                  'total_balance',
+                  'date_paid',
+                  'customer',
+                  'room',
                   'description',
                   'created'
                  )
 
-    def get_amount(self, obj):
+    def get_total_amount(self, obj):
+        try:
+            return obj.total_amount.gross
+        except Exception as e:
+            return 0
+
+    def get_amount_paid(self, obj):
         try:
             return obj.amount_paid.gross
         except Exception as e:
             return 0
 
-    def get_customer_name(self, obj):
+    def get_balance(self, obj):
         try:
-            return obj.customer.name
+            return obj.balance.gross
+        except Exception as e:
+            return 0
+
+    def get_total_balance(self, obj):
+        try:
+            return obj.total_balance.gross
+        except Exception as e:
+            return 0
+
+    def get_service_charges(self, obj):
+        try:
+            return obj.service_charges.gross
+        except Exception as e:
+            return 0
+
+    def get_customer(self, obj):
+        try:
+            return {"id":obj.customer.id, "name":obj.customer.name}
+        except Exception as e:
+            print e
+            return 'None Set'
+
+    def get_room(self, obj):
+        try:
+            return {"id":obj.room.id, "name":obj.room.name}
         except Exception as e:
             print e
             return 'None Set'

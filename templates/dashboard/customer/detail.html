@@ -63,6 +63,7 @@
       background-color: #607D8B;
       border-color: #607D8B;
     }
+    .daterangepicker.dropdown-menu{z-index: 1051 !important}
    </style>
  {% endblock %}
 
@@ -80,7 +81,12 @@
   {% include 'dashboard/customer/partials/tabs.html' with customer=user room=room %}
   </div>
   {% include 'dashboard/customer/partials/modal_add_payment.html' with customer=user room=room %}
-  
+  {% if user %}
+  <input type="hidden" name="tenantPk" id="tenantPk" value="{{user.pk}}">
+  <input type="hidden" name="postUrl" id="postUrl" value="{% url 'dashboard:rent-payment' pk=user.pk %}"/>
+  <input type="hidden" name="minimumBalance" id="minimumBalance" value="{% if booking.balance_with_charges %}{{booking.balance_with_charges.gross}} {% else %} 0 {% endif %}"/>
+  {% endif %}
+
 
 </div>
 
@@ -95,28 +101,11 @@
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/booking/vue/listing.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/customer/payment.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     $('.bootstrap-select').selectpicker();
-
-    $('.td').on('click',function(){
-      windows.location.href = $(this).data('href');
-    });
-
-    $('body').on('click', '.modal-triggers', function (e) {
-      
-       var url = $(this).data('href')
-       var prompt_text = $(this).data('title');
-       var username = $(this).data('name');
-       var modal = $(this).data('ta');
-       var id = $(this).data('id');
-       $('.dels').attr('data-id', id);
-       $('.dels').attr('data-href', url);
-       $('modal-title').html(prompt_text);
-       $(modal).modal();
-       $('#issues-form').attr('action',url);
-    });
-
   });
 
 </script>

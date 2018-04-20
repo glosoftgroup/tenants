@@ -9,13 +9,15 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, Min, Sum, Avg, F, Q
 
 from ..views import staff_member_required
-from ...customer.models import Customer, AddressBook, Payment
+from ...customer.models import Customer, AddressBook
+from ...booking.models import RentPayment
 from ...sale.models import (Sales, SoldItem)
 from ...credit.models import Credit
 from ...decorators import permission_decorator, user_trail
 from saleor.booking.models import Book
 import logging
 import json
+import random
 
 debug_logger = logging.getLogger('debug_logger')
 info_logger = logging.getLogger('info_logger')
@@ -78,20 +80,22 @@ def user_process(request):
 
 
 def user_detail(request, pk):
-    user = get_object_or_404(Customer, pk=pk)
     try:
-        booking = Book.objects.get(customer=user, active=True, room__is_booked=True)
-    except:
-        booking = None
+        user = Customer.objects.get(pk=pk)
+        try:
+            booking = Book.objects.get(customer__pk=user.pk, active=True, room__is_booked=True)
+            room = Book.objects.get(customer=user, active=True).room
+        except:
+            booking = None
+            room = None
 
-    try:
-        room = Book.objects.get(customer=user, active=True).room
+        ctx = {'user': user, 'table_name': 'Customer', 'room':room, 'booking':booking}
+        user_trail(request.user.name, 'accessed detail page to view customer: ' + str(user.name), 'view')
+        info_logger.info('User: ' + str(request.user.name) + ' accessed detail page to view customer:' + str(user.name))
+        return TemplateResponse(request, 'dashboard/customer/detail.html', ctx)
     except:
-        room = None
-    ctx = {'user': user, 'table_name': 'Customer', 'room':room, 'booking':booking}
-    user_trail(request.user.name, 'accessed detail page to view customer: ' + str(user.name), 'view')
-    info_logger.info('User: ' + str(request.user.name) + ' accessed detail page to view customer:' + str(user.name))
-    return TemplateResponse(request, 'dashboard/customer/detail.html', ctx)
+        print ('*')*100
+        return TemplateResponse(request, 'dashboard/customer/detail.html', {})
 
 
 def sales_detail(request, pk):
@@ -517,33 +521,98 @@ def dependency_delete(request, pk):
                             ctx)
 
 @staff_member_required
-def pay(request):
-    # global table_name
-    # # create instance
-    # instance = Payment()
-    # if request.method == 'POST':
-    #     if request.POST.get('invoice_number'):
-    #         instance.invoice_number = request.POST.get('invoice_number')
-    #     if request.POST.get('issue'):
-    #         issue = Maintenance.objects.get(pk=int(request.POST.get('issue')))
-    #         instance.issue = issue
-    #     if request.POST.get('amount_paid'):
-    #         instance.amount_paid = request.POST.get('amount_paid')
-    #     if request.POST.get('date'):
-    #         instance.date = request.POST.get('date')
-    #     if request.POST.get('description'):
-    #         instance.description = request.POST.get('description')
-    #     instance.save()
-    #     issue.amount_paid = issue.amount_paid.gross + instance.amount_paid.gross
-    #     issue.balance = issue.balance.gross - instance.amount_paid.gross
-    #     if (issue.balance.gross - instance.amount_paid.gross) == 0:
-    #         issue.is_fixed = True
-    #         issue.date_resolved = datetime.datetime.today().strftime('%Y-%m-%d')
-    #     issue.save()
-    #     data = {'balance': float(issue.balance.gross),
-    #             'total_paid': float(issue.amount_paid.gross)}
+def pay(request, pk=None):
+    try:
+        customer = Customer.objects.get(pk=pk)
+    except:
+        customer = none
 
-    #     return HttpResponse(json.dumps(data), content_type='application/json')
+    # create payment instance
+    if request.method == 'POST':
+        instance = RentPayment()
+        try:
+            instance.invoice_number = 'inv/fx/0'+str(RentPayment.objects.latest('id').id)
+            instance.invoice_number += ''.join(random.choice('0123456789ABCDEF') for i in range(4))
+        except Exception as e:
+            instance.invoice_number = 'inv/fx/1'+''.join(random.choice('0123456789ABCDEF') for i in range(4))
+
+        instance.customer = customer
+        if request.POST.get('date_paid'):
+            instance.date_paid = request.POST.get('date_paid')
+        if request.POST.get('amount_paid'):
+            instance.amount_paid = request.POST.get('amount_paid')
+        print instance.amount_paid
+
+        book = Book.objects.get(customer__pk=customer.pk, active=True, room__is_booked=True)
+        instance.room = book.room
+
+        try:
+            book = Book.objects.get(customer__pk=customer.pk, active=True, room__is_booked=True)
+            instance.room = book.room
+            book_amount = book.amount_paid.gross
+            book_balance = book.balance.gross
+            if  book_amount== 0:
+                print ('!')*100
+                try:
+                    instance.total_amount = book_balance
+                    # add all the amount paid so far
+                    book.amount_paid = book_amount + instance.amount_paid.gross
+                    # calculate the balance
+                    bookBalance = book_balance - instance.amount_paid.gross
+                    book.balance = bookBalance
+                    #calculate the balance with the charges
+                    book.balance_with_charges = bookBalance + book.service_charges.gross
+                    #record the balance and the service charges in the RentPayment model
+                    instance.balance = bookBalance
+                    instance.service_charges = book.service_charges.gross
+                    book.service_charges = 0
+                    instance.total_balance = instance.service_charges.gross + instance.balance.gross
+                    print ('book amount paid'+str(book.amount_paid))
+                    instance.save()
+                    book.save()
+                except Exception as e:
+                    print ('1')*100
+                    print (e)
+            else:
+                print ('?')*100
+                try:
+                    #total amount remaining
+                    instance.total_amount = book.balance_with_charges.gross
+                    #the total amount paid
+                    book.amount_paid = book_amount + instance.amount_paid.gross
+                    #calculate the balance with the charges
+                    bookBalanceWitharges = book.balance_with_charges.gross - instance.amount_paid.gross
+                    book.balance_with_charges = bookBalanceWitharges
+                    # calculate the balance without the charges
+                    bookBalance = book_balance - instance.amount_paid.gross
+                    book.balance = bookBalance
+                    # assign the total to the to the payment instance
+                    instance.balance = bookBalanceWitharges
+                    instance.service_charges = book.service_charges.gross
+                    instance.total_balance = instance.service_charges.gross + instance.balance.gross
+
+                    book.balance_with_charges = bookBalanceWitharges + book.service_charges.gross
+                    book.service_charges = 0
+                    print ('book amount paid'+str(book.amount_paid))
+                    instance.save()
+                    book.save()
+                except Exception as e:
+                    print ('2')*100
+                    print (e)
+
+            data = {'success': 'success'}
+            return HttpResponse(json.dumps(data), content_type='application/json')
+
+        except Exception as e:
+            print e
+            return HttpResponse('Invalid request method')
+        return HttpResponse('Invalid request method')
 
     return HttpResponse('Invalid request method')
 
+@staff_member_required
+def payments(request):
+    global table_name
+
+    ctx = {'table_name': table_name}
+    return TemplateResponse(request, 'dashboard/customer/reports/payments.html', ctx)

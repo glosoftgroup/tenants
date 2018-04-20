@@ -14,7 +14,7 @@ from .serializers import (
      )
 
 from ...customer.models import Customer as Table
-from saleor.customer.models import Payment
+from ...booking.models import RentPayment
 import logging
 
 User = get_user_model()
@@ -85,12 +85,35 @@ class CustomerPagListAPIView(generics.ListAPIView):
 
 class PaymentListAPIView(generics.ListAPIView):
     serializer_class = PaymentListSerializer
-    queryset = Payment.objects.all()
+    pagination_class = CustomPagination
+    queryset = RentPayment.objects.all()
 
-    def list(self, request, pk=None):
-        serializer_context = {
-            'request': Request(request),
-        }
-        queryset = self.get_queryset().filter(customer__pk=pk)
-        serializer = PaymentListSerializer(queryset, context=serializer_context, many=True)
-        return Response(serializer.data)
+    def get_queryset(self, *args, **kwargs):
+        try:
+            if self.kwargs['pk']:
+                queryset = RentPayment.objects.filter(customer__pk=self.kwargs['pk'])
+            else:
+                queryset = RentPayment.objects.all()
+        except Exception as e:
+            queryset = RentPayment.objects.all().select_related()
+
+        queryset_list = RentPayment.objects.all().select_related()
+        query = self.request.GET.get('q')
+        page_size = 'page_size'
+        if self.request.GET.get(page_size):
+            pagination.PageNumberPagination.page_size = self.request.GET.get(page_size)
+        else:
+            pagination.PageNumberPagination.page_size = 10
+        if self.request.GET.get('date'):
+            queryset = queryset.filter(date_paid__icontains=self.request.GET.get('date'))
+        if query:
+            queryset = queryset.filter(
+                Q(invoice_number__icontains=query) |
+                Q(customer__name__icontains=query) |
+                Q(room__name__icontains=query)
+                )
+        return queryset
+
+    def filter_queryset(self, queryset):
+        queryset = super(PaymentListAPIView, self).filter_queryset(queryset)
+        return queryset.order_by('-id')

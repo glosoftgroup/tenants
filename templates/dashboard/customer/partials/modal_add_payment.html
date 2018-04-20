@@ -7,30 +7,30 @@
         <h4 class="modal-title text-center">ADD PAYMENT</h4>
       </div>
       <div class="modal-body">
-        <form method="post" id="issues-form" enctype="multipart/form-data">
+        <form method="post" id="payment-form" enctype="multipart/form-data">
           {% csrf_token %} 
 
-          <input type="hidden" id="addIssueUrl" value="{% url 'dashboard:add_room_issue' pk=room.pk%}"/>
+          
          <div class="col-md-6">
             <div class="form-group">
-              <label>Date Reported</label>
-              <input type="text" id="date_reported" name="date_reported" class="form-control">
+              <label>Date Paid</label>
+              <input type="text" id="date_paid" name="date_paid" class="form-control">
             </div>
          </div>
          <div class="col-md-6">
             <div class="form-group" id="cost_group">
-              <label>Cost.</label>
-              <input type="text" id="cost" name="cost" class="form-control id_no">
+              <label>Amount.</label>
+              <input type="text" id="amount_paid" name="amount_paid" class="form-control id_no">
             </div>
          </div>
 
       <!-- action buttons -->
          <div class="row text-right">
              <div class="col-md-6 col-md-offset-3">
-                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
                 <button type="submit"  class="btn btn-primary pull-right" id="submit">Submit</button>
-             </div>
-     </div>
+           </div>
+         </div>
       </form>
       </div>
     </div><!-- /.modal-content -->

@@ -128,6 +128,15 @@ class Book(models.Model):
     created = models.DateTimeField(
         pgettext_lazy('Book field', 'created'),
         default=now, editable=False)
+    service_charges = PriceField(
+        pgettext_lazy('Book field', 'service charges(maintenance fee added)'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    balance_with_charges = PriceField(
+        pgettext_lazy('Book field', 'balance with service charges included'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+
     objects = ModelManager()
 
     class Meta:
@@ -196,3 +205,47 @@ class BookingHistory(models.Model):
     created = models.DateField(
         pgettext_lazy('BookingHistory field', 'created'),
         default=now, editable=False)
+
+class RentPayment(models.Model):
+    date_paid = models.CharField(
+        pgettext_lazy('Payment field', 'date paid'),
+        max_length=152, default='', null=True, blank=True)
+    created = models.DateField(
+        pgettext_lazy('Payment field', 'created'),
+        default=now, editable=False)
+    invoice_number = models.CharField(
+        pgettext_lazy('Payment invoice', 'invoice number'),
+        max_length=152, default='', blank=True, null=True)
+    price_type = models.CharField(
+        pgettext_lazy('Payment field', 'price type'),
+        max_length=152, default='', null=True, blank=True)
+    total_amount = PriceField(
+        pgettext_lazy('Payment field', 'price'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    total_balance = PriceField(
+        pgettext_lazy('Payment field', 'price'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    amount_paid = PriceField(
+        pgettext_lazy('Payment field', 'price'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    balance = PriceField(
+        pgettext_lazy('Book field', 'balance'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    service_charges = PriceField(
+        pgettext_lazy('Book field', 'service charges'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    customer = models.ForeignKey(
+        Customer, related_name='tenant_payment', blank=True, null=True, default='', on_delete=models.SET_NULL,
+        verbose_name=pgettext_lazy('Customer field', 'customer'))
+    room = models.ForeignKey(
+        Room, related_name='room_payment', blank=True, null=True, default='', on_delete=models.SET_NULL,
+        verbose_name=pgettext_lazy('Customer field', 'room'))
+
+    description = models.CharField(
+        pgettext_lazy('Payment field', 'description'),
+        max_length=152, default='', null=True, blank=True)

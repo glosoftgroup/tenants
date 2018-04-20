@@ -22,6 +22,7 @@
      #addExpenseTable{display:none;}
      .detail-column p{font-size:14px;}
      #addoptionsform label.error{color:#ff7043}
+     .dropdown-menu{left:auto;right:0;}
    </style>
 
  {% endblock %}
@@ -160,13 +161,16 @@
                     <td class="text-center">
                         <div class="btn-group">
                         <button type="button" class="btn btn-default dropdown-toggle legitRipple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        action <span class="roomet"></span>
+                        action <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu edit-dropdown">
                             <li class="td"><a href="{% url 'dashboard:room-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
                             </li>
                              <li class="td"><a href="{% url 'dashboard:room-view' pk=option.pk %}">
-                                 <i class="icon-eye"></i> View</a>
+                                 <i class="icon-eye"></i> VIEW</a>
+                            </li>
+                            <li class="td"><a href="{% url 'dashboard:add_room_issue' pk=option.pk %}">
+                                 <i class="icon-toggle"></i> MAINTENANCE</a>
                             </li>
                             <li class="hidden">
                                 <a data-ta="#modal_instance" data-pk="{{option.pk}}" data-cloneurl="{% url 'dashboard:clone-room' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
