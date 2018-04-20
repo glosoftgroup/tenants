@@ -52,6 +52,17 @@
     .customer-details li span{
       padding-bottom: 15px;
     }
+    .display_label{font-size: 15px !important;text-decoration: underline;}
+    .house_span{
+      padding: 6px 12px;
+      border-radius: 20px;
+      margin: 7px 3px 5px 0px;
+      float: left;
+    }
+    .pagination > .active > a, .pagination > .active > a:hover, .pagination > .active > a:active, .pagination > .active > a:focus{
+      background-color: #607D8B;
+      border-color: #607D8B;
+    }
    </style>
  {% endblock %}
 
@@ -66,8 +77,9 @@
   {% include 'dashboard/customer/partials/profile.html' with customer=user %}
   </div>
   <div class="col-md-9">
-  {% include 'dashboard/customer/partials/report_summary.html' with customer=user %}
+  {% include 'dashboard/customer/partials/tabs.html' with customer=user room=room %}
   </div>
+  {% include 'dashboard/customer/partials/modal_add_payment.html' with customer=user room=room %}
   
 
 </div>
@@ -89,6 +101,20 @@
 
     $('.td').on('click',function(){
       windows.location.href = $(this).data('href');
+    });
+
+    $('body').on('click', '.modal-triggers', function (e) {
+      
+       var url = $(this).data('href')
+       var prompt_text = $(this).data('title');
+       var username = $(this).data('name');
+       var modal = $(this).data('ta');
+       var id = $(this).data('id');
+       $('.dels').attr('data-id', id);
+       $('.dels').attr('data-href', url);
+       $('modal-title').html(prompt_text);
+       $(modal).modal();
+       $('#issues-form').attr('action',url);
     });
 
   });

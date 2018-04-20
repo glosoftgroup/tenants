@@ -25,6 +25,14 @@ urlpatterns = [
     url(r'^paginate/', views.paginate, name='room_paginate'),
     url(r'^search/$', views.searchs, name='room-search'),
     url(r'^update/(?P<pk>[0-9]+)/$', views.edit, name='room-edit'),
+    url(r'^view/(?P<pk>[0-9]+)/$', views.view, name='room-view'),
+
+    #maintenance
+    url(r'^maintenance/$', views.room_maintenance, name='room_maintenance'),
+    url(r'^maintenance/(?P<pk>[0-9]+)/$', views.add_room_issue, name='add_room_issue'),
+    url(r'^maintenance/fix/(?P<pk>[0-9]+)/$', views.fix_issue, name='fix-issue'),
+    url(r'^maintenance/fix/invoice/(?P<pk>[0-9]+)/$', views.fix_issue_invoice, name='fix-issue-invoice'),
+    url(r'^maintenance/delete/(?P<pk>[0-9]+)/$', views.delete_issue, name='delete-issue')
 
 
     ]

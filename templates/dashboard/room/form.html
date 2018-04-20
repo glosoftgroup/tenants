@@ -4,15 +4,15 @@
 {% load prices_i18n %}
 
 {% block title %}
-  {{ table_name }}
+  Properties
 {% endblock %}
 
  {% block breadcrumbs %}
      <li class="">
-         <a href="{% url 'dashboard:room-list' %}">{{ table_name }} </a>
+         <a href="{% url 'dashboard:room-list' %}">Properties </a>
      </li>
      <li class="active">
-         {% if room.pk %}Edit {% else %}Add{% endif %} room
+         {% if room.pk %}Edit {% else %}Add{% endif %} Property
      </li>
  {% endblock %}
 
@@ -79,35 +79,67 @@
         border-radius: 2px;
         background-color: grey;
     }
+    textarea.form-control {
+        height: 68px;
+    }
 </style>
+<style type="text/css">
+      .theme_xbox .pace_activity, .theme_xbox .pace_activity::after, .theme_xbox .pace_activity::before, .theme_xbox_sm .pace_activity, .theme_xbox_sm .pace_activity::after, .theme_xbox_sm .pace_activity::before, .theme_xbox_xs .pace_activity, .theme_xbox_xs .pace_activity::after, .theme_xbox_xs .pace_activity::before {
+        border-radius: 50%;
+        border: 1px solid transparent;
+            border-top-width: 1px;
+            border-right-width: 1px;
+            border-bottom-width: 1px;
+            border-left-width: 1px;
+            border-top-color: transparent;
+        border-top-color: #1649fc;
+    }
+    .pace-demo {
+        background-color:#fff;
+    }
+    @media print {
+       #printBtn {
+          display: none;
+       }
+       #addPayment {
+          display: none;
+       }
+       .media-none {
+          display: none;
+       }
+       #media-none {
+          display: none;
+       }
+    }
+   </style>
 <style>
     .error{color:red;}
+</style>
+<style>
+    .ui-datepicker-header { display:none }
 </style>
 {% endblock %}
 {% block content %}
 <div class="panel panel-flat">
-    <div class="panel-heading">
-        <h6 class="panel-title">Add rooms</h6>
-        <div class="heading-elements">
-            <ul class="icons-list">
-                <li><a data-action="collapse"></a></li>
-                <li><a data-action="reload"></a></li>
-                <li><a data-action="close"></a></li>
-            </ul>
-        </div>
-    <a class="heading-elements-toggle"><i class="icon-more"></i></a></div>
 
     <div class="panel-body">
-        <div class="tabbable nav-tabs-vertical nav-tabs-left">
-            <ul class="nav nav-tabs nav-tabs-highlight" style="width: 160px;">
-                <li class="active"><a href="#room-details" data-toggle="tab" class="legitRipple" aria-expanded="true"><i class="icon-info3 position-left"></i> Basic Details</a></li>
+        <div class="tabbable">
+            <ul class="nav nav-tabs nav-tabs-highlight" style="">
+                <li class="active"><a href="#room-details" data-toggle="tab" class="legitRipple" aria-expanded="true"><i class="icon-info3 position-left"></i> Details</a></li>
+                <li class=""><a id="tab-availability" {% if room.pk %} href="#room-availability" data-toggle="tab"  class="legitRipple" {% else %} class="disabled" {% endif %} aria-expanded="false"><i class="icon-watch2 position-left"></i> Availability</a></li>
+                <li class=""><a id="tab-booking" {% if room.pk %} href="#room-booking" data-toggle="tab"  class="legitRipple" {% else %} class="disabled" {% endif %} aria-expanded="false"><i class="icon-history position-left"></i> History</a></li>
                 <li class=""><a id="tab-images" {% if room.pk %} href="#room-images" data-toggle="tab"  class="legitRipple" {% else %} class="disabled" {% endif %} aria-expanded="false"><i class="icon-images3 position-left"></i> Images</a></li>
             </ul>
 
             <div class="tab-content">
-                <div class="tab-pane has-padding active" id="room-details">
+                <div class="tab-pane active" id="room-details">
                     <!--room details-->
                     <div class="panel panel-flat animated fadeIn" id="vue-app">
+                        <script type="text/x-template" id="select2-template">
+                            <select>
+                                <slot></slot>
+                            </select>
+                        </script>
                         <div class="panel-body">
                             <div class="row">
                                <form id="room-form" enctype="multipart/form-data" novalidate>
@@ -119,87 +151,68 @@
 
                                     <div class="form-group">
                                         <div class="row">
-                                            <div class="col-md-9">
-                                                <label>Room Name:<span class="text-danger">*</span></label>
-                                                <input required class="form-control" {% if room.pk %} value="{{room.name}}"{% endif %} name="name" id="name" placeholder="Room Name" type="text">
+                                            <div class="col-md-12">
+                                                <label>Property Name:<span class="text-danger">*</span></label>
+                                                <input  required class="form-control" {% if room.pk %} value="{{room.name}}"{% endif %} name="name" id="name" placeholder="Name" type="text">
                                                 <span class="help-block text-warning"></span>
                                             </div>
-                                            <div class="col-md-3" id="parent-div">
-                                                <label style="margin-top: 4px;">Floor:<span class="text-danger">*</span></label>
-                                                <select class="floor hidden" multiple>
-                                                    {% if room.pk %}
-                                                     <option selected="selected" value="{{room.floor}}">
-                                                       {% if not room.floor %}Ground{% else %} {{room.floor}}{% endif %}
-                                                    </option>
-                                                    {% endif %}
-                                                    <option {% if not room.pk %} selected="selected" {% endif %} value="0">
-                                                        Ground
-                                                    </option>
-                                                    {% for i in n %}
-                                                     <option value="{{i}}">
-                                                        {{i}}
-                                                    </option>
-                                                    {% endfor %}
 
-                                                </select>
-                                                <span class="help-block text-warning"></span>
-                                            </div>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                             <div class="row">
+                                                <div class="col-md-6" id="-div">
+                                                    <label >Wing:<span class="text-danger">*</span></label>
+                                                    <select2 id="wing" :options="wing_options"  v-model="wing">
+                                                        {% if room.room_wing.id %}
+                                                        <option value="{{room.room_wing.id}}">{{room.room_wing}}</option>
+                                                        {% else %}
+                                                        <option disabled value="0">Select wing</option>
+                                                        {% endif %}
+
+                                                    </select2>
+                                                    <span class="help-block text-warning"></span>
+                                                </div>
+
+                                                <div class="col-md-6" id="-v">
+                                                    <label >Property Type:<span class="text-danger">*</span></label>
+                                                    <select2 :options="propertytype_options" v-model="propertytype">
+                                                        {% if room.room_wing.id %}
+                                                        <option value="{{room.room_type.id}}">{{room.room_type}}</option>
+                                                        {% else %}
+                                                        <option disabled value="0">Select type</option>
+                                                        {% endif %}
+                                                    </select2>
+                                                    <span class="help-block text-warning"></span>
+                                                </div>
+
                                                 <div class="col-md-6">
-                                                  <label>Room Pricing Types:<span class="text-danger">*</span> </label>
+                                                    <div class="form-group">
+                                                        <label class="text-bold">Bedrooms:</label>
+                                                        <input name="bedrooms" id="bedrooms" placeholder="Bedrooms" class="form-control packages" type="number"  required="required" {% if room.id %} value="{{room.bedrooms}}" {% endif %}>
+                                                        <span class="help-block text-warning"></span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="text-bold">Units:</label>
+                                                        <input name="units" id="units" placeholder="units" class="form-control packages" type="number"  required="required" {% if room.id %} value="{{room.units}}" {% endif %}>
+                                                        <span class="help-block text-warning"></span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label class="text-bold">Floor Space:</label>
+                                                        <input name="floor_space" id="floor_space"  placeholder="space in sq" class="form-control packages" type="number" required="required" {% if room.pk %} value="{{ room.floor_space }}" {% endif %}>
+                                                        <span class="help-block text-warning"></span>
+                                                    </div>
                                                 </div>
                                                 <div class="col-md-6">
-                                                  <div class="checkbox" style="margin-top: 0px;">
-                                                        <label>
-                                                          <input v-model="autoComplete" name="creditable" class="text-primary styled check" type="checkbox">
-                                                            <span class="text-primary" v-show="autoComplete">Disable auto-complete</span>
-                                                            <span class="text-primary" v-show="!autoComplete">Activate auto-complete</span>
-                                                        </label>
-                                                        <span id="glranted" class="ganted text-success"></span>
-                                                  </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="col-md-4">
                                                     <div class="form-group">
-                                                        <label class="text-bold">Daily:</label>
-                                                        <input @keyup="computeFullDay" name="daily" id="daily" v-model.number="daily" placeholder="Day & night" class="form-control packages" type="number"  required="required" {% if room.id %} value="{{pricing.daily.gross}}" {% endif %}>
-                                                        <span class="help-block text-warning"></span>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-4">
-                                                    <div class="form-group">
-                                                        <label class="text-bold">Nightly:</label>
-                                                        <input @keyup="computeHalfDay" v-model.number="nightly" id="nightly" placeholder="Night only" class="form-control packages" type="number"  required="required" {% if room.id %} value="{{pricing.nightly.gross}}" {% endif %}>
-                                                        <span class="help-block text-warning"></span>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-4">
-                                                    <div class="form-group">
-                                                        <label class="text-bold">DayTime:</label>
-                                                        <input @keyup="computeHalfDay" id="daytime" v-model.number="daytime" placeholder="Day time only" class="form-control packages" type="number" required="required" {% if pricing.pk %} value="{{pricing.daytime.gross}}" {% endif %}>
-                                                        <span class="help-block text-warning"></span>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-4">
-                                                    <div class="form-group">
-                                                        <label class="text-bold">Weekly:</label>
-                                                        <input id="weekly" v-model.number="weekly" name="weekly" placeholder="Weekly" class="form-control packages" type="number"  required="required" {% if pricing.pk %} value="{{pricing.weekly.gross}}" {% endif %}>
-                                                        <span class="help-block text-warning"></span>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-4">
-                                                    <div class="form-group">
-                                                        <label class="text-bold">Monthly:</label>
-                                                        <input id="monthly" v-model.number="monthly" name="monthly" placeholder="Monthly" class="form-control packages" type="number"  required="required" {% if pricing.pk %} value="{{pricing.monthly.gross}}" {% endif %}>
+                                                        <label class="text-bold">Parking Space:</label>
+                                                        <input name="parking_space" id="parking_space"  placeholder="number of parking" class="form-control packages" type="number" required="required" {% if room.pk %} value="{{ room.parking_space }}" {% endif %}>
                                                         <span class="help-block text-warning"></span>
                                                     </div>
                                                 </div>
@@ -208,6 +221,23 @@
                                         </div>
                                 </div>
                                 <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="text-bold">Price:</label>
+                                                <input name="price" id="price"  placeholder="price" class="form-control packages" type="number" required="required" {% if room.pk %} value="{{room.price.gross}}" {% endif %}>
+                                                <span class="help-block text-warning"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="text-bold">Service charge:</label>
+                                                <input name="service_charges" id="service_charges"  placeholder="service charges" class="form-control packages" type="number" required="required" {% if room.pk %} value="{{room.service_charges}}" {% endif %}>
+                                                <span class="help-block text-warning"></span>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="form-group">
                                         <label>Amenities:<span class="text-danger">*</span></label>
                                         <select class="amenities hidden" multiple>
@@ -233,14 +263,17 @@
                                         </button>
                                     </div>
                                     <div class="form-group">
-                                        <label>Room Description:</label>
-                                        <textarea rows="5" cols="5" class="form-control" id="description" name="description" placeholder="Enter room description here">{% if room.description %}{{ room.description.strip }}{% endif %}</textarea>
+                                        <label>Description:</label>
+                                        <textarea v-model="description" rows="5" cols="5" class="form-control" id="description" name="description" placeholder="Enter description here">{% if room.description %}{{ room.description.strip }}{% endif %}</textarea>
                                         <span class="help-block text-warning"></span>
                                     </div>
                                 </div>
                                 <input type="hidden" id="room_id" name="room_id" {% if room.id %} value="{{room.id}}" {% endif %}>
+                                <input type="hidden" id="wing_id" name="wing_id" {% if room.id %} value="{{room.room_wing.id}}" {% endif %}>
+                                <input type="hidden" id="type_id" name="type_id" {% if room.id %} value="{{room.room_type.id}}" {% endif %}>
+
                                 <div class="text-right col-md-12">
-                                    <button onclick="return false;" id="add-room-btn" type="submit" class="btn btn-primary legitRipple">{% if room.id %}Edit{% else %}Add Room{% endif %} <i class="icon-arrow-right14 position-right"></i></button>
+                                    <button id="add-room-btn" type="submit" class="btn btn-primary legitRipple">{% if room.id %}Edit{% else %}Add Room{% endif %} <i class="icon-arrow-right14 position-right"></i></button>
                                 </div>
                              </form>
                             </div>
@@ -248,7 +281,146 @@
                     </div>
                     <!--./room details-->
                 </div>
+                <!--availability-->
+                <div class="tab-pane" id="room-availability">
+                    <div class="panel panel-flat animated fadeIn">
+                        <!--Availability-->
+                        {% if room.booking_room.first.check_in %}
+                           <div class="form-group">
+                               <div class="col-md-6">
+                                <label>Check-in Date: </label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                    <span>{{room.booking_room.first.check_in}}</span>
+                                </div>
+                                   <!-- Calendar widget -->
+                                    <div class="panel has-scroll">
+                                        <div class="datepicker-check-in no-border"></div>
+                                    </div>
+                                    <!-- /calendar widget -->
+                               </div>
+                               <div class="col-md-6">
+                                <label>Check-out Date: </label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                    <span style="margin-top:6px;">{{room.booking_room.first.check_out}}</span>
 
+                                </div>
+                                   <!-- Calendar widget -->
+                                    <div class="panel has-scroll">
+                                        <div class="datepicker no-border"></div>
+                                    </div>
+                                    <!-- /calendar widget -->
+                               </div>
+                            </div>
+                        {% else %}
+                        <div class="alert alert-primary no-border text-center animated fadeIn text-bold">
+                            <button type="button" class="close" data-dismiss="alert"><span>×</span><span class="sr-only">Close</span></button>
+                            No booking details
+                        </div>
+                        {% endif %}
+                        <!--./avalibilty-->
+                    </div>
+                </div>
+                <!--./availability-->
+                <!--booking tab-->
+                <div class="tab-pane " id="room-booking">
+                    <!--listbooks-->
+                    <div class="panel panel-flat" id="vue-list">
+                        <div class="panel-body no-padding">
+
+                            <div class="">
+                              <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
+                                    <thead>
+                                      <tr class="bg-primary">
+                                        <th>Invoice</th>
+                                        <th>Room</th>
+                                        <th>Days</th>
+                                        <th>Check-in</th>
+                                        <th>Check-out</th>
+                                        <th>Customer</th>
+                                        <th>Cost</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody id="tb">
+                                    <!--loader-->
+                                    <tr v-if="loader" class="text-center">
+                                        <td colspan="8">
+                                            <div class="pace-demo">
+                                                <div class="theme_xbox"><div class="pace_progress" data-progress-text="60%" data-progress="60"></div><div class="pace_activity"></div></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!--no data template-->
+                                    <template  v-else>
+                                    <tr v-if="items.length == 0" class="text-center">
+                                        <td colspan="8" class="text-bold animated zoomIn">
+                                            No Data Found !
+                                        </td>
+                                    </tr>
+                                    </template>
+                                    <!--listing template-->
+                                    <template v-for="item in items">
+                                        <tr>
+                                            <td>
+                                                ${item.invoice_number}<br>
+                                                <span v-show="item.active"><mark>active</mark></span>
+                                            </td>
+                                            <td>${item.room_name}</td>
+                                            <td>${item.days}</td>
+                                            <td>${item.date_in}</td>
+                                            <td>${item.date_out}</td>
+                                            <td>${item.customer_name}</td>
+                                            <td>${item.price_amount}</td>
+
+                                        </tr>
+                                    </template>
+
+
+                                    </tbody>
+                               </table>
+                            </div>
+                        </div>
+
+                         <style type="text/css">
+                           .pagination{margin-bottom: 0px;}
+                         </style>
+                         <div class="row mt-15 media-none">
+                         <div class="col-md-12">
+                          <div class="col-md-4">
+                           <div class="col-md-12">
+                            <div class="col-md-6 mt-10">
+                             <label>display list size</label>
+                            </div>
+                            <div class="col-md-6 media-none">
+                              <div class="form-group">
+                                 <select v-model="page_size" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                                    <option value="10" selected>No:</option>
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                  </select>
+                              </div>
+                            </div>
+                          </div>
+                          </div>
+                          <div class="col-md-4" id="media-none">
+                              <div class="text-center bootpag-callback p2-pag" style="">
+                            </div>
+                           </div>
+                            <div class="col-md-4">
+                             <div class="col-md-12 mt-5">
+                              <div class="pull-right pages-nav"></div>
+                             </div>
+                            </div>
+                          </div>
+                         </div>
+                         <input type="hidden" id="page_size" val="">
+                    </div>
+                    <!--./list books-->
+                </div>
+
+                <!--image tab-->
                 <div class="tab-pane has-padding" id="room-images">
                     <!--image -->
                      <div class="panel panel-flat animated fadeIn" >
@@ -261,7 +433,10 @@
                                             <span class="bg-primary text-white delete-image" data-pk="{{image.pk}}" data-href="{% url 'dashboard:room-delete-image' pk=image.pk %}">
                                             &#x2716;
                                             </span>
-                                            <img src="{{ image.image.url }}" style="opacity: 9;">
+                                            <a href="{{ image.image.url }}" data-popup="lightbox" rel="gallery" class="">
+                                              <img src="{{ image.image.url }}" style="opacity: 9;">
+                                            </a>
+
                                         </div>
                                         {% endfor %}
                                     </div>
@@ -269,7 +444,7 @@
 
 
                                  <div class="form-group" id="vue-app2">
-                                    <upload-image url="" name="" max_files=""></upload-image>
+                                    <upload-image class="form-control styled" url="" name="" max_files=""></upload-image>
                                  </div>
                             </div>
                         </div>
@@ -277,6 +452,8 @@
                     <!--./image-->
 
                 </div>
+
+
             </div>
         </div>
     </div>
@@ -284,13 +461,18 @@
 
 
 <input type="hidden" class="pageUrls"
+       {% if room.pk %}
+       data-bookinglisturl="{% url 'booking-api:api-room-booking-list' pk=room.pk %}"
+       {% endif %}
        data-roomurl="{% url 'dashboard:room-list' %}"
        data-amenitiesurl="{% url 'dashboard:fetch-amenities' %}"
        data-addamenitiesurl="{% url 'dashboard:add-amenities' %}"
        data-variantdetail="{% url 'dashboard:have-variants' %}"
        data-addattrurl="{% url 'dashboard:product-attr-add' %}"
        data-addclassurlb="{% url 'dashboard:attr_list_f32d' %}"
-       {% if room.pk %}data-uploadimages = "{% url 'dashboard:room-add-image' pk=room.pk %}"{% endif %}
+       {% if room.pk %}
+       data-uploadimages = "{% url 'dashboard:room-add-image' pk=room.pk %}"
+       {% endif %}
        data-pk="{{room.pk}}"
        data-roomdata="{% url 'dashboard:room-add' %}"
        data-addclassurl="{% url 'dashboard:product-class-form32b' %}">
@@ -307,7 +489,7 @@
                     <img v-bind:src="image[key]" v-bind:class="{ 'show': image[key]}">
                 </div>
             </div>
-            <input type="file" v-bind:id="'upload_image_form__input--' + name" hidden multiple />
+            <input class="file-styled" type="file" v-bind:id="'upload_image_form__input--' + name" hidden multiple />
             <div>
                 <button type="submit"
                     v-bind:class="button_class"
@@ -321,14 +503,22 @@
 {% endblock%}
 {% block custom_js %}
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/media/fancybox.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/core/libraries/jquery_ui_widgets.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/pickers/datetimepicker/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/pagination/jquery.twbsPagination.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/room/add-room.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/tokenize/tokenize2.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/room/vue/add_app.js' %}"></script>
+<script src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
 
+<script type="text/javascript" src="{% static 'backend/js/room/vue/add_app.js' %}"></script>
+<!--<script type="text/javascript" src="{% static 'backend/js/booking/vue/booking.js' %}"></script>-->
+<!--<script type="text/javascript" src="{% static 'backend/js/room/book-room.js' %}"></script>-->
+<script type="text/javascript" src="{% static 'backend/js/booking/vue/listing-single.js' %}"></script>
 <script>
 
 
@@ -339,7 +529,10 @@
     $(".styled, .multiselect-container input").uniform({
         radioClass: 'choice'
     });
-
+ // File input
+    $(".file-styled").uniform({
+        fileButtonClass: 'action btn bg-pink-400'
+    });
     // File input
     $(".file-styled").uniform({
         wrapperClass: 'bg-blue',
@@ -351,7 +544,7 @@
         radioClass: 'choice',
         wrapperClass: 'border-primary-600 text-primary-800'
     });
-
+    $('.bootstrap-select').selectpicker();
     //  disable image tab when room is not added
     var tabImages = $('#tab-images');
     {% if not room.pk %}
@@ -360,6 +553,40 @@
         });
     {% endif %}
 
+    $(function() {
+
+        // Initialize lightbox
+        $('[data-popup="lightbox"]').fancybox({
+            padding: 3
+        });
+
+    });
+
+
+    $('.daterange-basic').daterangepicker({
+        applyClass: 'bg-slate-600',
+        cancelClass: 'btn-default',
+    });
+
+    // Date picker
+    // ------------------------------
+
+    // Default functionality
+    var check_out = "{{room.booking_room.first.check_out|date:'Y-m-d'}}";
+    var check_in = "{{room.booking_room.first.check_in|date:'Y-m-d'}}";
+
+    $(".datepicker").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat : 'dd-mm-yy',
+        defaultDate: new Date(new Date(moment(check_out)))
+        }).datepicker( "option", "disabled", true );
+    $(".datepicker-check-in").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat : 'dd-mm-yy',
+        defaultDate: new Date(new Date(moment(check_in)))
+        }).datepicker( "option", "disabled", true );
 
 
 </script>

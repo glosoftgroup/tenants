@@ -15,28 +15,29 @@
               <table class="table table-striped table-hover datatable-header-footer" style="border-bottom:1px solid #ddd;">
                      <thead>
                       <tr class="bg-primary">
-                        <th>Image</th>
+                        <th width="14%">Image</th>
                         <th>Name</th>
-                        <th>Floor</th>
+                        <th>Wing</th>
+                        <th>Type</th>
                         <th>Price</th>
-                        <th>Amenities</th>
-
-                        {% if perms.sale.delete_bank %}
+                        <th>Service charges</th>
                         <th class="text-center">Options</th>
-                        {% endif %}
+
                       </tr>
                     </thead>
                     <tbody id="p-tb">
                     {% if options %}
                         {% for option in options %}
-                       <tr  id="{{option.pk }}">
-                           <!-- image -->
+                        <tr  id="{{option.pk }}">
+                    <!-- image -->
                     <td>
                         {% if option.room_images.first.image %}
                         <img src="{{ option.room_images.first.image.crop.40x40 }}">
+                        {% else %}
+                        <img style="width:60%" src="{% static 'backend/images/rooms/room.jpg' %}" alt="">
                         {% endif %}
                     </td>
-                    <!-- name -->
+                      <!--name-->
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
                         {{option.name}}<br>
                         {% if option.is_booked %}
@@ -44,55 +45,52 @@
                         {% endif %}
 
                     </td>
-                           <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                        {% if option.floor == '0' %}
-                        <mark class="text-size-small">Ground</mark>
-                        {% else %}
-                        <mark class="text-size-small">{{option.floor}}</mark>
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {% if option.room_wing %}
+                            <mark class="text-size-small">{{ option.room_wing }}</mark>
                         {% endif %}
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                      <div class="">
-                       <span class="text-size-small" data-popup="tooltip" title="Day time" data-placement="top">
-                           <i class="icon-sun3 text-muted"></i>
-                           <span class="text-size-small">{{option.get_daytime_price}}</span>
-                       </span> |
-                        <span class="text-size-small" data-popup="tooltip" title="Nightly charge" data-placement="top">
-                           <i class="icon-contrast text-muted"></i>
-                            <span class="text-size-small">{{option.get_nightly_price}}</span>
-                       </span>
-                      </div>
+                        {% if option.room_type %}
+                            <mark class="text-size-small">{{ option.room_type }}</mark>
+                        {% endif %}
+                    </td>
+
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {% if option.price %}
+                           {{ option.price.gross }}
+                        {% endif %}
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                        {% if option.amenities.all %}
-                         {{option.amenities.all|join:", "}}
+                        {% if option.price %}
+                           {{ option.service_charges }}
                         {% endif %}
-
                     </td>
-
 
                     {% if perms.sale.delete_room %}
-                    <!-- actions -->
+                   <!-- actions -->
                     <td class="text-center">
                         <div class="btn-group">
                         <button type="button" class="btn btn-default dropdown-toggle legitRipple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         action <span class="roomet"></span>
                         </button>
                         <ul class="dropdown-menu edit-dropdown">
-                              <li class="td"><a href="{% url 'dashboard:room-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
-                              </li>
-                            <li>
+                            <li class="td"><a href="{% url 'dashboard:room-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
+                            </li>
+                             <li class="td"><a href="{% url 'dashboard:room-view' pk=option.pk %}">
+                                 <i class="icon-eye"></i> View</a>
+                            </li>
+                            <li class="hidden">
                                 <a data-ta="#modal_instance" data-pk="{{option.pk}}" data-cloneurl="{% url 'dashboard:clone-room' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
                                class="clone">
                                     <i class="icon-copy" href="#modal_instance"></i>
                                     CLONE
                                </a>
                             </li>
-                            </li>
                             <li>
                                 <a data-ta="#modal_instance" data-title="Delete   {{ option.name }} ?" data-href="{% url 'dashboard:room-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
-                         class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
-                            </a>
+                                class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
+                                </a>
                             </li>
 
                         </ul>

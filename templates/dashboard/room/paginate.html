@@ -1,14 +1,24 @@
              {% load staticfiles %}
+             <style type="text/css">
+     tr.nb td{border:0px;}
+     .nb{border:0px;}
+     .table{border:1px solid #ccc}
+     #addExpenseTable{display:none;}
+     .detail-column p{font-size:14px;}
+     #addoptionsform label.error{color:#ff7043}
+   </style>
                {% for option in options %}
 
                   <tr  id="{{option.pk }}">
-                      <!-- image -->
+                    <!-- image -->
                     <td>
                         {% if option.room_images.first.image %}
                         <img src="{{ option.room_images.first.image.crop.40x40 }}">
+                        {% else %}
+                        <img style="width:60%" src="{% static 'backend/images/rooms/room.jpg' %}" alt="">
                         {% endif %}
                     </td>
-                    <!-- name -->
+                      <!--name-->
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
                         {{option.name}}<br>
                         {% if option.is_booked %}
@@ -17,31 +27,26 @@
 
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                        {% if option.floor == '0' %}
-                        <mark class="text-size-small">Ground</mark>
-                        {% else %}
-                        <mark class="text-size-small">{{option.floor}}</mark>
+                        {% if option.room_wing %}
+                            <mark class="text-size-small">{{ option.room_wing }}</mark>
                         {% endif %}
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                      <div class="">
-                       <span class="text-size-small" data-popup="tooltip" title="Day time" data-placement="top">
-                           <i class="icon-sun3 text-muted"></i>
-                           <span class="text-size-small">{{option.get_daytime_price}}</span>
-                       </span> |
-                        <span class="text-size-small" data-popup="tooltip" title="Nightly charge" data-placement="top">
-                           <i class="icon-contrast text-muted"></i>
-                            <span class="text-size-small">{{option.get_nightly_price}}</span>
-                       </span>
-                      </div>
+                        {% if option.room_type %}
+                            <mark class="text-size-small">{{ option.room_type }}</mark>
+                        {% endif %}
+                    </td>
+
+                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
+                        {% if option.price %}
+                           {{ option.price.gross }}
+                        {% endif %}
                     </td>
                     <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                        {% if option.amenities.all %}
-                         {{option.amenities.all|join:", "}}
+                        {% if option.price %}
+                           {{ option.service_charges }}
                         {% endif %}
-
                     </td>
-
 
                     {% if perms.sale.delete_room %}
                     <!-- actions -->
@@ -51,20 +56,22 @@
                         action <span class="roomet"></span>
                         </button>
                         <ul class="dropdown-menu edit-dropdown">
-                              <li class="td"><a href="{% url 'dashboard:room-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
-                              </li>
-                            <li>
+                            <li class="td"><a href="{% url 'dashboard:room-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
+                            </li>
+                             <li class="td"><a href="{% url 'dashboard:room-view' pk=option.pk %}">
+                                 <i class="icon-eye"></i> View</a>
+                            </li>
+                            <li class="hidden">
                                 <a data-ta="#modal_instance" data-pk="{{option.pk}}" data-cloneurl="{% url 'dashboard:clone-room' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
                                class="clone">
                                     <i class="icon-copy" href="#modal_instance"></i>
                                     CLONE
                                </a>
                             </li>
-                            </li>
                             <li>
                                 <a data-ta="#modal_instance" data-title="Delete   {{ option.name }} ?" data-href="{% url 'dashboard:room-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
-                         class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
-                            </a>
+                                class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
+                                </a>
                             </li>
 
                         </ul>

@@ -9,10 +9,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, Min, Sum, Avg, F, Q
 
 from ..views import staff_member_required
-from ...customer.models import Customer, AddressBook
+from ...customer.models import Customer, AddressBook, Payment
 from ...sale.models import (Sales, SoldItem)
 from ...credit.models import Credit
 from ...decorators import permission_decorator, user_trail
+from saleor.booking.models import Book
 import logging
 import json
 
@@ -37,7 +38,6 @@ def user_add(request):
     try:
         user_trail(request.user.name, 'accessed add customer page', 'view')
         info_logger.info('User: ' + str(request.user.name) + 'accessed add customer page')
-        # return TemplateResponse(request, 'dashboard/customer/add_user.html',{'permissions':"permissions", 'groups':"groups"})
         return TemplateResponse(request, 'dashboard/customer/add.html',{'permissions':"permissions", 'groups':"groups"})
     except TypeError as e:
         error_logger.error(e)
@@ -79,7 +79,16 @@ def user_process(request):
 
 def user_detail(request, pk):
     user = get_object_or_404(Customer, pk=pk)
-    ctx = {'user': user, 'table_name': 'Customer'}
+    try:
+        booking = Book.objects.get(customer=user, active=True, room__is_booked=True)
+    except:
+        booking = None
+
+    try:
+        room = Book.objects.get(customer=user, active=True).room
+    except:
+        room = None
+    ctx = {'user': user, 'table_name': 'Customer', 'room':room, 'booking':booking}
     user_trail(request.user.name, 'accessed detail page to view customer: ' + str(user.name), 'view')
     info_logger.info('User: ' + str(request.user.name) + ' accessed detail page to view customer:' + str(user.name))
     return TemplateResponse(request, 'dashboard/customer/detail.html', ctx)
@@ -150,7 +159,6 @@ def user_edit(request, pk):
     ctx = {'user': user}
     user_trail(request.user.name, 'accessed edit page for customer '+ str(user.name),'update')
     info_logger.info('User: '+str(request.user.name)+' accessed edit page for customer: '+str(user.name))
-    # return TemplateResponse(request, 'dashboard/customer/edit_user.html', ctx)
     return TemplateResponse(request, 'dashboard/customer/edit.html', ctx)
 
 def user_update(request, pk):
@@ -507,4 +515,35 @@ def dependency_delete(request, pk):
     return TemplateResponse(request,
                             'dashboard/customer/modal_delete.html',
                             ctx)
+
+@staff_member_required
+def pay(request):
+    # global table_name
+    # # create instance
+    # instance = Payment()
+    # if request.method == 'POST':
+    #     if request.POST.get('invoice_number'):
+    #         instance.invoice_number = request.POST.get('invoice_number')
+    #     if request.POST.get('issue'):
+    #         issue = Maintenance.objects.get(pk=int(request.POST.get('issue')))
+    #         instance.issue = issue
+    #     if request.POST.get('amount_paid'):
+    #         instance.amount_paid = request.POST.get('amount_paid')
+    #     if request.POST.get('date'):
+    #         instance.date = request.POST.get('date')
+    #     if request.POST.get('description'):
+    #         instance.description = request.POST.get('description')
+    #     instance.save()
+    #     issue.amount_paid = issue.amount_paid.gross + instance.amount_paid.gross
+    #     issue.balance = issue.balance.gross - instance.amount_paid.gross
+    #     if (issue.balance.gross - instance.amount_paid.gross) == 0:
+    #         issue.is_fixed = True
+    #         issue.date_resolved = datetime.datetime.today().strftime('%Y-%m-%d')
+    #     issue.save()
+    #     data = {'balance': float(issue.balance.gross),
+    #             'total_paid': float(issue.amount_paid.gross)}
+
+    #     return HttpResponse(json.dumps(data), content_type='application/json')
+
+    return HttpResponse('Invalid request method')
 

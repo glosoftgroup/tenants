@@ -1,7 +1,7 @@
 $ = jQuery;
 
 var parent = new Vue({
-    el:"#vue-app",
+    el:"#vue-book",
     delimiters: ['${', '}'],
     data:{
        'name':'Booking',
@@ -10,7 +10,7 @@ var parent = new Vue({
        'check_out':null
     },
     created:function(){
-       console.log('vue running in parent');
+       console.log('booking vue running in parent');
        if($('#days').val()){
          this.days = $('#days').val();
        }
@@ -28,6 +28,7 @@ var parent = new Vue({
     },
      watch: {
     	'days': function(val, oldVal){
+    	        console.log('sdfsdfsdf');
                 //console.log($('#check_out').val());
                 //this.check_out = moment($('#check_in').val()).add(parseInt(this.days), 'days').format('MM/DD/YYYY');
                 //$('#check_out').val(this.check_out);
