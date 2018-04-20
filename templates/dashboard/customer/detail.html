@@ -48,6 +48,7 @@
     .customer-details li {
         padding: 10px 15px;
         border-top: 1px solid #efefef;
+        margin-bottom: 15px;
     }
     .customer-details li span{
       padding-bottom: 15px;
@@ -84,7 +85,7 @@
   {% if user %}
   <input type="hidden" name="tenantPk" id="tenantPk" value="{{user.pk}}">
   <input type="hidden" name="postUrl" id="postUrl" value="{% url 'dashboard:rent-payment' pk=user.pk %}"/>
-  <input type="hidden" name="minimumBalance" id="minimumBalance" value="{% if booking.balance_with_charges %}{{booking.balance_with_charges.gross}} {% else %} 0 {% endif %}"/>
+  <input type="hidden" name="minimumBalance" id="minimumBalance" value="{% if booking.balance_with_charges.gross == 0%} {{booking.balance.gross}} {% else %} {{booking.balance_with_charges.gross}} {% endif %}"/>
   {% endif %}
 
 

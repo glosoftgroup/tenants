@@ -174,22 +174,28 @@
                                 <span class="pull-right">
                                     {% if room.pk %}
                                      {{room.name}}
+                                    {% else %}
+                                      ---
                                     {% endif %}
                                 </span>
                             </li>
                             <li class="text-semibold">
                                 <span class="text-bold">Wing :</span>
                                 <span class="pull-right">
-                                    {% if room.pk %}
+                                    {% if room.room_wing %}
                                      {{room.room_wing.name}}
+                                    {% else %}
+                                      ---
                                     {% endif %}
                                 </span>
                             </li>
                             <li class="text-semibold">
                                 <span class="text-bold">Type :</span>
                                 <span class="pull-right">
-                                    {% if room.pk %}
+                                    {% if room.room_type %}
                                      {{room.room_type.name}}
+                                    {% else %}
+                                      ---
                                     {% endif %}
                                 </span>
                             </li>

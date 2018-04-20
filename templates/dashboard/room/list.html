@@ -13,14 +13,6 @@
 
  {% block menu_rooms_class %}active{% endblock %}
  {% block custom_css %}
-   <style type="text/css">
-     tr.nb td{border:0px;}
-     .nb{border:0px;}
-     .table{border:1px solid #ccc}
-     #addExpenseTable{display:none;}
-     .detail-column p{font-size:14px;}
-     #addoptionsform label.error{color:#ff7043}
-     .dropdown-menu{left:auto;right:0;}
     <style type="text/css">
       .theme_xbox .pace_activity, .theme_xbox .pace_activity::after, .theme_xbox .pace_activity::before, .theme_xbox_sm .pace_activity, .theme_xbox_sm .pace_activity::after, .theme_xbox_sm .pace_activity::before, .theme_xbox_xs .pace_activity, .theme_xbox_xs .pace_activity::after, .theme_xbox_xs .pace_activity::before {
         border-radius: 50%;
@@ -76,137 +68,6 @@
                 </div>
               </div>
             </div>
-
-
-      </div>
-   </div>
-
- <div class="row">
-  <div class="col-md-12">
-   <div id="pagination-div">
-      <!-- Header and footer fixed -->
-      <div class="panel panel-flat">
-        <div class="panel-body">
-        <div class="room-responsive">
-
-
-          <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
-                <thead>
-                  <tr class="bg-primary">
-                    <th width="14%">Image</th>
-                    <th>Name</th>
-                    <th>Wing</th>
-                    <th>Type</th>
-                    <th>Price</th>
-                    <th>Service Charges</th>
-                    {% if perms.room.delete_room %}
-                    <th class="text-center">Options</th>
-                    {% endif %}
-                  </tr>
-                </thead>
-                <tbody id="tb">
-                {% if options %}
-                  {% for option in options %}
-                  <tr  id="{{option.pk }}">
-                    <!-- image -->
-                    <td>
-                        {% if option.room_images.first.image %}
-                        <img src="{{ option.room_images.first.image.crop.40x40 }}">
-                        {% else %}
-                        <img style="width:60%" src="{% static 'backend/images/rooms/room.jpg' %}" alt="">
-                        {% endif %}
-                    </td>
-                      <!--name-->
-                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                        {{option.name}}<br>
-                        {% if option.is_booked %}
-                        <mark class="text-size-small">Booked</mark>
-                        {% endif %}
-
-                    </td>
-                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                        {% if option.room_wing %}
-                            <mark class="text-size-small">{{ option.room_wing }}</mark>
-                        {% endif %}
-                    </td>
-                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                        {% if option.room_type %}
-                            <mark class="text-size-small">{{ option.room_type }}</mark>
-                        {% endif %}
-                    </td>
-
-                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                        {% if option.price %}
-                           {{ option.price.gross }}
-                        {% endif %}
-                    </td>
-                    <td class="td" data-href="{% url 'dashboard:room-detail' pk=option.pk %}" data-mtitle="{{option.name}}" data-m="#pdetail">
-                        {% if option.price %}
-                           {{ option.service_charges }}
-                        {% endif %}
-                    </td>
-
-                    {% if perms.sale.delete_room %}
-                    <!-- actions -->
-                    <td class="text-center">
-                        <div class="btn-group">
-                        <button type="button" class="btn btn-default dropdown-toggle legitRipple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        action <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu edit-dropdown">
-                            <li class="td"><a href="{% url 'dashboard:room-edit' pk=option.pk %}"><i class="icon-pencil7"></i> EDIT</a>
-                            </li>
-                             <li class="td"><a href="{% url 'dashboard:room-view' pk=option.pk %}">
-                                 <i class="icon-eye"></i> VIEW</a>
-                            </li>
-                            <li class="td"><a href="{% url 'dashboard:add_room_issue' pk=option.pk %}">
-                                 <i class="icon-toggle"></i> MAINTENANCE</a>
-                            </li>
-                            <li class="hidden">
-                                <a data-ta="#modal_instance" data-pk="{{option.pk}}" data-cloneurl="{% url 'dashboard:clone-room' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
-                               class="clone">
-                                    <i class="icon-copy" href="#modal_instance"></i>
-                                    CLONE
-                               </a>
-                            </li>
-                            <li>
-                                <a data-ta="#modal_instance" data-title="Delete   {{ option.name }} ?" data-href="{% url 'dashboard:room-delete' pk=option.pk %}" data-name="{{ option.name}}" data-id="{{ option.pk }}"
-                                class="modal-trigger del-btn"><i class="icon-trash" href="#modal_instance" data-toggle="modal"></i> DELETE
-                                </a>
-                            </li>
-
-                        </ul>
-                      </div>
-                    </td>
-                    {% endif %}
-                  </tr>
-                  {% endfor %}
-                {% else %}
-                    <tr>
-                      <td colspan="6">
-                        <h2 class="text-center">
-                          No Data Available
-                        </h2>
-                      </td>
-                    </tr>
-                {% endif %}
-                  </tbody>
-           </table>
-
-        </div>
-        </div>
-          {% if options %}                          
-         <style type="text/css">
-           .pagination{margin-bottom: 0px;}
-         </style> 
-         <div class="row">   
-         <div class="col-md-12">               
-          <div class="col-md-4">
-           <div class="col-md-12">
-            <div class="col-md-6 mt-10">
-             <label>display list size</label>
-            </div>
-            <div class="col-md-6">
             <div class="col-md-2 hidden">
               <div class="form-group">
                  <label>Status</label>
@@ -318,9 +179,12 @@
                                                 Actions<span class="caret"></span></button>
 
                                             <ul class="dropdown-menu dropdown-menu-right">
-                                                <li><a @click="goTo(item.view_url)" href="javascript:;"><i class="icon-eye"></i> view</a></li>
-                                                <li><a @click="goTo(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> Edit</a></li>
-                                                <li><a @click="deleteInstance(item.delete_url,item.id)" href="javascript:;"><i class=" icon-trash-alt"></i> Delete</a></li>
+                                                <li><a @click="goTo(item.view_url)" href="javascript:;"><i class="icon-eye"></i> VIEW</a></li>
+                                                <li><a @click="goTo(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> EDIT</a></li>
+                                                <li class="td"><a @click="goTo(item.maintenance_url)" href="javascript:;">
+                                                     <i class="icon-toggle"></i> MAINTENANCE</a>
+                                                </li>
+                                                <li><a @click="deleteInstance(item.delete_url,item.id)" href="javascript:;"><i class=" icon-trash-alt"></i> DELETE</a></li>
                                             </ul>
                                         </li>
                                     </ul>
@@ -425,7 +289,7 @@
                                                         <li><i class="icon-cash position-left"></i> ${room.price | formatCurrency}</li>
                                                     </ul>
                                                 </div>
-										    </div>
+                        </div>
                                         </div>
                                     </div>
                                 </div>

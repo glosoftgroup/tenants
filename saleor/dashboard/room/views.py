@@ -46,6 +46,8 @@ def add(request):
             instance.price = request.POST.get('price')
         if request.POST.get('service_charges'):
             instance.service_charges = request.POST.get('service_charges')
+        if request.POST.get('bedrooms'):
+            instance.bedrooms = request.POST.get('bedrooms')
         if request.POST.get('floor'):
             instance.floor = request.POST.get('floor')
         if request.POST.get('units'):
@@ -435,7 +437,7 @@ Maintenance
 @staff_member_required
 def add_room_issue(request, pk=None):
     try:
-        room = get_object_or_404(Table, pk=pk)
+        room = Table.objects.get(pk=pk)
         book = Book.objects.get(room__pk=room.pk, active=True)
     except:
         room = None
