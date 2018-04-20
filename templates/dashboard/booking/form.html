@@ -164,7 +164,10 @@
                     <input type="hidden" id="room_id" name="room_id" {% if room.id %} value="{{room.id}}" {% endif %} {% if instance.id %} value="{{instance.room.id}}" {% endif %}>
                     <input type="hidden" id="pk" name="pk" {% if instance.id %} value="{{instance.id}}" {% endif %}>
                     <div class="text-right col-md-12">
-                        <button id="create-book-btn" type="submit" class="btn btn-primary legitRipple">{% if room.id %}Edit{% else %}Book{% endif %} <i class="icon-arrow-right14 position-right"></i></button>
+                        <button id="create-book-btn" type="submit" class="btn btn-primary legitRipple">
+                            {% if room.id %}Book{% else %}Book{% endif %}
+                            <i class="icon-arrow-right14 position-right"></i>
+                        </button>
                     </div>
 
                </form>

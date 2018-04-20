@@ -195,12 +195,19 @@ $(function() {
         if(floor_space.val()){
             dynamicData['floor_space'] = floor_space.val();
         }
+
         if(parent.wing){
             dynamicData['wing'] = parent.wing;
+        }else{
+            alertUser('Wing field is required!', 'bg-danger', 'error!');
+            return;
         }
 
         if(parent.propertytype){
             dynamicData['propertytype'] = parent.propertytype;
+        }else{
+            alertUser('Property type field is required!', 'bg-danger', 'error!');
+            return;
         }
         // add dynamic post data
         dynamicData['name'] = name.val();

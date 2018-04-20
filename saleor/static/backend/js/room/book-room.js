@@ -271,7 +271,7 @@ $(function() {
 
             // var diffDays = Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
             var diffDays = moment(end).diff(moment(start), 'months', true)
-            return diffDays;
+            return parseInt(diffDays);
         }else{
             return 0;
         }

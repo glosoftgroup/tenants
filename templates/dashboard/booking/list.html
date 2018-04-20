@@ -61,7 +61,7 @@
               </div>
             </div>
             <div class="col-md-4">
-             <label>Search {{ table_name }}</label>
+             <label>Search </label>
               <div class="form-group form-group-material has-feedback">
                 <input class="form-control" v-model="search" @keyup="inputChangeEvent" placeholder="Search ..." type="text">
                 <div class="form-control-feedback">
@@ -118,7 +118,7 @@
                     <thead>
                       <tr class="bg-primary">
                         <th>Invoice</th>
-                        <th>Room</th>
+                        <th>Property</th>
                         <th>Days</th>
                         <th>Check-in</th>
                         <th>Check-out</th>
@@ -173,7 +173,7 @@
                                 action <span class="roomet"></span>
                                 </button>
                                 <ul class="dropdown-menu edit-dropdown" >
-                                    <li class="td">
+                                    <li class="td hidden">
                                         <a :href="item.booking_detail">
                                         <i class="icon-eye2"></i>
                                         Detail</a>

@@ -10,7 +10,6 @@
         <form method="post" id="issues-form" enctype="multipart/form-data">
           {% csrf_token %} 
 
-          <input type="hidden" id="addIssueUrl" value="{% url 'dashboard:add_room_issue' pk=room.pk%}"/>
          <div class="col-md-6">
             <div class="form-group">
               <label>Date Reported</label>

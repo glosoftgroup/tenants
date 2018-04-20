@@ -1,225 +1,355 @@
 {% extends "dashboard/base.html" %}
 {% load staticfiles %}
 {% load i18n %}
-{% load prices_i18n %}
 
 {% block title %}
-  Select Room - {{ table_name }}
+  Book
 {% endblock %}
 
-{% block menu_book_class %}active{% endblock %}
+ {% block breadcrumbs %}
+     <li class="active"><a> Book</a></li>
+ {% endblock %}
 
-{% block breadcrumbs %}
-     <li class="active"><a href="{% url 'dashboard:room-list' %}">Book </a></li>
-{% endblock %}
 
-{% block custom_css %}
-<link href="{% static 'backend/js/plugins/tokenize/tokenize2.css' %}" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="{% static 'backend/js/plugins/pickers/datetimepicker/bootstrap-datetimepicker-standalone.min.css' %}" />
-<style>
-    .ribbon-container {
-    width: 104px;
-    height: 106px;
-    overflow: hidden;
-    position: absolute;
-    top: -1px;
-    right: -1px;
-}
-.ribbon {
-    text-align: center;
-    font-size: 12px;
-    line-height: 1.6666667;
-    font-weight: 500;
-    text-transform: uppercase;
-    position: relative;
-    padding: 5px 0;
-    left: -11px;
-    top: 25px;
-    width: 150px;
-    color: #fff;
-    letter-spacing: .25px;
-    z-index: 993;
-    -webkit-transform: rotate(45deg);
-    -ms-transform: rotate(45deg);
-    -o-transform: rotate(45deg);
-    transform: rotate(45deg);
-    -webkit-box-shadow: 0 4px 6px rgba(0,0,0,.1);
-    box-shadow: 0 4px 6px rgba(0,0,0,.1);
-}
-</style>
+ {% block menu_book_class %}active{% endblock %}
+ {% block custom_css %}
+    <style type="text/css">
+      .theme_xbox .pace_activity, .theme_xbox .pace_activity::after, .theme_xbox .pace_activity::before, .theme_xbox_sm .pace_activity, .theme_xbox_sm .pace_activity::after, .theme_xbox_sm .pace_activity::before, .theme_xbox_xs .pace_activity, .theme_xbox_xs .pace_activity::after, .theme_xbox_xs .pace_activity::before {
+        border-radius: 50%;
+        border: 1px solid transparent;
+            border-top-width: 1px;
+            border-right-width: 1px;
+            border-bottom-width: 1px;
+            border-left-width: 1px;
+            border-top-color: transparent;
+        border-top-color: #1649fc;
+    }
+    .pace-demo {
+        background-color:#fff;
+    }
+    @media print {
+       #printBtn {
+          display: none;
+       }
+       #addPayment {
+          display: none;
+       }
+       .media-none {
+          display: none;
+       }
+       #media-none {
+          display: none;
+       }
+    }
+    .pagination{margin-bottom: 0px;}
+   </style>
+ {% endblock %}
 
-{% endblock %}
 {% block content %}
+ <div class="row animated " id="vue-app">
+
+   <div class="col-md-12">
+      <div class="panel panel-flat">
+      <div class="panel-body  search-panel" style="padding:5px;">
+            <div class="col-md-2">
+              <label style="visibility: hidden;"> add</label>
+              <div class="form-group">
+                    <a id="toggle-add-form" href="/dashboard/room/add/" class="btn btn-primary hvr-glow btn-raised legitRipple waves-effect waves-light">
+                        <i class="icon-plus2 position-left"></i>Add
+                    </a>
+              </div>
+            </div>
+            <div class="col-md-4">
+             <label>Search </label>
+              <div class="form-group form-group-material has-feedback">
+                <input class="form-control" v-model="search" @keyup="inputChangeEvent" placeholder="Search ..." type="text">
+                <div class="form-control-feedback">
+                  <i class="icon-search4 text-size-base"></i>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2 hidden">
+              <div class="form-group">
+                 <label>Status</label>
+                 <select v-model="status" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                    <option value="all" selected>All</option>
+                    <option value="True">Booked</option>
+                    <option value="False">Not Booked</option>
+                  </select>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <label>pick a date</label>
+              <div class="form-group">
+                <div class="input-group">
+                    <span v-datepicker></span>
+                  <input v-model="date" id="date" hello="inputChangeEvent" hi="inputChangeEvent" class="form-control daterange-single" type="text" placeholder="yyyy-mm-dd">
+                  <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2">
+             <label>Export</label>
+              <div class="form-group">
+                 <select v-model="exportType" @change="exportItems" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                    <option value="none" >Option</option>
+                    <option value="pdf" >export pdf</option>
+                    <option value="excel" >export excel</option>
+                  </select>
+              </div>
+            </div>
+          <div class="col-md-2">
+              <label class="text-center">View</label>
+              <div class="grid-list mt-15">
+                  <span class="cursor-pointer" @click="toggleView">
+                     <i class="icon-paragraph-justify3"></i>
+                  </span>
+                  <span class="ml-15 cursor-pointer" @click="toggleView">
+                     <i class="icon-grid"></i>
+                  </span>
+              </div>
+          </div>
+      </div>
+   </div>
 
 <div class="row">
-    {% if not wings %}
-    <div class="animated bounceIn">
-        <div class="panel-body">
-             <div class="alert alert-warning no-border text-center">
-                 <button type="button" class="close" data-dismiss="alert"><span>×</span><span class="sr-only">Close</span></button>
-                <span class="text-semibold">Heads up!</span> Add <a href="{% url 'wing:index' %}" class="alert-link text-primary"> wings</a>, no wings found.
-            </div>
+
+  <div class="col-md-12">
+   <div id="pagination-div">
+      <div class="panel panel-flat" id="printme">
+        <div class="col-md-12">
+                <h5 class="text-center text-bold">Properties</h5>
         </div>
-    </div>
-    {% endif %}
-    {% if objects %}
-    <div class="panel panel-flat">
-        <div class="panel-body">
+        <span v-show="list_grid">
+            <!--list view-->
+            <div class="panel-body">
+                <div class="">
+                  <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
+                        <thead>
+                          <tr class="bg-primary">
+                            <th width="14%">Image</th>
+                            <th>Name</th>
+                            <th>Wing</th>
+                            <th>Type</th>
+                            <th>Price</th>
+                            <th>Service Charges</th>
+                            {% if perms.room.delete_room %}
+                            <th class="text-center">Options</th>
+                            {% endif %}
+                          </tr>
+                        </thead>
+                        <tbody id="tb">
+                        <!--loader-->
+                        <tr v-if="loader" class="text-center">
+                            <td colspan="8">
+                                <div class="pace-demo">
+                                    <div class="theme_xbox"><div class="pace_progress" data-progress-text="60%" data-progress="60"></div><div class="pace_activity"></div></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <!--no data template-->
+                        <template  v-else>
+                        <tr v-if="items.length == 0" class="text-center">
+                            <td colspan="8" class="text-bold animated zoomIn">
+                                No Data Found !
+                            </td>
+                        </tr>
+                        </template>
+                        <!--listing template-->
+                        <template v-for="item in items">
+                            <tr class="td " :id="item.id">
+                                <!--image&ndash;&gt;-->
+                                <td class="cursor-pointer" @click="goTo(item.view_url)">
+                                    <span>
+                                        <img width="50" height="50" :src="processImage(item.room_images[0])" alt="Image">
+                                    </span>
+                                </td>
+                                <td class="cursor-pointer" @click="goTo(item.view_url)">
+                                    ${item.name}
+                                </td>
+                                <td class="cursor-pointer" @click="goTo(item.view_url)"> ${ item.room_wing }</td>
+                                <td class="cursor-pointer" @click="goTo(item.view_url)">${item.room_type}</td>
+                                <td class="cursor-pointer" @click="goTo(item.view_url)">${item.price}</td>
+                                <td class="cursor-pointer" @click="goTo(item.view_url)">${item.service_charges}</td>
 
-            <div class="tabbable row">
-                <ul class="nav nav-tabs nav-tabs-solid nav-justified">
+                                <td class="text-center">
+                                    <ul class="icons-list">
+                                        <li class="dropdown">
+                                            <button type="button" class="btn btn-primary  btn-sm dropdown-toggle legitRipple" data-toggle="dropdown" aria-expanded="true">
+                                                Actions<span class="caret"></span></button>
 
-                    {% for wing in wings %}
-                    <li class="{% if wing == active %}active{% endif %}">
-                        <a href="#dynamic-floor{{wing.id}}" data-toggle="tab" class="legitRipple" aria-expanded="false">
-                         <span class="text-bold">Wing:</span> {{wing}}
-                        </a>
-                    </li>
-                    {% endfor %}
+                                            <ul class="dropdown-menu dropdown-menu-right">
+                                                <li><a @click="goTo(item.view_url)" href="javascript:;"><i class="icon-eye"></i> view</a></li>
+                                                <li><a @click="goTo(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> Edit</a></li>
+                                                <li><a @click="deleteInstance(item.delete_url,item.id)" href="javascript:;"><i class=" icon-trash-alt"></i> Delete</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </template>
 
-                </ul>
 
-                <div class="tab-content row">
-                    {% for wing in wings %}
-                    <div class="tab-pane {% if wing == active %}active{% endif %}" id="dynamic-floor{{wing.id}}">
-                        {% for instance in objects %}
-                        {% if instance.room_wing == wing %}
-                         <div class="col-sm-6 col-md-4">
-                            <div class="panel" {% if instancej.room_images.first.image %} style="z-index:1;background-image: url('{{ instance.room_images.first.image.crop.400x400 }}');" {% endif %}>
-                                <div class="panel-body">
-                                    <div id="ribbon{{instance.id}}" class="ribbon-container {% if not instance.is_booked %}hidden{% endif %}">
-                                        <div class="ribbon bg-danger">Booked</div>
-                                    </div>
-                                    <div class="media no-margin text-whi" style="z-index: 2;">
-                                        <div class="media-body">
-                                            <h3 class="no-margin text-semibold">{{instance.name}}</h3>
-                                            <span>&nbsp;<br></span>
-                                            <div class="">
-                                               <span class="text-size-small" data-popup="tooltip" title="Day time" data-placement="top">
-                                                   <i class="icon-sun3 text-muted"></i>
-                                                   <span class="text-size-small">{{instance.price.currency}}. {{instance.get_daytime_price}}</span>
-                                               </span> <br>
-                                                <span class="text-size-small" data-popup="tooltip" title="Nightly charge" data-placement="top">
-                                                   <i class="icon-contrast text-muted"></i>
-                                                    <span class="text-size-small">{{instance.price.currency}}. {{instance.get_nightly_price}}</span>
-                                               </span>
+                        </tbody>
+                   </table>
+                </div>
+            </div>
+            <div class="row media-none">
+             <div class="col-md-12">
+              <div class="col-md-4">
+               <div class="col-md-12">
+                <div class="col-md-6 mt-10">
+                 <label>display list size</label>
+                </div>
+                <div class="col-md-6 media-none">
+                  <div class="form-group">
+                     <select v-model="page_size" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                        <option value="10" selected>No:</option>
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                      </select>
+                  </div>
+                </div>
+              </div>
+              </div>
+              <div class="col-md-4" id="media-none">
+                  <div class="text-center bootpag-callback p2-pag" style="">
+                </div>
+               </div>
+                <div class="col-md-4">
+                 <div class="col-md-12 mt-5">
+                  <div class="pull-right pages-nav"></div>
+                 </div>
+                </div>
+              </div>
+             </div>
+            <!--./list view-->
+        </span>
+
+        <span v-show="grid_list">
+            <!--grid view -->
+            <div class="panel-body">
+                <div class="tabbable col-md-12 row">
+                    <ul class="nav nav-tabs nav-tabs-solid nav-justified">
+                        <template v-for="wing in wings">
+                            <li :class="activeWing(wing.id)" @click="getRooms(wing.id)">
+                                <a :href="'#dynamic-floor'+wing.id" data-toggle="tab" class="legitRipple" aria-expanded="false">
+                                 <span class="text-bold">Wing:</span>  ${wing.name}
+                                </a>
+                            </li>
+                        </template>
+                        <template>
+                            <div class="tab-contentf row">
+                                <div class="tab-panefactive" >
+                                    <div v-for="room in rooms" class="col-md-3 mt-15">
+                                        <div class="thumbnail">
+                                            <div class="thumb">
+                                                <a :href="room.view_url" data-toggle="modal">
+                                                    <img :src="processImage(room.room_images[0], true)" class="img-responsive img-rounded" alt="">
+                                                    <span class="zoom-image"><i class="icon-eye"></i></span>
+                                                </a>
                                             </div>
 
+                                            <div class="caption">
+                                                <div class="content-group-sm media">
+                                                    <div class="media-body">
+                                                        <h6 class="text-semibold no-margin">
+                                                            <a href="#" class="text-default">${room.name}</a>
+                                                        </h6>
+                                                        <span class="label bg-success">
+                                                            <a class="text-white" :href="'/dashboard/room/update/'+room.id">
+                                                                Edit Room
+                                                            </a>
+                                                        </span>
+                                                    </div>
+                                                    <h6 class="text-danger-300 text-semibold media-right no-margin-bottom">
+                                                        ${roomStatus(room.is_booked)}
+                                                        <span class="label bg-warning" v-if="room.is_booked">
+                                                            <a class="text-white" :href="'/dashboard/room/view/'+room.id">
+                                                                View Room
+                                                            </a>
+                                                        </span>
+                                                        <span class="label bg-success" v-else="room.is_booked">
+                                                            <a class="text-white" :href="'/dashboard/booking/add/?room_pk='+room.id">
+                                                                Book
+                                                            </a>
+                                                        </span>
+                                                    </h6>
+                                                </div>
+                                            </div>
+
+                                            <div class="panel-footer panel-footer-transparent"><a class="heading-elements-toggle"><i class="icon-more"></i></a>
+                                                <div class="heading-elements">
+                                                    <ul class="list-inline list-inline-separate heading-text">
+                                                        <li><i class="icon-cash position-left"></i> ${room.price | formatCurrency}</li>
+                                                    </ul>
+                                                </div>
+										    </div>
+
                                         </div>
-
-                                        <div class="media-right media-middle">
-                                            <i class="icon-bed2 icon-3x text-blue-400"></i>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <div class="panel-footer panel-footer-condensed">
-                                    <div class="heading-elements not-collapsible">
-                                        <span class="heading-text">
-
-                                            <span id="detailbtn{{instance.id}}" data-detailurl="{% url 'dashboard:room-detail' pk=instance.pk %}" data-pk="{{instance.pk}}" data-name="{{instance.name}}" class=" pull-right label label-primary cursor-pointer animated bounceIn book-room-detail-btn {% if not instance.is_booked %} x {% endif %} hvr-glow btn-raised legitRipple">
-                                                Details
-                                            </span>
-
-                                        </span>
-                                        <!--book button-->
-                                        <span id="bookbtn{{instance.id}}" data-pk="{{instance.pk}}" data-name="{{instance.name}}" class="heading-text pull-right label label-success cursor-pointer animated bounceIn book-room-btn(bak) {% if instance.is_booked %} hidden {% endif %} hvr-glow btn-raised legitRipple">
-                                            <a class="text-white" href="/dashboard/booking/add/?room_pk={{instance.id}}">Book</a>
-                                        </span>
-
-                                        <!--invoice button -->
-                                        <span id="invoicebtn{{instance.id}}" data-pk="{{instance.pk}}" data-name="{{instance.name}}" class="heading-text pull-right label label-success cursor-pointer animated bounceIn invoice-room-btn {% if not instance.is_booked %} hidden {% endif %} hvr-grow-shadow hvr-glow btn-raised legitRipple">
-                                            <a href="{% url 'dashboard:booking-invoice' pk=instance.pk %}" class="text-white" >Invoice</a>
-                                        </span>
                                     </div>
                                 </div>
                             </div>
+                        </template>
 
-                        </div>
-                        {% endif %}
-                        {% endfor %}
-
-                    </div>
-                    {% endfor %}
-                    <!--./first-->
-                    <div class="tab-pane" id="second-floor">
-                        No rooms
-                    </div>
-
-
+                    </ul>
                 </div>
             </div>
-        </div>
-    </div>
-    {% else %}
-    <div class="animated bounceIn">
-        <div class="panel-body">
-             <div class="alert alert-warning no-border text-center">
-                 <button type="button" class="close" data-dismiss="alert"><span>×</span><span class="sr-only">Close</span></button>
-                <span class="text-semibold">Heads up!</span> Add <a href="{% url 'dashboard:room-add' %}" class="alert-link text-primary"> rooms</a>, no rooms found.
-            </div>
-        </div>
-    </div>
-    {% endif %}
-</div>
-<!--booking modal-->
-<div id="booking-modal" class="modal fade">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h6 class="modal-title">Create a Booking</h6>
-            </div>
+            <!--./grid-->
+        </span>
 
-            <div id="form-content">
+      </div>
+    </div>
+    <!-- pagination -->
+  </div>
+</div>
+</div>
+
+   <!--delete modal  -->
+    <div id="modal_delete" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h6 class="modal-title text-center">Confirm Delete</h6>
+                </div>
+
                 <div class="modal-body">
-                   loading
+                    <h6 class="text-semibold">Are you sure you want to delete ?</h6>
                 </div>
 
-                <div class="modal-footer">
-                    <button type="button" disabled class="btn disabled btn-link" data-dismiss="modal">Close</button>
-                    <button type="button" disabled class="btn  disabled btn-primary">Save changes</button>
+                <div class="modal-footer text-center">
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                    <button @click="deleteInstance(false,false)" type="button" class="btn btn-danger animated shake">Delete</button>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<!--./booking modal-->
-{% csrf_token %}
+   <!--./delete-->
+ </div>
+
 <input type="hidden" class="pageUrls"
-       data-bookurl="{% url 'dashboard:booking-add' %}"
-      >
-{% endblock %}
-
+  data-listurl="/api/property/" data-createurl="/api/property/"
+>
+{% endblock%}
 {% block custom_js %}
-<script type="text/javascript" src="{% static 'backend/js/room/list-room.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
 
-<script type="text/javascript" src="{% static 'backend/js/plugins/pickers/datepicker.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/plugins/pickers/datetimepicker/bootstrap-datetimepicker.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/plugins/tokenize/tokenize2.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/plugins/pickers/daterangepicker.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/core/libraries/jquery_ui_widgets.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/booking/vue/booking.js' %}"></script>
-<script >
-    /* render select field */
-    // Basic select
-    $('.bootstrap-select').selectpicker();
+    <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
 
-    <!-- remove select duplicates when editing -->
-    var map = {};
-    $("#price_type").each(function(){
-        var value = $(this).text();
-        if (map[value] == null){
-            map[value] = true;
-        } else {
-            $(this).remove();
-        }
-    });
+    <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
+<!-- datepicker -->
+  <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/daterangepicker.js' %}"></script>
 
-</script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/pagination/jquery.twbsPagination.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
+    <script src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/common/listing-booking.js' %}"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('.bootstrap-select').selectpicker();
+      });
+    </script>
 {% endblock %}

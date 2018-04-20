@@ -192,7 +192,7 @@ def clone(request, pk=None):
 @staff_member_required
 def delete(request, pk=None):
     option = get_object_or_404(Table, pk=pk)
-    if request.method == 'POST':
+    if request.method == 'POST' or request.method == 'DELETE':
         try:
             option.delete()
             user_trail(request.user.name, 'deleted room : '+ str(option.name), 'delete')
