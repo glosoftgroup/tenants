@@ -9,11 +9,11 @@
 					{% if user.image %}
 		              <img src=" {{user.image.url}}" alt="Texto Alternativo" class="img-circle img-thumbnail" style="width: 150px;height: 150px;" />
 		              <h4 class="text-semibold no-margin-bottom">
-						{{user.name }}
+						{% if user.name %}{{user.name }} {% else %}---{% endif %}
 					</h4>
 		            {% else %}
 		            	<h1 class="text-semibold no-margin-bottom text-center">
-						{{user.name }}
+						{% if user.name %}{{user.name }} {% else %}---{% endif %}
 						</h1>
 		            {% endif %}
 
@@ -28,7 +28,7 @@
 
 			<div class="panel panel-body no-border-top no-border-radius-top" style="padding: 0px !important;">
 				<ul class="customer-details">
-					<li class="text-semibold"><span class="text-bold">House :</span> <span class="pull-right">
+					<li class="text-semibold"><span class="text-bold">Property :</span> <span class="pull-right">
 					{% if room.name %}
 						{{room.name}}
 					{% else %}

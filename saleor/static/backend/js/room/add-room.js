@@ -181,6 +181,7 @@ $(function() {
 
         if(bedrooms.val()){
             dynamicData['monthly'] = monthly.val();
+            dynamicData['bedrooms'] = bedrooms.val();
         }else{
             bedrooms.nextAll('.help-block:first').addClass('text-warning').html('This field is required');
             return false;

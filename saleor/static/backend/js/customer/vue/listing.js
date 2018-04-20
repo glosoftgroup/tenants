@@ -34,6 +34,9 @@ var parent = new Vue({
             $modal.modal();
             $('.delete_form').attr('action',url);
         },
+        goToTenantDetails:function(url){
+            window.location.href = url;
+        },
         inputChangeEvent:function(){
             var self = this;
             if(this.date == 'Select date'){
@@ -151,6 +154,10 @@ $('.daterange-single').daterangepicker({
         $('.daterange-single').val(chosen_date.format('YYYY-MM-DD'));
 
  });
+$('.td').on('click',function(){
+      alert('asdf');
+      // windows.location.href = $(this).data('href');
+    });
 //convert csv to excel
 function JSONToCSVConvertor(JSONData, ReportTitle, ShowLabel) {
     //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
