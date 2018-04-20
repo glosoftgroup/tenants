@@ -21,4 +21,4 @@ class PostLimitOffsetPagination(pagination.PageNumberPagination, LimitOffsetPagi
 
 
 class PostPageNumberPagination(PageNumberPagination):
-    page_size = 2
+    page_size =  2
