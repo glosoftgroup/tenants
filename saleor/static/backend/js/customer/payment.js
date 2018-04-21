@@ -23,6 +23,7 @@ File           : add/update.js
 
             /**urls */
             postUrl          :  $("#postUrl").val(),
+            redirectUrl      :  $("#redirectUrl").val(),
             tenantPk         :  $("#tenantPk").val(),
 
             minimumBalance   :  $("#minimumBalance").val(),
@@ -100,8 +101,8 @@ File           : add/update.js
                        if(response.status == 200 || response.status == 201){
                           allFunctions.notification("success", "Added successfully", "Well Done!");
                           allFunctions.ajaxForms.resetAddForm(form);
-                          // window.location = allFunctions.el.redirectUrl;
-                          window.location.reload();
+                          window.location = allFunctions.el.redirectUrl+'?payments=edit';
+                          // window.location.reload();
                        }else{
                           allFunctions.notification("danger", data.message, "Oops!");
                        }

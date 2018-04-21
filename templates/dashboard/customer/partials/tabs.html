@@ -1,5 +1,4 @@
-<div class="row">
-<div class="col-md-12">
+
     <div class="panel panel-flat">
       <div class="panel-body">
         <div class="tabbable">
@@ -7,7 +6,7 @@
             <li class="active" id="bio-tab"><a href="#bio" data-toggle="tab" class="legitRipple" aria-expanded="false">bio data</a></li>
             <li class="" id="dependants-tab"><a href="#dependants" data-toggle="tab" class="legitRipple" aria-expanded="true">Next of Kin</a></li>
             <li class="" id="house-tab"><a href="#house" data-toggle="tab" class="legitRipple" aria-expanded="true">Property Details</a></li>
-            <li class="" id="payment-tab2"><a href="#payment" data-toggle="tab" class="legitRipple" aria-expanded="true">payments</a></li>
+            <li class="" id="payment-tab"><a href="#payment" data-toggle="tab" class="legitRipple" aria-expanded="true">payments</a></li>
           </ul>
 
           <div class="tab-content">
@@ -221,7 +220,7 @@
             </div>
 
             <div class="tab-pane animated fadeIn" id="payment">            
-              {% include 'dashboard/customer/partials/payment_tab.html' with customer=user room=room booking=booking %}
+              {% include 'dashboard/customer/partials/payment_tab.html' %}
             </div>
 
 
@@ -230,8 +229,6 @@
       </div>
 
     </div>
-  </div>
-</div>
 
 
 <input type="hidden" class="pageUrls"

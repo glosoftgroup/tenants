@@ -231,7 +231,6 @@ def user_process(request):
     if request.method == 'POST':
         name = (request.POST.get('name')).lower()
         fullname = request.POST.get('fullname')
-        code = (request.POST.get('code')).lower()
         email = request.POST.get('email')
         password = request.POST.get('password')
         encr_password = make_password(password)
@@ -243,7 +242,6 @@ def user_process(request):
         new_user = User(
             name=name,
             fullname=fullname,
-            code=code,
             email=email,
             password=encr_password,
             nid=nid,
@@ -311,7 +309,10 @@ def user_edit(request, pk):
 @staff_member_required
 @csrf_protect
 def user_update(request, pk):
-    user = get_object_or_404(User, pk=pk)
+    try:
+        user = get_object_or_404(User, pk=pk)
+    except Exception as e:
+        print e
     user_permissions = Permission.objects.filter(user=user)
     user_groups = user.groups.all()
     permissions_in_user_groups = Permission.objects.filter(group__in=[group for group in user_groups])
@@ -319,7 +320,6 @@ def user_update(request, pk):
     if request.method == 'POST':
         name = (request.POST.get('user_name')).lower()
         fullname = request.POST.get('user_fullname')
-        code = (request.POST.get('user_code')).lower()
         email = request.POST.get('user_email')
         password = request.POST.get('user_password')
         nid = request.POST.get('user_nid')
@@ -332,65 +332,33 @@ def user_update(request, pk):
             encr_password = user.password
         else:
             encr_password = make_password(password)
-        if image :
-            user.name = name
-            user.fullname = fullname
-            user.code = code
-            user.email = email
-            user.password = encr_password
-            user.nid = nid
-            user.mobile = mobile
-            user.job_title = job_title
+        if image:
             user.image = image
-            user.save()
-            user_trail(request.user.name, 'updated user: '+ str(user.name),'update')
-            info_logger.info('User: '+str(request.user.name)+' updated user: '+str(user.name))
+        user.name = name
+        user.fullname = fullname
+        user.email = email
+        user.password = encr_password
+        user.nid = nid
+        user.mobile = mobile
+        user.job_title = job_title
+        user.save()
+        user_trail(request.user.name, 'updated user: '+ str(user.name),'update')
+        info_logger.info('User: '+str(request.user.name)+' updated user: '+str(user.name))
 
-            if groups:
-                th_groups2 = Group.objects.filter(name__in=[group for group in groups])
-                if set(user_groups).difference(set(th_groups2)) or set(th_groups2).difference(set(user_groups)):
-                    group_permissions = Permission.objects.filter(group__name__in=[group for group in th_groups2])
-                    user.groups.remove(*user_groups)
-                    user.groups.add(*th_groups2)
-                    user.user_permissions.remove(*permissions_in_user_groups)
-                    user.user_permissions.add(*group_permissions)
-            else:
-                '''remove all groups'''
-                if user_groups:
-                    user.groups.remove(*user_groups)
-                    return HttpResponse("groups removed")
-            return HttpResponse("success with image")
+        if groups:
+            th_groups2 = Group.objects.filter(name__in=[group for group in groups])
+            if set(user_groups).difference(set(th_groups2)) or set(th_groups2).difference(set(user_groups)):
+                group_permissions = Permission.objects.filter(group__name__in=[group for group in th_groups2])
+                user.groups.remove(*user_groups)
+                user.groups.add(*th_groups2)
+                user.user_permissions.remove(*permissions_in_user_groups)
+                user.user_permissions.add(*group_permissions)
         else:
-            user.name = name
-            user.fullname = fullname
-            user.code = code
-            user.email = email
-            user.password = encr_password
-            user.nid = nid
-            user.mobile = mobile
-            user.job_title = job_title
-            user.save()
-            user_trail(request.user.name, 'updated user: '+ str(user.name), 'update')
-            info_logger.info('User: '+str(request.user.name)+' updated user: '+str(user.name),'update')
-
-
-            if groups:
-                th_groups2 = Group.objects.filter(name__in=[group for group in groups])
-                if set(user_groups).difference(set(th_groups2)) or set(th_groups2).difference(set(user_groups)):
-                    group_permissions = Permission.objects.filter(group__name__in=[group for group in th_groups2])
-                    user.groups.remove(*user_groups)
-                    user.groups.add(*th_groups2)
-                    user.user_permissions.remove(*permissions_in_user_groups)
-                    user.user_permissions.add(*group_permissions)
-            else:
-                '''remove all groups'''
-                if user_groups:
-                    user.groups.remove(*user_groups)
-                    return HttpResponse("groups removed")
-            return HttpResponse("success without image")
-
-
-
+            '''remove all groups'''
+            if user_groups:
+                user.groups.remove(*user_groups)
+                return HttpResponse("groups removed")
+        return HttpResponse("success with image")
 
 @staff_member_required
 @csrf_protect

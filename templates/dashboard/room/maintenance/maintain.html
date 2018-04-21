@@ -54,7 +54,6 @@
     }
     .daterangepicker.dropdown-menu{z-index: 1051 !important}
     .dropdown-menu{left:auto;right:0;}
-    #cost_group{display: none;}
    </style>
  {% endblock %}
 
@@ -62,14 +61,14 @@
 {% block content %}
 <div class="row">
   <div class="col-md-12" style="margin-bottom:10px;">
-        <a class="btn btn-primary pull-left legitRipple" href="{% url 'dashboard:room-list' %}"><i class="icon-arrow-left13 position-left"></i> Back to Rooms list</a>
+        <a class="btn btn-primary pull-left legitRipple" href="{% url 'dashboard:room-list' %}"><i class="icon-arrow-left13 position-left"></i> Back to Property list</a>
         <a class="btn btn-primary pull-right legitRipple" data-url="" href="{% url 'dashboard:room-edit' pk=room.pk %}"><i class="icon-pencil position-left"></i> EDIT</a>
   </div>
   <div class="col-md-3">
-  {% include 'dashboard/room/maintenance/partials/profile.html' with customer=customer room=room %}
+  {% include 'dashboard/room/maintenance/partials/profile.html' with room=room %}
   </div>
   <div class="col-md-9">
-  {% include 'dashboard/room/maintenance/partials/report_summary.html' with customer=customer user=user%}
+  {% include 'dashboard/room/maintenance/partials/report_summary.html' %}
   </div>
 
   <!-- modal -->
@@ -92,14 +91,16 @@
               <input type="text" id="date_reported" name="date_reported" class="form-control">
             </div>
             <div class="form-group">
-              <label>Is Chargeable (cost added to arrears)</label>
-                <div class="checkbox">
-                    <label>
-                      <input class="styled checks" name="is_chargeable" id="chargeable" type="checkbox" value="False">
-                      is chargeable
-                    </label>
-                    <span id="granted" class="granted text-success"></span>
-                  </div>
+              <label class="display-block text-semibold">To Be Paid By</label>
+              <label class="radio-inline">
+                <input type="radio" name="paid_by" class="styled" checked="checked" value="owner">
+                Owner
+              </label>
+
+              <label class="radio-inline">
+                <input type="radio" name="paid_by" class="styled" value="tenant">
+                Tenant
+              </label>
             </div>
          </div>
          <div class="col-md-6">
@@ -329,22 +330,6 @@
               }
           });
       });
-
-      $("#chargeable").click(function () {
-        var checked = $(this).is(':checked');
-        if(checked){
-            $(this).prop("checked", true);
-            $(this).val('True')
-            $('#cost_group').fadeIn('slow');
-        }else{
-            $(this).val('False')
-            $(this).prop("checked", false);
-            $(this).parent('span').removeClass('checked');
-            $('#cost_group').fadeOut('slow');
-        }
-      });
-
-
 
   });
 

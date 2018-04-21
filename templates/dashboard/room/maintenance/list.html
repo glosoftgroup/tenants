@@ -137,19 +137,19 @@
                 <!--listing template-->
                 <template v-for="item in items">
                     <tr>
-                        <td class="td" :data-href="item.booking_detail" :id='item.id'>
+                        <td class="td" @click="goTo(item.issue_url)">
                             ${item.date_reported}<br>
                             <span v-show="item.active"><mark>active</mark></span>
                         </td>
-                        <td class="td" :data-href="item.issue_url">${item.room.name} - ${item.room.wing}</td>
-                        <td class="td" :data-href="item.issue_url">${item.issue}</td>
-                        <td class="td" :data-href="item.issue_url">${item.paid_by}</td>
-                        <td class="td" :data-href="item.issue_url">${item.cost}</td>
-                        <td class="td" :data-href="item.issue_url">
+                        <td class="td" @click="goTo(item.issue_url)">${item.room.name} - ${item.room.wing}</td>
+                        <td class="td" @click="goTo(item.issue_url)">${item.issue}</td>
+                        <td class="td" @click="goTo(item.issue_url)">${item.paid_by}</td>
+                        <td class="td" @click="goTo(item.issue_url)">${item.cost}</td>
+                        <td class="td" @click="goTo(item.issue_url)">
                           <span class="bg-success btn btn-sm" v-if="item.is_fixed" style="padding: 5px 10px;border-radius: 5px;">Fixed</span>
                           <span class="bg-warning btn btn-sm"  v-else style="padding: 5px 10px;border-radius: 5px;">Not Fixed</span>
                         </td>
-                        <td class="td" :data-href="item.issue_url">${item.date_resolved}</td>
+                        <td class="td" @click="goTo(item.issue_url)">${item.date_resolved}</td>
                     </tr>
                 </template>
 
@@ -328,13 +328,10 @@
 <script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/customer/vue/listing.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/room/vue/list-maintenance.js' %}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
    $('.bootstrap-select').selectpicker();
-   $('body').on('click', '.td', function(){
-      // window.location = $(this).data('href');
-   })
 });
 
 </script>
