@@ -65,7 +65,6 @@ var parent = new Vue({
                 if(full) return data.image.medium_square_crop;
                 return data.image.medium_square_crop;
             }
-
             return '/static/backend/images/rooms/room.jpg';
 
         },

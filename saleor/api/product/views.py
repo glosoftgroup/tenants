@@ -1,5 +1,6 @@
 from django.db.models import Q
 from .pagination import PostLimitOffsetPagination
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.generics import (ListAPIView,
                                      CreateAPIView,
                                      RetrieveAPIView,
@@ -46,6 +47,7 @@ class SalesDeleteAPIView(DestroyAPIView):
 
 class SalesDetailAPIView(generics.RetrieveAPIView):
     queryset = Sales.objects.all()
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = SalesSerializer
 
 
@@ -105,6 +107,7 @@ class SalesUpdateAPIView(generics.RetrieveUpdateAPIView):
 
 class SalesListAPIView(generics.ListAPIView):
     serializer_class = SalesListSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self, *args, **kwargs):        
         queryset_list = Sales.objects.all()
@@ -142,6 +145,7 @@ class CreditorsListAPIView(generics.ListAPIView):
 class ProductListAPIView(generics.ListAPIView):
     pagination_class = PostLimitOffsetPagination
     serializer_class = ProductListSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self, *args, **kwargs):        
         queryset_list = Product.objects.all().select_related()
@@ -158,6 +162,7 @@ class ProductListAPIView(generics.ListAPIView):
 class SearchSkuListAPIView(generics.ListAPIView):
     pagination_class = PostLimitOffsetPagination
     serializer_class = ProductStockListSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self, *args, **kwargs):        
         queryset_list = ProductVariant.objects.get_in_stock().select_related()
@@ -172,6 +177,7 @@ class SearchSkuListAPIView(generics.ListAPIView):
 class ProductStockListAPIView(generics.ListAPIView):
     pagination_class = PostLimitOffsetPagination
     serializer_class = ProductStockListSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self, *args, **kwargs):        
         queryset_list = ProductVariant.objects.get_in_stock().select_related()

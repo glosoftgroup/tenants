@@ -204,6 +204,7 @@ var UploadImage = Vue.component('upload-image', {
                 files: {},
                 image: {},
                 batch: {},
+                room_images:[],
                 onDragover: false,
                 onUploading: false
             }
@@ -248,6 +249,22 @@ var UploadImage = Vue.component('upload-image', {
                 }
                 return true;
             },
+            _processImages(data){
+                if(data){
+                    if(full) return data.image.medium_square_crop;
+                        return data.image.medium_square_crop;
+                }
+                return '/static/backend/images/rooms/room.jpg';
+            },
+            _refresh_images(){
+                this.$http.get('/api/property/image/?q='+pk)
+                .then(function(data){
+                    data = JSON.parse(data.bodyText);
+                    this.room_images = data.results;
+                }, function(error){
+                    console.log(error.statusText);
+                });
+            },
             _xhr: function(formData, keys, callback){
                 this.onUploading = true;
                 this.$emit('upload-image-attempt', formData);
@@ -263,6 +280,7 @@ var UploadImage = Vue.component('upload-image', {
                     });
 
                     alertUser('Image added successfully');
+                    this._refresh_images();
                     this.$emit('upload-image-success', [formData, response]);
                 }, (response) => {
                     this.$emit('upload-image-failure', [formData, response]);

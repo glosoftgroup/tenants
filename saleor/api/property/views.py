@@ -7,9 +7,11 @@ from .pagination import PostLimitOffsetPagination
 
 from saleor.room.models import Room as Table
 from saleor.wing.models import Wing
+from saleor.room.models import RoomImage as Image
 
 from .serializers import (
     CreateListSerializer,
+    ImageSerializer,
     TableListSerializer,
     UpdateSerializer,
     WingSerializer)
@@ -24,6 +26,28 @@ class CreateAPIView(generics.CreateAPIView):
 
 class DestroyView(generics.DestroyAPIView):
     queryset = Table.objects.all()
+
+
+class ListImagesAPIView(generics.ListAPIView):
+    serializer_class = ImageSerializer
+    permission_class = (IsAuthenticatedOrReadOnly,)
+
+    def get_queryset(self, *args, **kwargs):
+        queryset_list = Image.objects.all()
+
+        page_size = 'page_size'
+        if self.request.GET.get(page_size):
+            pagination.PageNumberPagination.page_size = self.request.GET.get(page_size)
+        else:
+            pagination.PageNumberPagination.page_size = 10
+        if self.request.GET.get('date'):
+            queryset_list = queryset_list.filter(updated_at__icontains=self.request.GET.get('date'))
+
+        query = self.request.GET.get('q')
+        if query:
+            queryset_list = queryset_list.filter(
+                Q(room__pk__icontains=query))
+        return queryset_list.order_by('id')
 
 
 class ListWingAPIView(generics.ListAPIView):

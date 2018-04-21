@@ -436,11 +436,11 @@ Maintenance
 
 @staff_member_required
 def add_room_issue(request, pk=None):
+    room = Table.objects.get(pk=pk)
     try:
-        room = Table.objects.get(pk=pk)
-        book = Book.objects.get(room__pk=room.pk, active=True)
-    except:
-        room = None
+        book = Book.objects.filter(room__pk=room.pk, active=True).first()
+    except Exception as e:
+        print e
         book = None
     try:
         pricing = Pricing.objects.get(room__pk=room.pk)
