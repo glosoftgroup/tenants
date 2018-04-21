@@ -46,7 +46,6 @@
              <thead><tr><td colspan="2"><h5>Details</h5></td></tr></thead>
             <tbody>
               <tr><td>Full Names:</td><td> {{user.fullname }}</td></tr>
-              <tr><td>Code:</td><td> {{user.code }}</td></tr>
               <tr><td>Email:</td><td> {{user.email }}</td></tr>
               <tr><td>National ID No:</td><td> {{user.nid }}</td></tr>
               <tr><td>Mobile No:</td><td> {{user.mobile }}</td></tr>
@@ -57,7 +56,7 @@
             </tbody>
 
           </table> 
-         <a href="{% url 'dashboard:user-edit' pk=user.pk %}" class="btn-block btn-info btn-sm"><i class="icon-pencil7" style="font-size: 11px;"></i> edit</a>        
+         <a href="{% url 'dashboard:user-edit' pk=user.pk %}" class="btn-block btn-primary btn-sm"><i class="icon-pencil7" style="font-size: 14px;"></i> EDIT</a>        
   		     </div> 
            <div class="col-md-6 col0xs-12" style="padding-left: 60px;">
               <div class="col-md-12">

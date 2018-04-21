@@ -72,7 +72,8 @@
                   <tr class="bg-primary">
                     <th>Date Reported</th>
                     <th>Issue</th>
-                    <th>Chargable</th>
+                    <th>Paid By</th>
+                    <th>Cost</th>
                     <th>Status</th>
                     <th>Options</th>
                   </tr>
@@ -102,10 +103,8 @@
                             <span v-show="item.active"><mark>active</mark></span>
                         </td>
                         <td class="td" :data-href="item.booking_detail">${item.issue}</td>
-                        <td class="td" :data-href="item.booking_detail">
-                            ${item.is_chargeable} 
-                              <span v-if="item.is_chargeable"> - ${item.cost}</span>
-                            </td>
+                        <td class="td" :data-href="item.booking_detail">${item.paid_by}</td>
+                        <td class="td" :data-href="item.booking_detail">${item.cost}</td>
                         <td class="td" :data-href="item.booking_detail">
                           <span class="bg-success btn btn-sm" v-if="item.is_fixed" style="padding: 5px 10px;border-radius: 5px;">Fixed</span>
                           <span class="bg-warning btn btn-sm"  v-else style="padding: 5px 10px;border-radius: 5px;">Not Fixed</span>
@@ -123,7 +122,7 @@
                                      class="apply_fix del-btn"><i class="icon-trash" href="#modal_fix" data-toggle="modal"></i> APPLY FIXTURE
                                     </a>
                                   </li>
-                                  <li class="td" v-if="item.is_chargeable"><a :href="item.invoice_url" data-href="item.invoice_url" class="toInvoice"><i class="icon-pencil7"></i>INVOICE</a>
+                                  <li class="td"><a :href="item.invoice_url" data-href="item.invoice_url" class="toInvoice"><i class="icon-pencil7"></i>INVOICE</a>
                                   </li>
                                   <li class="td"><a href="javascript:;" data-url="item.update_url"><i class="icon-pencil7"></i> EDIT</a>
                                   </li>

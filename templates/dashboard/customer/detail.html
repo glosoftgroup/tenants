@@ -85,6 +85,7 @@
   {% if user %}
   <input type="hidden" name="tenantPk" id="tenantPk" value="{{user.pk}}">
   <input type="hidden" name="postUrl" id="postUrl" value="{% url 'dashboard:rent-payment' pk=user.pk %}"/>
+  <input type="hidden" name="redirectUrl" id="redirectUrl" value="{% url 'dashboard:customer-detail' pk=user.pk %}"/>
   <input type="hidden" name="minimumBalance" id="minimumBalance" value="{% if booking.balance_with_charges.gross == 0%} {{booking.balance.gross}} {% else %} {{booking.balance_with_charges.gross}} {% endif %}"/>
   {% endif %}
 
@@ -108,6 +109,16 @@
   $(document).ready(function() {
     $('.bootstrap-select').selectpicker();
   });
+
+  {% if request.GET.payments %}
+    $.when( $.ready ).then(function() {     
+       $('#bio-tab').removeClass('active');
+       $('#bio').removeClass('active');
+       //activate pricing tab
+       $('#payment-tab').addClass('active');
+       $('#payment').addClass('active');                     
+    });
+  {% endif %}
 
 </script>
 {% endblock %}

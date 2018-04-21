@@ -12,6 +12,7 @@ from ...customer.models import Customer
 from ...booking.models import RentPayment
 from ...sale.models import PaymentOption
 from ...utils import image64
+from rest_framework.reverse import reverse
 
 
 class CustomerListSerializer(serializers.ModelSerializer):    
@@ -100,6 +101,7 @@ class PaymentListSerializer(serializers.ModelSerializer):
     service_charges = serializers.SerializerMethodField()
     customer = serializers.SerializerMethodField()
     room = serializers.SerializerMethodField()
+    payment_detail = serializers.SerializerMethodField()
 
     class Meta:
         model = RentPayment
@@ -115,7 +117,8 @@ class PaymentListSerializer(serializers.ModelSerializer):
                   'customer',
                   'room',
                   'description',
-                  'created'
+                  'created',
+                  'payment_detail'
                  )
 
     def get_total_amount(self, obj):
@@ -161,3 +164,6 @@ class PaymentListSerializer(serializers.ModelSerializer):
         except Exception as e:
             print e
             return 'None Set'
+
+    def get_payment_detail(self, obj):
+        return reverse('dashboard:customer-detail', kwargs={'pk': obj.customer.pk})

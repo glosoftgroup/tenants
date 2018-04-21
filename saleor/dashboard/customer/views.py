@@ -552,7 +552,6 @@ def pay(request, pk=None):
             book_amount = book.amount_paid.gross
             book_balance = book.balance.gross
             if  book_amount== 0:
-                print ('!')*100
                 try:
                     instance.total_amount = book_balance
                     # add all the amount paid so far
@@ -571,10 +570,8 @@ def pay(request, pk=None):
                     instance.save()
                     book.save()
                 except Exception as e:
-                    print ('1')*100
                     print (e)
             else:
-                print ('?')*100
                 try:
                     #total amount remaining
                     instance.total_amount = book.balance_with_charges.gross
@@ -593,11 +590,9 @@ def pay(request, pk=None):
 
                     book.balance_with_charges = bookBalanceWitharges + book.service_charges.gross
                     book.service_charges = 0
-                    print ('book amount paid'+str(book.amount_paid))
                     instance.save()
                     book.save()
                 except Exception as e:
-                    print ('2')*100
                     print (e)
 
             data = {'success': 'success'}

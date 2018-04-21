@@ -109,15 +109,19 @@
                 <div class="col-md-6 col-lg-9 content-group">
                     <span class="text-muted">Invoice To:</span>
                     <ul class="list-condensed list-unstyled">
-                        <li><h5>{{instance.customer.name}}</h5></li>
-                        <li>{{instance.customer.mobile}}</li>
+                        {% if customer %}
+                        <li><h5>{{customer.name}}</h5></li>
+                        <li>{{customer.mobile}}</li>
                         <li>
 
-                            {% if instance.customer.email %}
-                            {{instance.customer.email}}
+                            {% if customer.email %}
+                                {{customer.email}}
                             {% endif %}
 
                         </li>
+                        {% else %}
+                        <li><h5>{{instance.paid_by}}</h5></li>
+                        {% endif %}
                     </ul>
                 </div>
 
@@ -221,7 +225,6 @@
 
 <input type="hidden" class="pageUrls"
        data-bookurl="null"
-       data-payurl = "{% url 'dashboard:issue-invoice-pay' %}"
        data-checkouturl = "null"
        data-deactivateurl = "{% url 'dashboard:booking-add' %}"
        data-paylisturl = "{% url 'customer-api:api-customer-payment-list' pk=instance.pk %}"

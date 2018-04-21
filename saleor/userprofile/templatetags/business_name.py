@@ -10,5 +10,5 @@ def business_name():
 		site = get_object_or_404(SiteSettings, pk=1)
 		name = (site.name).upper()
 	except:
-		name ="POS"
+		name ="PROPERTY MGT SYSTEM"
 	return name
