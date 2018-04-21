@@ -596,8 +596,8 @@ class Maintenance(models.Model):
         pgettext_lazy('Maintenance field', 'issue'), max_length=255, null=True, blank=True)
     is_fixed = models.BooleanField(
         pgettext_lazy('Maintenance field', 'is_fixed'), default=False)
-    is_chargeable = models.BooleanField(
-        pgettext_lazy('Maintenance field', 'is_chargeable'), default=False)
+    paid_by = models.CharField(
+        pgettext_lazy('Maintenance field', 'paid by'), max_length=255, null=True, blank=True)
     cost = PriceField(
         pgettext_lazy('Book field', 'paid'),
         currency=settings.DEFAULT_CURRENCY, max_digits=12,

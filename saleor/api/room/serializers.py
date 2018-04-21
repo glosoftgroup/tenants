@@ -5,29 +5,9 @@ from django.utils.formats import localize
 from django.contrib.auth import get_user_model
 from saleor.booking.models import Book
 from saleor.room.models import Maintenance as Table
-# from django.urls import reverse
 from rest_framework.reverse import reverse
 
 User = get_user_model()
-
-
-class RoomHyperlink(serializers.HyperlinkedRelatedField):
-    # We define these as class attributes, so we don't need to pass them as arguments.
-    view_name = 'dashboard:add_room_issue'
-    queryset = Table.objects.all()
-
-    def get_url(self, obj, view_name, request, format):
-        url_kwargs = {
-            'room_pk': obj.room.pk
-        }
-        return reverse(view_name, kwargs=url_kwargs, request=request, format=format)
-
-    def get_object(self, view_name, view_args, view_kwargs):
-        lookup_kwargs = {
-           'pk': view_kwargs['room_pk']
-        }
-        return self.get_queryset().get(**lookup_kwargs)
-
 
 class MaintenanceListSerializer(serializers.ModelSerializer):
     room = serializers.SerializerMethodField()
@@ -36,10 +16,9 @@ class MaintenanceListSerializer(serializers.ModelSerializer):
     amount_paid = serializers.SerializerMethodField()
     balance = serializers.SerializerMethodField()
     date_resolved = serializers.SerializerMethodField()
+    paid_by = serializers.SerializerMethodField()
 
     invoice_url = serializers.HyperlinkedIdentityField(view_name='dashboard:fix-issue-invoice')
-    # issue_url = serializers.HyperlinkedIdentityField(view_name='dashboard:add_room_issue', read_only=True,
-    #     lookup_url_kwarg={'room__pk':''})
     issue_url = serializers.SerializerMethodField()
     delete_url = serializers.HyperlinkedIdentityField(view_name='dashboard:delete-issue')
     fix_issue_url = serializers.HyperlinkedIdentityField(view_name='dashboard:fix-issue')
@@ -56,7 +35,7 @@ class MaintenanceListSerializer(serializers.ModelSerializer):
                   'amount_paid',
                   'balance',
                   'is_fixed',
-                  'is_chargeable',
+                  'paid_by',
                   'room',
                   'created',
                   'updated_at',
@@ -93,3 +72,14 @@ class MaintenanceListSerializer(serializers.ModelSerializer):
 
     def get_issue_url(self, obj):
         return reverse('dashboard:add_room_issue', kwargs={'pk': obj.room.pk})
+
+    def get_paid_by(self, obj):
+        customer = obj.paid_by
+        if obj.paid_by == 'tenant':
+            try:
+                book = Book.objects.get(room__pk=obj.room.pk, active=True)
+                customer = book.customer.name
+            except:
+                customer = obj.paid_by
+
+        return customer

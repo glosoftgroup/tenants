@@ -436,28 +436,18 @@ Maintenance
 
 @staff_member_required
 def add_room_issue(request, pk=None):
-    try:
-        room = Table.objects.get(pk=pk)
-        book = Book.objects.get(room__pk=room.pk, active=True)
-    except:
-        room = None
-        book = None
+    room = Table.objects.get(pk=pk)
+
     try:
         pricing = Pricing.objects.get(room__pk=room.pk)
         issues = Maintenance.objects.filter(room=room)
-        if request.method == 'GET':
-            from ...customer.models import Customer
-            try:
-                customer = Book.objects.get(room=pk).customer.name
-            except:
-                customer = None
-            
-            user = get_object_or_404(Customer, pk=4)
-
-            ctx = {'table_name': table_name, 'room': room, 'pricing': pricing, 'issues': issues, 'customer': customer, 'user':user}
+        if request.method == 'GET':         
+            ctx = {'table_name': table_name, 'room': room, 'pricing': pricing, 'issues': issues}
             return TemplateResponse(request, 'dashboard/room/maintenance/maintain.html', ctx)
-    except:
+    except Exception as e:
+        print (e)
         return TemplateResponse(request, 'dashboard/room/maintenance/maintain.html', {})
+
     if request.method == 'POST':
         try:
             issues = Maintenance()
@@ -466,16 +456,22 @@ def add_room_issue(request, pk=None):
                 issues.issue = request.POST.get('issue')
             if request.POST.get('date_reported'):
                 issues.date_reported = request.POST.get('date_reported')
-            if request.POST.get('is_chargeable'):
-                issues.is_chargeable = request.POST.get('is_chargeable')
             if request.POST.get('cost'):
                 issues.cost = request.POST.get('cost')
                 issues.balance = request.POST.get('cost')
-                try:
+
+            if request.POST.get('paid_by') == 'tenant':
+                try:             
+                    book = Book.objects.get(room=room.pk, active=True)
                     book.service_charges = request.POST.get('cost')
                     book.save()
+                    issues.paid_by = request.POST.get('paid_by')
                 except:
+                    issues.paid_by = 'owner'
                     pass
+            else:
+                issues.paid_by = request.POST.get('paid_by')
+
             issues.save()
             user_trail(request.user.name, 'added an issue : '+ str(issues.issue),'edit')
             info_logger.info('added an issue : '+ str(issues.issue))
@@ -513,6 +509,7 @@ def fix_issue(request, pk=None):
 @staff_member_required
 def fix_issue_invoice(request, pk=None):
     if request.method == 'GET':
+        customer = None
         instance = get_object_or_404(Maintenance, pk=pk)
         if not instance.invoice_number:
             try:
@@ -522,7 +519,13 @@ def fix_issue_invoice(request, pk=None):
                 instance.invoice_number = 'inv/fx/1'+''.join(random.choice('0123456789ABCDEF') for i in range(4))
             instance.save()
 
-        ctx = {'table_name': table_name, 'instance': instance,}
+        if instance.paid_by == 'tenant':
+            try:
+                customer = Book.objects.get(room__pk=instance.room.pk, active=True).customer
+            except:
+                customer = None
+
+        ctx = {'table_name': table_name, 'instance': instance, 'customer':customer}
         return TemplateResponse(request, 'dashboard/room/maintenance/invoice.html', ctx)
     if request.method == 'POST':
         try:
