@@ -438,15 +438,15 @@ Maintenance
 def add_room_issue(request, pk=None):
     room = Table.objects.get(pk=pk)
 
-    try:
-        pricing = Pricing.objects.get(room__pk=room.pk)
-        issues = Maintenance.objects.filter(room=room)
-        if request.method == 'GET':         
+    if request.method == 'GET':   
+        try:
+            pricing = Pricing.objects.get(room__pk=room.pk)
+            issues = Maintenance.objects.filter(room=room)      
             ctx = {'table_name': table_name, 'room': room, 'pricing': pricing, 'issues': issues}
             return TemplateResponse(request, 'dashboard/room/maintenance/maintain.html', ctx)
-    except Exception as e:
-        print (e)
-        return TemplateResponse(request, 'dashboard/room/maintenance/maintain.html', {})
+        except Exception as e:
+            print (e)
+            return TemplateResponse(request, 'dashboard/room/maintenance/maintain.html', {})
 
     if request.method == 'POST':
         try:
