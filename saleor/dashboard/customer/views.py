@@ -560,13 +560,12 @@ def pay(request, pk=None):
                     bookBalance = book_balance - instance.amount_paid.gross
                     book.balance = bookBalance
                     #calculate the balance with the charges
-                    book.balance_with_charges = bookBalance + book.service_charges.gross
+                    book.balance_with_charges = bookBalance + book.service_charges.gross + book.room.service_charges
                     #record the balance and the service charges in the RentPayment model
                     instance.balance = bookBalance
-                    instance.service_charges = book.service_charges.gross
+                    instance.service_charges = book.service_charges.gross + book.room.service_charges
                     book.service_charges = 0
                     instance.total_balance = instance.service_charges.gross + instance.balance.gross
-                    print ('book amount paid'+str(book.amount_paid))
                     instance.save()
                     book.save()
                 except Exception as e:
@@ -585,10 +584,10 @@ def pay(request, pk=None):
                     book.balance = bookBalance
                     # assign the total to the to the payment instance
                     instance.balance = bookBalanceWitharges
-                    instance.service_charges = book.service_charges.gross
+                    instance.service_charges = book.service_charges.gross + book.room.service_charges
                     instance.total_balance = instance.service_charges.gross + instance.balance.gross
 
-                    book.balance_with_charges = bookBalanceWitharges + book.service_charges.gross
+                    book.balance_with_charges = bookBalanceWitharges + book.service_charges.gross + book.room.service_charges
                     book.service_charges = 0
                     instance.save()
                     book.save()

@@ -4,7 +4,7 @@
 {% load prices_i18n %}
 
 {% block title %}
-  Room Maintenance
+  Property Maintenance
 {% endblock %}
 {% block breadcrumbs %}
 <li class="active"><a href="{% url 'dashboard:room-list' %}">Properties</a></li>
@@ -168,7 +168,7 @@
      <div class="modal-content">
        <div class="modal-header bg-blue">
          <button type="button" class="close" data-dismiss="modal">&times;</button>
-         <h6 class="modal-title text-white text-center"></h6>
+         <h4 class="modal-title text-white text-center">APPLY FIXTURE</h4>
        </div>
        <div class="modal-body">
 
@@ -176,7 +176,7 @@
          {% csrf_token %}
          <div class="">
            <h5 class="text-center">
-             Apply Fix!
+             Apply Fix?
            </h5>
            <input type="hidden" class="item-id" />
         </div>
