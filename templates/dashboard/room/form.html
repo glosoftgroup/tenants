@@ -163,9 +163,13 @@
                           {% else %}
                           background-image: url('/static/backend/images/bg.png');
                           {% endif %}
-                          background-size: contain;">
+                          background-position: center;
+                          background-repeat: no-repeat;
+                          background-size: cover;">
                         <div class="content-group-sms">
-                            <h1 class="text-semibold no-margin-bottom text-center">
+                            <div style="width: 100px;height: 100px;"></div>
+                            <h1 class="text-semibold no-margin-bottom text-center"
+                                style="background: rgba(0,0,0,0.75);">
                                  {% if room.pk %}
                                  {{room.name}}
                                  {% endif %}
