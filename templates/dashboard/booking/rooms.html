@@ -232,6 +232,7 @@
             <div class="panel-body">
                 <div class="tabbable col-md-12 row">
                     <ul class="nav nav-tabs nav-tabs-solid nav-justified">
+
                         <template v-for="wing in wings">
                             <li :class="activeWing(wing.id)" @click="getRooms(wing.id)">
                                 <a :href="'#dynamic-floor'+wing.id" data-toggle="tab" class="legitRipple" aria-expanded="false">
@@ -242,6 +243,25 @@
                         <template>
                             <div class="tab-contentf row">
                                 <div class="tab-panefactive" >
+                                    <div v-if="rooms.length === 0" class="col-md-12 mt-15">
+                                        <div class="thumbnail">
+
+
+                                            <div class="caption">
+                                                <div class="content-group-sm media">
+                                                    <div class="media-body text-center">
+                                                        <h6 class="text-semibold no-margin">
+                                                            <a href="#" class="text-default">No properties in this wing</a>
+                                                        </h6>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+                                        </div>
+                                    </div>
                                     <div v-for="room in rooms" class="col-md-3 mt-15">
                                         <div class="thumbnail">
                                             <div class="thumb">

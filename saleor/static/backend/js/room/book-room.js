@@ -129,11 +129,12 @@ $(function() {
       //sends rooms id: response total cost of selected rooms
       function computeTotalPrice(days=null){
         if(!days){
-            totalCost = daysId.val * realPrice.val();
+            totalCost = daysId.val() * realPrice.val();
             price.val(totalCost);
             amount.val(totalCost);
             totalPrice.val(totalCost);
         }else{
+
             totalCost = days * realPrice.val();
             price.val(totalCost);
             amount.val(totalCost);
@@ -298,13 +299,13 @@ $(function() {
     checkIn.datetimepicker({format:'YYYY-MM-DD' }).on('dp.change', function(e) {
         stayDays = getDays(checkIn.val(),checkOut.val());
         daysId.val(stayDays);
-        computeTotalPrice(rooms.val());
+        computeTotalPrice();
     });
 
     checkOut.datetimepicker({format:'YYYY-MM-DD' }).on('dp.change', function(e) {
         stayDays = getDays(checkIn.val(),checkOut.val());
         daysId.val(stayDays);
-        computeTotalPrice(rooms.val());
+        computeTotalPrice();
     });
 
     /* if not editing booking info, set default dates */

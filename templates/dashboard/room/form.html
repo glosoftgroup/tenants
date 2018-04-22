@@ -24,14 +24,22 @@
 <style lang="css" scoped>
     .vue_component__upload--image{
         padding: 5px;
-        cursor: pointer;
         min-height: 80px;
         border-radius: 5px;
+        border: 2px;
     }
     .vue_component__upload--image.dragover{}
-
+    .vue_component__upload--image form {
+        background-color: #eeeded;
+        border-style: dotted;
+        border-radius: 5px;
+        color: white;
+        padding:12px;
+        cursor: pointer;
+    }
     .vue_component__upload--image form > div{
         text-align: center;
+
     }
 
     .vue_component__upload--image .upload_image_form__thumbnails{
@@ -72,12 +80,11 @@
     }
     .vue_component__upload--image .upload_image_form__thumbnail span{
         position: absolute;
-        top: -5px;
+        top: 0px;
         left: 0px;
         z-index: 100;
         padding: 0px 1px;
         border-radius: 2px;
-        background-color: grey;
     }
     textarea.form-control {
         height: 68px;
@@ -272,7 +279,7 @@
                                                         <span class="help-block text-warning"></span>
                                                     </div>
 
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-12">
                                                         <div class="form-group">
                                                             <label class="text-bold">Bedrooms:</label>
                                                             <input name="bedrooms" id="bedrooms" placeholder="Bedrooms" class="form-control packages" type="number"  required="required" {% if room.id %} value="{{room.bedrooms}}" {% endif %}>
@@ -280,7 +287,7 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-6 hidden">
                                                         <div class="form-group">
                                                             <label class="text-bold">Units:</label>
                                                             <input name="units" id="units" placeholder="units" class="form-control packages" type="number"  required="required" {% if room.id %} value="{{room.units}}" {% endif %}>
@@ -350,7 +357,7 @@
                                         </div>
                                         <div class="form-group">
                                             <label>Description:</label>
-                                            <textarea v-model="description" rows="5" cols="5" class="form-control" id="description" name="description" placeholder="Enter description here">{% if room.description %}{{ room.description.strip }}{% endif %}</textarea>
+                                            <textarea  rows="5" cols="5" class="form-control" id="description" name="description" placeholder="Enter description here">{% if room.description %}{{ room.description.strip }}{% endif %}</textarea>
                                             <span class="help-block text-warning"></span>
                                         </div>
                                     </div>
@@ -512,6 +519,7 @@
                          <div class="panel panel-flat animated fadeIn" >
                             <div class="panel-body">
                                 <div class="row">
+
                                     <div class="vue_component__upload--image">
                                         <div class="upload_image_form__thumbnails">
                                             {% for image in room.room_images.all %}
@@ -522,14 +530,24 @@
                                                 <a href="{{ image.image.url }}" data-popup="lightbox" rel="gallery" class="">
                                                   <img src="{{ image.image.url }}" style="opacity: 9;">
                                                 </a>
-
                                             </div>
                                             {% endfor %}
                                         </div>
                                     </div>
 
-
                                      <div class="form-group" id="vue-app2">
+                                         <div class="vue_component__upload--image">
+                                            <div v-for="image in room_images" class="upload_image_form__thumbnails">
+                                                <div class="upload_image_form__thumbnail" id="delete-image{{image.pk}}"  >
+                                                    <span class="bg-primary text-white delete-image" data-pk="image.id" data-href="delete/image/url">
+                                                    &#x2716;
+                                                    </span>
+                                                    <a :href="image" data-popup="lightbox" rel="gallery" class="">
+                                                      ${name}<img src="" style="opacity: 9;">
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <upload-image class="form-control styled" url="" name="" max_files=""></upload-image>
                                      </div>
                                 </div>
@@ -608,8 +626,10 @@
 <!--<script type="text/javascript" src="{% static 'backend/js/room/book-room.js' %}"></script>-->
 <script type="text/javascript" src="{% static 'backend/js/booking/vue/listing-single.js' %}"></script>
 <script>
-
-
+    var pk;
+    {% if room.pk %}
+        pk = {{room.pk}};
+    {% endif %}
      // Checkboxes/radios (Uniform)
     // ------------------------------
 
