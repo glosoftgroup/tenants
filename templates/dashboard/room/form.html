@@ -143,6 +143,18 @@
    </style>
 <style>
     .error{color:red;}
+    .room-bg{
+     border-radius:5px 5px 0px 0px;
+     box-shadow: 0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24);
+     {% if room.room_images.first.image %}
+      background-image: url('{{ room.room_images.first.image.crop.300x250 }}');
+     {% else %}
+      background-image: url('/static/backend/images/bg.png');
+     {% endif %}
+     background-position: center;
+     background-repeat: no-repeat;
+     background-size: cover;
+     }
 </style>
 <style>
     .ui-datepicker-header { display:none }
@@ -155,17 +167,8 @@
             <div class="col-sm-12 {% if not room.pk %} hidden {% endif %}">
 
                 <div class="content-group">
-                    <div class="panel-body bg-slate border-radius-tops text-center"
-                         style="border-radius:5px 5px 0px 0px;
-                          box-shadow: 0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24);
-                          {% if room.room_images.first.image %}
-                          background-image: url('{{ room.room_images.first.image.crop.300x250 }}');
-                          {% else %}
-                          background-image: url('/static/backend/images/bg.png');
-                          {% endif %}
-                          background-position: center;
-                          background-repeat: no-repeat;
-                          background-size: cover;">
+                    <div class="panel-body bg-slate border-radius-tops text-center room-bg"
+                         style="">
                         <div class="content-group-sms">
                             <div style="width: 100px;height: 100px;"></div>
                             <h1 class="text-semibold no-margin-bottom text-center"
@@ -524,7 +527,7 @@
                             <div class="panel-body">
                                 <div class="row">
 
-                                    <div class="vue_component__upload--image">
+                                    <div class="hidden vue_component__upload--image">
                                         <div class="upload_image_form__thumbnails">
                                             {% for image in room.room_images.all %}
                                             <div class="upload_image_form__thumbnail" id="delete-image{{image.pk}}"  >
@@ -540,18 +543,6 @@
                                     </div>
 
                                      <div class="form-group" id="vue-app2">
-                                         <div class="vue_component__upload--image">
-                                            <div v-for="image in room_images" class="upload_image_form__thumbnails">
-                                                <div class="upload_image_form__thumbnail" id="delete-image{{image.pk}}"  >
-                                                    <span class="bg-primary text-white delete-image" data-pk="image.id" data-href="delete/image/url">
-                                                    &#x2716;
-                                                    </span>
-                                                    <a :href="image" data-popup="lightbox" rel="gallery" class="">
-                                                      ${name}<img src="" style="opacity: 9;">
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
                                         <upload-image class="form-control styled" url="" name="" max_files=""></upload-image>
                                      </div>
                                 </div>
@@ -588,7 +579,9 @@
        data-addclassurl="{% url 'dashboard:product-class-form32b' %}">
 
 <template id="uploader-temp">
-    <div class="vue_component__upload--image" v-bind:class="{ 'dragover': onDragover }">
+    <div class="row">
+        <show-images :rooms="room_images" refresh="_refresh_images"></show-images>
+        <div class="vue_component__upload--image" v-bind:class="{ 'dragover': onDragover }">
         <form v-bind:id="'upload_image_form--' + name" enctype="multipart/form-data">
             <div class="upload_image_form__thumbnails">
                 <div v-for="(value, key) in files" class="upload_image_form__thumbnail" v-on:click="fileView($event, key)"
@@ -609,9 +602,34 @@
             </div>
         </form>
     </div>
+    </div>
+</template>
+<template id="show-images">
+    <div class="vue_component__upload--image">
+        <div class="upload_image_form__thumbnails">
+            <div class="upload_image_form__thumbnail" v-for="r in rooms">
+                <div  :id="'delete-image'+r.id"  >
+                    <span class="bg-primary text-white delete-image cursor-pointer" :data-pk="r.id" @click="deleteImage(r.id)">
+                    &#x2716;
+                    </span>
+                    <a :href="r.image.medium_square_crop" data-popup="lightbox" rel="gallery" class="">
+                      <img :src="r.image.medium_square_crop" style="opacity: 9;">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <pre>${rooms}</pre>
 </template>
 {% endblock%}
 {% block custom_js %}
+<script>
+    var pk;
+    {% if room.pk %}
+        pk = {{room.pk}};
+        console.log(pk);
+    {% endif %}
+</script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/media/fancybox.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/core/libraries/jquery_ui_widgets.min.js' %}"></script>
@@ -630,10 +648,6 @@
 <!--<script type="text/javascript" src="{% static 'backend/js/room/book-room.js' %}"></script>-->
 <script type="text/javascript" src="{% static 'backend/js/booking/vue/listing-single.js' %}"></script>
 <script>
-    var pk;
-    {% if room.pk %}
-        pk = {{room.pk}};
-    {% endif %}
      // Checkboxes/radios (Uniform)
     // ------------------------------
 

@@ -156,8 +156,39 @@ var parent = new Vue({
     }
 });
 
+var showImages = Vue.component('show-images',{
+    template: '#show-images',
+    delimiters: ['${', '}'],
+    props:{
+        rooms:{
+            type: Array,
+            required: false,
+            default: []
+        },
+        refresh: {required: false}
+    },
+    methods: {
+        deleteImage(id){
+            var url = '/dashboard/room/delete/image/'+id;
+            axios.defaults.xsrfHeaderName = "X-CSRFToken"
+            axios.defaults.xsrfCookieName = 'csrftoken'
+
+            axios.delete(url)
+            .then((data)=>{
+                console.log($('#delete-image'+id));
+                $('#delete-image'+id).addClass('hidden').remove();
+                this.$emit('refresh');
+            })
+            .catch((error)=>{
+                console.log(error);
+            })
+        }
+    }
+});
+
 var UploadImage = Vue.component('upload-image', {
         template: '#uploader-temp',
+        delimiters: ['${', '}'],
         props: {
             url: {
                 type: String,
@@ -210,6 +241,7 @@ var UploadImage = Vue.component('upload-image', {
             }
         },
         mounted: function(){
+            this._refresh_images();
             this.form = document.getElementById('upload_image_form--' + this.name);
             this.input = document.getElementById('upload_image_form__input--' + this.name);
 
@@ -257,6 +289,7 @@ var UploadImage = Vue.component('upload-image', {
                 return '/static/backend/images/rooms/room.jpg';
             },
             _refresh_images(){
+                console.log('refreshing...')
                 this.$http.get('/api/property/image/?q='+pk)
                 .then(function(data){
                     data = JSON.parse(data.bodyText);
@@ -399,6 +432,10 @@ var UploadImage = Vue.component('upload-image', {
 
 new Vue({
     el:"#vue-app2",
+    delimiters: ['${', '}'],
+    data:{
+        name:'Upload files'
+    },
     template: '<upload-image url="'+uploadImageUrl+'"></upload-image>',
     components: {
         UploadImage
