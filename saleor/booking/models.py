@@ -240,7 +240,7 @@ class RentPayment(models.Model):
         currency=settings.DEFAULT_CURRENCY, max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
     customer = models.ForeignKey(
-        Customer, related_name='tenant_payment', blank=True, null=True, default='', on_delete=models.SET_NULL,
+        Customer, related_name='tenant_payment', blank=True, null=True, default='', on_delete=models.CASCADE,
         verbose_name=pgettext_lazy('Customer field', 'customer'))
     room = models.ForeignKey(
         Room, related_name='room_payment', blank=True, null=True, default='', on_delete=models.SET_NULL,
