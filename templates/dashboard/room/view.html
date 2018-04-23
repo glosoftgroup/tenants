@@ -322,7 +322,7 @@
                                         <input type="hidden" id="wing_id" name="wing_id" {% if room.id %} value="{{room.room_wing.id}}" {% endif %}>
                                         <input type="hidden" id="type_id" name="type_id" {% if room.id %} value="{{room.room_type.id}}" {% endif %}>
 
-                                        <div class="text-right col-md-12">
+                                        <div class="text-right col-md-12 hidden">
                                             <button id="add-room-btn" type="submit" class="btn btn-primary legitRipple">{% if room.id %}Edit{% else %}Add Room{% endif %} <i class="icon-arrow-right14 position-right"></i></button>
                                         </div>
                                      </form>
