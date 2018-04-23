@@ -166,7 +166,7 @@
                                     ---
                                   {% endif %}
                                 </h6>
-                                {% if booking.service_charges.gross != 0 %}
+                                {% if booking.pk and booking.service_charges.gross != 0 %}
                                 <h6>Service Charge: {{booking.service_charges.gross}}</h6>
                                 {% endif %}
                                 {% if booking.pk %}
