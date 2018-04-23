@@ -128,7 +128,7 @@ def add_image(request, pk=None):
 
 @staff_member_required
 def delete_image(request, pk=None):
-    if request.method == 'POST' and pk:
+    if request.method == 'DELETE' and pk:
         #instance = RoomImage.objects.all().delete()
         instance = RoomImage.objects.get(pk=pk)
 
