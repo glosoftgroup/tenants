@@ -15,7 +15,8 @@ from ...booking.models import RentPayment
 from ...sale.models import (Sales, SoldItem)
 from ...credit.models import Credit
 from ...decorators import permission_decorator, user_trail
-from saleor.booking.models import Book
+from saleor.booking.models import Book, RentPayment
+from saleor.room.models import Maintenance
 import logging
 import json
 import random
@@ -89,11 +90,15 @@ def user_detail(request, pk):
         try:
             booking = Book.objects.get(customer__pk=user.pk, active=True, room__is_booked=True)
             room = Book.objects.get(customer=user, active=True).room
+            balance_with_charges = booking.balance_with_charges.gross + booking.service_charges.gross
         except:
             booking = None
             room = None
+            balance_with_charges = 0
 
-        ctx = {'user': user, 'table_name': 'Customer', 'room':room, 'booking':booking}
+        ctx = {'user': user, 'table_name': 
+                'Customer', 'room':room, 'booking':booking, 
+                'balance_with_charges':balance_with_charges}
         user_trail(request.user.name, 'accessed detail page to view customer: ' + str(user.name), 'view')
         info_logger.info('User: ' + str(request.user.name) + ' accessed detail page to view customer:' + str(user.name))
         return TemplateResponse(request, 'dashboard/customer/detail.html', ctx)
@@ -614,3 +619,29 @@ def payments(request):
 
     ctx = {'table_name': table_name}
     return TemplateResponse(request, 'dashboard/customer/reports/payments.html', ctx)
+
+@staff_member_required
+def booking_invoice(request, pk=None):
+    if request.method == 'GET':
+        customer = None
+        instance = get_object_or_404(Book, pk=pk)
+        if not instance.invoice_number:
+            try:
+                instance.invoice_number = 'inv/fx/0'+str(Book.objects.latest('id').id)
+                instance.invoice_number += ''.join(random.choice('0123456789ABCDEF') for i in range(4))
+            except Exception as e:
+                instance.invoice_number = 'inv/fx/1'+''.join(random.choice('0123456789ABCDEF') for i in range(4))
+            instance.save()
+
+        total_balance = instance.balance.gross + instance.service_charges.gross
+        try:
+            maintenance = Maintenance.objects.filter(
+                room__pk=instance.room.pk,
+                cost=instance.service_charges.gross).last()
+            reason = maintenance.issue
+        except:
+            reason = None
+
+        ctx = {'table_name': table_name, 'instance': instance, 'reason':reason,
+            'customer':instance.customer, 'total_balance':total_balance}
+        return TemplateResponse(request, 'dashboard/customer/reports/invoice.html', ctx)

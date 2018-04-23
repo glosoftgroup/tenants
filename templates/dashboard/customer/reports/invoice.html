@@ -12,7 +12,7 @@
 {% block menu_book_class %}active{% endblock %}
 
 {% block breadcrumbs %}
-     <li class=""><a href="{% url 'dashboard:room_maintenance' %}">Maintenance </a></li>
+     <li class=""><a href="{% url 'dashboard:customer-detail' pk=instance.customer.pk%}">Tenant </a></li>
      <li class="activate">{{ instance.room.name }} Invoice | {{instance.invoice_number}}</li>
 {% endblock %}
 
@@ -98,8 +98,7 @@
                     <div class="invoice-details">
                         <h5 class="text-uppercase text-semibold">Invoice #{{instance.invoice_number}}</h5>
                         <ul class="list-condensed list-unstyled">
-                            <li>DATE REPORTED: <span class="text-semibold">{{instance.date_reported}}</span></li>
-                            <li>DATE RESOLVED: <span class="text-semibold">{{instance.date_resolved}}</span></li>
+                            <li>CHECK IN DATE: <span class="text-semibold">{{instance.check_in}}</span></li>
                         </ul>
                     </div>
                 </div>
@@ -128,7 +127,12 @@
                 <div class="col-md-6 col-lg-3 content-group">
                     <span class="text-muted">Payment Details:</span>
                     <ul class="list-condensed list-unstyled invoice-payment-details">
-                        <li><h5>Total Due: <span class="text-right text-semibold">${balance} {{instance.balance.gross}}</span></h5></li>
+                        <li><h5>Total Due: <span class="text-right text-semibold">${balance} 
+                            {% if instance.balance_with_charges.gross == 0 %} 
+                                {{total_balance}} 
+                            {% else %} 
+                            {{instance.balance_with_charges.gross}} 
+                            {% endif %}</span></h5></li>
 
                     </ul>
                 </div>
@@ -143,19 +147,48 @@
                     </tr>
                     <tr class="bg-primary">
                         <th class="col-sm-3">Date</th>
-                        <th class="col-sm-1">Issue</th>
+                        <th class="col-sm-3">Reason</th>
                         <th class="col-sm-2">Cost</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>
-                            <span class="no-margin">{{instance.date_reported}}</span>
+                            <span class="no-margin">{{instance.check_in}}</span>
                         </td>
-                        <td>{{instance.issue}}</td>
-                        <td><span class="text-semibold">{{instance.cost.gross}}</span></td>
+                        <td>
+                            <span class="no-margin">Booking Payment</span>
+                        </td>
+                        <td>
+                            <span class="text-semibold">
+                            {% if instance.balance_with_charges.gross == 0%} 
+                                
+                                {{total_balance}}  
+                            {% else %} 
+                                {{instance.balance_with_charges.gross}}
+                            {% endif %}
+                            </span>
+                        </td>
                     </tr>
-
+                    {% if instance.service_charges.gross != 0%} 
+                    <tr>
+                        <td>
+                            <span class="no-margin">{{instance.check_in}}</span>
+                        </td>
+                        <td>
+                            <span class="no-margin">Service Charges - {{reason}}</span>
+                        </td>
+                        <td>
+                            <span class="text-semibold">
+                            {% if instance.service_charges.gross == 0 %} 
+                                0
+                            {% else %} 
+                                {{instance.service_charges.gross}} 
+                            {% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
@@ -196,13 +229,25 @@
                                 <tbody>
                                     <tr>
                                         <th>Amount Paid:</th>
-                                        <td class="text-right">${total_paid} {{ instance.amount_paid.currency }}</td>
+                                        <td class="text-right">
+                                            ${total_paid}
+                                            {{ instance.amount_paid.currency }}
+                                            {% if instance.amount_paid.gross == 0 %} 
+                                                0 
+                                            {% else %} 
+                                                {{instance.amount_paid.gross}}
+                                            {% endif %}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <th>Balance:</th>
                                         <td class="text-right text-primary">
                                             <h5 class="text-semibold">
-                                            ${balance} {{ instance.cost.gross }}
+                                                {% if instance.balance_with_charges.gross == 0%} 
+                                                    {{instance.balance.gross}}
+                                                {% else %} 
+                                                    {{instance.balance_with_charges.gross}} 
+                                                {% endif %}
                                             </h5>
                                         </td>
                                     </tr>

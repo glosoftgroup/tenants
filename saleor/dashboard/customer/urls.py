@@ -49,6 +49,8 @@ urlpatterns = [
         # rent payments
         url(r'^rent/payment/$', views.payments, name='rent-payments'),
         url(r'^rent/payment/(?P<pk>[0-9]+)/$', views.pay, name='rent-payment'),
+        #invoice
+        url(r'^booking/invoice/(?P<pk>[0-9]+)/$', views.booking_invoice, name='booking-invoice'),
 
 
         
