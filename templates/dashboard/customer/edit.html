@@ -70,15 +70,15 @@
                          <!-- job position -->
                          <td>{{ address.id_no }}</td>
                          <!-- email -->
-                         <TD>{{ address.nationality }}</TD>
+                         <td>{{ address.nationality }}</td>
                          <!-- pphone -->
                          <td>{{ address.phone }}</td>
                          <!-- adddress -->
                          <td>{{ address.relation|title }}</td>
                          <td>{{ address.maturity_status | title}}</td>
                          <td>
-                           <a href="#modal_instance" data-title="Delete contact" data-warning="" data-csrf_token='{{ csrf_token }}' data-href="{% url 'dashboard:dependency-delete' pk=address.pk %}"
-                            class="btn btn-default modal-trigger-ajax"><i class="icon-trash position-left" data-popup="tooltip"  data-placement="bottom"  data-original-title="Delete me"></i>Remove
+                           <a href="#modal_instance" data-title="Delete Next of Kin" data-warning="" data-csrf_token='{{ csrf_token }}' data-href="{% url 'dashboard:dependency-delete' pk=address.pk %}"
+                            class="btn btn-primary modal-trigger-ajax"><i class="icon-trash position-left" data-popup="tooltip"  data-placement="bottom"  data-original-title="Delete me"></i>Remove
                             </a>
                          </td>
                          

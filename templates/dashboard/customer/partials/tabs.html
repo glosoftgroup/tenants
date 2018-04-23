@@ -154,7 +154,24 @@
                               </div>
                               <div class="form-group">
                                 <label class="display_label">Amount</label>
-                                <h6>{% if booking.price %}{{booking.price.gross}} {% else %} ---{% endif %}</h6>
+                                <h6>Total: {% if booking.price %}{{booking.price.gross}} {% else %} ---{% endif %}</h6>
+                                <h6> Balance:
+                                  {% if booking.pk %}
+                                    {% if booking.balance_with_charges.gross == 0%}
+                                      {{booking.balance.gross}} 
+                                    {% else %} 
+                                      {{booking.balance_with_charges.gross}}
+                                    {% endif %}
+                                  {% else %}
+                                    ---
+                                  {% endif %}
+                                </h6>
+                                {% if booking.service_charges.gross != 0 %}
+                                <h6>Service Charge: {{booking.service_charges.gross}}</h6>
+                                {% endif %}
+                                {% if booking.pk %}
+                                  <h6><a href="{% url 'dashboard:booking-invoice' pk=booking.pk %}">Generat Invoice</a></h6>
+                                {% endif %}
                               </div>                 
                              
                           </div>
