@@ -117,7 +117,7 @@ class Customer(models.Model):
         pgettext_lazy('Customer field', 'loyalty points'), default=Decimal(0), max_digits=100, decimal_places=2)    
     redeemed_loyalty_points = models.DecimalField(
         pgettext_lazy('Customer field', 'Redeemed loyalty points'), default=Decimal(0), max_digits=100, decimal_places=2)    
-    mobile = models.CharField(pgettext_lazy('Customer field', 'Phone No'), max_length=100, null=True, blank=True)
+    mobile = models.CharField(pgettext_lazy('Customer field', 'Phone No'), unique=True, max_length=100, null=True, blank=True)
     image = models.FileField(upload_to='employee', blank=True, null=True)
     date_joined = models.DateTimeField(
         pgettext_lazy('Customer field', 'date joined'),

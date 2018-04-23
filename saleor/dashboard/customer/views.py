@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, PageNotAnInteger, InvalidPage, EmptyPage
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count, Min, Sum, Avg, F, Q
+from django.db import IntegrityError
 
 from ..views import staff_member_required
 from ...customer.models import Customer, AddressBook
@@ -67,16 +68,19 @@ def user_process(request):
         )
         try:
             new_user.save()
-        except:
+            user_trail(request.user.name, 'created customer: ' + str(name), 'add')
+            info_logger.info('User: ' + str(request.user.name) + ' created customer:' + str(name))
+
+            success_url = reverse(
+                'dashboard:customer-edit', kwargs={'pk': new_user.pk})
+            data = {'success_url': success_url, 'message':'Tenant added successfully','status':'success'}
+        except IntegrityError as e:
+            data = {'success_url': None, 'message':'Tenant with that mobile already exists', 'status':'error'}
+        except Exception as e:
+            data = {'success_url': None, 'message':'Error encountered when adding Tenant'+str(e), 'status':'error'}
             error_logger.info('Error when saving ')
-        last_id = Customer.objects.latest('id')
 
-        user_trail(request.user.name, 'created supplier: ' + str(name), 'add')
-        info_logger.info('User: ' + str(request.user.name) + ' created customer:' + str(name))
-        success_url = reverse(
-            'dashboard:customer-edit', kwargs={'pk': last_id.pk})
-
-        return HttpResponse(json.dumps({'success_url': success_url}), content_type='application/json')
+        return HttpResponse(json.dumps(data), content_type='application/json')
 
 
 def user_detail(request, pk):

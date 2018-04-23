@@ -201,25 +201,33 @@ function disable_profile_tab(){
                     processData: false,
                     contentType: false,
                     success:function(data){
-                       console.log(data);
-                       $("#name").val('');
-                       $("#email").val('');
-                       $("#id_no").val('');
-                       $("#mobile").val('');
-                       $("#nationality").val('');
+                      if(data.status == 'success'){
+                         $("#name").val('');
+                         $("#email").val('');
+                         $("#id_no").val('');
+                         $("#mobile").val('');
+                         $("#nationality").val('');
 
-                       $.jGrowl('Customer added successfully', {
-                          header: 'Well done!',
-                          theme: 'bg-success'
-                       });
+                         $.jGrowl('Tenant added successfully', {
+                            header: 'Well done!',
+                            theme: 'bg-success'
+                         });
 
-                      localStorage.setItem('user_id', data);
-                      $('.user_id').val(localStorage.getItem("user_id"));
-                      window.location = data.success_url+'?contacts=edit';
+                        localStorage.setItem('user_id', data);
+                        $('.user_id').val(localStorage.getItem("user_id"));
+                        window.location = data.success_url+'?contacts=edit';
+                        }else{
+                           $.jGrowl(data.message, {
+                              header: 'Oops!',
+                              theme: 'bg-danger'
+                           });
+
+                        }
+                       
                     },
                     error:function(error){
-                      console.log(error);
-                      $.jGrowl('Change a few things up and try submitting again', {
+                      console.log(error.message);
+                      $.jGrowl('Number seems to exist, change and submit again', {
                           header: 'Oh snap!',
                           theme: 'bg-danger'
                       });
