@@ -129,7 +129,7 @@
                           <tr class="bg-primary">
                             <th width="14%">Image</th>
                             <th>Name</th>
-                            <th>Wing</th>
+                            <th>Street</th>
                             <th>Type</th>
                             <th>Price</th>
                             <th>Service Charges</th>
@@ -238,7 +238,7 @@
                         <template v-for="wing in wings">
                             <li :class="activeWing(wing.id)" @click="getRooms(wing.id)">
                                 <a :href="'#dynamic-floor'+wing.id" data-toggle="tab" class="legitRipple" aria-expanded="false">
-                                 <span class="text-bold">Wing:</span>  ${wing.name}
+                                 <span class="text-bold">Street:</span>  ${wing.name}
                                 </a>
                             </li>
                         </template>

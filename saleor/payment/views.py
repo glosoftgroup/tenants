@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from .models import MpesaPayment
 from ..sale.models import PaymentOption
 
+
 def payments_list(request):	
     try:
         options = PaymentOption.objects.all().order_by('-id')
