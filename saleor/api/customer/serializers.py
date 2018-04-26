@@ -98,9 +98,10 @@ class PaymentListSerializer(serializers.ModelSerializer):
     amount_paid = serializers.SerializerMethodField()
     balance = serializers.SerializerMethodField()
     total_balance = serializers.SerializerMethodField()
-    service_charges = serializers.SerializerMethodField()
+    maintenance_charges = serializers.SerializerMethodField()
     customer = serializers.SerializerMethodField()
     room = serializers.SerializerMethodField()
+    booking = serializers.SerializerMethodField()
     payment_detail = serializers.SerializerMethodField()
 
     class Meta:
@@ -110,15 +111,18 @@ class PaymentListSerializer(serializers.ModelSerializer):
                   'customer',
                   'total_amount',
                   'amount_paid',
-                  'service_charges',
+                  'maintenance_charges',
                   'balance',
                   'total_balance',
                   'date_paid',
                   'customer',
                   'room',
+                  'booking',
                   'description',
                   'created',
-                  'payment_detail'
+                  'payment_detail',
+                  'transaction_number',
+                  'payment_name'
                  )
 
     def get_total_amount(self, obj):
@@ -145,9 +149,9 @@ class PaymentListSerializer(serializers.ModelSerializer):
         except Exception as e:
             return 0
 
-    def get_service_charges(self, obj):
+    def get_maintenance_charges(self, obj):
         try:
-            return obj.service_charges.gross
+            return obj.maintenance_charges.gross
         except Exception as e:
             return 0
 
@@ -164,6 +168,14 @@ class PaymentListSerializer(serializers.ModelSerializer):
         except Exception as e:
             print e
             return 'None Set'
+
+    def get_booking(self, obj):
+        try:
+            return {"id":obj.book.id, "name":obj.book.invoice_number}
+        except Exception as e:
+            print e
+            return 'None Set'
+
 
     def get_payment_detail(self, obj):
         return reverse('dashboard:customer-detail', kwargs={'pk': obj.customer.pk})
