@@ -232,6 +232,7 @@ var parent = new Vue({
         }
     },
     mounted:function(){
+    $('#showForm').removeClass('hidden');
     /* on page load populate items with api list response */
         this.$http.get($('.pageUrls').data('listurl'))
             .then(function(data){

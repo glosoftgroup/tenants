@@ -3,11 +3,11 @@
 {% load i18n %}
 
 {% block title %}
-  Wings
+  Streets
 {% endblock %}
 
  {% block breadcrumbs %}
-     <li class="active"><a> Wings</a></li>
+     <li class="active"><a> Streets</a></li>
  {% endblock %}
 
 
@@ -72,7 +72,7 @@
             </div>
 
             <!--form-->
-            <div class="col-md-12" v-show="showForm">
+            <div class="col-md-12 animated fadeIn hidden" id="showForm" v-show="showForm">
                 <table class="table table-hover">
                 <thead>
                     <tr class="bg-primary">
@@ -112,66 +112,66 @@
    <div id="pagination-div">
       <!-- Header and footer fixed -->
       <div class="panel panel-flat" id="printme">
-        <div class="panel-body">
+        <div class="panel-body animated fadeIn">
             <div class="col-md-12">
-                <h5 class="text-center text-bold">Wings</h5>
+                <h5 class="text-center text-bold">Streets</h5>
             </div>
-        <div class="">
-          <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
-                <thead>
-                  <tr class="bg-primary">
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="tb">
-                <!--loader-->
-                <tr v-if="loader" class="text-center">
-                    <td colspan="8">
-                        <div class="pace-demo">
-                            <div class="theme_xbox"><div class="pace_progress" data-progress-text="60%" data-progress="60"></div><div class="pace_activity"></div></div>
-                        </div>
-                    </td>
-                </tr>
-                <!--no data template-->
-                <template  v-else>
-                <tr v-if="items.length == 0" class="text-center">
-                    <td colspan="8" class="text-bold animated zoomIn">
-                        No Data Found !
-                    </td>
-                </tr>
-                </template>
-                <!--listing template-->
-                <template v-for="item in items">
-                    <tr class="td " :id="item.id">
-                        <td>
-                            ${item.name}
-                        </td>
-                        <td>${item.description}</td>
-
-                        <td class="text-center">
-                            <ul class="icons-list">
-                                <li class="dropdown">
-                                    <button type="button" class="btn btn-primary dropdown-toggle legitRipple" data-toggle="dropdown" aria-expanded="true">
-                                        Actions<span class="caret"></span></button>
-
-                                    <ul class="dropdown-menu dropdown-menu-right">
-                                        <li><a @click="getInstance(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> EDIT</a></li>
-                                        <li><a @click="deleteInstance(item.delete_url,item.id)" href="javascript:;"><i class=" icon-trash-alt"></i> DELETE</a></li>
-                                    </ul>
-                                </li>
-                            </ul>
+            <div class="">
+              <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
+                    <thead>
+                      <tr class="bg-primary">
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="tb">
+                    <!--loader-->
+                    <tr v-if="loader" class="text-center">
+                        <td colspan="8">
+                            <div class="pace-demo">
+                                <div class="theme_xbox"><div class="pace_progress" data-progress-text="60%" data-progress="60"></div><div class="pace_activity"></div></div>
+                            </div>
                         </td>
                     </tr>
-                </template>
+                    <!--no data template-->
+                    <template  v-else>
+                    <tr v-if="items.length == 0" class="text-center">
+                        <td colspan="8" class="text-bold animated zoomIn">
+                            No Data Found !
+                        </td>
+                    </tr>
+                    </template>
+                    <!--listing template-->
+                    <template v-for="item in items">
+                        <tr class="td " :id="item.id">
+                            <td>
+                                ${item.name}
+                            </td>
+                            <td>${item.description}</td>
+
+                            <td class="text-center">
+                                <ul class="icons-list">
+                                    <li class="dropdown">
+                                        <button type="button" class="btn btn-primary dropdown-toggle legitRipple" data-toggle="dropdown" aria-expanded="true">
+                                            Actions<span class="caret"></span></button>
+
+                                        <ul class="dropdown-menu dropdown-menu-right">
+                                            <li><a @click="getInstance(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> EDIT</a></li>
+                                            <li><a @click="deleteInstance(item.delete_url,item.id)" href="javascript:;"><i class=" icon-trash-alt"></i> DELETE</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </template>
 
 
-                </tbody>
-           </table>
+                    </tbody>
+               </table>
 
-        </div>
-        </div>
+            </div>
+            </div>
 
          <style type="text/css">
            .pagination{margin-bottom: 0px;}
