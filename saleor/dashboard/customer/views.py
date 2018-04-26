@@ -569,12 +569,12 @@ def pay(request, pk=None):
                     bookBalance = book_balance - instance.amount_paid.gross
                     book.balance = bookBalance
                     #calculate the balance with the charges
-                    book.balance_with_charges = bookBalance + book.service_charges.gross + book.room.service_charges
+                    book.balance_with_charges = bookBalance + book.maintenance_charges.gross + book.room.service_charges
                     #record the balance and the service charges in the RentPayment model
                     instance.balance = bookBalance
-                    instance.service_charges = book.service_charges.gross + book.room.service_charges
-                    book.service_charges = 0
-                    instance.total_balance = instance.service_charges.gross + instance.balance.gross
+                    instance.maintenance_charges = book.maintenance_charges.gross + book.room.service_charges
+                    book.maintenance_charges = 0
+                    instance.total_balance = instance.maintenance_charges.gross + instance.balance.gross
                     instance.save()
                     book.save()
                 except Exception as e:
@@ -593,11 +593,11 @@ def pay(request, pk=None):
                     book.balance = bookBalance
                     # assign the total to the to the payment instance
                     instance.balance = bookBalanceWitharges
-                    instance.service_charges = book.service_charges.gross + book.room.service_charges
-                    instance.total_balance = instance.service_charges.gross + instance.balance.gross
+                    instance.maintenance_charges = book.maintenance_charges.gross + book.room.service_charges
+                    instance.total_balance = instance.maintenance_charges.gross + instance.balance.gross
 
-                    book.balance_with_charges = bookBalanceWitharges + book.service_charges.gross + book.room.service_charges
-                    book.service_charges = 0
+                    book.balance_with_charges = bookBalanceWitharges + book.maintenance_charges.gross + book.room.service_charges
+                    book.maintenance_charges = 0
                     instance.save()
                     book.save()
                 except Exception as e:
@@ -633,11 +633,11 @@ def booking_invoice(request, pk=None):
                 instance.invoice_number = 'inv/fx/1'+''.join(random.choice('0123456789ABCDEF') for i in range(4))
             instance.save()
 
-        total_balance = instance.balance.gross + instance.service_charges.gross
+        total_balance = instance.balance.gross + instance.maintenance_charges.gross
         try:
             maintenance = Maintenance.objects.filter(
                 room__pk=instance.room.pk,
-                cost=instance.service_charges.gross).last()
+                cost=instance.maintenance_charges.gross).last()
             reason = maintenance.issue
         except:
             reason = None

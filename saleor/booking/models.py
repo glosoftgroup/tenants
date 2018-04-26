@@ -94,7 +94,11 @@ class Book(models.Model):
         pgettext_lazy('Book field', 'price type'),
         max_length=152, default='', null=True, blank=True)
     price = PriceField(
-        pgettext_lazy('Book field', 'price'),
+        pgettext_lazy('Book field', 'booking amount'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    total = PriceField(
+        pgettext_lazy('Book field', 'total booking amount'),
         currency=settings.DEFAULT_CURRENCY, max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
     amount_paid = PriceField(
@@ -129,11 +133,15 @@ class Book(models.Model):
         pgettext_lazy('Book field', 'created'),
         default=now, editable=False)
     service_charges = PriceField(
-        pgettext_lazy('Book field', 'service charges(maintenance fee added)'),
+        pgettext_lazy('Book field', 'service charges(property service charges added)'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    maintenance_charges = PriceField(
+        pgettext_lazy('Book field', 'maintenance charges(maintenance fee added)'),
         currency=settings.DEFAULT_CURRENCY, max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
     balance_with_charges = PriceField(
-        pgettext_lazy('Book field', 'balance with service charges included'),
+        pgettext_lazy('Book field', 'balance with maintenance charges included'),
         currency=settings.DEFAULT_CURRENCY, max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
 
@@ -235,7 +243,7 @@ class RentPayment(models.Model):
         pgettext_lazy('Book field', 'balance'),
         currency=settings.DEFAULT_CURRENCY, max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
-    service_charges = PriceField(
+    maintenance_charges = PriceField(
         pgettext_lazy('Book field', 'service charges'),
         currency=settings.DEFAULT_CURRENCY, max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)

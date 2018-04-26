@@ -463,7 +463,7 @@ def add_room_issue(request, pk=None):
             if request.POST.get('paid_by') == 'tenant':
                 try:             
                     book = Book.objects.get(room=room.pk, active=True)
-                    book.service_charges = request.POST.get('cost')
+                    book.maintenance_charges = request.POST.get('cost')
                     book.save()
                     issues.paid_by = request.POST.get('paid_by')
                 except:
