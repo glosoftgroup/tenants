@@ -101,6 +101,7 @@ class PaymentListSerializer(serializers.ModelSerializer):
     maintenance_charges = serializers.SerializerMethodField()
     customer = serializers.SerializerMethodField()
     room = serializers.SerializerMethodField()
+    booking = serializers.SerializerMethodField()
     payment_detail = serializers.SerializerMethodField()
 
     class Meta:
@@ -116,9 +117,12 @@ class PaymentListSerializer(serializers.ModelSerializer):
                   'date_paid',
                   'customer',
                   'room',
+                  'booking',
                   'description',
                   'created',
-                  'payment_detail'
+                  'payment_detail',
+                  'transaction_number',
+                  'payment_name'
                  )
 
     def get_total_amount(self, obj):
@@ -164,6 +168,14 @@ class PaymentListSerializer(serializers.ModelSerializer):
         except Exception as e:
             print e
             return 'None Set'
+
+    def get_booking(self, obj):
+        try:
+            return {"id":obj.book.id, "name":obj.book.invoice_number}
+        except Exception as e:
+            print e
+            return 'None Set'
+
 
     def get_payment_detail(self, obj):
         return reverse('dashboard:customer-detail', kwargs={'pk': obj.customer.pk})

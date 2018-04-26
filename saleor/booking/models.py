@@ -253,6 +253,15 @@ class RentPayment(models.Model):
     room = models.ForeignKey(
         Room, related_name='room_payment', blank=True, null=True, default='', on_delete=models.SET_NULL,
         verbose_name=pgettext_lazy('Customer field', 'room'))
+    book = models.ForeignKey(
+        Book, related_name='book_payment', blank=True, null=True, default='', on_delete=models.SET_NULL,
+        verbose_name=pgettext_lazy('Customer field', 'book'))
+    payment_name = models.CharField(
+        pgettext_lazy('Payment field', 'payment name'),
+        max_length=152, default='None', null=True, blank=True)
+    transaction_number = models.CharField(
+        pgettext_lazy('Payment field', 'transaction number'),
+        max_length=152, default='None', null=True, blank=True)
 
     description = models.CharField(
         pgettext_lazy('Payment field', 'description'),

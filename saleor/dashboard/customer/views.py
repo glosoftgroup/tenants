@@ -554,6 +554,7 @@ def pay(request, pk=None):
 
         book = Book.objects.get(customer__pk=customer.pk, active=True, room__is_booked=True)
         instance.room = book.room
+        instance.book = book
 
         try:
             book = Book.objects.get(customer__pk=customer.pk, active=True, room__is_booked=True)
