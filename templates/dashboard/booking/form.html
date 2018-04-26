@@ -34,6 +34,14 @@
 
 
         <div class="panel-body" id="vue-app">
+            <script type="text/x-template" id="select2-template">
+              <select>
+                <slot></slot>
+              </select>
+            </script>
+             <select2 :options="options" placeholder="selelc" url="#" v-model="selected">
+                <option disabled value="0">Select one</option>
+             </select2>
            <div class="row">
                <form id="create-booking-form" enctype="multipart/form-data" novalidate>
 
@@ -60,7 +68,7 @@
 
                         <div class="form-group">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                   <label>Check-in Date:</label>
                                   <div class="input-group">
                                     <span class="input-group-addon"><i class="icon-calendar22"></i></span>
@@ -68,46 +76,35 @@
                                   </div>
                                 </div>
 
-                               <div class="col-md-6">
+                               <div class="col-md-4">
                                    <label>Check-out Date:</label>
                                   <div class="input-group">
                                     <span class="input-group-addon"><i class="icon-calendar22"></i></span>
                                     <input required="required" type="text" name="check_out" id="check_out" class="form-control check-out" {% if instance.id %} value="{{instance.check_out|date:'c'}}" {% endif %}>
                                   </div>
-                                </div>
+                               </div>
+
+
+                            <!--months-->
+                            <div class="col-md-4">
+                              <label class="text-right">Months:</label>
+                              <input required="required" name="days" type="number" id="days" @change="computeCheckout()" v-model.number="days" class="form-control days" {% if instance.id %} value="{{instance.days}}" {% endif %}>
+                            </div>
+
                             </div>
                             <div class="row mt-15">
-                                <div class="col-md-4">
-                                  <label class="text-right">Months:</label>
-                                  <input required="required" name="days" type="number" id="days" @change="computeCheckout()" v-model.number="days" class="form-control days" {% if instance.id %} value="{{instance.days}}" {% endif %}>
-                                </div>
-                                <div class="col-md-4">
+
+                                <!--total-->
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Price:<span class="text-danger">*</span></label>
-                                        <input required="required" disabled="disabled"
-                                               {% if room.id %}
-                                               value="{{room.price.gross}}"
-                                               {% endif  %}
-                                                {% if instance.id %}
-                                               value="{{instance.room.price.gross}}"
-                                               {% endif  %}
-                                               class="form-control"
-                                               id="price" name="price" placeholder="Price"
-                                               type="number"
-                                        >
-                                        <input required="required" class="form-control hidden" id="room" name="room" placeholder="hidden" type="hidden">
-                                        <span class="help-block text-warning"></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Total:<span class="text-danger">*</span></label>
+                                        <label>Total Rent:<span class="text-danger">*</span></label>
 
                                         <input
                                                {% if instance.id %}
                                                value="{{instance.price.gross}}"
                                                {% endif  %} class="form-control hidden"
-                                               id="total_price" name="total_price" placeholder="{instance.price.gross}}"
+                                               id="total_price" name="total_price"
+                                               placeholder="{instance.price.gross}}"
                                                type="number"
                                         >
                                         <input required="required" disabled="disabled"
@@ -119,6 +116,72 @@
                                         >
                                     </div>
                                 </div>
+                                <!--price-->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Monthly Rent:<span class="text-danger">*</span></label>
+                                        <input required="required" disabled="disabled"
+                                               {% if room.id %}
+                                               value="{{room.price.gross}}"
+                                               {% endif  %}
+                                                {% if instance.id %}
+                                               value="{{instance.room.price.gross}}"
+                                               {% endif  %}
+                                               class="form-control"
+                                               id="price" name="price" placeholder="Price"
+                                               type="number"
+                                        >
+
+                                        <input required="required" class="form-control hidden" id="room" name="room" placeholder="hidden" type="hidden">
+                                        <span class="help-block text-warning"></span>
+                                    </div>
+                                </div>
+                                <!--./price-->
+
+                                <!--total service-->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Total Service charge:<span class="text-danger">*</span></label>
+
+                                        <input
+                                               {% if instance.id %}
+                                               value="{{instance.price.gross}}"
+                                               {% endif  %} class="form-control hidden"
+                                               id="total_service" name="total_service"
+                                               placeholder="{{instance.service_charges}}"
+                                               type="number"
+                                        >
+                                        <input required="required" disabled="disabled"
+                                               {% if instance.id %}
+                                               value="{{instance.service_charges}}"
+                                               {% endif  %} class="form-control"
+                                               id="service_charges" name="amount" placeholder="Total"
+                                               type="number"
+                                        >
+                                    </div>
+                                </div>
+                                <!--service charges-->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Service Charges:<span class="text-danger">*</span></label>
+                                        <input required="required" disabled="disabled"
+                                               {% if room.id %}
+                                               value="{{room.service_charges}}"
+                                               {% endif  %}
+                                                {% if instance.id %}
+                                               value="{{instance.room.service_charges}}"
+                                               {% endif  %}
+                                               class="form-control"
+                                               id="room_service_chargers" name="room_service_chargers" placeholder="Service"
+                                               type="number"
+                                        >
+                                        <input required="required" class="form-control hidden" id="scharges" name="room" placeholder="hidden" type="hidden">
+                                        <span class="help-block text-warning"></span>
+                                    </div>
+                                </div>
+                                <!--./service-->
+
+
                             </div>
                         </div>
 
@@ -174,6 +237,7 @@
            </div>
         </div>
     </div>
+
         <!--page urls-->
 <input type="hidden" class="pageUrls"
        data-bookingurl="{% url 'dashboard:booking-list' %}"
@@ -183,6 +247,7 @@
        data-instancedata="{% url 'dashboard:booking-add' %}" >
 {% endblock%}
 {% block custom_js %}
+
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>

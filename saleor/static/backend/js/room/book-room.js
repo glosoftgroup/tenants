@@ -71,6 +71,7 @@ $(function() {
 
     // price assigned to property per month
     var realPrice = bookingForm.find('#price');
+    var realServicePrice = bookingForm.find('#service');
 
     //    remove help block
     name.on('focusin',function(){
@@ -126,7 +127,7 @@ $(function() {
         });
     });
 
-      //sends rooms id: response total cost of selected rooms
+      // sends rooms id: response total cost of selected rooms
       function computeTotalPrice(days=null){
         if(!days){
             totalCost = daysId.val() * realPrice.val();
@@ -134,7 +135,6 @@ $(function() {
             amount.val(totalCost);
             totalPrice.val(totalCost);
         }else{
-
             totalCost = days * realPrice.val();
             price.val(totalCost);
             amount.val(totalCost);
