@@ -75,7 +75,7 @@
                         <div class="form-group">
                             <div class="row">
                                 <div class="col-md-4">
-                                  <label>Check-in Date:</label>
+                                  <label>Check-in Date:${totalRent}</label>
                                   <dt-picker v-model="check_in" :value="check_in"></dt-picker>
                                 </div>
 
@@ -108,10 +108,8 @@
                                                type="number"
                                         >
                                         <input required="required" disabled="disabled"
-                                               {% if instance.id %}
-                                               value="{{instance.price.gross}}"
-                                               {% endif  %} class="form-control"
-                                               id="amount" name="amount" placeholder="Total"
+                                               class="form-control"
+                                               id="amount" name="amount" :placeholder="totalRentComputed"
                                                type="number"
                                         >
                                     </div>
@@ -120,13 +118,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Monthly Rent:<span class="text-danger">*</span></label>
-                                        <input required="required" disabled="disabled"
-                                               {% if room.id %}
-                                               value="{{room.price.gross}}"
-                                               {% endif  %}
-                                                {% if instance.id %}
-                                               value="{{instance.room.price.gross}}"
-                                               {% endif  %}
+                                        <input v-model="rentPrice" required="required" disabled="disabled"
                                                class="form-control"
                                                id="price" name="price" placeholder="Price"
                                                type="number"
@@ -149,7 +141,7 @@
                                                value="{{instance.service_charges}}"
                                                {% endif  %} class="form-control"
                                                id="service_charges" name="amount"
-                                               placeholder="Total"
+                                               :placeholder="totalServiceComputed"
                                                type="number"
                                         >
                                     </div>
@@ -158,7 +150,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Service Charges /m:<span class="text-danger">*</span></label>
-                                        <input required="required" disabled="disabled"
+                                        <input v-model="servicePrice" required="required" disabled="disabled"
                                                {% if room.id %}
                                                value="{{room.service_charges}}"
                                                {% endif  %}
@@ -184,8 +176,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                                 <label>Search Tenant:<span class="text-danger">*</span></label>
-                                <select2 :data="{}"
-                                         :options="options" url="/api/customer/"
+                                <select2 :data="{}" url="/api/customer/"
                                          placeholder="Select tenant"
                                          v-model="customer">
                                   <option disabled value="0">Select tenant</option>
@@ -223,22 +214,12 @@
                                 </div>
                             </div>
 
-                            <!--payments-->
-                            <div class="form-group">
-                                <div class="col-md-12 text-center mt-15">
-                                   <label>Payments:</label><br>
-                                   <button @click="openModal" onclick="return false;" class="btn btn-block bg-primary">
-                                       Pay: <span id="rent-plus-service"></span>
-                                   </button>
-                                </div>
-                            </div>
-                            <!--./payments-->
-                            </div>
+                    </div>
 
                     <input type="hidden" id="room_id" name="room_id" {% if room.id %} value="{{room.id}}" {% endif %} {% if instance.id %} value="{{instance.room.id}}" {% endif %}>
                     <input type="hidden" id="pk" name="pk" {% if instance.id %} value="{{instance.id}}" {% endif %}>
                     <div class="text-right col-md-12">
-                        <button id="create-book-btn" type="submit" class="btn btn-primary legitRipple">
+                        <button @click="bookProperty" id="create-book-btn" type="submit" class="btn btn-primary legitRipple">
                             {% if room.id %}Book{% else %}Book{% endif %}
                             <i class="icon-arrow-right14 position-right"></i>
                         </button>
@@ -247,123 +228,7 @@
                </form>
            </div>
         </div>
-        <!--PAYMENT MODAL-->
-        <form id="pay-form">
-            {% csrf_token %}
-            <div id="payment-modal" class="modal fade">
-            <div class="modal-dialog modal-lg">
 
-                <div class="modal-content">
-                    <div class="modal-header bg-primary">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h6 class="modal-title text-center">Purchase Payment</h6>
-                    </div>
-
-                    <div class="modal-body">
-                        <div class="row">
-                            <!--alert-->
-                            <div class="col-md-12">
-                                <div class="alert alert-danger no-border text-center animated shake hidden">
-                                    <button type="button" class="close" data-dismiss="alert"><span>×</span><span class="sr-only">Close</span></button>
-                                    <span class="text-semibold">Oh snap!</span> <span class="error-alert"></span>
-                                </div>
-                            </div>
-                            <!--./alert-->
-                            <!--purchase detail-->
-                            <div class="col-md-4" style="border-right: 1px solid #373737;">
-                                <div class="form-group">
-                                    <h5 class="text-semibold text-center text-grey-800">Select Payment Method</h5>
-                                     <template >
-                                    <span v-if="paymentOptions.length == 0" class="text-center">
-                                        <span colspan="8" class="text-bold animated zoomIn">
-                                            No payment options !
-                                        </span>
-                                    </span>
-                                    </template>
-                                    <template v-for="item in paymentOptions">
-                                        <button @click="addPayment(item)" onclick="return false;" class="btn btn-default btn-block btn-lg" >${item.name}</button>
-                                    </template>
-
-                                </div>
-                            </div>
-
-                            <!--payment detail-->
-                            <div class="col-md-8">
-                                 <!--total-->
-                                <h4 class="text-center text-bold total-field" style="font-size:34px;">
-                                    Total: ${Total | formatCurrency}
-                                </h4>
-                                <!--payment table-->
-                                <div class="table-responsive">
-                                 <table class="table table-hover">
-                                    <thead>
-                                        <tr class="bg-grey-800">
-                                            <th>Method</th>
-                                            <th>Number</th>
-                                            <th>Tendered</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    <template >
-                                    <tr v-if="paymentItems.length == 0" class="text-center">
-                                        <td colspan="8" class="text-bold animated zoomIn">
-                                            Select Payment
-                                        </td>
-                                    </tr>
-                                    </template>
-                                    <!--listing template-->
-                                    <template v-for="item in paymentItems">
-                                        <tr class="td animated fadeIn">
-
-                                            <td>${item.payment_name}</td>
-                                            <td>
-                                                <input v-model="item.transaction_number" style="width: 65px;" type="text" placeholder="transaction" class="form-control">
-                                            </td>
-                                            <td>
-                                                <input v-model="item.tendered" style="width: 105px;" type="number" placeholder="amount" class="form-control">
-                                            </td>
-                                            <td>
-                                                <span class="label label-white text-grey-800" @click="removePayment(item)">
-                                                    <i class="icon-trash animated shake"></i>
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                    </tbody>
-                                     <tfooter>
-                                        <tr class="active text-right text-bold">
-                                            <template>
-                                                <td>
-                                                    <span class="text-warning" v-show="show_balance">Balance:</span>
-                                                    <span class="text-success" v-show="show_change">Change:</span>
-                                                    <span>${getDue(Total,Tendered)| formatCurrency}</span>
-                                                </td>
-                                                <td colspan="4">
-                                                    <span style="font-size:14px;">Tendered:  ${Tendered | formatCurrency}</span>
-                                                </td>
-                                            </template>
-                                        </tr>
-                                    </tfooter>
-                                 </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        <input type="hidden" name="pk" id="pk" value="{{credit.pk}}">
-
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-                        <button v-show="show_change" type="button" @click="completePurchase" class="btn btn-primary hvr-glow btn-raised legitRipple">Complete</button>
-                        <button v-show="show_balance" type="button" @click="completePurchase" class="btn btn-primary hvr-glow btn-raised legitRipple">Credit</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </form>
-        <!--./MODAL-->
     </div>
 
         <!--page urls-->
@@ -375,15 +240,21 @@
        data-instancedata="{% url 'dashboard:booking-add' %}" >
 {% endblock%}
 {% block custom_js %}
-
+<script>
+    var pk;
+    {% if room.id %}
+        pk = "{{ room.id }}";
+    {% endif %}
+</script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/room/book-room.js' %}"></script>
+<!--<script type="text/javascript" src="{% static 'backend/js/room/book-room.js' %}"></script>-->
 <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/datepicker.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/datetimepicker/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/tokenize/tokenize2.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
+<script src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/booking/vue/booking.js' %}"></script>
 <script >
     /* render select field */

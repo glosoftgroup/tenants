@@ -99,12 +99,23 @@ class CreateListSerializer(serializers.ModelSerializer):
 
 
 class UpdateSerializer(serializers.ModelSerializer):
+    price = serializers.SerializerMethodField()
+
     class Meta:
         model = Table
         fields = ('id',
                   'name',
-                  'description',
+                  'room_type',
+                  'room_wing',
+                  'price',
+                  'service_charges',
                   )
+
+    def get_price(self, obj):
+        try:
+            return obj.price.gross
+        except:
+            return ''
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)

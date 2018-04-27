@@ -8,6 +8,23 @@ from ...orders.models import Orders
 from saleor.booking.models import Payment
 User = get_user_model()
 
+global fields, module
+module = 'bill'
+fields = ('id',
+          'invoice_number',
+          'price',
+          'service_charges',
+          'total',
+          'days',
+          'child',
+          'adult',
+          'check_in',
+          'check_out',
+          'customer_name',
+          'room',
+          'description',
+          'user',)
+
 
 class BookingListSerializer(serializers.ModelSerializer):
     price_amount = serializers.SerializerMethodField()
@@ -105,3 +122,13 @@ class PaymentListSerializer(serializers.ModelSerializer):
             print e
             return ''
 
+
+class CreateListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Table
+        fields = fields
+
+    def create(self, validated_data):
+        instance = Table.objects.create( **validated_data)
+
+        return instance
