@@ -10,10 +10,16 @@ from saleor.booking.models import Payment
 from .pagination import PostLimitOffsetPagination
 from .serializers import (
     PaymentListSerializer,
-    BookingListSerializer
+    BookingListSerializer,
+    CreateListSerializer
      )
 
 User = get_user_model()
+
+
+class CreateAPIView(generics.CreateAPIView):
+    queryset = Table.objects.all()
+    serializer_class = CreateListSerializer
 
 
 class BookingListAPIView(generics.ListAPIView):
@@ -84,6 +90,7 @@ class RoomBookingListAPIView(generics.ListAPIView):
                 Q(room__name__icontains=query)
                 ).distinct()
         return queryset_list.order_by('-id')
+
 
 class CustomerBookingListAPIView(generics.ListAPIView):
     serializer_class = BookingListSerializer

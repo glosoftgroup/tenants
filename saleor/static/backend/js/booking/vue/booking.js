@@ -1,8 +1,6 @@
 $ = jQuery;
 /* global variables */
 var dynamicData = {};
-var today = moment().format('YYYY-MM-DD');
-var tomorrow = moment().add(1, 'months').format('YYYY-MM-DD');
 var global_data = [];
 //select2 component wrapper
 Vue.component('select2', {
@@ -107,35 +105,63 @@ var parent = new Vue({
     delimiters: ['${', '}'],
     data:{
        name:'Booking',
+       roomName:'',
        days:1,
-       today: moment().format('YYYY-MM-DD'),
-       tomorrow: moment().add(1, 'months').format('YYYY-MM-DD'),
        check_in: moment().format('YYYY-MM-DD'),
        check_out: moment().add(1, 'months').format('YYYY-MM-DD'),
+       oneDay: 24*60*60*1000,
        customer: null,
        customer_name: '',
        customer_mobile: '',
-       selected: 2,
-       options: [
-          { id: 1, text: 'Hello' },
-          { id: 2, text: 'World' }
-        ]
+       rentPrice: 0, // house rent
+       servicePrice: 0, // monthly service charge
+       totalRent: 0,
+       totalService: 0
     },
     created:function(){
-       console.log(this.today);
-       console.log(this.tomorrow);
-       console.log('booking vue running in parent');
-       if($('#days').val()){
-         this.days = $('#days').val();
+       axios.defaults.xsrfHeaderName = "X-CSRFToken"
+       axios.defaults.xsrfCookieName = 'csrftoken'
+
+       if(pk){
+            this.getRoomDetails(pk);
        }
+
     },
     methods:{
-        openModal(e){
+        bookProperty(e){
             e.preventDefault();
-            console.log(this.check_out);
-            console.log('open modal....');
-            /* open modal */
-            $('#payment-modal').appendTo("body").modal('show');
+            alert('Sorry!. Ongoing');
+        },
+        getRoomDetails(pk){
+            // fetch room details
+            var vm = this;
+
+            axios.get('/api/property/update/'+pk+'/')
+            .then(function (response) {
+                vm.roomName = response.data.name;
+                vm.rentPrice = response.data.price;
+                vm.servicePrice = response.data.service_charges;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        },
+        addDays(start, days){
+            return moment(start).add(parseInt(days), 'months').format('YYYY-MM-DD');
+        },
+        getDays(start,end){
+            var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
+
+            if(moment(end).isAfter(moment(start))){
+                var firstDate = new Date(moment(start));
+                var secondDate = new Date(moment(end));
+
+                // var diffDays = Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
+                var diffMonths = moment(end).diff(moment(start), 'months', true)
+                return parseInt(diffMonths);
+            }else{
+                return 0;
+            }
         },
         checkIn:function(){
 
@@ -149,11 +175,24 @@ var parent = new Vue({
     },
      watch: {
     	'days': function(val, oldVal){
-    	        console.log('sdfsdfsdf');
-                //console.log($('#check_out').val());
-                //this.check_out = moment($('#check_in').val()).add(parseInt(this.days), 'days').format('MM/DD/YYYY');
-                //$('#check_out').val(this.check_out);
-
-             }
+    	    this.check_out = this.addDays(this.check_in, val);
+    	},
+    	'check_in': function(val, oldVal){
+    	    this.days = this.getDays(this.check_in, this.check_out);
+    	},
+    	'check_out': function(val, oldVal){
+    	    this.days = this.getDays(this.check_in, this.check_out);
+    	}
+    },
+    computed: {
+        // a computed getter
+        totalRentComputed: function () {
+          // `this` points to the vm instance
+          return parseInt(this.rentPrice) * this.days;
+        },
+        totalServiceComputed: function() {
+           // compute total service in lease time
+           return parseInt(this.servicePrice) * this.days;
+        }
     }
 });
