@@ -8,6 +8,15 @@
 *  Latest update: Nov 30, 2017
 *
 * ---------------------------------------------------------------------------- */
+
+
+/*
+    * README: (sorry we are reusing some code from restaurant)
+    * days will represents months
+    * today = this month
+    * yesterday = next month
+    *
+*/
 // alertUser
 function alertUser(msg,status='bg-success',header='Well done!')
 { $.jGrowl(msg,{header: header,theme: status}); }
@@ -63,6 +72,10 @@ $(function() {
     var daysId = bookingForm.find('#days');
     var stayDays = 0;
     var totalCost = 0;
+    var totalServicePrice = 0;
+    var serviceCharge = bookingForm.find('#service_charges');
+    var domrentpay = bookingForm.find('#rent-plus-service');
+    var rentPlusService = 0;
     var pk = 0;
     var customerName = bookingForm.find('#c_name');
     var mobile = bookingForm.find('#mobile');
@@ -71,7 +84,7 @@ $(function() {
 
     // price assigned to property per month
     var realPrice = bookingForm.find('#price');
-    var realServicePrice = bookingForm.find('#service');
+    var realServicePrice = bookingForm.find('#room_service_chargers');
 
     //    remove help block
     name.on('focusin',function(){
@@ -128,17 +141,31 @@ $(function() {
     });
 
       // sends rooms id: response total cost of selected rooms
+      /*
+       * days will represents months (sorry we are reusing some code from restaurant)
+       */
       function computeTotalPrice(days=null){
         if(!days){
             totalCost = daysId.val() * realPrice.val();
+            totalServicePrice = daysId.val() * realServicePrice.val();
             price.val(totalCost);
             amount.val(totalCost);
+            serviceCharge.val(totalServicePrice);
             totalPrice.val(totalCost);
+            // calculate amount to pay
+            rentPlusService = totalCost + totalServicePrice;
+            domrentpay.html(rentPlusService);
         }else{
             totalCost = days * realPrice.val();
+            totalServicePrice = days * realServicePrice.val();
             price.val(totalCost);
             amount.val(totalCost);
+            serviceCharge.val(totalServicePrice);
             totalPrice.val(totalCost);
+
+            // calculate amount to pay
+            rentPlusService = totalCost + totalServicePrice;
+            domrentpay.html(rentPlusService);
         }
       }
 

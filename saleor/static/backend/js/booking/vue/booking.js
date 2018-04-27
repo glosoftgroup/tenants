@@ -3,10 +3,10 @@ $ = jQuery;
 var dynamicData = {};
 var today = moment().format('YYYY-MM-DD');
 var tomorrow = moment().add(1, 'months').format('YYYY-MM-DD');
-
+var global_data = [];
 //select2 component wrapper
 Vue.component('select2', {
-  props: ['options', 'value','placeholder','url'],
+  props: ['options', 'value','placeholder','url', 'data'],
   template: '#select2-template',
   methods:{
       format(item){ return item.name; },
@@ -30,6 +30,7 @@ Vue.component('select2', {
             // Tranforms the top-level key of the response object from 'items' to 'results'
             // console.log(data.results);
             data = data.results;
+            global_data = data;
             return {
                   results :
                       data.map(function(item) {
@@ -49,6 +50,13 @@ Vue.component('select2', {
       // emit event on change.
       .on('change', function () {
         vm.$emit('input', this.value)
+        global_data.map((arr, index)=>{
+            if(arr.id == this.value){
+               parent.customer_name = arr.name;
+               parent.customer_mobile = arr.mobile;
+            }
+
+        })
       })
   },
   watch: {
@@ -68,16 +76,45 @@ Vue.component('select2', {
   }
 })
 
+Vue.component('dt-picker',{
+    props: ['value', 'placeholder'],
+    template: '#dt-template',
+    watch: {
+        value: function (value) {
+          // update value
+          $(this.$el)
+            .val(value)
+        }
+    },
+    mounted: function () {
+    var vm = this
+    $(this.$el)
+      // init datepicker
+      .daterangepicker({
+        singleDatePicker: true,
+        locale:{format: 'YYYY-MM-DD'},
+        showDropdowns:true,
+        autoUpdateInput:false,
+        // maxDate: new Date()
+        },function(chosen_date) {
+              vm.$emit('input', chosen_date.format('YYYY-MM-DD'));
+              console.log(chosen_date.format('YYYY-MM-DD'));
+        });
+    }
+})
 var parent = new Vue({
-    el:"#vue-book",
+    el:"#vue-app",
     delimiters: ['${', '}'],
     data:{
        name:'Booking',
        days:1,
        today: moment().format('YYYY-MM-DD'),
        tomorrow: moment().add(1, 'months').format('YYYY-MM-DD'),
-       check_in: null,
-       check_out: null,
+       check_in: moment().format('YYYY-MM-DD'),
+       check_out: moment().add(1, 'months').format('YYYY-MM-DD'),
+       customer: null,
+       customer_name: '',
+       customer_mobile: '',
        selected: 2,
        options: [
           { id: 1, text: 'Hello' },
@@ -93,6 +130,13 @@ var parent = new Vue({
        }
     },
     methods:{
+        openModal(e){
+            e.preventDefault();
+            console.log(this.check_out);
+            console.log('open modal....');
+            /* open modal */
+            $('#payment-modal').appendTo("body").modal('show');
+        },
         checkIn:function(){
 
         },

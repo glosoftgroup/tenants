@@ -44,6 +44,12 @@ from .userprofile.urls import urlpatterns as userprofile_urls
 from .salepoints.urls import urlpatterns as salepoints_urls
 from .wing.urls import urlpatterns as wing_urls
 from .propertytype.urls import urlpatterns as propertytype_urls
+from .bill.urls import urlpatterns as bill_urls
+from .billtypes.urls import urlpatterns as bill_types_urls
+from .deposit.urls import urlpatterns as deposit_urls
+from .paymentoptions.urls import urlpatterns as payment_options_urls
+from .expensetypes.urls import urlpatterns as expense_types_urls
+from .billpayment.urls import urlpatterns as bill_payment_urls
 import notifications.urls
 from .api.login import ObtainJSONWebToken
 from . import decorators
@@ -88,6 +94,12 @@ urlpatterns = [
     url(r'^feeds/', include(feed_urls, namespace='data_feeds')),
     url(r'^propertytype/', include(propertytype_urls, namespace="propertytype")),
     url(r'^wing/', include(wing_urls, namespace='wing')),
+    url(r'^bill/', include(bill_urls, namespace='bill')),
+    url(r'^billpayment/', include(bill_urls, namespace='billpayment')),
+    url(r'^billtypes/', include(bill_types_urls, namespace='billtypes')),
+    url(r'^deposit/', include(deposit_urls, namespace='deposit')),
+    url(r'^paymentoptions/', include(payment_options_urls, namespace='paymentoptions')),
+    url(r'^expensetypes/', include(expense_types_urls, namespace='expensetypes')),
     url(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps},
         name='django.contrib.sitemaps.views.sitemap'),
     url(r'^sale/points/', include(salepoints_urls, namespace='salepoints')),
