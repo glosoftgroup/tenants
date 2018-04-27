@@ -3,17 +3,46 @@
 {% load i18n %}
 
 {% block title %}
-  Streets
+  Bill Payments
 {% endblock %}
 
  {% block breadcrumbs %}
-     <li class="active"><a> Streets</a></li>
+     <li class="active"><a> Bill Payments</a></li>
  {% endblock %}
 
 
  {% block menu_bookingwing_class %}active{% endblock %}
  {% block custom_css %}
-
+ <style type="text/css">
+      .theme_xbox .pace_activity, .theme_xbox .pace_activity::after, .theme_xbox .pace_activity::before, .theme_xbox_sm .pace_activity, .theme_xbox_sm .pace_activity::after, .theme_xbox_sm .pace_activity::before, .theme_xbox_xs .pace_activity, .theme_xbox_xs .pace_activity::after, .theme_xbox_xs .pace_activity::before {
+        border-radius: 50%;
+        border: 1px solid transparent;
+            border-top-width: 1px;
+            border-right-width: 1px;
+            border-bottom-width: 1px;
+            border-left-width: 1px;
+            border-top-color: transparent;
+        border-top-color: #1649fc;
+    }
+    .pace-demo {
+        background-color:#fff;
+    }
+    @media print {
+       #printBtn {
+          display: none;
+       }
+       #addPayment {
+          display: none;
+       }
+       .media-none {
+          display: none;
+       }
+       #media-none {
+          display: none;
+       }
+    }
+    .td { cursor:pointer }
+   </style>
  {% endblock %}
 
 {% block content %}
@@ -112,9 +141,9 @@
    <div id="pagination-div">
       <!-- Header and footer fixed -->
       <div class="panel panel-flat" id="printme">
-        <div class="panel-body">
+        <div class="panel-body" >
             <div class="col-md-12">
-                <h5 class="text-center text-bold">Streets</h5>
+                <h5 class="text-center text-bold">Bill Payments</h5>
             </div>
             <div class="">
               <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
@@ -223,7 +252,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <h6 class="text-semibold">Are you sure you want to delete ?</h6>
+                    <h6 class="text-semibold text-center">Are you sure you want to delete ?</h6>
                 </div>
 
                 <div class="modal-footer text-center">
@@ -237,8 +266,8 @@
  </div>
 
 <input type="hidden" class="pageUrls"
-  data-listurl="{% url 'wing:api-list' %}"
-        data-createurl="/wing/api/create/"
+  data-listurl="{% url 'billpayment:api-list' %}"
+        data-createurl="/billpayment/api/create/"
 >
 {% endblock%}
 {% block custom_js %}

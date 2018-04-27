@@ -39,15 +39,6 @@
               </select>
             </script>
 
-            <script type="text/x-template" id="dt-template">
-                <div class="input-group">
-                    <span class="input-group-addon">
-                        <i class="icon-calendar22"></i>
-                    </span>
-                    <input type="text" class="form-control" :value="value">
-                </div>
-            </script>
-
            <div class="row">
                <form id="create-booking-form" enctype="multipart/form-data" novalidate>
 
@@ -76,13 +67,19 @@
                             <div class="row">
                                 <div class="col-md-4">
                                   <label>Check-in Date:</label>
-                                  <dt-picker v-model="check_in" :value="check_in"></dt-picker>
+                                  <div class="input-group">
+                                    <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                    <input required="required" type="text" name="check_in" id="check_in"  class="form-control check-in" {% if instance.id %} value='{{instance.check_in|date:"c"}}' {% endif %}>
+                                  </div>
                                 </div>
 
-                                <div class="col-md-4">
+                               <div class="col-md-4">
                                    <label>Check-out Date:</label>
-                                   <dt-picker v-model="check_out" :value="check_out"></dt-picker>
-                                </div>
+                                  <div class="input-group">
+                                    <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                    <input required="required" type="text" name="check_out" id="check_out" class="form-control check-out" {% if instance.id %} value="{{instance.check_out|date:'c'}}" {% endif %}>
+                                  </div>
+                               </div>
 
 
                             <!--months-->
@@ -184,12 +181,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                                 <label>Search Tenant:<span class="text-danger">*</span></label>
-                                <select2 :data="{}"
-                                         :options="options" url="/api/customer/"
-                                         placeholder="Select tenant"
-                                         v-model="customer">
-                                  <option disabled value="0">Select tenant</option>
-                                </select2>
+                                <select name="customer" class="customer hidden" multiple></select>
                                 <span class="help-block text-warning"></span>
                             </div>
                             <!--customer details-->
@@ -197,11 +189,11 @@
                                 <label class="control-label">Tenant Details:<span class="text-danger">*</span></label>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <input v-model="customer_name" required="required" {% if instance.id %} value="{{instance.customer.name}}"{% endif %}  placeholder="Name" id="c_name" name="c_name" class="form-control" type="text">
+                                        <input required="required" {% if instance.id %} value="{{instance.customer.name}}"{% endif %}  placeholder="Name" id="c_name" name="c_name" class="form-control" type="text">
                                     </div>
 
                                     <div class="col-md-6">
-                                        <input v-model="customer_mobile" required="required" placeholder="Phone" id="mobile" name="mobile" class="form-control" type="text" {% if instance.id %} value="{{instance.customer.mobile}}"{% endif %}>
+                                        <input required="required" placeholder="Phone" id="mobile" name="mobile" class="form-control" type="text" {% if instance.id %} value="{{instance.customer.mobile}}"{% endif %}>
                                     </div>
                                 </div>
                             </div>
