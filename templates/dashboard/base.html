@@ -429,8 +429,8 @@
                   </ul>
                 </li>
                   {% endif %}
-                   {% if perms.accounts.view_expenses %}
-                <li class="hidden"><a href="#"><i class="icon-coins"></i> <span>Accounting</span></a>
+                  {% if perms.accounts.view_expenses %}
+                <li class=""><a href="#"><i class="icon-coins"></i> <span>Accounting</span></a>
                   <ul>
                     <li class="{% block menu_personal_expenses_class %}{% endblock %}">
                         <a href="{% url 'accounts:personal_expenses' %}">
@@ -447,7 +447,53 @@
                         <i class="icon-notebook"></i>Petty Cash
                         </a>
                     </li>
+                    </li>
+                      <li class="{% block menu_expensetype_class %}{% endblock %}">
+                        <a href="{% url 'expensetypes:index' %}">
+                        <i class="icon-address-book2"></i>Expense Types
+                        </a>
+                    </li>
 
+                    </ul>
+                </li>
+                  {% endif %}
+
+                {% if perms.bill.view_bill%}
+                <li class=""><a href="#"><i class="icon-equalizer4"></i> <span>Bills Management</span></a>
+                  <ul>
+                      <li class="{% block menu_bill_class %}{% endblock %}">
+                        <a href="{% url 'bill:index' %}">
+                        <i class="icon-notebook"></i>Bills
+                        </a>
+                    </li>
+                    </li>
+                    <li class="{% block menu_billtype_class %}{% endblock %}">
+                        <a href="{% url 'billtypes:index' %}">
+                        <i class="icon-address-book2"></i>Bill Types
+                        </a>
+                    </li>
+                    <li class="{% block menu_deposit_class %}{% endblock %}">
+                        <a href="{% url 'deposit:index' %}">
+                        <i class="icon-address-book2"></i>Deposits
+                        </a>
+                    </li>
+                  </ul>
+                </li>
+                  {% endif %}
+
+                 {% if perms.billpayment.view_billpayment%}
+                <li class=""><a href="#"><i class="icon-shrink3"></i> <span>Payments</span></a>
+                  <ul>
+                      <li class="{% block menu_billpayment_class %}{% endblock %}">
+                        <a href="{% url 'billpayment:index' %}">
+                          <i class="icon-notebook"></i>Bill Payments
+                        </a>
+                      </li>
+                      <li class="{% block menu_payment_options_class %}{% endblock %}">
+                        <a href="{% url 'paymentoptions:index' %}">
+                          <i class="icon-notebook"></i>Payment Options
+                        </a>
+                      </li>
                     </ul>
                 </li>
                   {% endif %}

@@ -42,7 +42,8 @@ from ..product.models import Product, ProductVariant, Category
 from ..decorators import permission_decorator, user_trail
 from ..utils import render_to_pdf, convert_html_to_pdf
 from ..site.models import Bank, BankBranch, UserRole, Department
-from .models import ExpenseType, Expenses, PettyCash, PersonalExpenses
+from .models import Expenses, PettyCash, PersonalExpenses
+from ..expensetypes.models import ExpenseTypes as ExpenseType
 debug_logger = logging.getLogger('debug_logger')
 info_logger = logging.getLogger('info_logger')
 error_logger = logging.getLogger('error_logger')
