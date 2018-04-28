@@ -489,6 +489,11 @@
                           <i class="icon-notebook"></i>Bill Payments
                         </a>
                       </li>
+                      <li class="{% block menu_payment_options_class %}{% endblock %}">
+                        <a href="{% url 'paymentoptions:index' %}">
+                          <i class="icon-notebook"></i>Payment Options
+                        </a>
+                      </li>
                     </ul>
                 </li>
                   {% endif %}
