@@ -31,15 +31,19 @@ class Bill(models.Model):
     booking = models.ForeignKey(
         Book, blank=True, null=True, related_name='bill_booking',
         verbose_name=pgettext_lazy('Bill field', 'bill'))
-
     amount = models.DecimalField(
-       pgettext_lazy('Bill field', 'amount of the bill'), max_digits=12,
-       validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+        pgettext_lazy('Bill field', 'amount of the bill'), max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    tax = models.DecimalField(
+        pgettext_lazy('Bill field', 'amount of the bill'), max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    is_taxable = models.BooleanField(
+        pgettext_lazy('Book field', 'is taxable'), default=False)
     month = models.DateField(
-       pgettext_lazy('Bill field', 'month billed'),
-       default=now)
+        pgettext_lazy('Bill field', 'month billed'),
+        default=now)
     status = models.CharField(
-       pgettext_lazy('Bill field', 'status'), default='pending', null=True, max_length=128)
+        pgettext_lazy('Bill field', 'status'), default='pending', null=True, max_length=128) 
 
     updated_at = models.DateTimeField(
        pgettext_lazy('Bill field', 'updated at'), auto_now=True, null=True)

@@ -6,10 +6,12 @@ from rest_framework import pagination
 from .pagination import PostLimitOffsetPagination
 
 from saleor.bill.models import Bill as Table
+from saleor.booking.models import Book
 from .serializers import (
     CreateListSerializer,
     TableListSerializer,
-    UpdateSerializer
+    UpdateSerializer,
+    TenantsListSerializer
      )
 
 User = get_user_model()
@@ -73,3 +75,23 @@ class UpdateAPIView(generics.RetrieveUpdateAPIView):
     """
     queryset = Table.objects.all()
     serializer_class = UpdateSerializer
+
+
+class TenantsListAPIView(generics.ListAPIView):
+    """
+        tenants list details
+        GET /api/list/tenants/
+    """
+    serializer_class = TenantsListSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    pagination_class = PostLimitOffsetPagination
+
+    def get_serializer_context(self):
+        if self.request.GET.get('date'):
+            return {"date": self.request.GET.get('date'), 'request': self.request}
+        return {"date": None, 'request': self.request}
+
+    def get_queryset(self, *args, **kwargs):
+        queryset_list = Book.objects.filter(active=True, room__is_booked=True)
+
+        return queryset_list.order_by('-id')

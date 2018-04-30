@@ -55,7 +55,7 @@
             <div class="col-md-2">
               <label style="visibility: hidden;"> add</label>
               <div class="form-group">
-                    <a @click="toggleForm" id="toggle-add-form" href="javascript:;" class="btn btn-primary hvr-glow btn-raised legitRipple waves-effect waves-light">
+                    <a id="toggle-add-form" href="/bill/add/" class="btn btn-primary hvr-glow btn-raised legitRipple waves-effect waves-light">
                         <i class="icon-plus2 position-left"></i>Add
                     </a>
               </div>
@@ -99,39 +99,6 @@
                   </select>
               </div>
             </div>
-
-            <!--form-->
-            <div class="col-md-12 animated fadeIn hidden" id="showForm" v-show="showForm">
-                <table class="table table-hover">
-                <thead>
-                    <tr class="bg-primary">
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                  <tr>
-
-                  <td>
-                    <input @keyup="validate" v-model="wing_name" placeholder="name" class="form-control" id="wing_name" required="" name="wing_name" aria-required="true" type="text">
-                    <span class="help-block text-danger" v-show="errors">This field is required</span>
-                  </td>
-                  <td>
-                    <input v-model="description" placeholder="Description" class="form-control" id="description" name="description" type="text">
-                    <span class="help-block"></span>
-                  </td>
-
-                    <td>
-                      <button @click="addInstance" class="btn btn-xs btn-primary legitRipple" id="add-instance" type="submit">
-                          Submit <i class="icon-arrow-right14 position-right"></i>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-            </table>
-            </div>
-            <!--./form?-->
       </div>
    </div>
 
@@ -150,12 +117,13 @@
                     <thead>
                       <tr class="bg-primary">
                         <th>Invoice</th>
-                        <th>Month</th>
-                        <th>Customer</th>
-                        <th>Amount</th>
+                        <th>Tenant</th>
+                        <th>Property</th>
                         <th>Type</th>
-                        <th>Booking</th>
+                        <th>Month</th>
+                        <th>Amount</th>
                         <th>Description</th>
+                        <th>Status</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -179,15 +147,14 @@
                     <!--listing template-->
                     <template v-for="item in items">
                         <tr class="td " :id="item.id">
-                            <td>
-                                ${item.invoice_number}
-                            </td>
+                            <td>${item.invoice_number}</td>
+                            <td>${item.customer.name}</td>
+                            <td>${item.room.name}</td>
+                            <td>${item.billtype.name}</td>
                             <td>${item.month}</td>
-                            <td>${item.customer}</td>
                             <td>${item.amount}</td>
-                            <td>${item.billtype}</td>
-                            <td>${item.booking}</td>
                             <td>${item.description}</td>
+                            <td>${item.status}</td>
 
                             <td class="text-center">
                                 <ul class="icons-list">
@@ -196,7 +163,7 @@
                                             Actions<span class="caret"></span></button>
 
                                         <ul class="dropdown-menu dropdown-menu-right">
-                                            <li><a @click="getInstance(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> EDIT</a></li>
+                                            <li><a @click="goTo(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> EDIT</a></li>
                                             <li><a @click="deleteInstance(item.delete_url,item.id)" href="javascript:;"><i class=" icon-trash-alt"></i> DELETE</a></li>
                                         </ul>
                                     </li>

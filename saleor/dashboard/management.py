@@ -5,18 +5,36 @@ from ..sale.models import PaymentOption, Terminal
 from ..product.models import StockLocation
 from saleor.salepoints.models import SalePoint
 from saleor.billtypes.models import BillTypes
+from saleor.paymentoptions.models import PaymentOptions as BillPaymentOptions
 
 
 def add_bill_types(sender, **kwargs):
     try:
         bill_types = ['Rent', 'Service', 'Maintenance', 'Electricity', 'Water']
         for bill_type in bill_types:
-            instance = BillTypes.objects.filter(name=bill_type)
+            instance = BillTypes.objects.filter(name=bill_type, description=bill_type+" Type")
             if not instance.exists():
                 BillTypes.objects.create(name=bill_type)
     except:
         print('Error creating bill types')
 
+
+def add_bill_payment_options(sender, **kwargs):
+    try:
+        cash = BillPaymentOptions.objects.filter(name='Cash')
+        if not cash.exists():
+            BillPaymentOptions.objects.create(name="Cash", description="Cash Option")
+        visa = BillPaymentOptions.objects.filter(name='Visa')
+        if not visa.exists():
+            BillPaymentOptions.objects.create(name="Visa", description="Visa Option")
+        mpesa = BillPaymentOptions.objects.filter(name='Mpesa')
+        if not mpesa.exists():
+            BillPaymentOptions.objects.create(name="Mpesa", description="Mpesa Option")
+        cheque = BillPaymentOptions.objects.filter(name='Cheque')
+        if not cheque.exists():
+            BillPaymentOptions.objects.create(name="Cheque", description="Cheque Option")
+    except:
+        print('Error creating payment options')
 
 def add_stock_location(sender,**kwargs):
     try:
@@ -119,5 +137,6 @@ post_migrate.connect(add_view_permissions)
 post_migrate.connect(add_payment_options)
 post_migrate.connect(add_terminal)
 post_migrate.connect(add_stock_location)
-post_migrate.connect(add_sale_point)
 post_migrate.connect(add_bill_types)
+post_migrate.connect(add_bill_payment_options)
+post_migrate.connect(add_sale_point)
