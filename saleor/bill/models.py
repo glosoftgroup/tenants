@@ -31,7 +31,7 @@ class Bill(models.Model):
         pgettext_lazy('Bill field', 'amount of the bill'), max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
     tax = models.DecimalField(
-        pgettext_lazy('Bill field', 'amount of the bill'), max_digits=12,
+        pgettext_lazy('Bill field', 'tax of the bill based on the amount'), max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
     is_taxable = models.BooleanField(
         pgettext_lazy('Book field', 'is taxable'), default=False)
@@ -53,6 +53,10 @@ class Bill(models.Model):
 
     def __str__(self):
         return self.billtype.name
+
+    def get_total_amount(self):
+        ''' amount plus the tax '''
+        return (self.amount + self.tax)
 
 
 
