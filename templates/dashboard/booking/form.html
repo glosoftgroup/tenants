@@ -49,6 +49,7 @@
             </script>
 
            <div class="row">
+               <template>
                <form id="create-booking-form" enctype="multipart/form-data" novalidate>
 
                     <div class="col-md-6">
@@ -75,13 +76,15 @@
                         <div class="form-group">
                             <div class="row">
                                 <div class="col-md-4">
-                                  <label>Check-in Date:${totalRent}</label>
+                                  <label>Check-in Date:</label>
                                   <dt-picker v-model="check_in" :value="check_in"></dt-picker>
+                                  <span class="help-block text-warning">${errors.check_in}</span>
                                 </div>
 
                                 <div class="col-md-4">
                                    <label>Check-out Date:</label>
                                    <dt-picker v-model="check_out" :value="check_out"></dt-picker>
+                                    <span class="help-block text-warning">${errors.check_out}</span>
                                 </div>
 
 
@@ -89,6 +92,7 @@
                             <div class="col-md-4">
                               <label class="text-right">Months:</label>
                               <input required="required" name="days" type="number" id="days" @change="computeCheckout()" v-model.number="days" class="form-control days" {% if instance.id %} value="{{instance.days}}" {% endif %}>
+                                <span class="help-block text-warning">${errors.days}</span>
                             </div>
 
                             </div>
@@ -98,15 +102,6 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Total Rent:<span class="text-danger">*</span></label>
-
-                                        <input
-                                               {% if instance.id %}
-                                               value="{{instance.price.gross}}"
-                                               {% endif  %} class="form-control hidden"
-                                               id="total_price" name="total_price"
-                                               placeholder="{instance.price.gross}}"
-                                               type="number"
-                                        >
                                         <input required="required" disabled="disabled"
                                                class="form-control"
                                                id="amount" name="amount" :placeholder="totalRentComputed"
@@ -125,7 +120,7 @@
                                         >
 
                                         <input required="required" class="form-control hidden" id="room" name="room" placeholder="hidden" type="hidden">
-                                        <span class="help-block text-warning"></span>
+
                                     </div>
                                 </div>
                                 <!--./price-->
@@ -181,7 +176,7 @@
                                          v-model="customer">
                                   <option disabled value="0">Select tenant</option>
                                 </select2>
-                                <span class="help-block text-warning"></span>
+                                <span class="help-block text-warning">${errors.customer}</span>
                             </div>
                             <!--customer details-->
                             <div class="form-group">
@@ -189,10 +184,12 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <input v-model="customer_name" required="required" {% if instance.id %} value="{{instance.customer.name}}"{% endif %}  placeholder="Name" id="c_name" name="c_name" class="form-control" type="text">
+                                        <span class="help-block text-warning">${errors.customer_name}</span>
                                     </div>
 
                                     <div class="col-md-6">
                                         <input v-model="customer_mobile" required="required" placeholder="Phone" id="mobile" name="mobile" class="form-control" type="text" {% if instance.id %} value="{{instance.customer.mobile}}"{% endif %}>
+                                        <span class="help-block text-warning">${errors.customer_mobile}</span>
                                     </div>
                                 </div>
                             </div>
@@ -202,14 +199,14 @@
                                    <label>Adults:</label>
                                   <div class="input-group">
                                     <span class="input-group-addon"><i class="icon-user"></i></span>
-                                    <input type="number" {% if instance.id %} value="{{instance.adult}}" {% else %} value="1" {% endif %} placeholder="Adults" name="adult" id="adult" class="form-control ">
+                                    <input v-model="adult" type="number" {% if instance.id %} value="{{instance.adult}}" {% else %} value="1" {% endif %} placeholder="Adults" name="adult" id="adult" class="form-control ">
                                   </div>
                                 </div>
                                 <div class="col-md-4">
                                   <label>Children:</label>
                                   <div class="input-group">
                                     <span class="input-group-addon"><i class="icon-users"></i></span>
-                                    <input type="number" id="child" {% if instance.id %} value="{{instance.child}}" {% endif %} placeholder="No children" name="child" class="form-control">
+                                    <input v-model="child" type="number" id="child" {% if instance.id %} value="{{instance.child}}" {% endif %} placeholder="No children" name="child" class="form-control">
                                   </div>
                                 </div>
                             </div>
@@ -226,6 +223,7 @@
                     </div>
 
                </form>
+               </template>
            </div>
         </div>
 
@@ -242,9 +240,17 @@
 {% block custom_js %}
 <script>
     var pk;
+    var instance_id;
     {% if room.id %}
         pk = "{{ room.id }}";
     {% endif %}
+    {% if instance.id %}
+        instance_id = "{{ instance.id }}";
+        pk = "{{ instance.room.id }}";
+    {% endif %}
+
+
+
 </script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
