@@ -97,10 +97,10 @@ class Book(models.Model):
         pgettext_lazy('Book field', 'customer mobile'),
         max_length=152, default='', null=True, blank=True)
     total_rent = models.DecimalField(
-        pgettext_lazy('Book field', 'total rent amount'), max_digits=5, decimal_places=2)
+        pgettext_lazy('Book field', 'total rent amount'), max_digits=19, decimal_places=5)
 
     total_service = models.DecimalField(
-        pgettext_lazy('Book field', 'total service amount'), max_digits=5, decimal_places=2)
+        pgettext_lazy('Book field', 'total service amount'), max_digits=19, decimal_places=5)
     price = PriceField(
         pgettext_lazy('Book field', 'booking amount'),
         currency=settings.DEFAULT_CURRENCY, max_digits=12,

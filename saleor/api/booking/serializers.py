@@ -8,11 +8,14 @@ from ...orders.models import Orders
 from saleor.booking.models import Payment
 from saleor.customer.models import Customer
 import random
+from decimal import Decimal
+
 User = get_user_model()
 
 global fields, module
 module = 'bill'
 fields = ('id',
+          'active',
           'invoice_number',
           'total_rent',
           'total_service',
@@ -126,6 +129,15 @@ class CreateListSerializer(serializers.ModelSerializer):
         model = Table
         fields = fields + ('room_service_price', 'room_rent_price')
 
+    def validate_total_rent(self, value):
+        data = self.get_initial()
+        try:
+            value = Decimal(data.get('total_rent'))
+        except:
+            raise serializers.ValidationError('Total rent should be a decimal/integer')
+
+        return value
+
     def get_room_service_price(self, obj):
         return obj.room.service_charges
 
@@ -155,6 +167,9 @@ class CreateListSerializer(serializers.ModelSerializer):
             customer.mobile = validated_data['customer_mobile']
             customer.save()
             validated_data['customer'] = customer
+        room = validated_data.get('room')
+        room.is_booked = True
+        room.save()
         instance = Table.objects.create(**validated_data)
         # Table.objects.all().delete()
         return instance
