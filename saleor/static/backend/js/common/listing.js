@@ -96,11 +96,19 @@ var parent = new Vue({
                     alertUser('Data updated successfully');
                     self.showForm = false;
                     self.updateUrl = '';
+                    self.wing_name = '';
+                    self.description = '';
                     self.inputChangeEvent();
 
                 })
                 .catch(function (error) {
-                    console.log(error);
+                    if(error.response.data[0]){
+                        alertUser(error.response.data[0], 'bg-danger','Error!');
+                        self.showForm = false;
+                        self.updateUrl = '';
+                        self.wing_name = '';
+                        self.description = '';
+                    }
                 });
             }else{
                 // create
@@ -108,6 +116,8 @@ var parent = new Vue({
                 .then(function (response) {
                     alertUser('Data added successfully');
                     self.showForm = false;
+                    self.wing_name = '';
+                    self.description = '';
                     self.inputChangeEvent();
 
                 })
@@ -156,7 +166,12 @@ var parent = new Vue({
                     self.deleteId = false;
                 })
                 .catch(function (error) {
-                    console.log(error);
+                    // display error from serializer valueError
+                    if(error.response.data[0]){
+                        alertUser(error.response.data[0], 'bg-danger','Error!');
+                        $('#modal_delete').modal('hide');
+                    }
+
                 });
                 
             }

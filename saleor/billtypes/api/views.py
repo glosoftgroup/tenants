@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import pagination
+from rest_framework import serializers
 from .pagination import PostLimitOffsetPagination
 
 from saleor.billtypes.models import BillTypes as Table
@@ -22,6 +23,11 @@ class CreateAPIView(generics.CreateAPIView):
 
 class DestroyView(generics.DestroyAPIView):
     queryset = Table.objects.all()
+
+    def perform_destroy(self, instance):
+        bill_types = ['Rent', 'Service', 'Maintenance', 'Electricity', 'Water']
+        if instance.name in bill_types:
+            raise serializers.ValidationError('You cannot delete '+instance.name)
 
 
 class ListAPIView(generics.ListAPIView):

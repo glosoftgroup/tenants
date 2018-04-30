@@ -8,25 +8,16 @@ from saleor.billtypes.models import BillTypes
 from saleor.paymentoptions.models import PaymentOptions as BillPaymentOptions
 
 
-def add_bill_types(sender,**kwargs):
+def add_bill_types(sender, **kwargs):
     try:
-        rent = BillTypes.objects.filter(name='Rent')
-        if not rent.exists():
-            BillTypes.objects.create(name="Rent", description="Rent Type")
-        deposit = BillTypes.objects.filter(name='Deposit')
-        if not deposit.exists():
-            BillTypes.objects.create(name="Deposit", description="Deposit Type")
-        water = BillTypes.objects.filter(name='Water')
-        if not water.exists():
-            BillTypes.objects.create(name="Water", description="Water Type")
-        water = BillTypes.objects.filter(name='Water')
-        if not water.exists():
-            BillTypes.objects.create(name="Water", description="Water Type")
-        electricity = BillTypes.objects.filter(name='Electricity')
-        if not electricity.exists():
-            BillTypes.objects.create(name="Electricity", description="Electricity Type")
-    except Exception as e:
-        print(e)
+        bill_types = ['Rent', 'Service', 'Maintenance', 'Electricity', 'Water']
+        for bill_type in bill_types:
+            instance = BillTypes.objects.filter(name=bill_type, description=bill_type+" Type")
+            if not instance.exists():
+                BillTypes.objects.create(name=bill_type)
+    except:
+        print('Error creating bill types')
+
 
 def add_bill_payment_options(sender, **kwargs):
     try:
@@ -63,6 +54,7 @@ def add_sale_point(sender, **kwargs):
     except Exception as e:
         print e
 
+
 def add_terminal(sender,**kwargs):
     try:
         terminal = Terminal.objects.all()
@@ -70,6 +62,7 @@ def add_terminal(sender,**kwargs):
             Terminal.objects.create(terminal_name="Till-001",terminal_number=1)
     except Exception as e:
         print e
+
 
 def add_payment_options(sender, **kwargs):
     try:
@@ -87,6 +80,7 @@ def add_payment_options(sender, **kwargs):
             PaymentOption.objects.create(name="Loyalty Points")
     except:
         print('Error creating payment options')
+
 
 def add_view_permissions(sender, **kwargs):
     """
@@ -136,7 +130,6 @@ def add_view_permissions(sender, **kwargs):
     add_usertrail.delete()
     delete_usertrail.delete()
     change_usertrail.delete()
-
 
 
 # check for all our view permissions after a syncdb

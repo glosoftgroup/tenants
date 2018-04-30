@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 from saleor.billtypes.models import BillTypes as Table
-
+from django.db import models
 global fields, module
 module = 'billtypes'
 fields = ('id',
@@ -47,6 +47,9 @@ class UpdateSerializer(serializers.ModelSerializer):
         fields = fields
 
     def update(self, instance, validated_data):
+        bill_types = ['Rent', 'Service', 'Maintenance', 'Electricity', 'Water']
+        if instance.name in bill_types:
+            raise serializers.ValidationError('You cannot update ' + instance.name)
         instance.name = validated_data.get('name', instance.name)
         instance.description = validated_data.get('description', instance.description)
 

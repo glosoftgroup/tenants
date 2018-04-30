@@ -116,12 +116,14 @@
               <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
                     <thead>
                       <tr class="bg-primary">
+                        <th>Invoice</th>
                         <th>Tenant</th>
                         <th>Property</th>
-                        <th>Bill</th>
-                        <th>Amount</th>
+                        <th>Type</th>
                         <th>Month</th>
+                        <th>Amount</th>
                         <th>Description</th>
+                        <th>Status</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -145,22 +147,14 @@
                     <!--listing template-->
                     <template v-for="item in items">
                         <tr class="td " :id="item.id">
-                            <td>
-                                ${item.customer.name}
-                            </td>
-                            <td>
-                                ${item.room.name}
-                            </td>
-                            <td>
-                                ${item.billtype.name}
-                            </td>
-                            <td>
-                                ${item.amount}
-                            </td>
-                            <td>
-                                ${item.month}
-                            </td>
+                            <td>${item.invoice_number}</td>
+                            <td>${item.customer.name}</td>
+                            <td>${item.room.name}</td>
+                            <td>${item.billtype.name}</td>
+                            <td>${item.month}</td>
+                            <td>${item.amount}</td>
                             <td>${item.description}</td>
+                            <td>${item.status}</td>
 
                             <td class="text-center">
                                 <ul class="icons-list">
@@ -235,7 +229,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <h6 class="text-semibold">Are you sure you want to delete ?</h6>
+                    <h6 class="text-semibold text-center">Are you sure you want to delete ?</h6>
                 </div>
 
                 <div class="modal-footer text-center">
