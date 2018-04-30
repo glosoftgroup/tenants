@@ -12,9 +12,9 @@ def add_bill_types(sender, **kwargs):
     try:
         bill_types = ['Rent', 'Service', 'Maintenance', 'Electricity', 'Water']
         for bill_type in bill_types:
-            instance = BillTypes.objects.filter(name=bill_type, description=bill_type+" Type")
+            instance = BillTypes.objects.filter(name=bill_type)
             if not instance.exists():
-                BillTypes.objects.create(name=bill_type)
+                BillTypes.objects.create(name=bill_type, description=str(bill_type)+" Type")
     except:
         print('Error creating bill types')
 
