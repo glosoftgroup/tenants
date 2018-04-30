@@ -109,12 +109,24 @@ class UpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Bill Amount should be a decimal/integer')
 
         return value
+
+    def validate_tax(self, data):
+        data = self.get_initial()
+        try:
+            value = Decimal(data.get('tax'))
+        except:
+            raise serializers.ValidationError('Bill Amount should be a decimal/integer')
+
+        return value
+
     def update(self, instance, validated_data):
         instance.invoice_number = validated_data.get('invoice_number', instance.invoice_number)
         instance.billtype = validated_data.get('billtype', instance.billtype)
         instance.amount = validated_data.get('amount', instance.amount)
-        instance.tax = validated_data.get('tax', instance.tax)
         instance.is_taxable = validated_data.get('is_taxable', instance.is_taxable)
+        instance.tax = validated_data.get('tax', instance.tax)
+        if instance.is_taxable == False:
+            instance.tax = Decimal(0)
         instance.customer = validated_data.get('customer', instance.customer)
         instance.room = validated_data.get('room', instance.room)
         instance.month = validated_data.get('month', instance.month)

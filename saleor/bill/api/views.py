@@ -60,7 +60,9 @@ class ListAPIView(generics.ListAPIView):
         query = self.request.GET.get('q')
         if query:
             queryset_list = queryset_list.filter(
-                Q(name__icontains=query))
+                Q(customer__name__icontains=query) |
+                Q(room__name__icontains=query) |
+                Q(billtype__name__icontains=query))
         return queryset_list.order_by('-id')
 
 
