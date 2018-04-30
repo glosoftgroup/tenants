@@ -106,7 +106,7 @@ var parent = new Vue({
     data:{
        name:'Booking',
        roomName:'',
-       days:1,
+       days:2,
        check_in: moment().format('YYYY-MM-DD'),
        check_out: moment().add(1, 'months').format('YYYY-MM-DD'),
        oneDay: 24*60*60*1000,

@@ -6,7 +6,12 @@ from saleor.bill.models import Bill as Table
 global fields, module
 module = 'bill'
 fields = ('id',
-          'name',
+          'invoice_number',
+          'customer',
+          'booking',
+          'month',
+          'amount',
+          'billtype',
           'description')
 
 

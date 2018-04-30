@@ -4,6 +4,18 @@ from django.contrib.auth.models import Permission
 from ..sale.models import PaymentOption, Terminal
 from ..product.models import StockLocation
 from saleor.salepoints.models import SalePoint
+from saleor.billtypes.models import BillTypes
+
+
+def add_bill_types(sender, **kwargs):
+    try:
+        bill_types = ['Rent', 'Service', 'Maintenance', 'Electricity', 'Water']
+        for bill_type in bill_types:
+            instance = BillTypes.objects.filter(name=bill_type)
+            if not instance.exists():
+                BillTypes.objects.create(name=bill_type)
+    except:
+        print('Error creating bill types')
 
 
 def add_stock_location(sender,**kwargs):
@@ -24,6 +36,7 @@ def add_sale_point(sender, **kwargs):
     except Exception as e:
         print e
 
+
 def add_terminal(sender,**kwargs):
     try:
         terminal = Terminal.objects.all()
@@ -31,6 +44,7 @@ def add_terminal(sender,**kwargs):
             Terminal.objects.create(terminal_name="Till-001",terminal_number=1)
     except Exception as e:
         print e
+
 
 def add_payment_options(sender, **kwargs):
     try:
@@ -48,6 +62,7 @@ def add_payment_options(sender, **kwargs):
             PaymentOption.objects.create(name="Loyalty Points")
     except:
         print('Error creating payment options')
+
 
 def add_view_permissions(sender, **kwargs):
     """
@@ -99,10 +114,10 @@ def add_view_permissions(sender, **kwargs):
     change_usertrail.delete()
 
 
-
 # check for all our view permissions after a syncdb
 post_migrate.connect(add_view_permissions)
 post_migrate.connect(add_payment_options)
 post_migrate.connect(add_terminal)
 post_migrate.connect(add_stock_location)
 post_migrate.connect(add_sale_point)
+post_migrate.connect(add_bill_types)

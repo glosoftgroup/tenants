@@ -10,39 +10,40 @@ from django.core.validators import MinValueValidator, RegexValidator
 from saleor.billtypes.models import BillTypes
 from saleor.customer.models import Customer
 from saleor.room.models import Room
+from saleor.booking.models import Book
 
 
 class Bill(models.Model):
     ''' invoice_number for generating invoices of that bill '''
     invoice_number = models.CharField(
-        pgettext_lazy('Bill field', 'invoice_number'), unique=True, null=True, max_length=36)
-    name = models.CharField(
-        pgettext_lazy('Bill field', 'name'), unique=True, null=True, max_length=128)
+       pgettext_lazy('Bill field', 'invoice_number'), default='', null=True, max_length=36)
     description = models.TextField(
-        verbose_name=pgettext_lazy('Bill field', 'description'), blank=True, null=True)
+       verbose_name=pgettext_lazy('Bill field', 'description'), blank=True, null=True)
     billtype = models.ForeignKey(
-        BillTypes, blank=True, null=True, related_name='bill_types',
-        verbose_name=pgettext_lazy('Bill field', 'customer'), on_delete=models.SET_NULL)
+       BillTypes, blank=True, null=True, related_name='bill_types',
+       verbose_name=pgettext_lazy('Bill field', 'customer'), on_delete=models.SET_NULL)
     customer = models.ForeignKey(
-        Customer, blank=True, null=True, related_name='bill_customers',
-        verbose_name=pgettext_lazy('Bill field', 'customer'), on_delete=models.SET_NULL)
+       Customer, blank=True, null=True, related_name='bill_customers',
+       verbose_name=pgettext_lazy('Bill field', 'customer'), on_delete=models.SET_NULL)
     room = models.ForeignKey(
-        Room, blank=True, null=True, related_name='bill_rooms',
-        verbose_name=pgettext_lazy('Bill field', 'room'), on_delete=models.SET_NULL)
-    amount = PriceField(
-        pgettext_lazy('Bill field', 'amount of the bill'),
-        currency=settings.DEFAULT_CURRENCY, max_digits=12,
-        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
-    month = models.DateTimeField(
-        pgettext_lazy('Bill field', 'month billed'),
-        default=now)
+       Room, blank=True, null=True, related_name='bill_rooms',
+       verbose_name=pgettext_lazy('Bill field', 'room'), on_delete=models.SET_NULL)
+    booking = models.ForeignKey(
+        Book, blank=True, null=True, related_name='bill_booking',
+        verbose_name=pgettext_lazy('Bill field', 'bill'))
+
+    amount = models.DecimalField(
+       pgettext_lazy('Bill field', 'amount of the bill'), max_digits=12,
+       validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    month = models.DateField(
+       pgettext_lazy('Bill field', 'month billed'),
+       default=now)
     status = models.CharField(
-        pgettext_lazy('Bill field', 'status'), default='pending', null=True, max_length=128)
+       pgettext_lazy('Bill field', 'status'), default='pending', null=True, max_length=128)
 
     updated_at = models.DateTimeField(
-        pgettext_lazy('Bill field', 'updated at'), auto_now=True, null=True)
-    created = models.DateTimeField(pgettext_lazy('Bill field', 'created'),
-                                   default=now, editable=False)
+       pgettext_lazy('Bill field', 'updated at'), auto_now=True, null=True)
+    created = models.DateTimeField(pgettext_lazy('Bill field', 'created'), default=now, editable=False)
 
     class Meta:
         app_label = 'bill'
@@ -50,8 +51,4 @@ class Bill(models.Model):
         verbose_name_plural = pgettext_lazy('Bills model', 'Bills')
 
     def __str__(self):
-        return self.name
-
-
-
-
+        return self.billtype.name

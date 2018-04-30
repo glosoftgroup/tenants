@@ -149,7 +149,12 @@
               <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
                     <thead>
                       <tr class="bg-primary">
-                        <th>Name</th>
+                        <th>Invoice</th>
+                        <th>Month</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Type</th>
+                        <th>Booking</th>
                         <th>Description</th>
                         <th></th>
                       </tr>
@@ -175,8 +180,13 @@
                     <template v-for="item in items">
                         <tr class="td " :id="item.id">
                             <td>
-                                ${item.name}
+                                ${item.invoice_number}
                             </td>
+                            <td>${item.month}</td>
+                            <td>${item.customer}</td>
+                            <td>${item.amount}</td>
+                            <td>${item.billtype}</td>
+                            <td>${item.booking}</td>
                             <td>${item.description}</td>
 
                             <td class="text-center">
@@ -252,7 +262,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <h6 class="text-semibold">Are you sure you want to delete ?</h6>
+                    <h6 class="text-semibold text-center">Are you sure you want to delete ?</h6>
                 </div>
 
                 <div class="modal-footer text-center">
