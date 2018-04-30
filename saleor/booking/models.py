@@ -90,9 +90,17 @@ class Book(models.Model):
     description = models.CharField(
         pgettext_lazy('Book field', 'description'),
         max_length=152, default='', null=True, blank=True)
-    price_type = models.CharField(
-        pgettext_lazy('Book field', 'price type'),
+    customer_name = models.CharField(
+        pgettext_lazy('Book field', 'customer name'),
         max_length=152, default='', null=True, blank=True)
+    customer_mobile = models.CharField(
+        pgettext_lazy('Book field', 'customer mobile'),
+        max_length=152, default='', null=True, blank=True)
+    total_rent = models.DecimalField(
+        pgettext_lazy('Book field', 'total rent amount'), max_digits=5, decimal_places=2)
+
+    total_service = models.DecimalField(
+        pgettext_lazy('Book field', 'total service amount'), max_digits=5, decimal_places=2)
     price = PriceField(
         pgettext_lazy('Book field', 'booking amount'),
         currency=settings.DEFAULT_CURRENCY, max_digits=12,
@@ -121,10 +129,10 @@ class Book(models.Model):
     room = models.ForeignKey(
         Room, verbose_name=pgettext_lazy('Book field', 'rooms'),
         related_name='booking_room',  blank=True, null=True,)
-    check_in = models.DateTimeField(
+    check_in = models.DateField(
         pgettext_lazy('Book field', 'Date from'),
         default=now)
-    check_out = models.DateTimeField(
+    check_out = models.DateField(
         pgettext_lazy('Book field', 'Date until'),
         default=now)
     active = models.BooleanField(
