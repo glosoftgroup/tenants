@@ -1,15 +1,43 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.conf import settings
+from decimal import Decimal
 from django.utils.translation import pgettext_lazy
 from django.utils.timezone import now
+from django_prices.models import PriceField
+from django.core.validators import MinValueValidator, RegexValidator
+from saleor.billtypes.models import BillTypes
+from saleor.customer.models import Customer
+from saleor.room.models import Room
 
 
 class Bill(models.Model):
+    ''' invoice_number for generating invoices of that bill '''
+    invoice_number = models.CharField(
+        pgettext_lazy('Bill field', 'invoice_number'), unique=True, null=True, max_length=36)
     name = models.CharField(
-        pgettext_lazy('Bill field', 'name'), unique=True, max_length=128)
+        pgettext_lazy('Bill field', 'name'), unique=True, null=True, max_length=128)
     description = models.TextField(
         verbose_name=pgettext_lazy('Bill field', 'description'), blank=True, null=True)
+    billtype = models.ForeignKey(
+        BillTypes, blank=True, null=True, related_name='bill_types',
+        verbose_name=pgettext_lazy('Bill field', 'customer'), on_delete=models.SET_NULL)
+    customer = models.ForeignKey(
+        Customer, blank=True, null=True, related_name='bill_customers',
+        verbose_name=pgettext_lazy('Bill field', 'customer'), on_delete=models.SET_NULL)
+    room = models.ForeignKey(
+        Room, blank=True, null=True, related_name='bill_rooms',
+        verbose_name=pgettext_lazy('Bill field', 'room'), on_delete=models.SET_NULL)
+    amount = PriceField(
+        pgettext_lazy('Bill field', 'amount of the bill'),
+        currency=settings.DEFAULT_CURRENCY, max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    month = models.DateTimeField(
+        pgettext_lazy('Bill field', 'month billed'),
+        default=now)
+    status = models.CharField(
+        pgettext_lazy('Bill field', 'status'), default='pending', null=True, max_length=128)
 
     updated_at = models.DateTimeField(
         pgettext_lazy('Bill field', 'updated at'), auto_now=True, null=True)

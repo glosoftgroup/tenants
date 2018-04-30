@@ -3,7 +3,8 @@ from django.http import HttpResponse
 from .views import staff_member_required
 from ..utils import render_to_pdf, image64
 from datetime import date
-from .models import ExpenseType, Expenses
+from .models import Expenses
+from ..expensetypes.models import ExpenseTypes as ExpenseType
 
 
 @staff_member_required
