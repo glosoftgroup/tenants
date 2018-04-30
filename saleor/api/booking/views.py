@@ -22,6 +22,19 @@ class CreateAPIView(generics.CreateAPIView):
     serializer_class = CreateListSerializer
 
 
+class UpdateAPIView(generics.RetrieveUpdateAPIView):
+    """
+        update instance details
+        @:param pk house id
+        @:method PUT
+
+        PUT /api/update/
+        payload Json: /payload/update.json
+    """
+    queryset = Table.objects.all()
+    serializer_class = CreateListSerializer
+
+
 class BookingListAPIView(generics.ListAPIView):
     serializer_class = BookingListSerializer
     pagination_class = PostLimitOffsetPagination
