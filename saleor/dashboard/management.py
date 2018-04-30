@@ -4,7 +4,46 @@ from django.contrib.auth.models import Permission
 from ..sale.models import PaymentOption, Terminal
 from ..product.models import StockLocation
 from saleor.salepoints.models import SalePoint
+from saleor.billtypes.models import BillTypes
+from saleor.paymentoptions.models import PaymentOptions as BillPaymentOptions
 
+
+def add_bill_types(sender,**kwargs):
+    try:
+        rent = BillTypes.objects.filter(name='Rent')
+        if not rent.exists():
+            BillTypes.objects.create(name="Rent", description="Rent Type")
+        deposit = BillTypes.objects.filter(name='Deposit')
+        if not deposit.exists():
+            BillTypes.objects.create(name="Deposit", description="Deposit Type")
+        water = BillTypes.objects.filter(name='Water')
+        if not water.exists():
+            BillTypes.objects.create(name="Water", description="Water Type")
+        water = BillTypes.objects.filter(name='Water')
+        if not water.exists():
+            BillTypes.objects.create(name="Water", description="Water Type")
+        electricity = BillTypes.objects.filter(name='Electricity')
+        if not electricity.exists():
+            BillTypes.objects.create(name="Electricity", description="Electricity Type")
+    except Exception as e:
+        print(e)
+
+def add_bill_payment_options(sender, **kwargs):
+    try:
+        cash = BillPaymentOptions.objects.filter(name='Cash')
+        if not cash.exists():
+            BillPaymentOptions.objects.create(name="Cash", description="Cash Option")
+        visa = BillPaymentOptions.objects.filter(name='Visa')
+        if not visa.exists():
+            BillPaymentOptions.objects.create(name="Visa", description="Visa Option")
+        mpesa = BillPaymentOptions.objects.filter(name='Mpesa')
+        if not mpesa.exists():
+            BillPaymentOptions.objects.create(name="Mpesa", description="Mpesa Option")
+        cheque = BillPaymentOptions.objects.filter(name='Cheque')
+        if not cheque.exists():
+            BillPaymentOptions.objects.create(name="Cheque", description="Cheque Option")
+    except:
+        print('Error creating payment options')
 
 def add_stock_location(sender,**kwargs):
     try:
@@ -105,4 +144,6 @@ post_migrate.connect(add_view_permissions)
 post_migrate.connect(add_payment_options)
 post_migrate.connect(add_terminal)
 post_migrate.connect(add_stock_location)
+post_migrate.connect(add_bill_types)
+post_migrate.connect(add_bill_payment_options)
 post_migrate.connect(add_sale_point)

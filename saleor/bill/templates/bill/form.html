@@ -5,24 +5,40 @@
 
 {% block title %}
     {% if not object.id %}
-        Add academic year
+        Add Bill
     {% else %}
-        Edit {{object.name}} - Academic year
+        Edit {{object.billtype.name}} - Bill
     {% endif %}
 {% endblock %}
 
  {% block breadcrumbs %}
-     <li class=""><a href="{% url 'academic_year:index' %}" >Academic year</a></li>
-     <li class="active">{{form.name.value}}</li>
+     <li class=""><a href="{% url 'bill:index' %}" >Bill</a></li>
+     {% if not object.id %}
+     <li class="active"><a href="{% url 'bill:add' %}" >Add Bill</a></li>
+     {% else %}
+        <li class="active">
+            <a href="{% url 'bill:update' pk=object.id %}" >
+                Update {{object.customer.name|title}} - {{object.billtype.name}}
+            </a>
+        </li>
+    {% endif %}
  {% endblock %}
 
 
-{% block menu_settings_year %}active{% endblock %}
+{% block menu_bill_class %}active{% endblock %}
 
 {% block custom_css %}
-<link rel="stylesheet" href="https://unpkg.com/react-select/dist/react-select.css">
-{% render_bundle 'academic_year' 'css' %}
-<link rel="stylesheet" href="{% static 'js/plugins/react/react-datepicker.min.css">
+<link href="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css">
+<style>
+  table tr .ctd{padding: 8px 10px !important;}
+  .table{border-bottom:1px solid #ccc}
+  .datepicker table tr td span {
+      padding:1px !important;
+    }
+    .datepicker table tr td span.active.active{
+       background-color:#1E88E5 !important;
+    }
+</style>
 {% endblock %}
 {% block content %}
  <!--house details-->
@@ -30,46 +46,107 @@
 <div class="panel panel-flat animated fadeIn" id="vue-app">
     <div class="panel-body">
         <div class="row">
+            <form name="AppForm" id="appForm" @submit.prevent="handleSubmit">
             {% csrf_token %}
-           <div id="app-root">
-           </div>
+           <div class="col-md-12">
+                      <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                              <label>Tenant</label>
+                                <select v-model="tenant.id" @change="setTenantProperty" class="bootstrap-selects tenants" style="display: none;" data-width="100%" tabindex="-98" name="tenant"
+                                data-url="{% url 'bill:api-list-tenants' %}">
+                                <option value="none" >None Selected</option>
+                            </select>
+                            </div> 
+                          <div class="form-group">
+                            <label for="mobile">Bill Type.</label>
+                            <select v-model="billtype.id" class="bootstrap-select billtypes" style="display: none;" data-width="100%" tabindex="-98" name="billtype" data-url="{% url 'billtypes:api-list' %}">
+                                <option value="none" >None Selected</option>
+                            </select>
+                           </div>
+                           
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label for="name">Property</label>
+                            <input type="text" v-model="property.name" class="form-control" name="property"  id="property" placeholder="e.g Property: mansion" disabled />
+                          </div>
+                           <div class="form-group">
+                              <label for="amount">Amount</label>
+                              <input type="text" v-model="amount" class="form-control" name="amount" id="amount" placeholder="Amount" />
+                           </div>          
+                           
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="name">Month</label>
+                                <input type="text" v-model="monthDisplay" class="form-control monthpicker"  name="monthpicker" id="monthpicker" placeholder="Month" />
+                            </div>            
+                           
+                        </div>
+                      </div>
+                      <div class="row">
+                          <div class="col-md-12">
+                            <label for="mobile">Description</label>
+                              <textarea class="form-control" v-model="description" name="description" id="description" placeholder="A description of the bill type of the month"></textarea>
+                       </div>
+                     </div>
+                     <div class="row">
+                        <div class="col-md-6 col-md-offset-3">
+                         <div class="pull-rights" style="margin-top:40px;">
+                          <a href="javascript:;" class="pull-left btn btn-default waves-effect waves-light">Cancel</a>
+
+                          <button class="btn btn-primary waves-effect waves-light pull-right" id="submit" type="submit">
+                            {% if object.id %} Update Bill {% else %} Add Bill{% endif %}
+                            <i class="icon-arrow-right14 position-right"></i></button>
+                         </div>
+                        </div>
+                      </div>
+
+                    </div>
+                </form>
         </div>
     </div>
 </div>
+{% if object.id %}
+    <input type="hidden" class="updateUrl" value="{% url 'bill:api-update' pk=object.id %}">
+    <input type="hidden" class="edit_billtype_id" value="{{object.billtype.id}}">
+    <input type="hidden" class="edit_billtype_name" value="{{object.billtype.name}}">
+    <input type="hidden" class="edit_invoice_number" value="{{object.invoice_number}}">
+    <input type="hidden" class="edit_amount" value="{{object.amount}}">
+    <input type="hidden" class="edit_room_id" value="{{object.room.id}}">
+    <input type="hidden" class="edit_room_name" value="{{object.room.name}}">
+    <input type="hidden" class="edit_customer_id" value="{{object.customer.id}}">
+    <input type="hidden" class="edit_customer_name" value="{{object.customer.name}}">
+    <input type="hidden" class="edit_month" value="{{object.month|date:'Y-m-d'}}">
+    <input type="hidden" class="edit_monthDsiplay" value="{{object.month| date:'M/Y' }}">
+    <input type="hidden" class="edit_status" value="{{object.status}}">
+    <input type="hidden" class="edit_description" value="{{object.description}}">
+{% else %}
+    <input type="hidden" class="updateUrl" value="">
+{% endif %}
+<input type="hidden" class="pageUrls"
+  data-listurl="{% url 'bill:index' %}" data-createurl="{% url 'bill:api-create' %}"
+>
 <!--./house details-->
 {% endblock %}
 
 {% block custom_js %}
-<script type="text/javascript" src="{% static 'js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/plugins/pickers/daterangepicker.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/pickers/daterangepicker.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vee-validate.2.0.8.en.js' %}"></script>
+<!-- <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vee-validate.2.0.0-beta.24.js' %}"></script> -->
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/bill/vue/form.js' %}"></script>
+
 <script type="text/javascript">
   $(document).ready(function() {
-    $('.bootstrap-select').selectpicker();
 
-    // datepicker
-    $('.datepicker').daterangepicker({
-        singleDatePicker: true,
-        locale:{format: 'YYYY-MM-DD'},
-        showDropdowns:true,
-        autoUpdateInput:false
-    },function(chosen_date) {
-        parent.date = chosen_date.format('YYYY-MM-DD');
-        $('.datepicker').val(chosen_date.format('YYYY-MM-DD'));
-
-    });
-
-    // pikcer2
-    $('.datepicker2').daterangepicker({
-        singleDatePicker: true,
-        locale:{format: 'YYYY-MM-DD'},
-        showDropdowns:true,
-        autoUpdateInput:false,
-        minDate: new Date()
-    },function(chosen_date) {
-        parent.date = chosen_date.format('YYYY-MM-DD');
-        $('.datepicker2').val(chosen_date.format('YYYY-MM-DD'));
-
-    });
   });
 </script>
 <script>
@@ -85,15 +162,14 @@ function logChange(val) {
 
     {% if object.id %}
     var pk = "{{object.id}}";
-    var updateUrl = "{% url 'academic_year:api-update' pk=object.id %}";
+    var updateUrl = "{% url 'bill:api-update' pk=object.id %}";
     {% else %}
     var pk= false;
     {% endif %}
-    var createUrl = "{% url 'academic_year:api-create' %}";
-    var redirectUrl = "{% url 'academic_year:index' %}";
+    var createUrl = "{% url 'bill:api-create' %}";
+    var redirectUrl = "{% url 'bill:index' %}";
     // alertUser
     function alertUser(msg,status='bg-success',header='Well done!')
     { $.jGrowl(msg,{header: header,theme: status}); }
 </script>
-{% render_bundle 'academic_year' 'js' %}
 {% endblock %}

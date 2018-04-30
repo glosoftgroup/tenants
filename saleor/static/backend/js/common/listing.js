@@ -93,7 +93,7 @@ var parent = new Vue({
                 // update
                 axios.put(self.updateUrl, data)
                 .then(function (response) {
-                    alertUser('Data deleted successfully');
+                    alertUser('Data updated successfully');
                     self.showForm = false;
                     self.updateUrl = '';
                     self.inputChangeEvent();
@@ -106,7 +106,7 @@ var parent = new Vue({
                 // create
                 axios.post($('.pageUrls').data('createurl'), data)
                 .then(function (response) {
-                    alertUser('Data deleted successfully');
+                    alertUser('Data added successfully');
                     self.showForm = false;
                     self.inputChangeEvent();
 
