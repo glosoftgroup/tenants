@@ -144,7 +144,7 @@ var parent = new Vue({
                 // populate form data
                 var data = new FormData();
                 data.append('invoice_number', this.invoice_number);
-                data.append('total_rent', this.totalRentComputed);
+                data.append('total_rent', parseInt(this.totalRentComputed+'.00'));
                 data.append('total_service',this.totalServiceComputed);
                 data.append('days', this.days);
                 data.append('child', this.child);
