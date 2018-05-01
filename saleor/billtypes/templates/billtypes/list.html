@@ -106,6 +106,7 @@
                 <thead>
                     <tr class="bg-primary">
                     <th>Name</th>
+                    <th>Tax (%)</th>
                     <th>Description</th>
                     <th></th>
                     </tr>
@@ -118,8 +119,12 @@
                     <span class="help-block text-danger" v-show="errors">This field is required</span>
                   </td>
                   <td>
+                    <input @keyup="validate" v-model="tax" placeholder="name" class="form-control" id="tax" required="" name="tax" aria-required="true" type="text">
+                    <span class="help-block text-danger" v-show="errors">This field is required</span>
+                  </td>
+                  <td>
                     <input v-model="description" placeholder="Description" class="form-control" id="description" name="description" type="text">
-                    <span class="help-block"></span>
+                    <span class="help-block" ></span>
                   </td>
 
                     <td>
@@ -150,6 +155,7 @@
                     <thead>
                       <tr class="bg-primary">
                         <th>Name</th>
+                        <th>Tax (%)</th>
                         <th>Description</th>
                         <th></th>
                       </tr>
@@ -174,9 +180,8 @@
                     <!--listing template-->
                     <template v-for="item in items">
                         <tr class="td " :id="item.id">
-                            <td>
-                                ${item.name}
-                            </td>
+                            <td>${item.name}</td>
+                            <td>${item.tax}</td>
                             <td>${item.description}</td>
 
                             <td class="text-center">
@@ -283,7 +288,7 @@
     <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
     <script src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'backend/js/common/listing.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/billtypes/vue/listing.js' %}"></script>
     <script type="text/javascript">
       $(document).ready(function() {
         $('.bootstrap-select').selectpicker();

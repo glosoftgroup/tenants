@@ -13,6 +13,7 @@
 {% block menu_addCustomer_class %}active{% endblock %}
 
 {% block custom_css %}
+<link href="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css">
    <style type="text/css">
       .theme_xbox .pace_activity, .theme_xbox .pace_activity::after, .theme_xbox .pace_activity::before, .theme_xbox_sm .pace_activity, .theme_xbox_sm .pace_activity::after, .theme_xbox_sm .pace_activity::before, .theme_xbox_xs .pace_activity, .theme_xbox_xs .pace_activity::after, .theme_xbox_xs .pace_activity::before {
         border-radius: 50%;
@@ -65,13 +66,18 @@
       border-color: #607D8B;
     }
     .daterangepicker.dropdown-menu{z-index: 1051 !important}
-/*    .fade-enter-active, .fade-leave-active{
-      transition: opacity .5s ease;
+    .modal-lg {width: 1200px !important;}
+    .nav-tabs.modal-tabs > li > a {
+      padding-left: 100px;
+      padding-right: 100px;
     }
-    .fade-enter, .fade-leave-to{
-      transform: scale(0);
-      opacity: 0;
-    }*/
+    .datepicker table tr td span {
+      padding:1px !important;
+    }
+    .datepicker table tr td span.active.active{
+       background-color:#1E88E5 !important;
+       background-image: linear-gradient(to bottom,#08c,#1c64fb) !important;
+    }
    </style>
  {% endblock %}
 
@@ -90,8 +96,17 @@
   </div>
   {% include 'dashboard/customer/partials/modal_add_payment.html' with customer=user room=room %}
   {% if user %}
-  <input type="hidden" name="tenantPk" id="tenantPk" value="{{user.pk}}">
+  <input type="hidden" name="tenantPk" id="tenantPk" value="{{user.pk}}" />
+
+  <input type="hidden" name="roomPk" id="roomPk" value="
+    {% if room.pk %} {{room.pk}} {% endif %}" />
+
   <input type="hidden" name="postUrl" id="postUrl" value="{% url 'dashboard:rent-payment' pk=user.pk %}"/>
+  <input type="hidden" name="billsUrl" id="billsUrl" value="{% url 'bill:tenant-bill-api-list' pk=user.pk %}"/>
+  <input type="hidden" name="paymentOptionsUrl" id="paymentOptionsUrl" 
+  value="{% url 'paymentoptions:api-list' %}"/>
+  <input type="hidden" name="billPaymentCreateUrl" id="billPaymentCreateUrl" 
+  value="{% url 'billpayment:api-create' %}"/>
   <input type="hidden" name="redirectUrl" id="redirectUrl" value="{% url 'dashboard:customer-detail' pk=user.pk %}"/>
   <input type="hidden" name="minimumBalance" id="minimumBalance" value="{% if booking.balance_with_charges.gross == 0%} {{booking.balance.gross}} {% else %} {{booking.balance_with_charges.gross}} {% endif %}"/>
   {% endif %}
@@ -103,6 +118,8 @@
 
 {% block custom_js %}
   <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
+  <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/js/bootstrap-datepicker.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/pagination/jquery.twbsPagination.min.js' %}"></script>
@@ -113,6 +130,7 @@
 <script type="text/javascript" src="{% static 'backend/js/booking/vue/listing.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/customer/payment.js' %}"></script>
+<!-- <script type="text/javascript" src="{% static 'backend/js/pay/test-pay.js' %}"></script> -->
 <script type="text/javascript" src="{% static 'backend/js/pay/payment.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {

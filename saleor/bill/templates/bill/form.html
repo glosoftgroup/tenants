@@ -60,7 +60,7 @@
                             </div> 
                           <div class="form-group">
                             <label for="mobile">Bill Type.</label>
-                            <select v-model="billtype.id" class="bootstrap-select billtypes" style="display: none;" data-width="100%" tabindex="-98" name="billtype" data-url="{% url 'billtypes:api-list' %}">
+                            <select v-model="billtype.id" @change="setTax" class="bootstrap-select billtypes" style="display: none;" data-width="100%" tabindex="-98" name="billtype" data-url="{% url 'billtypes:api-list' %}">
                                 <option value="none" >None Selected</option>
                             </select>
                            </div>
@@ -88,7 +88,9 @@
 
                             <div class="form-group">
                                 <input class="form-control styled" type="checkbox" v-model="is_taxable" id="is_taxable" /> 
-                                <label for="name" style="margin-left: 10px;"> Taxable </label>  
+                                <label for="name" style="margin-left: 10px;"> Taxable 
+                                  <span class="text-muted" style="margin-left:10px; ">(${billtype.tax}%)</span>
+                                </label>  
                                 <input class="form-control" type="text" v-model="tax" id="tax" :disabled="is_taxable==false" />
                             </div>
                       </div>

@@ -21,7 +21,8 @@ var parent = new Vue({
     	},
     	billtype:{
     		id:'',
-    		name:''
+    		name:'',
+            tax:''
     	},
     	description:'',
     	amount:'',
@@ -31,7 +32,8 @@ var parent = new Vue({
     	updateUrl:'',
     	tax:'0',
     	is_taxable:false,
-    	tenantsList:[],
+        tenantsList:[],
+    	billTypesList:[],
     	email:''
     },
     mounted:function(){
@@ -106,9 +108,11 @@ var parent = new Vue({
 	        var billTypeList   = [];
             $.get(url, function(data)
 	        {
+                self.billTypesList = data.results;
 	        	if(updateUrl == ''){
 		        	self.billtype.id   = data.results[0].id
-		        	self.billtype.name = data.results[0].name
+                    self.billtype.name = data.results[0].name
+		        	self.billtype.tax = data.results[0].tax
 		        }           
 
 	            $.each(data.results, function(key, val)
@@ -134,6 +138,15 @@ var parent = new Vue({
     		this.property.id   = selectedTenant[0].room.id
     		this.property.name = selectedTenant[0].room.name
     	},
+        setTax: function(){
+            var selectedBillType = this.billTypesList.filter(
+                filteredBillType=>this.billtype.id==filteredBillType.id
+                )
+            this.billtype.id   = selectedBillType[0].id
+            this.billtype.name = selectedBillType[0].name
+            this.billtype.tax   = selectedBillType[0].tax;
+            this.tax = ( selectedBillType[0].tax * this.amount )/100;
+        },
     	handleSubmit: function(event){
     		this.$validator.validateAll()
       
@@ -187,5 +200,10 @@ var parent = new Vue({
                 });
             }
     	}
+    },
+    watch:{
+        'amount':function(nvl, ovl){
+            this.tax= (this.billtype.tax*nvl)/100;
+        }
     }
 })
