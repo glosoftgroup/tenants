@@ -7,23 +7,16 @@ global fields, module
 module = 'billtypes'
 fields = ('id',
           'name',
+          'tax',
           'description')
 
 
 class TableListSerializer(serializers.ModelSerializer):
     update_url = serializers.HyperlinkedIdentityField(view_name=module+':api-update')
     delete_url = serializers.HyperlinkedIdentityField(view_name=module+':api-delete')
-    text = serializers.SerializerMethodField()
-
     class Meta:
         model = Table
-        fields = fields + ('text', 'update_url', 'delete_url',)
-
-    def get_text(self, obj):
-        try:
-            return obj.name
-        except:
-            return ''
+        fields = fields + ('update_url', 'delete_url',)
 
 
 class CreateListSerializer(serializers.ModelSerializer):
@@ -32,10 +25,7 @@ class CreateListSerializer(serializers.ModelSerializer):
         fields = fields
 
     def create(self, validated_data):
-        instance = Table()
-        instance.name = validated_data.get('name')
-        if validated_data.get('description'):
-            instance.description = validated_data.get('description')
+        instance = Table.objects.create(**validated_data)
         instance.save()
 
         return instance
@@ -47,10 +37,11 @@ class UpdateSerializer(serializers.ModelSerializer):
         fields = fields
 
     def update(self, instance, validated_data):
-        bill_types = ['Rent', 'Service', 'Maintenance', 'Electricity', 'Water']
-        if instance.name in bill_types:
+        bill_types = ['Rent', 'Deposit', 'Service', 'Maintenance', 'Electricity', 'Water']
+        if instance.name in bill_types and instance.name != validated_data.get('name'):
             raise serializers.ValidationError('You cannot update ' + instance.name)
         instance.name = validated_data.get('name', instance.name)
+        instance.tax = validated_data.get('tax', instance.tax)
         instance.description = validated_data.get('description', instance.description)
 
         instance.save()

@@ -1,5 +1,6 @@
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required, permission_required
+from django.views.generic import TemplateView
 
 from . import views
 from django.conf import settings
@@ -32,8 +33,12 @@ urlpatterns = [
     url(r'^maintenance/(?P<pk>[0-9]+)/$', views.add_room_issue, name='add_room_issue'),
     url(r'^maintenance/fix/(?P<pk>[0-9]+)/$', views.fix_issue, name='fix-issue'),
     url(r'^maintenance/fix/invoice/(?P<pk>[0-9]+)/$', views.fix_issue_invoice, name='fix-issue-invoice'),
-    url(r'^maintenance/delete/(?P<pk>[0-9]+)/$', views.delete_issue, name='delete-issue')
+    url(r'^maintenance/delete/(?P<pk>[0-9]+)/$', views.delete_issue, name='delete-issue'),
 
+    #rentalincome
+    url(r'^rental/income/$', TemplateView.as_view(template_name="dashboard/rentalincome/list.html"), name="rental-income"),
+    url(r'^rental/income/(?P<pk>[0-9]+)/$', views.view_room_rental_income, name='room-rental-income'),
+    url(r'^rental/income/detail/(?P<pk>[0-9]+)/$', views.view_room_rental_income_detail, name='room-rental-income-detail'),
 
     ]
 

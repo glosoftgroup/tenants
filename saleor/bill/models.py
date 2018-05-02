@@ -55,7 +55,7 @@ class Bill(models.Model):
         verbose_name_plural = pgettext_lazy('Bills model', 'Bills')
 
     def __str__(self):
-        return self.billtype.name
+        return self.status
 
     def get_total_amount(self):
         ''' amount plus the tax '''

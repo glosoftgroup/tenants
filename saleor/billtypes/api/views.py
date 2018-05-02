@@ -25,9 +25,11 @@ class DestroyView(generics.DestroyAPIView):
     queryset = Table.objects.all()
 
     def perform_destroy(self, instance):
-        bill_types = ['Rent', 'Service', 'Maintenance', 'Electricity', 'Water']
+        bill_types = ['Rent', 'Deposit', 'Service', 'Maintenance', 'Electricity', 'Water']
         if instance.name in bill_types:
             raise serializers.ValidationError('You cannot delete '+instance.name)
+        print ('=')*100            
+        instance.delete()
 
 
 class ListAPIView(generics.ListAPIView):
