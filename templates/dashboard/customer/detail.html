@@ -78,6 +78,7 @@
        background-color:#1E88E5 !important;
        background-image: linear-gradient(to bottom,#08c,#1c64fb) !important;
     }
+    .modal-form-group{margin-bottom: 2px !important;}
    </style>
  {% endblock %}
 
@@ -97,10 +98,6 @@
   {% include 'dashboard/customer/partials/modal_add_payment.html' with customer=user room=room %}
   {% if user %}
   <input type="hidden" name="tenantPk" id="tenantPk" value="{{user.pk}}" />
-
-  <input type="hidden" name="roomPk" id="roomPk" value="
-    {% if room.pk %} {{room.pk}} {% endif %}" />
-
   <input type="hidden" name="postUrl" id="postUrl" value="{% url 'dashboard:rent-payment' pk=user.pk %}"/>
   <input type="hidden" name="billsUrl" id="billsUrl" value="{% url 'bill:tenant-bill-api-list' pk=user.pk %}"/>
   <input type="hidden" name="paymentOptionsUrl" id="paymentOptionsUrl" 

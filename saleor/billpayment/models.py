@@ -15,7 +15,7 @@ from saleor.paymentoptions.models import PaymentOptions
 class BillPayment(models.Model):
     ''' invoice_number for generating invoices of that bill '''
     invoice_number = models.CharField(
-        pgettext_lazy('BillPayment field', 'invoice_number'), unique=True, null=True, max_length=36)
+        pgettext_lazy('BillPayment field', 'invoice_number'), null=True, max_length=36)
     bill = models.ForeignKey(
         Bill, blank=True, null=True, related_name='billpayment_types',
         verbose_name=pgettext_lazy('BillPayment field', 'customer'), on_delete=models.SET_NULL)
@@ -31,9 +31,20 @@ class BillPayment(models.Model):
     tax = models.DecimalField(
         pgettext_lazy('BillPayment field', 'tax of the bill based on the amount'), max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
-    date_paid = models.DateField(
-        pgettext_lazy('BillPayment field', 'date_paid billed'),
-        default=now)
+    date_paid = models.CharField(
+        pgettext_lazy('BillPayment field', 'date_paid'), null=True, max_length=36)
+    total_bills_amount_paid = models.DecimalField(
+        pgettext_lazy('BillPaymentOption field', 'amount of the bill option'), max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    total_bills_amount = models.DecimalField(
+        pgettext_lazy('BillPaymentOption field', 'amount of the bill option'), max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    total_bills_balance = models.DecimalField(
+        pgettext_lazy('BillPaymentOption field', 'amount of the bill option'), max_digits=12,
+        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    bill_paymentoption_map_id = models.CharField(
+        pgettext_lazy('BillPayment field', 'id to map to bill payment options'), 
+        null=True, max_length=200)
 
     updated_at = models.DateTimeField(
         pgettext_lazy('BillPayment field', 'updated at'), auto_now=True, null=True)
@@ -46,21 +57,20 @@ class BillPayment(models.Model):
         verbose_name_plural = pgettext_lazy('BillPayments model', 'BillPayments')
 
     def __str__(self):
-        return self.bill.name
+        return self.invoice_number
 
 class BillPaymentOption(models.Model):
     ''' invoice_number for generating invoices of that bill '''
     transaction_number = models.CharField(
         pgettext_lazy('BillPaymentOption field', 'transaction_number'), null=True, max_length=36)
-    billpayment = models.ForeignKey(
-        BillPayment, blank=True, null=True, related_name='billpayment',
-        verbose_name=pgettext_lazy('BillPaymentOption field', 'customer'), on_delete=models.SET_NULL)
     payment_option = models.ForeignKey(
         PaymentOptions, blank=True, null=True, related_name='bill_paymentoption',
         verbose_name=pgettext_lazy('BillPaymentOption field', 'payment_option'), on_delete=models.SET_NULL)
-    amount = models.DecimalField(
+    tendered = models.DecimalField(
         pgettext_lazy('BillPaymentOption field', 'amount of the bill option'), max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    bill_paymentoption_map_id = models.CharField(
+        pgettext_lazy('BillPaymentOption field', 'id to map to bill payment options'), null=True, max_length=200)
 
     updated_at = models.DateTimeField(
         pgettext_lazy('BillPaymentOption field', 'updated at'), auto_now=True, null=True)

@@ -6,7 +6,7 @@ Vue.use(VeeValidate);
     url:https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/
 **/
 
-// Vue.config.devtools = true
+Vue.config.devtools = true
 var parent = new Vue({
     el:"#vue-app",
     delimiters: ['${', '}'],
@@ -28,13 +28,12 @@ var parent = new Vue({
     	amount:'',
     	month:'',
     	monthDisplay:'',
-    	email:'',
     	updateUrl:'',
-    	tax:'0',
+    	tax:'',
     	is_taxable:false,
         tenantsList:[],
     	billTypesList:[],
-    	email:''
+    	status:'pending'
     },
     mounted:function(){
     		var self = this;
@@ -54,7 +53,8 @@ var parent = new Vue({
 				self.tenant.name = $('.edit_customer_name').val();
 				self.month = $('.edit_month').val();
 				self.monthDisplay = $('.edit_monthDsiplay').val();
-				self.description = $('.edit_description').val();
+                self.description = $('.edit_description').val();
+				self.status = $('.edit_status').val();
 			}
 
     		/* datepicker month (mode) plugin initialization */

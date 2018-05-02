@@ -26,7 +26,7 @@
                   <div class="col-md-6">
                     <div class="col-md-12">
                       <div class="col-md-4">
-                        <div class="form-group form-group-material has-feedback">
+                        <div class="form-group form-group-material has-feedback modal-form-group">
                           <label>Search </label>
                           <input class="form-control" v-model="search" @keyup="inputChangeEvent" placeholder="Search ..." type="text">
                           <div class="form-control-feedback">
@@ -35,17 +35,17 @@
                         </div>
                       </div>
                       <div class="col-md-4">
-                        <div class="form-group">
+                        <div class="form-group modal-form-group">
                            <label>Status</label>
                            <select class="bootstrap-select" v-model="status" @change="inputChangeEvent" style="display: none;" data-width="100%" tabindex="-98">
                               <option value="all" selected>All</option>
                               <option value="pending">Pending</option>
-                              <option value="full-paid">Fully-Paid</option>
+                              <option value="fully-paid">Fully-Paid</option>
                             </select>
                         </div>
                       </div>
                       <div class="col-md-4">
-                        <div class="form-group">
+                        <div class="form-group modal-form-group">
                             <label for="name"> Month </label>
                             <input type="text" v-model="monthDisplay" class="form-control monthpicker"  name="monthpicker" id="monthpicker" placeholder="Month" />
                         </div>
@@ -63,10 +63,10 @@
                             <th></th>
                           </tr>
                         </thead>
-                        <tbody style="display: block;height: 200px;overflow-y: scroll;">
+                        <tbody style="display: block;max-height: 200px;overflow-y: scroll;">
                           <template >
                             <tr v-if="billsList.length == 0" class="text-center">
-                                <td colspan="6" class="text-bold animated zoomIn">
+                                <td colspan="6" class="text-center text-bold animated zoomIn">
                                     No Bills Recorded !
                                 </td>
                             </tr>
@@ -89,7 +89,7 @@
                                     ${item.status}
                                 </td>
                                 <td>
-                                    <button class="btn btn-primary btn-sm" @click="addTobillsToBePaid(item)">ADD</button>
+                                    <button class="btn btn-primary btn-sm" :disabled="item.status == 'fully-paid'" @click="addTobillsToBePaid(item)">ADD</button>
                                 </td>
 
                             </tr>
@@ -136,7 +136,7 @@
                   </div>
 
                   <div class="col-md-6">
-                      <h3 class="text-center text-bold">
+                      <h3 class="text-center text-bold" style="margin-bottom: 16px;">
                           Payment Cart
                       </h3>
                       <table class="table">

@@ -6,13 +6,11 @@ Vue.use(VeeValidate);
     url:https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/
 **/
 
-Vue.config.devtools = true
+// Vue.config.devtools = true
 var parent = new Vue({
     el:"#vue-app-modal",
     delimiters: ['${', '}'],
     data:{
-        tenant:'',
-        room:'',
         /* filters */
         month:'',
         monthDisplay:'',
@@ -203,13 +201,18 @@ var parent = new Vue({
                 return;
             }
 
+            if (self.show_balance) {
+                self.alert('Please fill in full payment', 'bg-danger', '!Oops')
+                return;
+            }
+
             var data = new FormData();
             var billPaymentCreateUrl = $('#billPaymentCreateUrl').val();
 
             dynamicData = {};
-            dynamicData['customer'] = this.tenant;
-            dynamicData['room'] = this.room;
-            dynamicData['total_amount'] = parent.Total;
+            dynamicData['total_bills_amount'] = parent.Total;
+            dynamicData['total_bills_amount_paid'] = parent.Tendered;
+            dynamicData['total_bills_balance'] = this.getDue(parent.Total, parent.Tendered);
             // dynamicData['bills'] = JSON.stringify(this.billsToBePaid);
             dynamicData['bills'] = this.billsToBePaid;
             // dynamicData['paymentoptions'] = JSON.stringify(this.paymentToBeUsed);
@@ -223,14 +226,15 @@ var parent = new Vue({
             /* create if update url is null */
             axios.post(billPaymentCreateUrl, dynamicData)
             .then(function (response) {
-                alertUser('Data added successfully');
-                window.location = $('.pageUrls').data('listurl')
+                self.alert('Payment settled successfully', 'bg-success', 'Success!');
+                $('#modal_instance').modal('hide');
+                window.location = ($("#redirectUrl").val()) +'?payments=edit';
             })
             .catch(function (error) {
                 if(error.response.status == '400'){
-                    this.alert('That Payment Already Exists','bg-danger','Oops!');
+                    self.alert('That Payment Already Exists','bg-danger','Oops!');
                 }else{
-                    this.alert('Please check the fields and retry again','bg-danger','Oops!');
+                    self.alert('Please check the fields and retry again','bg-danger','Oops!');
                 }
                 console.log(error);
             });
