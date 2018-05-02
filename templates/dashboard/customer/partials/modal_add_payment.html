@@ -1,67 +1,320 @@
 <!-- modal -->
   <div class="modal fade" tabindex="-1" role="dialog" id="modal_instance">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
-      <div class="modal-header  bg-primary">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title text-center">ADD PAYMENT</h4>
-      </div>
-      <div class="modal-body">
-        <div id="app" class="row" style="z-index:-1000;">
-            ${nm}
-            <component :is='componentName' @change="change" :number='nm'></component>
-        </div>
-        <template id="dues">
-          <transition name="fade">
-            <div class="col-md-12">
-                <form @submit.prevent='submit'>
-                  <div class="form-group">
-                    <label for="exampleInputEmail1">Tenant Dues ${number}</label>
-                    <input type="text" name="test" v-model="test"/>
-                  </div>
-                  <input type="submit" value="Add Payment" :disabled='disableSubmitButton' class="btn btn-warning">
-                  <small><a class="pull-right" @click='goToPay' href="#">Terms and Conditions</a></small>
-                </form>
-            </div>
-          </transition>
-        </template>
-  
-        <template id="pay">
-          <transition name="fade">
-            <div class="col-md-12">
-                <h6>Pay ${number}</h6>
-                <ul class="list-group">
-                  <li class="list-group-item">Cras justo odio</li>
-                </ul>
-                <div class="pt-15">
-                  <button class="btn btn-success" @click='back_to_dues'>Back To Login</button>
-                </div>
-            </div>
-          </transition>
-        </template>
-        <!-- <form method="post" id="payment-form" enctype="multipart/form-data"> -->
-          {% csrf_token %} 
-         <!-- <div class="col-md-6">
-            <div class="form-group">
-              <label>Date Paid</label>
-              <input type="text" id="date_paid" name="date_paid" class="form-control">
-            </div>
-         </div>
-         <div class="col-md-6">
-            <div class="form-group" id="cost_group">
-              <label>Amount.</label>
-              <input type="text" id="amount_paid" name="amount_paid" class="form-control id_no">
-            </div>
-         </div> -->
+      <div class="modal-body" id="vue-app-modal">
+          <div class="tabbable">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="margin-top: -20px;">
+              <span aria-hidden="true" style="font-size: 40px;">&times;</span>
+            </button>
+            <ul class="nav nav-tabs nav-tabs-highlight modal-tabs">
+              <li class="active" id="dues-tab">
+                <a href="#dues" data-toggle="tab" aria-expanded="false">
+                  Tenant Dues
+                </a>
+              </li>
+              <li class="" id="pay-tab">
+                <a href="#pay" data-toggle="tab" aria-expanded="true">
+                  Pay
+                </a>
+              </li>
+            </ul>
 
-      <!-- action buttons -->
-         <!-- <div class="row text-right">
-             <div class="col-md-6 col-md-offset-3">
-                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                <button type="submit"  class="btn btn-primary pull-right" id="submit">Submit</button>
-           </div>
-         </div>
-      </form> -->
+            <div class="tab-content">
+              <div class="tab-pane in active" id="dues">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="col-md-12">
+                      <div class="col-md-4">
+                        <div class="form-group form-group-material has-feedback modal-form-group">
+                          <label>Search </label>
+                          <input class="form-control" v-model="search" @keyup="inputChangeEvent" placeholder="Search ..." type="text">
+                          <div class="form-control-feedback">
+                            <i class="icon-search4 text-size-base"></i>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group modal-form-group">
+                           <label>Status</label>
+                           <select class="bootstrap-select" v-model="status" @change="inputChangeEvent" style="display: none;" data-width="100%" tabindex="-98">
+                              <option value="all" selected>All</option>
+                              <option value="pending">Pending</option>
+                              <option value="fully-paid">Fully-Paid</option>
+                            </select>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-group modal-form-group">
+                            <label for="name"> Month </label>
+                            <input type="text" v-model="monthDisplay" class="form-control monthpicker"  name="monthpicker" id="monthpicker" placeholder="Month" />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
+                        <thead style="display: table;width: 100%;table-layout: fixed;">
+                          <tr class="bg-primary">
+                            <th>Property</th>
+                            <th>Bill Type</th>
+                            <th>Month</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody style="display: block;max-height: 200px;overflow-y: scroll;">
+                          <template >
+                            <tr v-if="billsList.length == 0" class="text-center">
+                                <td colspan="6" class="text-center text-bold animated zoomIn">
+                                    No Bills Recorded !
+                                </td>
+                            </tr>
+                          </template>
+                          <template v-for="item in billsList">
+                            <tr class="td animated fadeIn">
+                                <td>
+                                    ${item.room.name}
+                                </td>
+                                <td>
+                                    ${item.billtype.name}
+                                </td>
+                                <td>
+                                    ${item.month}
+                                </td>
+                                <td>
+                                    ${item.amount}
+                                </td>
+                                <td>
+                                    ${item.status}
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" :disabled="item.status == 'fully-paid'" @click="addTobillsToBePaid(item)">ADD</button>
+                                </td>
+
+                            </tr>
+                        </template>
+                        </tbody>
+                      </table>
+                    </div>
+                      <style type="text/css">
+                       .pagination{margin-bottom: 0px;}
+                     </style>
+                     <div class="col-md-12 media-none pt-15">
+                     <div class="col-md-12">
+                        <div class="col-md-4">
+                          <div class="col-md-12">
+                            <div class="col-md-6 mt-10">
+                             <label>display list size</label>
+                            </div>
+                            <div class="col-md-6 media-none">
+                              <div class="form-group">
+                                 <select v-model="page_size" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                                    <option value="10" selected>No:</option>
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                  </select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-md-5" id="media-none">
+                          <div class="text-center bootpag-callback p2-pag" style="">
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="col-md-12 mt-5">
+                            <div class="pull-right pages-nav"></div>
+                          </div>
+                        </div>
+
+                      </div>
+                     </div>
+                     <input type="hidden" id="page_size" val="">
+                  </div>
+
+                  <div class="col-md-6">
+                      <h3 class="text-center text-bold" style="margin-bottom: 16px;">
+                          Payment Cart
+                      </h3>
+                      <table class="table">
+                        <thead>
+                            <tr class="bg-slate">
+                              <th>Property</th>
+                              <th>Bill Type</th>
+                              <th>Month</th>
+                              <th>Amount</th>
+                              <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                          <template >
+                            <tr v-if="billsToBePaid.length == 0" class="text-center">
+                                <td colspan="5" class="text-bold animated zoomIn">
+                                    No Bills To Be Paid!
+                                </td>
+                            </tr>
+                          </template>
+                          <template v-for="item in billsToBePaid">
+                            <tr class="td animated fadeIn">
+                                <td>
+                                    ${item.room.name}
+                                </td>
+                                <td>
+                                    ${item.billtype.name}
+                                </td>
+                                <td>
+                                    ${item.month}
+                                </td>
+                                <td>
+                                    ${item.amount}
+                                </td>
+                                <td>
+                                    <button class="btn bg-slate btn-sm" @click="removeBill(item)">REMOVE</button>
+                                </td>
+                            </tr>
+                          </template>
+                        </tbody>
+                        <tfooter>
+                            <tr class="active text-right text-bold">
+                                <template>
+                                    <td>
+                                        <button type="button" @click="goToPaymentTab" class="btn bg-grey-800 btn-float btn-float-sm legitRipple">
+                                            <i class="icon-wallet"></i>
+                                            <span>Payment</span>
+                                        </button>
+                                    </td>
+                                    <td colspan="4">
+                                        <span style="font-size:24px;"> ${totalBillsAmount}</span>
+                                    </td>
+                                </template>
+                            </tr>
+                        </tfooter>
+                      </table>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="tab-pane" id="pay">
+                  <button type="button" @click="goToDuesTab" class="btn btn-lg bg-slate-800"><i class="icon-arrow-left7"></i> Go Back
+                  </button>
+
+                  <div class="row">
+                        <!--alert-->
+                        <div class="col-md-12">
+                            <div class="alert alert-danger no-border text-center animated shake hidden">
+                                <button type="button" class="close" data-dismiss="alert"><span>×</span><span class="sr-only">Close</span></button>
+                                <span class="text-semibold">Oh snap!</span> <span class="error-alert"></span>
+                            </div>
+                        </div>
+                        <!--./alert-->
+                        <!--purchase detail-->
+                        <div class="col-md-4" style="border-right: 1px solid #373737;">
+                            <div class="form-group">
+                                <h5 class="text-semibold text-center text-grey-800">Select Payment Method</h5>
+                                 <template >
+                                <span v-if="paymentOptions.length == 0" class="text-center">
+                                    <span colspan="8" class="text-bold animated zoomIn">
+                                        No payment options !
+                                    </span>
+                                </span>
+                                </template>
+                                <template v-for="item in paymentOptions">
+                                    <button @click="addPayment(item)" onclick="return false;" class="btn btn-default btn-block btn-lg" >${item.name}</button>
+                                </template>
+
+                            </div>
+                        </div>
+
+                        <!--payment detail-->
+                        <div class="col-md-8">
+                             <!--total-->
+                             <div class="col-md-12">
+                                <div class="col-md-4">
+                                  <div class="form-group">
+                                      <label for="name"> Date Paid</label>
+                                      <input type="text" v-model="date_paid_display" class="form-control date_paid"  name="date_paid" id="date_paid" placeholder="Date Paid" />
+                                  </div>
+                                </div>
+                                <div class="col-md-8">
+                                  <h4 class="text-center text-bold total-field" style="font-size:34px;">
+                                      Total:  ${Total}
+                                  </h4>
+                                </div>
+                             </div>
+
+                            <!-- <h4 class="text-center text-bold total-field" style="font-size:34px;">
+                                Total:  ${totalBillsAmount}
+                            </h4> -->
+                            <!--payment table-->
+                            <div class="col-md-12 table-responsive">
+                             <table class="table table-hover">
+                                <thead>
+                                    <tr class="bg-grey-800">
+                                        <th>Method</th>
+                                        <th>Number</th>
+                                        <th>Tendered</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <template >
+                                <tr v-if="paymentToBeUsed.length == 0" class="text-center">
+                                    <td colspan="8" class="text-bold animated zoomIn">
+                                        Select Payment
+                                    </td>
+                                </tr>
+                                </template>
+                                <!--listing template-->
+                                <template v-for="item in paymentToBeUsed">
+                                    <tr class="td animated fadeIn">
+
+                                        <td>${item.name}</td>
+                                        <td>
+                                            <input v-model="item.transaction_number" style="width: 65px;" type="text" placeholder="transaction" class="form-control">
+                                        </td>
+                                        <td>
+                                            <input v-model="item.tendered" style="width: 105px;" type="number" placeholder="amount" class="form-control">
+                                        </td>
+                                        <td>
+                                            <span class="label label-white text-grey-800" @click="removePayment(item)">
+                                                <i class="icon-trash animated shake"></i>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </template>
+                                </tbody>
+                                 <tfooter>
+                                    <tr class="active text-right text-bold">
+                                        <template>
+                                            <td>
+                                                <span class="text-warning" v-show="show_balance">Balance:</span>
+                                                <span class="text-success" v-show="show_change">Change:</span>
+                                                <span> ${getDue(Total,Tendered)}</span>
+                                            </td>
+                                            <td colspan="4">
+                                                <span style="font-size:14px;">Tendered: ${Tendered}</span>
+                                            </td>
+                                        </template>
+                                    </tr>
+                                </tfooter>
+                             </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                        <button type="button" @click="completePayment" class="btn btn-primary hvr-glow btn-raised legitRipple">Complete</button>
+                    </div>
+
+              </div>
+            </div>
+          </div>
+        
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->

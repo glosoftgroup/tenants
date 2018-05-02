@@ -52,14 +52,6 @@
       <div class="panel panel-flat">
 
         <div class="panel-body  search-panel" style="padding:5px;">
-            <div class="col-md-2">
-              <label style="visibility: hidden;"> add</label>
-              <div class="form-group">
-                    <a @click="toggleForm" id="toggle-add-form" href="javascript:;" class="btn btn-primary hvr-glow btn-raised legitRipple waves-effect waves-light">
-                        <i class="icon-plus2 position-left"></i>Add
-                    </a>
-              </div>
-            </div>
             <div class="col-md-4">
              <label>Search </label>
               <div class="form-group form-group-material has-feedback">
@@ -74,8 +66,8 @@
                  <label>Status</label>
                  <select v-model="status" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
                     <option value="all" selected>All</option>
-                    <option value="True">Booked</option>
-                    <option value="False">Not Booked</option>
+                    <option value="pending">Pending</option>
+                    <option value="fully-paid">Fully Paid</option>
                   </select>
               </div>
             </div>
@@ -149,8 +141,12 @@
               <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
                     <thead>
                       <tr class="bg-primary">
-                        <th>Name</th>
-                        <th>Description</th>
+                        <th>Date/Invoice</th>
+                        <th>Tenant</th>
+                        <th>Property</th>
+                        <th>Bill</th>
+                        <th>Month</th>
+                        <th>Amount</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -174,24 +170,21 @@
                     <!--listing template-->
                     <template v-for="item in items">
                         <tr class="td " :id="item.id">
-                            <td>
-                                ${item.name}
-                            </td>
-                            <td>${item.description}</td>
-
-                            <td class="text-center">
-                                <ul class="icons-list">
-                                    <li class="dropdown">
-                                        <button type="button" class="btn btn-primary dropdown-toggle legitRipple" data-toggle="dropdown" aria-expanded="true">
-                                            Actions<span class="caret"></span></button>
-
-                                        <ul class="dropdown-menu dropdown-menu-right">
-                                            <li><a @click="getInstance(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> EDIT</a></li>
-                                            <li><a @click="deleteInstance(item.delete_url,item.id)" href="javascript:;"><i class=" icon-trash-alt"></i> DELETE</a></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </td>
+                        <td class="td">
+                            ${item.date_paid}<br>
+                            <span><mark>${item.invoice_number}</mark></span>
+                        </td>
+                        <td class="td">${item.customer.name}</td>
+                        <td class="td">${item.room.name}</td>
+                        <td class="td">${item.bill.name}</td>
+                        <td class="td">${item.bill.month}</td>
+                        <td class="td">${item.bill.amount}</td>
+                        <td class="text-center">
+                          <a class="btn btn-primary btn-sm" @click="getInstance(item.update_url)" href="javascript:;">
+                            <i class="icon-pencil" style="margin-right: 5px;"></i> 
+                            INVOICE
+                          </a>
+                        </td>
                         </tr>
                     </template>
 

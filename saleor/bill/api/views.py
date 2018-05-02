@@ -43,7 +43,7 @@ class ListAPIView(generics.ListAPIView):
     def get_queryset(self, *args, **kwargs):
         try:
             if self.kwargs['pk']:
-                queryset_list = Table.objects.filter(customer__pk=self.kwargs['pk']).order_by('car').distinct('car').select_related()
+                queryset_list = Table.objects.filter(customer__pk=self.kwargs['pk'])
             else:
                 queryset_list = Table.objects.all.select_related()
         except Exception as e:
@@ -54,8 +54,10 @@ class ListAPIView(generics.ListAPIView):
             pagination.PageNumberPagination.page_size = self.request.GET.get(page_size)
         else:
             pagination.PageNumberPagination.page_size = 10
-        if self.request.GET.get('date'):
-            queryset_list = queryset_list.filter(created__icontains=self.request.GET.get('date'))
+        if self.request.GET.get('month'):
+            queryset_list = queryset_list.filter(month__icontains=self.request.GET.get('month'))
+        if self.request.GET.get('status') and self.request.GET.get('status') != 'all':
+            queryset_list = queryset_list.filter(status=self.request.GET.get('status'))
 
         query = self.request.GET.get('q')
         if query:

@@ -10,7 +10,7 @@ from saleor.paymentoptions.models import PaymentOptions as BillPaymentOptions
 
 def add_bill_types(sender, **kwargs):
     try:
-        bill_types = ['Rent', 'Service', 'Maintenance', 'Electricity', 'Water']
+        bill_types = ['Rent', 'Deposit', 'Service', 'Maintenance', 'Electricity', 'Water']
         for bill_type in bill_types:
             instance = BillTypes.objects.filter(name=bill_type)
             if not instance.exists():
@@ -21,20 +21,13 @@ def add_bill_types(sender, **kwargs):
 
 def add_bill_payment_options(sender, **kwargs):
     try:
-        cash = BillPaymentOptions.objects.filter(name='Cash')
-        if not cash.exists():
-            BillPaymentOptions.objects.create(name="Cash", description="Cash Option")
-        visa = BillPaymentOptions.objects.filter(name='Visa')
-        if not visa.exists():
-            BillPaymentOptions.objects.create(name="Visa", description="Visa Option")
-        mpesa = BillPaymentOptions.objects.filter(name='Mpesa')
-        if not mpesa.exists():
-            BillPaymentOptions.objects.create(name="Mpesa", description="Mpesa Option")
-        cheque = BillPaymentOptions.objects.filter(name='Cheque')
-        if not cheque.exists():
-            BillPaymentOptions.objects.create(name="Cheque", description="Cheque Option")
+        bill_payment_options = ['Cash', 'Mpesa', 'Cheque', 'Visa',]
+        for option in bill_payment_options:
+            instance = BillPaymentOptions.objects.filter(name=option)
+            if not instance.exists():
+                BillPaymentOptions.objects.create(name=option, description=str(option)+" Option")
     except:
-        print('Error creating payment options')
+        print('Error creating bill payment option types')
 
 def add_stock_location(sender,**kwargs):
     try:
