@@ -13,7 +13,7 @@
          <a href="{% url 'dashboard:booking-list' %}">{{ table_name }} </a>
      </li>
      <li class="active">
-         {% if room.pk %}Edit {% else %}Create a new {% endif %} {{ table_name }}
+         {% if instance.pk %}Edit {% else %}Create a new {% endif %} {{ table_name }}
      </li>
  {% endblock %}
 
@@ -24,9 +24,17 @@
 <style>
   .error { color:red; }
 </style>
-
-<link href="{% static 'backend/js/plugins/tokenize/tokenize2.css' %}" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="{% static 'backend/js/plugins/pickers/datetimepicker/bootstrap-datetimepicker-standalone.min.css' %}" />
+<link href="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css">
+<style>
+  table tr .ctd{padding: 8px 10px !important;}
+  .table{border-bottom:1px solid #ccc}
+  .datepicker table tr td span {
+      padding:1px !important;
+    }
+    .datepicker table tr td span.active.active{
+       background-color:#1E88E5 !important;
+    }
+</style>
 {% endblock %}
 {% block content %}
 
@@ -40,12 +48,7 @@
             </script>
 
             <script type="text/x-template" id="dt-template">
-                <div class="input-group">
-                    <span class="input-group-addon">
-                        <i class="icon-calendar22"></i>
-                    </span>
-                    <input type="text" class="form-control" :value="value">
-                </div>
+                <input type="text" class="form-control" :value="value">
             </script>
 
            <div class="row">
@@ -75,13 +78,13 @@
 
                         <div class="form-group">
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                   <label>Check-in Date:</label>
                                   <dt-picker v-model="check_in" :value="check_in"></dt-picker>
                                   <span class="help-block text-warning">${errors.check_in}</span>
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                    <label>Check-out Date:</label>
                                    <dt-picker v-model="check_out" :value="check_out"></dt-picker>
                                     <span class="help-block text-warning">${errors.check_out}</span>
@@ -89,78 +92,55 @@
 
 
                             <!--months-->
-                            <div class="col-md-4">
-                              <label class="text-right">Months:</label>
+                            <div class="col-md-6">
+                              <label class="text-right">Lease Months:</label>
                               <input required="required" name="days" type="number" id="days" @change="computeCheckout()" v-model.number="days" class="form-control days" {% if instance.id %} value="{{instance.days}}" {% endif %}>
                                 <span class="help-block text-warning">${errors.days}</span>
                             </div>
+                            <!--deposit    -->
+                            <div class="col-md-6">
+                              <label class="text-right">Deposit Months:</label>
+                              <input required="required" name="deposit_period" type="number" id="deposit_period" @change="computeCheckout()" v-model.number="deposit_period" class="form-control days" {% if instance.id %} value="{{instance.deposit_period}}" {% endif %}>
+                              <span class="help-block text-warning">${errors.deposit}</span>
+                            </div>
+                            <!--./deposit-->
+
 
                             </div>
                             <div class="row mt-15">
+                                <!--price table-->
+                                <div class="col-sm-12">
+                                    <div class="content-group">
+                                        <h6 class="text-bold">Payment Break Down</h6>
+                                        <div class="table-responsive no-border">
+                                            <table class="table table-xxs">
+                                                <tbody>
+                                                    <tr>
+                                                        <th>Rent:</th>
+                                                        <td>@${rentPrice} /m</td>
+                                                        <td class="text-right text-primary">${totalRentComputed}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Service:</th>
+                                                        <td>@${servicePrice} /m</td>
+                                                        <td class="text-right text-primary">${totalServiceComputed}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Deposit:</th>
+                                                        <td>@${rentPrice} /m</td>
+                                                        <td class="text-right text-primary">${totalDeposit}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
 
-                                <!--total-->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Total Rent:<span class="text-danger">*</span></label>
-                                        <input required="required" disabled="disabled"
-                                               class="form-control"
-                                               id="amount" name="amount" :placeholder="totalRentComputed"
-                                               type="number"
-                                        >
+                                        <div class="text-right">
+                                            <button type="button" class="btn btn-primary btn-labeled legitRipple">
+                                                Total: ${grandTotalComputed}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                                <!--price-->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Monthly Rent:<span class="text-danger">*</span></label>
-                                        <input v-model="rentPrice" required="required" disabled="disabled"
-                                               class="form-control"
-                                               id="price" name="price" placeholder="Price"
-                                               type="number"
-                                        >
-
-                                        <input required="required" class="form-control hidden" id="room" name="room" placeholder="hidden" type="hidden">
-
-                                    </div>
-                                </div>
-                                <!--./price-->
-
-                                <!--total service-->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Total Service charge:<span class="text-danger">*</span></label>
-
-
-                                        <input required="required" disabled="disabled"
-                                               {% if instance.id %}
-                                               value="{{instance.service_charges}}"
-                                               {% endif  %} class="form-control"
-                                               id="service_charges" name="amount"
-                                               :placeholder="totalServiceComputed"
-                                               type="number"
-                                        >
-                                    </div>
-                                </div>
-                                <!--service charges-->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Service Charges /m:<span class="text-danger">*</span></label>
-                                        <input v-model="servicePrice" required="required" disabled="disabled"
-                                               {% if room.id %}
-                                               value="{{room.service_charges}}"
-                                               {% endif  %}
-                                                {% if instance.id %}
-                                               value="{{instance.room.service_charges}}"
-                                               {% endif  %}
-                                               class="form-control"
-                                               id="room_service_chargers" name="room_service_chargers" placeholder="Service"
-                                               type="number"
-                                        >
-                                        <input required="required" class="form-control hidden" id="scharges" name="room" placeholder="hidden" type="hidden">
-                                        <span class="help-block text-warning"></span>
-                                    </div>
-                                </div>
-                                <!--./service-->
 
 
                             </div>
@@ -169,6 +149,7 @@
                     </div>
 
                     <div class="col-md-6">
+
                         <div class="form-group">
                                 <label>Search Tenant:<span class="text-danger">*</span></label>
                                 <select2 :data="{}" url="/api/customer/"
@@ -195,14 +176,14 @@
                             </div>
                             <!--occupants-->
                             <div class="form-group">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                    <label>Adults:</label>
                                   <div class="input-group">
                                     <span class="input-group-addon"><i class="icon-user"></i></span>
                                     <input v-model="adult" type="number" {% if instance.id %} value="{{instance.adult}}" {% else %} value="1" {% endif %} placeholder="Adults" name="adult" id="adult" class="form-control ">
                                   </div>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                   <label>Children:</label>
                                   <div class="input-group">
                                     <span class="input-group-addon"><i class="icon-users"></i></span>
@@ -217,7 +198,7 @@
                     <input type="hidden" id="pk" name="pk" {% if instance.id %} value="{{instance.id}}" {% endif %}>
                     <div class="text-right col-md-12">
                         <button @click="bookProperty" id="create-book-btn" type="submit" class="btn btn-primary legitRipple">
-                            {% if room.id %}Book{% else %}Book{% endif %}
+                            {% if instance.id %}Update{% else %}Book{% endif %}
                             <i class="icon-arrow-right14 position-right"></i>
                         </button>
                     </div>
@@ -256,8 +237,9 @@
 <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
 <!--<script type="text/javascript" src="{% static 'backend/js/room/book-room.js' %}"></script>-->
-<script type="text/javascript" src="{% static 'backend/js/plugins/pickers/datepicker.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/plugins/pickers/datetimepicker/bootstrap-datetimepicker.min.js' %}"></script>
+<!--<script type="text/javascript" src="{% static 'backend/js/plugins/pickers/datepicker.js' %}"></script>-->
+<script type="text/javascript" src="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
 <script type="text/javascript" src="{% static 'backend/js/plugins/tokenize/tokenize2.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
 <script src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
@@ -277,6 +259,20 @@
             $(this).remove();
         }
     });
+$('.monthpicker').datepicker({
+		        format: "MM/yyyy",
+		        autoclose: true,
+		        minViewMode: "months"})
+		    .on('changeDate', function(e){
+		        var month = String(e.date.getMonth()+1).length === 1 ?
+		                    '0'+String(e.date.getMonth()+1) :
+		                    String(e.date.getMonth()+1);
+		        var year  = e.date.getFullYear();
 
+		        var date  = e.date.getFullYear()+'-'+month+'-'+'01';
+
+		        $('.monthpicker').val(date);
+
+		    });
 </script>
 {% endblock %}

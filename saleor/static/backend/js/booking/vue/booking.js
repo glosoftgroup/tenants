@@ -80,26 +80,25 @@ Vue.component('dt-picker',{
     watch: {
         value: function (value) {
           // update value
-          $(this.$el)
-            .val(value)
+          $(this.$el).val(value)
         }
     },
     mounted: function () {
     var vm = this
     $(this.$el)
       // init datepicker
-      .daterangepicker({
-        singleDatePicker: true,
-        locale:{format: 'YYYY-MM-DD'},
-        showDropdowns:true,
-        autoUpdateInput:false,
-        // maxDate: new Date()
-        },function(chosen_date) {
-              vm.$emit('input', chosen_date.format('YYYY-MM-DD'));
-              console.log(chosen_date.format('YYYY-MM-DD'));
-        });
+      .datepicker({
+        format: "yyyy-mm-dd",
+		autoclose: true,
+		minViewMode: "months"
+        }).on('changeDate', function(chosen_date){
+                console.log(chosen_date.date)
+		        vm.$emit('input', chosen_date.format('yyyy-mm-dd'));
+                console.log(chosen_date.format('yyyy-mm-dd'));
+		});
     }
 })
+
 var parent = new Vue({
     el:"#vue-app",
     delimiters: ['${', '}'],
@@ -109,11 +108,15 @@ var parent = new Vue({
        days:2,
        check_in: moment().format('YYYY-MM-DD'),
        check_out: moment().add(1, 'months').format('YYYY-MM-DD'),
+       in_real_date: moment().format('YYYY-MM-DD'),
+       out_real_date: moment().add(1, 'months').format('YYYY-MM-DD'),
        oneDay: 24*60*60*1000,
        customer: null,
        customer_name: '',
        customer_mobile: '',
        invoice_number: null,
+       deposit_period: 1,
+       deposit: 0,
        child: 0,
        adult: 1,
        rentPrice: 0, // house rent
@@ -146,7 +149,9 @@ var parent = new Vue({
                 data.append('invoice_number', this.invoice_number);
                 data.append('total_rent', parseInt(this.totalRentComputed+'.00'));
                 data.append('total_service',this.totalServiceComputed);
+                data.append('total_deposit', this.totalDeposit);
                 data.append('days', this.days);
+                data.append('deposit_months', this.deposit_period);
                 data.append('child', this.child);
                 data.append('adult', this.adult);
                 data.append('check_in', this.check_in);
@@ -181,7 +186,6 @@ var parent = new Vue({
 
                 }
             }
-
         },
         validateFields(){
             // validate
@@ -227,6 +231,8 @@ var parent = new Vue({
                 vm.totalService = response.data.total_service;
                 vm.rentPrice = response.data.room_rent_price;
                 vm.servicePrice = response.data.room_service_price;
+                vm.deposit_period = response.data.deposit_months;
+                vm.total_deposit = response.data.total_deposit;
                 vm.days = response.data.days;
                 vm.child = response.data.child;
                 vm.adult = response.data.adult;
@@ -244,7 +250,15 @@ var parent = new Vue({
             });
         },
         addDays(start, days){
-            return moment(start).add(parseInt(days), 'months').format('YYYY-MM-DD');
+            days = parseInt(days);
+
+            var currentDate = start;
+            var futureMonth = moment(currentDate).add(days, 'M');
+            var futureMonthEnd = moment(futureMonth).endOf('month');
+            if(currentDate.date() != futureMonth.date() && futureMonth.isSame(futureMonthEnd.format('YYYY-MM-DD'))) {
+                futureMonth = futureMonth.add(1, 'd');
+            }
+            return futureMonth; // moment(start).add(parseInt(days), 'months').format('YYYY-MM-DD');
         },
         getDays(start,end){
             var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
@@ -254,7 +268,7 @@ var parent = new Vue({
                 var secondDate = new Date(moment(end));
 
                 // var diffDays = Math.round(Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay)));
-                var diffMonths = moment(end).diff(moment(start), 'months', true)
+                var diffMonths = moment(end).diff(moment(start), 'months', true);
                 return parseInt(diffMonths);
             }else{
                 return 0;
@@ -292,15 +306,23 @@ var parent = new Vue({
     },
     computed: {
         // a computed getter
-        totalRentComputed: function () {
+        totalRentComputed() {
           // `this` points to the vm instance
           this.errors.totalRentComputed = '';
           return parseInt(this.rentPrice) * this.days;
         },
-        totalServiceComputed: function() {
+        totalServiceComputed() {
            // compute total service in lease time
            this.errors.totalServiceComputed = '';
            return parseInt(this.servicePrice) * this.days;
+        },
+        totalDeposit(){
+            return parseInt(this.rentPrice) * this.deposit_period;
+        },
+        grandTotalComputed(){
+            return (parseInt(this.rentPrice) * this.days)
+             + parseInt(this.servicePrice) * this.days
+             + parseInt(this.rentPrice) * this.deposit_period;
         }
     }
 });
