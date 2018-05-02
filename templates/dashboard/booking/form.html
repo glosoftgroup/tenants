@@ -86,7 +86,7 @@
 
                                 <div class="col-md-6">
                                    <label>Check-out Date:</label>
-                                   <dt-picker v-model="check_out" :value="check_out"></dt-picker>
+                                   <dt-picker disabled v-model="check_out" :value="check_out"></dt-picker>
                                     <span class="help-block text-warning">${errors.check_out}</span>
                                 </div>
 
@@ -118,17 +118,17 @@
                                                     <tr>
                                                         <th>Rent:</th>
                                                         <td>@${rentPrice} /m</td>
-                                                        <td class="text-right text-primary">${totalRentComputed}</td>
+                                                        <td class="text-right text-primary">${totalRentComputed | formatCurrency}</td>
                                                     </tr>
                                                     <tr>
                                                         <th>Service:</th>
                                                         <td>@${servicePrice} /m</td>
-                                                        <td class="text-right text-primary">${totalServiceComputed}</td>
+                                                        <td class="text-right text-primary">${totalServiceComputed | formatCurrency}</td>
                                                     </tr>
                                                     <tr>
                                                         <th>Deposit:</th>
-                                                        <td>@${rentPrice} /m</td>
-                                                        <td class="text-right text-primary">${totalDeposit}</td>
+                                                        <td>@${rentPrice | formatCurrency} /m</td>
+                                                        <td class="text-right text-primary">${totalDeposit | formatCurrency}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -136,7 +136,7 @@
 
                                         <div class="text-right">
                                             <button type="button" class="btn btn-primary btn-labeled legitRipple">
-                                                Total: ${grandTotalComputed}
+                                                Total: ${grandTotalComputed | formatCurrency}
                                             </button>
                                         </div>
                                     </div>

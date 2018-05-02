@@ -5,7 +5,8 @@ from .views import (
                     BookingListAPIView,
                     RoomBookingListAPIView,
                     CreateAPIView,
-                    UpdateAPIView
+                    UpdateAPIView,
+                    CheckOutAPIView
                     )
 
 
@@ -15,6 +16,8 @@ urlpatterns = [
     url(r'^create/$', CreateAPIView.as_view(),
         name='api-create'),
     url(r'^update/(?P<pk>[0-9]+)/$', UpdateAPIView.as_view(),
+        name='api-update'),
+    url(r'^checkout/(?P<pk>[0-9]+)/$', CheckOutAPIView.as_view(),
         name='api-update'),
     url(r'^customer/(?P<pk>[0-9]+)/$', BookingListAPIView.as_view(),
         name='api-customer-booking-list'),

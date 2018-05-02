@@ -125,6 +125,7 @@
                         <th>Check-out</th>
                         <th>Tenant</th>
                         <th>Cost</th>
+                        <th>Pending</th>
 
                         {% if perms.room.delete_room %}
                         <th class="text-center">Options</th>
@@ -160,7 +161,8 @@
                             <td>${item.date_in}</td>
                             <td>${item.date_out}</td>
                             <td>${item.customer_name}</td>
-                            <td>${item.total_booking_amount}</td>
+                            <td>${item.total_booking_amount | formatCurrency}</td>
+                            <td>${item.bill_pending | formatCurrency}</td>
 
                             <!-- actions -->
                             <style>
@@ -174,10 +176,10 @@
                                 action <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu edit-dropdown" >
-                                    <li class="td hidden">
-                                        <a :href="item.booking_detail">
-                                        <i class="icon-eye2"></i>
-                                        Detail</a>
+                                    <li v-show="item.active" class="td " @click="checkOut('/api/booking/checkout/'+item.id+'/', item)">
+                                        <a onclick="return false" >
+                                        <i class="icon-arrow-left52"></i>
+                                        Checkout</a>
                                     </li>
                                     <li class="td">
                                         <a :href="item.booking_edit">
@@ -377,6 +379,7 @@
 <script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
+<script src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/booking/vue/listing.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
