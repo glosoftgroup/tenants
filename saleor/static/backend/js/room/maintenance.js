@@ -79,6 +79,14 @@ File           : add/update.js
 
                 });
 
+                $('#is_taxable').change(function(){
+                     if($(this).attr('checked')){
+                          $(this).val('True');
+                     }else{
+                          $(this).val('False');
+                     }
+                });
+
                 allFunctions.el.modalButton.on('click',function(){
                   allFunctions.el.issueModal.modal();
                 });
