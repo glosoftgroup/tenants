@@ -142,7 +142,7 @@ def add_months(sourcedate, months):
     return datetime.date(year, month, day)
 
 
-def bill_exist(month, customer, room, booking):
+def bill_exist(month, customer, room, booking, billtype):
     """
     check if bill exist
     :param month: duration of lease
@@ -155,6 +155,7 @@ def bill_exist(month, customer, room, booking):
         Q(month=month) &
         Q(customer=customer) &
         Q(booking=booking) &
+        Q(billtype=billtype) &
         Q(room=room)
     )
     if bills.exists():
@@ -183,7 +184,7 @@ def create_bill(instance, room, customer, months, check_in, deposit=0):
                 amount=deposit, billtype=deposit_type,
                 invoice_number=instance.invoice_number)
     checker = 0
-    for i in range(months+1):
+    for i in range(months):
         # rent
         bill = Bill()
         bill.month = add_months(check_in, checker)
@@ -194,7 +195,7 @@ def create_bill(instance, room, customer, months, check_in, deposit=0):
         bill.amount = room.price.gross
         bill.booking = instance
         # check if bill exist before saving
-        exist = bill_exist(bill.month, bill.customer, bill.room, bill.booking)
+        exist = bill_exist(bill.month, bill.customer, bill.room, bill.booking, bill.billtype)
         if not exist:
             bill.save()
 
@@ -264,6 +265,7 @@ class CreateListSerializer(serializers.ModelSerializer):
         instance = Table.objects.create(**validated_data)
         instance.active = True
         instance.save()
+        
         # create bills
         months = validated_data.get('days')
         check_in = validated_data.get('check_in')
