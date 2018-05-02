@@ -7,10 +7,13 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import pgettext_lazy
 from django.contrib import messages
 from django.utils.http import is_safe_url
+from decimal import Decimal
 
 from ..views import staff_member_required
 from saleor.room.models import Room as Table
 from saleor.booking.models import Book, BookingHistory
+from saleor.bill.models import Bill
+from saleor.billtypes.models import BillTypes
 from saleor.room.models import RoomAmenity, RoomImage, Package, Pricing, Maintenance
 from saleor.site.models import SiteSettings
 from saleor.wing.models import Wing
@@ -469,8 +472,29 @@ def add_room_issue(request, pk=None):
                 except:
                     issues.paid_by = 'owner'
                     pass
+
+                try:
+                    billtype = BillTypes.objects.get(name="Maintenance")
+                    bill = Bill()
+                    bill.invoice_number = ''
+                    bill.billtype = billtype
+                    bill.booking = book
+                    bill.room = room
+                    bill.customer = book.customer
+                    bill.month = request.POST.get('date_reported')
+                    bill.tax = (billtype.tax * Decimal(request.POST.get('cost')))/100
+                    bill.is_taxable = request.POST.get('is_taxable')
+                    bill.amount = Decimal(request.POST.get('cost'))
+                    bill.status = 'pending'
+                    bill.save()
+                except Exception as e:
+                    print ('/')*100
+                    print (e)
+                    # pass
+
             else:
                 issues.paid_by = request.POST.get('paid_by')
+
 
             issues.save()
             user_trail(request.user.name, 'added an issue : '+ str(issues.issue),'edit')

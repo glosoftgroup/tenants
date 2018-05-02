@@ -6,7 +6,7 @@ Vue.use(VeeValidate);
     url:https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/
 **/
 
-// Vue.config.devtools = true
+Vue.config.devtools = true
 var parent = new Vue({
     el:"#vue-app-modal",
     delimiters: ['${', '}'],
@@ -25,7 +25,7 @@ var parent = new Vue({
         paymentOptions:[],
         paymentToBeUsed:[],
         totalPages: 1,
-        visiblePages: 1,
+        visiblePages: 4,
         page_size: 10,
 
         show_balance: false,
@@ -41,6 +41,7 @@ var parent = new Vue({
             {
                 self.billsList = data.results;
                 self.totalPages = data.total_pages;
+                self.pagination(data.total_pages);
             })
 
             $.get(paymentOptionsUrl, function(data)
@@ -139,7 +140,7 @@ var parent = new Vue({
         /* input change */
         inputChangeEvent:function(){
             /* make api request on events filter */
-            var self = this, date, data;
+            var self = this, data;
 
             var billsUrl = $('#billsUrl').val();
             var params = 'page_size='+this.page_size+'&q='+this.search+'&status='+this.status+'&month='+this.month;
@@ -182,25 +183,48 @@ var parent = new Vue({
             }
             return due
         },
+        listItems:function(num){
+        /* make api request when pagination pages are clicked */
+            var self = this,
+                billsUrl = $('#billsUrl').val();
+            this.$http.get(billsUrl+'?page='+num+'&page_size='+self.page_size+'&q='+self.search+'&status='+self.status+'&month='+self.month)
+                .then(function(data){
+                    data = JSON.parse(data.bodyText);
+                    self.billsList = data.results;
+                }, function(error){
+                    console.log(error.statusText);
+            });
+        },
+        pagination: function(val){
+        /* include twbsPagination on vue app */
+            var self=this ;
+            /* restructure pagination */
+            $('.mbootpag-callback').twbsPagination({
+                totalPages: parseInt(val),
+                visiblePages: self.visiblePages,
+                prev: '<span aria-hidden="true">&laquo;</span>',
+                next: '<span aria-hidden="true">&raquo;</span>',
+                onPageClick: function (event, page) {
+                    $('.pages-nav').text('Page ' + page + ' of '+self.totalPages);
+                }
+            }).on('page',function(event,page){
+                self.listItems(page);
+            });
+        },
         completePayment: function(event){
-
             var self = this;
-
             if (self.totalBillsAmount == 0) {
                 self.alert('Nothing to pay against, please check again!', 'bg-danger')
                 return;
             }
-
             if (parent.Tendered == 0) {
                 self.alert('No Amount has been paid', 'bg-danger', '!Oops')
                 return;
             }
-
             if (!self.date_paid) {
                 self.alert('Please set the date paid', 'bg-danger', '!Oops')
                 return;
             }
-
             if (self.show_balance) {
                 self.alert('Please fill in full payment', 'bg-danger', '!Oops')
                 return;
@@ -258,6 +282,24 @@ var parent = new Vue({
                 }
             });
             return tendered;
+        },
+        'totalPages': function(val, oldVal){
+            var self=this ;
+            /* destroy pagination on page size change */
+            $('.mbootpag-callback').twbsPagination('destroy');
+
+            /* restructure pagination */
+            $('.mbootpag-callback').twbsPagination({
+                totalPages: parseInt(val),
+                visiblePages: self.visiblePages,
+                prev: '<span aria-hidden="true">&laquo;</span>',
+                next: '<span aria-hidden="true">&raquo;</span>',
+                onPageClick: function (event, page) {
+                    $('.pages-nav').text('Page ' + page + ' of '+self.totalPages);
+                }
+            }).on('page',function(event,page){
+                self.listItems(page);
+            });
         }
     },
 })

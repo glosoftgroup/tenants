@@ -262,7 +262,8 @@ class CreateListSerializer(serializers.ModelSerializer):
         room.save()
 
         instance = Table.objects.create(**validated_data)
-
+        instance.active = True
+        instance.save()
         # create bills
         months = validated_data.get('days')
         check_in = validated_data.get('check_in')

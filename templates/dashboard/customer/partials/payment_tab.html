@@ -1,6 +1,6 @@
 
 <!--booking list-->
-<div class="row animated " id="vue-app">
+<div class="row animated " id="vue-app-tab">
    <div class="col-md-12">
         <div class="col-md-4">
           <label style="visibility: hidden;" class="text-bold"> add</label> 
@@ -11,20 +11,26 @@
         <div class="col-md-4">
          <label>Search</label>
           <div class="form-group form-group-material has-feedback">
-            <input class="form-control" v-model="search" @keyup="inputChangeEvent" placeholder="Search " type="text">
+            <input class="form-control" v-model="psearch" @keyup="inputChangeEvent" placeholder="Search " type="text">
             <div class="form-control-feedback">
               <i class="icon-search4 text-size-base"></i>
             </div>
           </div>
         </div>
-        <div class="col-md-4">
-          <label>pick a date</label>
-          <div class="form-group">
-            <div class="input-group">
-                <span v-datepicker></span>
-              <input v-model="date" id="date" @change="inputChangeEvent" @blur="inputChangeEvent" class="form-control daterange-single" type="text" placeholder="yyyy-mm-dd">
-              <span class="input-group-addon"><i class="icon-calendar22"></i></span>
-            </div>
+        <div class="col-md-2">
+          <div class="form-group modal-form-group">
+             <label>Status</label>
+             <select class="bootstrap-select" v-model="pstatus" @change="inputChangeEvent" style="display: none;" data-width="100%" tabindex="-98">
+                <option value="all" selected>All</option>
+                <option value="pending">Pending</option>
+                <option value="fully-paid">Fully-Paid</option>
+              </select>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="form-group modal-form-group">
+              <label for="name"> Month </label>
+              <input type="text" v-model="pmonthDisplay" class="form-control pmonthpicker"  name="pmonthpicker" id="pmonthpicker" placeholder="Month" />
           </div>
         </div>
 
@@ -37,13 +43,12 @@
                 <thead>
                   <tr class="bg-slate">
                     <th>Invoice</th>
-                    <th>Date</th>
-                    <th>Total Amount</th>
                     <th>Property</th>
-                    <th>Amount Paid</th>
-                    <th>Balance</th>
-                    <th>Service Charges</th>
-                    <th>Total Balance</th>
+                    <th>Bill Type</th>
+                    <th>Month</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th></th>
 
                   </tr>
                 </thead>
@@ -71,13 +76,21 @@
                             ${item.invoice_number}<br>
                             <span v-show="item.active"><mark>active</mark></span>
                         </td>
-                        <td class="td" :data-href="item.booking_detail">${item.date_paid}</td>
-                        <td class="td" :data-href="item.booking_detail">${item.total_amount}</td>
-                        <td class="td" :data-href="item.booking_detail">${item.room.name}</td>
-                        <td class="td" :data-href="item.booking_detail">${item.amount_paid}</td>
-                        <td class="td" :data-href="item.booking_detail">${item.balance}</td>
-                        <td class="td" :data-href="item.booking_detail">${item.maintenance_charges}</td>
-                        <td class="td" :data-href="item.booking_detail">${item.total_balance}</td>
+                        <td>
+                            ${item.room.name}
+                        </td>
+                        <td>
+                            ${item.billtype.name}
+                        </td>
+                        <td>
+                            ${item.month}
+                        </td>
+                        <td>
+                            ${item.amount}
+                        </td>
+                        <td>
+                            ${item.status}
+                        </td>
 
 
                     </tr>
@@ -112,11 +125,11 @@
             </div>
           </div>
           </div>
-          <div class="col-md-4 pt-15" id="media-none">
-              <div class="text-center bootpag-callback p2-pag" style="">
+          <div class="col-md-6 pt-15" id="media-none">
+              <div class="text-center pbootpag-callback p2-pag" style="">
             </div>
            </div>
-            <div class="col-md-4">
+            <div class="col-md-2">
              <div class="col-md-12 mt-5">
               <div class="pull-right pages-nav"></div>
              </div>
@@ -129,7 +142,10 @@
 </div>
 </div>
 
+<!-- <input type="hidden" class="pageUrls"
+  data-bookinglisturl="{#{% url 'customer-api:api-customer-payment-list' pk=user.pk %}#}"
+> -->
 <input type="hidden" class="pageUrls"
-  data-bookinglisturl="{% url 'customer-api:api-customer-payment-list' pk=user.pk %}"
+  data-bookinglisturl="{% url 'bill:tenant-bill-api-list' pk=user.pk %}"
 >
 <!--end listing-->
