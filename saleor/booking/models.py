@@ -118,6 +118,11 @@ class Book(models.Model):
         currency=settings.DEFAULT_CURRENCY, max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
     days = models.IntegerField(default=Decimal(1))
+    deposit_months = models.IntegerField(default=Decimal(1))
+    total_deposit = models.DecimalField(
+        pgettext_lazy('Book field', 'total deposit amount'),
+        default=Decimal(0), max_digits=19, decimal_places=2)
+
     child = models.IntegerField(default=Decimal(0))
     adult = models.IntegerField(default=Decimal(1))
     user = models.ForeignKey(
@@ -161,6 +166,9 @@ class Book(models.Model):
 
     def __str__(self):
         return str(self.id) + ' #' + str(self.invoice_number)
+
+    def total_booking_amount(self):
+        return self.total_rent + self.total_deposit + self.total_service
 
 
 class Payment(models.Model):

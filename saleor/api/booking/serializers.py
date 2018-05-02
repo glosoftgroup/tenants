@@ -24,6 +24,8 @@ fields = ('id',
           'invoice_number',
           'total_rent',
           'total_service',
+          'total_deposit',
+          'deposit_months',
           'days',
           'child',
           'adult',
@@ -44,6 +46,7 @@ class BookingListSerializer(serializers.ModelSerializer):
     room_id = serializers.SerializerMethodField()
     date_in = serializers.SerializerMethodField()
     date_out = serializers.SerializerMethodField()
+    total_booking_amount = serializers.SerializerMethodField()
     customer_name = serializers.SerializerMethodField()
     booking_edit = serializers.HyperlinkedIdentityField(view_name='dashboard:booking-edit')
     booking_delete = serializers.HyperlinkedIdentityField(view_name='dashboard:booking-delete')
@@ -53,7 +56,14 @@ class BookingListSerializer(serializers.ModelSerializer):
         model = Table
         fields = fields + (
             'booking_edit', 'booking_delete', 'date_in', 'date_out',
-            'booking_detail', 'room_name', 'room_id')
+            'booking_detail', 'room_name', 'room_id', 'total_booking_amount')
+
+    def get_total_booking_amount(self, obj):
+        try:
+            return Decimal(obj.total_booking_amount())
+        except Exception as e:
+            print e
+            return 0
 
     def get_total_rent(self, obj):
         try:
@@ -152,7 +162,7 @@ def bill_exist(month, customer, room, booking):
     return False
 
 
-def create_bill(instance, room, customer, months, check_in):
+def create_bill(instance, room, customer, months, check_in, deposit=0):
     """
 
     :param instance: booking object
@@ -164,8 +174,16 @@ def create_bill(instance, room, customer, months, check_in):
     """
     rent_type = BillTypes.objects.get(name="Rent")
     service_type = BillTypes.objects.get(name="Service")
+
+    if deposit != 0:
+        deposit_type = BillTypes.objects.get(name="Deposit")
+        Bill.objects.create(
+                month=check_in, customer=customer,
+                room=room, booking=instance,
+                amount=deposit, billtype=deposit_type,
+                invoice_number=instance.invoice_number)
     checker = 0
-    for i in range(months):
+    for i in range(months+1):
         # rent
         bill = Bill()
         bill.month = add_months(check_in, checker)
@@ -241,14 +259,16 @@ class CreateListSerializer(serializers.ModelSerializer):
         # mark room as booked
         room = validated_data.get('room')
         room.is_booked = True
-        # room.save()
+        room.save()
+
         instance = Table.objects.create(**validated_data)
 
         # create bills
         months = validated_data.get('days')
         check_in = validated_data.get('check_in')
+        deposit = validated_data.get('total_deposit')
 
-        create_bill(instance, room, customer, months, check_in)
+        create_bill(instance, room, customer, months, check_in, deposit)
 
         return instance
 
@@ -256,6 +276,7 @@ class CreateListSerializer(serializers.ModelSerializer):
         # update bill
         months = validated_data.get('days')
         check_in = validated_data.get('check_in')
+        check_out = validated_data.get('check_out')
         room = validated_data.get('room')
         try:
             customer = validated_data['customer']
@@ -263,14 +284,26 @@ class CreateListSerializer(serializers.ModelSerializer):
             customer = Customer.objects.get(mobile=validated_data['customer_mobile'])
             validated_data['customer'] = customer
 
-        print customer
         # get total rent bills
-        booking_list = Bill.objects.filter(booking=instance) # , billtype=rent_type)
+        booking_list = Bill.objects.filter(booking=instance, room=room, customer=customer)
         bills = booking_list.count() / 2
+
+        # update deposit bill
+        deposit_type = BillTypes.objects.get(name="Deposit")
+        deposit = booking_list.filter(billtype=deposit_type)
+        if deposit.first():
+            # update
+            deposit = deposit.first()
+            deposit.customer = customer
+            deposit.amount = validated_data.get('total_deposit', deposit.amount)
+            deposit.room = validated_data.get('room', deposit.room)
+            deposit.month = validated_data.get('check_in', deposit.month)
+            deposit.invoice_number = validated_data.get('invoice_number', deposit.invoice_number)
+            deposit.save()
 
         if bills == months:
             # don't alter bills
-            # delete months less than checkin date
+            # delete months less than check in date
             if booking_list.first().month != check_in:
                 # delete months less than check_in
                 booking_list.filter(month__lte=check_in).delete()
@@ -281,7 +314,11 @@ class CreateListSerializer(serializers.ModelSerializer):
 
         if bills > months:
             # reduce bills
-            pass
+            booking_list.filter(month__gte=check_out).delete()
+            if booking_list.first().month != check_in:
+                # delete months less than check_in
+                booking_list.filter(month__lte=check_in).delete()
+            create_bill(instance, room, customer, months, check_in)
 
         if bills < months:
             # add bills
@@ -297,6 +334,8 @@ class CreateListSerializer(serializers.ModelSerializer):
         instance.total_rent = validated_data.get('total_rent', instance.total_rent)
         instance.total_service = validated_data.get('total_service', instance.total_service)
         instance.days = validated_data.get('days', instance.days)
+        instance.total_deposit = validated_data.get('total_deposit', instance.total_deposit)
+        instance.deposit_months = validated_data.get('deposit_months', instance.deposit_months)
         instance.child = validated_data.get('child', instance.child)
         instance.adult = validated_data.get('adult', instance.adult)
         instance.check_in = validated_data.get('check_in', instance.check_in)
