@@ -13,6 +13,8 @@
 
  {% block menu_bill_class %}active{% endblock %}
  {% block custom_css %}
+ <link href="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css">
+
  <style type="text/css">
       .theme_xbox .pace_activity, .theme_xbox .pace_activity::after, .theme_xbox .pace_activity::before, .theme_xbox_sm .pace_activity, .theme_xbox_sm .pace_activity::after, .theme_xbox_sm .pace_activity::before, .theme_xbox_xs .pace_activity, .theme_xbox_xs .pace_activity::after, .theme_xbox_xs .pace_activity::before {
         border-radius: 50%;
@@ -42,6 +44,13 @@
        }
     }
     .td { cursor:pointer }
+    .datepicker table tr td span {
+      padding:1px !important;
+    }
+    .datepicker table tr td span.active.active{
+       background-color:#1E88E5 !important;
+       background-image: linear-gradient(to bottom,#08c,#1c64fb) !important;
+    }
    </style>
  {% endblock %}
 
@@ -69,36 +78,34 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-2 hidden">
-              <div class="form-group">
-                 <label>Status</label>
-                 <select v-model="status" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
-                    <option value="all" selected>All</option>
-                    <option value="True">Booked</option>
-                    <option value="False">Not Booked</option>
-                  </select>
+              <div class="col-md-2">
+                <div class="form-group modal-form-group">
+                   <label>Status</label>
+                   <select class="bootstrap-select" v-model="status" @change="inputChangeEvent" style="display: none;" data-width="100%" tabindex="-98">
+                      <option value="all" selected>All</option>
+                      <option value="pending">Pending</option>
+                      <option value="fully-paid">Fully-Paid</option>
+                    </select>
+                </div>
               </div>
-            </div>
-            <div class="col-md-2">
-              <label>pick a date</label>
-              <div class="form-group">
-                <div class="input-group">
-                    <span v-datepicker></span>
-                  <input v-model="date" id="date" hello="inputChangeEvent" hi="inputChangeEvent" class="form-control daterange-single" type="text" placeholder="yyyy-mm-dd">
-                  <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+              <div class="col-md-2">
+                <div class="form-group modal-form-group">
+                    <label for="name"> Month </label>
+                    <input type="text" v-model="monthDisplay" class="form-control monthpicker"  name="monthpicker" id="monthpicker" placeholder="Month" />
+                </div>
+              </div>
+              <div class="col-md-2">
+               <label>Export</label>
+                <div class="form-group">
+                   <select v-model="exportType" @change="exportItems" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                      <option value="none" >Option</option>
+                      <option value="pdf" >export pdf</option>
+                      <option value="excel" >export excel</option>
+                    </select>
                 </div>
               </div>
             </div>
-            <div class="col-md-2">
-             <label>Export</label>
-              <div class="form-group">
-                 <select v-model="exportType" @change="exportItems" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
-                    <option value="none" >Option</option>
-                    <option value="pdf" >export pdf</option>
-                    <option value="excel" >export excel</option>
-                  </select>
-              </div>
-            </div>
+
       </div>
    </div>
 
@@ -246,7 +253,7 @@
 >
 {% endblock%}
 {% block custom_js %}
-
+  <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/js/bootstrap-datepicker.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
 
     <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
@@ -257,8 +264,10 @@
     <script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vee-validate.2.0.8.en.js' %}"></script>
     <script src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'backend/js/common/listing.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/bill/vue/listing.js' %}"></script>
+    <!-- <script type="text/javascript" src="{% static 'backend/js/common/listing.js' %}"></script> -->
     <script type="text/javascript">
       $(document).ready(function() {
         $('.bootstrap-select').selectpicker();
