@@ -11,7 +11,8 @@ from .pagination import PostLimitOffsetPagination
 from .serializers import (
     PaymentListSerializer,
     BookingListSerializer,
-    CreateListSerializer
+    CreateListSerializer,
+    CheckOutListSerializer
      )
 
 User = get_user_model()
@@ -22,10 +23,23 @@ class CreateAPIView(generics.CreateAPIView):
     serializer_class = CreateListSerializer
 
 
+class CheckOutAPIView(generics.RetrieveUpdateAPIView):
+    """
+        update instance details
+        @:param pk instance id
+        @:method PUT
+
+        PUT /api/update/
+        payload Json: /payload/update.json
+    """
+    queryset = Table.objects.all()
+    serializer_class = CheckOutListSerializer
+
+
 class UpdateAPIView(generics.RetrieveUpdateAPIView):
     """
         update instance details
-        @:param pk house id
+        @:param pk instance id
         @:method PUT
 
         PUT /api/update/

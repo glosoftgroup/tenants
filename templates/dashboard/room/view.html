@@ -421,7 +421,7 @@
                                                     <td>${item.date_in}</td>
                                                     <td>${item.date_out}</td>
                                                     <td>${item.customer_name}</td>
-                                                    <td>${item.price_amount}</td>
+                                                    <td>${item.total_booking_amount|formatCurrency}</td>
 
                                                 </tr>
                                             </template>
@@ -480,9 +480,7 @@
                                             <div class="upload_image_form__thumbnails">
                                                 {% for image in room.room_images.all %}
                                                 <div class="upload_image_form__thumbnail" id="delete-image{{image.pk}}"  >
-                                                    <span class="bg-primary text-white delete-image" data-pk="{{image.pk}}" data-href="{% url 'dashboard:room-delete-image' pk=image.pk %}">
-                                                    &#x2716;
-                                                    </span>
+
                                                     <a href="{{ image.image.url }}" data-popup="lightbox" rel="gallery" class="">
                                                       <img src="{{ image.image.url }}" style="opacity: 9;">
                                                     </a>
@@ -531,9 +529,7 @@
             <div class="upload_image_form__thumbnails">
                 <div v-for="(value, key) in files" class="upload_image_form__thumbnail" v-on:click="fileView($event, key)"
                         v-bind:class="{ 'uploaded': value.uploaded, 'bad-size': value.bad_size }" >
-                    <span v-on:click="fileDelete($event, key)">
-                    &#x2716;
-                    </span>
+
                     <img v-bind:src="image[key]" v-bind:class="{ 'show': image[key]}">
                 </div>
             </div>

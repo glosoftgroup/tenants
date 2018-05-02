@@ -6,11 +6,33 @@ from decimal import Decimal
 from django.utils.translation import pgettext_lazy
 from django.utils.timezone import now
 from django_prices.models import PriceField
+from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, PermissionsMixin)
 from django.core.validators import MinValueValidator, RegexValidator
 from saleor.billtypes.models import BillTypes
 from saleor.customer.models import Customer
 from saleor.room.models import Room
 from saleor.booking.models import Book
+
+
+class BillManager(BaseUserManager):
+    def customer_bills(self, customer, status='fully-paid', billtype=None, booking=None):
+        """
+        Compute customers amount paid & amount pending or total amount
+        :param customer: customer model object
+        :param status: pending to return pending amount.
+        :return: decimal (amount either pending/full-paid or total amount
+        """
+        query = self.get_queryset().filter(customer=customer)
+        if billtype:
+            query = query.filter(billtype=billtype)
+        if booking:
+            query = query.filter(booking=booking)
+        if status == 'fully-paid':
+            query = query.filter(status=status)
+
+        if status == 'pending':
+            query = query.filter(status=status)
+        return query.aggregate(models.Sum('amount'))['amount__sum']
 
 
 class Bill(models.Model):
@@ -48,6 +70,7 @@ class Bill(models.Model):
     updated_at = models.DateTimeField(
        pgettext_lazy('Bill field', 'updated at'), auto_now=True, null=True)
     created = models.DateTimeField(pgettext_lazy('Bill field', 'created'), default=now, editable=False)
+    objects = BillManager()
 
     class Meta:
         app_label = 'bill'

@@ -13,6 +13,7 @@ from ...booking.models import RentPayment
 from ...sale.models import PaymentOption
 from ...utils import image64
 from rest_framework.reverse import reverse
+from saleor.bill.models import Bill
 
 
 class CustomerListSerializer(serializers.ModelSerializer):    
@@ -22,6 +23,9 @@ class CustomerListSerializer(serializers.ModelSerializer):
     detail_url = serializers.HyperlinkedIdentityField(view_name='dashboard:customer-detail')
     delete_url = serializers.HyperlinkedIdentityField(view_name='dashboard:customer-delete')
     image = serializers.SerializerMethodField()
+    bill_full = serializers.SerializerMethodField()
+    bill_pending = serializers.SerializerMethodField()
+    bill_paid = serializers.SerializerMethodField()
 
     class Meta:
         model = Customer
@@ -37,7 +41,10 @@ class CustomerListSerializer(serializers.ModelSerializer):
                  'detail_url',
                  'loyalty_points',
                  'redeemed_loyalty_points',
-                 'cash_equivalency'
+                 'cash_equivalency',
+                 'bill_full',
+                 'bill_paid',
+                 'bill_pending',
                  )
 
     def get_image(self, obj):
@@ -47,6 +54,15 @@ class CustomerListSerializer(serializers.ModelSerializer):
         else:
             image = image64()
         return image
+
+    def get_bill_full(self, obj):
+        return Bill.objects.customer_bills(obj, status='all')
+
+    def get_bill_paid(self, obj):
+        return Bill.objects.customer_bills(obj, 'fully-paid')
+
+    def get_bill_pending(self, obj):
+        return Bill.objects.customer_bills(obj, 'pending')
 
     def get_cash_equivalency(self, obj):
         points_eq = PaymentOption.objects.filter(name='Loyalty Points')

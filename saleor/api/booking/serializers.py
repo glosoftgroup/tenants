@@ -48,15 +48,20 @@ class BookingListSerializer(serializers.ModelSerializer):
     date_out = serializers.SerializerMethodField()
     total_booking_amount = serializers.SerializerMethodField()
     customer_name = serializers.SerializerMethodField()
+    bill_pending = serializers.SerializerMethodField()
     booking_edit = serializers.HyperlinkedIdentityField(view_name='dashboard:booking-edit')
     booking_delete = serializers.HyperlinkedIdentityField(view_name='dashboard:booking-delete')
     booking_detail = serializers.HyperlinkedIdentityField(view_name='dashboard:booking-detail')
 
+
     class Meta:
         model = Table
         fields = fields + (
-            'booking_edit', 'booking_delete', 'date_in', 'date_out',
+            'booking_edit', 'booking_delete', 'date_in', 'date_out', 'bill_pending',
             'booking_detail', 'room_name', 'room_id', 'total_booking_amount')
+
+    def get_bill_pending(self, obj):
+        return Bill.objects.customer_bills(obj.customer, status='pending', billtype=None, booking=obj)
 
     def get_total_booking_amount(self, obj):
         try:
@@ -265,7 +270,7 @@ class CreateListSerializer(serializers.ModelSerializer):
         instance = Table.objects.create(**validated_data)
         instance.active = True
         instance.save()
-        
+
         # create bills
         months = validated_data.get('days')
         check_in = validated_data.get('check_in')
@@ -350,4 +355,19 @@ class CreateListSerializer(serializers.ModelSerializer):
         instance.description = validated_data.get('description', instance.description)
 
         instance.save()
+        return instance
+
+
+class CheckOutListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Table
+        fields = fields
+
+    def update(self, instance, validated_data):
+        instance.active = False
+        room = instance.room
+        room.is_booked = False
+        room.save()
+        instance.save()
+
         return instance
