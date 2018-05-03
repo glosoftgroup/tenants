@@ -123,8 +123,10 @@
 </div>
 {% if object.id %}
     <input type="hidden" class="updateUrl" value="{% url 'bill:api-update' pk=object.id %}">
+    <input type="hidden" class="edit_invoice_number" value="{{object.invoice_number}}">
     <input type="hidden" class="edit_billtype_id" value="{{object.billtype.id}}">
     <input type="hidden" class="edit_billtype_name" value="{{object.billtype.name}}">
+    <input type="hidden" class="edit_billtype_tax" value="{{object.billtype.tax}}">
     <input type="hidden" class="edit_invoice_number" value="{{object.invoice_number}}">
     <input type="hidden" class="edit_amount" value="{{object.amount}}">
     <input type="hidden" class="edit_tax" value="{{object.tax}}">

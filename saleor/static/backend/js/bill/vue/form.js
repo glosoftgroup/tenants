@@ -23,7 +23,8 @@ var parent = new Vue({
     		id:'',
     		name:'',
             tax:''
-    	},
+		},
+		invoice_number:'',
     	description:'',
     	amount:'',
     	month:'',
@@ -42,8 +43,10 @@ var parent = new Vue({
     		var updateUrl = $('.updateUrl').val();
 			if(updateUrl){
 				self.updateUrl = updateUrl;
+				self.invoice_number = $('.edit_invoice_number').val();
 				self.billtype.id = $('.edit_billtype_id').val();
 				self.billtype.name = $('.edit_billtype_name').val();
+				self.billtype.tax = $('.edit_billtype_tax').val();
 				self.amount = $('.edit_amount').val();
 				self.tax = $('.edit_tax').val();
 				self.is_taxable = $('.edit_is_taxable').val() == 'true' ? true : false;
@@ -203,7 +206,7 @@ var parent = new Vue({
     },
     watch:{
         'amount':function(nvl, ovl){
-            this.tax= (this.billtype.tax*nvl)/100;
+            this.tax= nvl != '' ?(this.billtype.tax*nvl)/100 : this.tax;
         }
     }
 })

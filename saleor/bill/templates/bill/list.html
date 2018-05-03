@@ -153,13 +153,13 @@
                     <!--listing template-->
                     <template v-for="item in items">
                         <tr class="td " :id="item.id">
-                            <td>${item.customer.name}</td>
-                            <td>${item.room.name}</td>
-                            <td>${item.billtype.name}</td>
-                            <td>${item.month}</td>
-                            <td>${item.amount}</td>
-                            <td>${item.tax}</td>
-                            <td>${item.status}</td>
+                            <td  @click="goTo(item.invoice_url)">${item.customer.name}</td>
+                            <td  @click="goTo(item.invoice_url)">${item.room.name}</td>
+                            <td  @click="goTo(item.invoice_url)">${item.billtype.name}</td>
+                            <td  @click="goTo(item.invoice_url)">${item.month}</td>
+                            <td  @click="goTo(item.invoice_url)">${item.amount}</td>
+                            <td  @click="goTo(item.invoice_url)">${item.tax}</td>
+                            <td  @click="goTo(item.invoice_url)">${item.status}</td>
 
                             <td class="text-center">
                                 <ul class="icons-list">
@@ -168,6 +168,7 @@
                                             Actions<span class="caret"></span></button>
 
                                         <ul class="dropdown-menu dropdown-menu-right">
+                                            <li><a @click="goTo(item.invoice_url)" href="javascript:;"><i class=" icon-safe"></i> INVOICE</a></li>
                                             <li><a @click="goTo(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> EDIT</a></li>
                                             <li v-bind:class="{ disabled: item.status == 'fully-paid' }"><a @click="item.status == 'pending' ? deleteInstance(item.delete_url,item.id) : null " href="javascript:;"><i class=" icon-trash-alt"></i> DELETE</a></li>
                                         </ul>

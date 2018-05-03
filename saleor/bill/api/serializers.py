@@ -5,6 +5,7 @@ from saleor.bill.models import Bill as Table
 from saleor.booking.models import Book
 from decimal import Decimal
 from django.utils.translation import ugettext_lazy as _
+import random
 
 global fields, module
 module = 'bill'
@@ -23,7 +24,7 @@ fields = ('id',
 
 
 class TableListSerializer(serializers.ModelSerializer):
-    # update_url = serializers.HyperlinkedIdentityField(view_name=module+':api-update')
+    invoice_url = serializers.HyperlinkedIdentityField(view_name=module+':invoice')
     update_url = serializers.HyperlinkedIdentityField(view_name=module+':update')
     delete_url = serializers.HyperlinkedIdentityField(view_name=module+':api-delete')
     customer = serializers.SerializerMethodField()
@@ -34,7 +35,7 @@ class TableListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Table
-        fields = fields + ('month', 'update_url', 'delete_url',)
+        fields = fields + ('month', 'invoice_url', 'update_url', 'delete_url',)
 
     def get_month(self, obj):
         try:
@@ -88,6 +89,14 @@ class CreateListSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Bill Amount should be a decimal/integer')
 
         return value
+    def validate_invoice_number(self, data):
+        try:
+            invoice_number = 'inv/bk/0' + str(Table.objects.latest('id').id)
+            invoice_number += ''.join(random.choice('0123456789ABCDEF') for i in range(4))
+        except Exception as e:
+            invoice_number = 'inv/bk/1' + ''.join(random.choice('0123456789ABCDEF') for i in range(4))
+
+        return invoice_number
 
     def create(self, validated_data):
         instance = Table.objects.create(**validated_data)
@@ -120,7 +129,15 @@ class UpdateSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
-        instance.invoice_number = validated_data.get('invoice_number', instance.invoice_number)
+
+        if not instance.invoice_number:
+            try:
+                invoice_number = 'inv/bk/0' + str(Table.objects.latest('id').id)
+                invoice_number += ''.join(random.choice('0123456789ABCDEF') for i in range(4))
+            except Exception as e:
+                invoice_number = 'inv/bk/1' + ''.join(random.choice('0123456789ABCDEF') for i in range(4))
+            instance.invoice_number = invoice_number
+
         instance.billtype = validated_data.get('billtype', instance.billtype)
         instance.amount = validated_data.get('amount', instance.amount)
         instance.is_taxable = validated_data.get('is_taxable', instance.is_taxable)

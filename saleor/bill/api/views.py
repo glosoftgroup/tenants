@@ -54,8 +54,10 @@ class ListAPIView(generics.ListAPIView):
             pagination.PageNumberPagination.page_size = self.request.GET.get(page_size)
         else:
             pagination.PageNumberPagination.page_size = 10
-        if self.request.GET.get('month'):
-            queryset_list = queryset_list.filter(month__icontains=self.request.GET.get('month'))
+        if self.request.GET.get('month') and self.request.GET.get('year'):
+            queryset_list = queryset_list.filter(
+                month__month=self.request.GET.get('month'),
+                month__year=self.request.GET.get('year'))
         if self.request.GET.get('status') and self.request.GET.get('status') != 'all':
             queryset_list = queryset_list.filter(status=self.request.GET.get('status'))
 
@@ -65,7 +67,7 @@ class ListAPIView(generics.ListAPIView):
                 Q(customer__name__icontains=query) |
                 Q(room__name__icontains=query) |
                 Q(billtype__name__icontains=query))
-        return queryset_list.order_by('-id')
+        return queryset_list.order_by('id')
 
 
 class UpdateAPIView(generics.RetrieveUpdateAPIView):

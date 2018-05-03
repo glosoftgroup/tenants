@@ -14,6 +14,7 @@ fields = ('id',
 
 
 class TableListSerializer(serializers.ModelSerializer):
+    invoice_url = serializers.HyperlinkedIdentityField(view_name=module + ':invoice')
     update_url = serializers.HyperlinkedIdentityField(view_name=module+':api-update')
     delete_url = serializers.HyperlinkedIdentityField(view_name=module+':api-delete')
     customer = serializers.SerializerMethodField()
@@ -29,7 +30,7 @@ class TableListSerializer(serializers.ModelSerializer):
             'bill', 'tax', 'amount', 'date_paid',
             'total_bills_amount',
             'total_bills_amount_paid',
-            'total_bills_balance',
+            'total_bills_balance', 'invoice_url',
             'update_url', 'delete_url',)
 
     def get_bill(self, obj):
