@@ -18,5 +18,7 @@ urlpatterns = [
     url(r'^add/$', TemplateView.as_view(template_name="bill/form.html"), name='add'),
     url(r'^update/(?P<pk>[0-9]+)/$', UpdateView.as_view(template_name="bill/form.html", model=Table, fields=['id']),
         name='update'),
+    url(r'^invoice/(?P<pk>[0-9]+)/$', UpdateView.as_view(template_name="bill/invoice.html", model=Table, fields=['id']),
+        name='invoice'),
 ]
 

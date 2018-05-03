@@ -83,3 +83,4 @@ class Bill(models.Model):
     def get_total_amount(self):
         ''' amount plus the tax '''
         return (self.amount + self.tax)
+

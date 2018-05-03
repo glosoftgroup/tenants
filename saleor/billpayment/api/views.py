@@ -45,21 +45,26 @@ class ListAPIView(generics.ListAPIView):
             if self.kwargs['pk']:
                 queryset_list = Table.objects.filter(customer__pk=self.kwargs['pk'])
             else:
-                queryset_list = Table.objects.all.select_related()
+                queryset_list = Table.objects.all()
+            print ('pk is '+str(self.kwargs['pk']))
         except Exception as e:
+            print ('errr')*100
+            print e
             queryset_list = Table.objects.all()
 
         try:
             if self.kwargs['rmpk']:
-                queryset_list = Table.objects.filter(
-                    Q(room__pk=self.kwargs['rmpk']) & 
-                    (Q(bill__billtype__name__icontains='Rent') | 
+                queryset_list = queryset_list.filter(
+                    Q(room__pk=self.kwargs['rmpk']) &
+                    (Q(bill__billtype__name__icontains='Rent') |
                      Q(bill__billtype__name__icontains="Maintenance")))
             else:
-                queryset_list = Table.objects.all.select_related()
+                queryset_list = queryset_list
+            print ('rmpk is ' + str(self.kwargs['rmpk']))
         except Exception as e:
             print e
-            queryset_list = Table.objects.all()
+            # queryset_list = Table.objects.all()
+            pass
 
         page_size = 'page_size'
         if self.request.GET.get(page_size):

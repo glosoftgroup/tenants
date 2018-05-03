@@ -50,6 +50,7 @@ var parent = new Vue({
         showForm: false,
         updateUrl: '',
         month:'',
+        year:'',
         monthDisplay:'',
     },
     methods:{
@@ -143,7 +144,7 @@ var parent = new Vue({
         },
         goToStatement:function(){
             var url = $('.roomRentalIncomeUrl').val();
-            window.location.href = url+'?search='+this.search+'&month='+this.month;
+            window.location.href = url+'?search='+this.search+'&month='+this.month+'&year='+this.year;
         },
         goTo: function(url){
             window.location.href = url;
@@ -197,7 +198,7 @@ var parent = new Vue({
             if(this.date == 'Select date'){
                 date = '';
             }else{ date = this.date; }
-            this.$http.get($('.pageUrls').data('listurl')+'?page_size='+self.page_size+'&q='+this.search+'&status='+this.status+'&date='+date)
+            this.$http.get($('.pageUrls').data('listurl')+'?page_size='+self.page_size+'&q='+this.search+'&status='+this.status+'&month='+this.month+'&year='+this.year)
                 .then(function(data){
                     data = JSON.parse(data.bodyText);
                     this.items = data.results;
@@ -211,7 +212,7 @@ var parent = new Vue({
             if(this.date == 'Select date'){
                 date = '';
             }else{ date = this.date; }
-            this.$http.get($('.pageUrls').data('listurl')+'?page='+num+'&page_size='+this.page_size+'&status='+this.status+'&date='+date)
+            this.$http.get($('.pageUrls').data('listurl')+'?page='+num+'&page_size='+this.page_size+'&status='+this.status+'&month='+this.month+'&year='+this.year)
                 .then(function(data){
                     data = JSON.parse(data.bodyText);
                     this.items = data.results;
@@ -276,8 +277,9 @@ var parent = new Vue({
 
             $('.monthpicker').val(date);
             self.monthDisplay = e.date.toLocaleString('en-us', {month: "long"})+'/'+e.date.getFullYear();
-            self.month        = date;
-            var params = 'page_size='+self.page_size+'&q='+self.search+'&status='+self.status+'&month='+self.month;
+            self.month        = month;
+            self.year         = year;
+            var params = 'page_size='+self.page_size+'&q='+self.search+'&status='+self.status+'&month='+self.month+'&year='+self.year;
             $.get($('.pageUrls').data('listurl')+'?'+params, function(data)
             {
                 self.items = data.results;
@@ -302,7 +304,21 @@ var parent = new Vue({
 
     },
     watch: {
-    /* listen to app data changes and restructure pagination when page size changes */
+        /* listen to app data changes and restructure pagination when page size changes */
+        'monthDisplay': function (val, oldVal){
+            var self = this;
+            if(val == ''){
+                this.month = '';
+                this.year = '';
+                var params = '?page_size='+self.page_size+'&q='+self.search+'&status='+self.status+'&month='+self.month+'&year='+self.year;
+                $.get($('.pageUrls').data('listurl')+params, function(data)
+                {
+                    self.items = data.results;
+                    self.totalPages = data.total_pages;
+                    self.pagination(data.total_pages);
+                });
+            }
+        },
         'date': function(val, oldVal){
             this.inputChangeEvent();
         },

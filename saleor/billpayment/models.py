@@ -17,7 +17,7 @@ class BillPayment(models.Model):
     invoice_number = models.CharField(
         pgettext_lazy('BillPayment field', 'invoice_number'), null=True, max_length=36)
     bill = models.ForeignKey(
-        Bill, blank=True, null=True, related_name='billpayment_types',
+        Bill, blank=True, null=True, related_name='billpayment',
         verbose_name=pgettext_lazy('BillPayment field', 'customer'), on_delete=models.SET_NULL)
     customer = models.ForeignKey(
         Customer, blank=True, null=True, related_name='billpayment_customers',

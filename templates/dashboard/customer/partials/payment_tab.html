@@ -72,23 +72,24 @@
                 <!--listing template-->
                 <template v-for="item in items">
                     <tr>
-                        <td class="td" :data-href="item.booking_detail">
+                        <td class="td" @click="goTo(item.invoice_url)" :data-href="item.booking_detail" v-if="item.invoice_number">
                             ${item.invoice_number}<br>
                             <span v-show="item.active"><mark>active</mark></span>
                         </td>
-                        <td>
+                        <td class="td" v-else @click="goTo(item.invoice_url)"><span class="text-bold">---</span></td>
+                        <td class="td">
                             ${item.room.name}
                         </td>
-                        <td>
+                        <td class="td" @click="goTo(item.invoice_url)">
                             ${item.billtype.name}
                         </td>
-                        <td>
+                        <td class="td" @click="goTo(item.invoice_url)">
                             ${item.month}
                         </td>
-                        <td>
+                        <td class="td" @click="goTo(item.invoice_url)">
                             ${item.amount}
                         </td>
-                        <td>
+                        <td class="td" @click="goTo(item.invoice_url)">
                             ${item.status}
                         </td>
 
