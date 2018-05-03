@@ -1,7 +1,13 @@
 $ = jQuery;
 var $pagination = $('.bootpag-callback');
 var $modal = $('#modal_instance');
+var $deleteModal = $('#modal_delete');
 var date;
+
+// global functions
+function alertUser(msg,status='bg-success',header='Well done!')
+    { $.jGrowl(msg,{header: header,theme: status}); }
+
 function formatNumber(n, c, d, t){
 	var c = isNaN(c = Math.abs(c)) ? 2 : c,
 			d = d === undefined ? '.' : d,
@@ -15,48 +21,162 @@ function formatNumber(n, c, d, t){
 Vue.filter('formatCurrency', function (value) {
   return formatNumber(value, 2, '.', ',');
 })
+
+Vue.filter('strLimiter', function (value) {
+  if (!value) return ''
+  value = value.toString()
+  return value.slice(0, 55)+'...';
+})
 //vue
 var parent = new Vue({
     el:"#vue-app",
     delimiters: ['${', '}'],
     data:{
-       'name':'Book Listing',
-       items:[],
-       loader:true,
-       totalPages:1,
-       visiblePages:4,
-       page_size:10,
-       search:'',
-       status:'all',
-       exportType:'none',
-       date: 'Select date'
+        name: 'Listing',
+        items: [],
+        loader: true,
+        totalPages: 1,
+        visiblePages: 4,
+        page_size: 10,
+        search: '',
+        status: 'all',
+        month:'',
+        monthDisplay:'',
+        exportType: 'none',
+        date: 'Select date',
+        deleteUrl: false,
+        deleteId: false,
+        wing_name: '',
+        description: '',
+        errors:false,
+        showForm: false,
+        updateUrl: ''
     },
     methods:{
-        checkOut(url, instance){
-            var data = new FormData();
-            data.append('invoice_number', 'sdfsdf');
+        getInstance(url){
+            var self = this;
+            axios.defaults.xsrfHeaderName = "X-CSRFToken";
+            axios.defaults.xsrfCookieName = 'csrftoken';
 
-            axios.put(url, data)
-            .then(function (response) {
-                console.log(response);
-                instance.active = false;
+            axios.get(url)
+            .then(function(response){
+                self.wing_name = response.data.name;
+                self.description = response.data.description;
+                self.updateUrl = url;
+                self.showForm = true;
+                window.scrollTo(0, 0);
             })
-            .catch(function (error) {
+            .catch(function(error){
                 console.log(error);
-            });
+            })
         },
-        deleteBooking: function(url,id){
-            /* open delete modal and populate dynamic form attributes */
-            $modal.modal();
+        toggleForm(){
+            this.showForm = !this.showForm;
+        },
+        validate(){
+            this.errors = false;
+        },
+        addInstance(e){
+            e.preventDefault();
+            if(this.wing_name === ''){
+                this.errors = true;
+                return;
+            }
 
-            /* set dynamic form data */
-            console.log(url);
-            var prompt_text = $(this).data('title');
-            $('.del').attr('data-id', id);
-            $('.del').attr('data-href', url);
-            $('.modal-title').html(prompt_text);
-            $modal.modal();
-            $('.delete_form').attr('action',url);
+            var self = this;
+            var data = new FormData();
+            data.append('name', this.wing_name);
+            data.append('description', this.description);
+
+            axios.defaults.xsrfHeaderName = "X-CSRFToken";
+            axios.defaults.xsrfCookieName = 'csrftoken';
+
+            if(this.updateUrl !== ''){
+                // update
+                axios.put(self.updateUrl, data)
+                .then(function (response) {
+                    alertUser('Data updated successfully');
+                    self.showForm = false;
+                    self.updateUrl = '';
+                    self.wing_name = '';
+                    self.description = '';
+                    self.inputChangeEvent();
+
+                })
+                .catch(function (error) {
+                    if(error.response.data[0]){
+                        alertUser(error.response.data[0], 'bg-danger','Error!');
+                        self.showForm = false;
+                        self.updateUrl = '';
+                        self.wing_name = '';
+                        self.description = '';
+                    }
+                });
+            }else{
+                // create
+                axios.post($('.pageUrls').data('createurl'), data)
+                .then(function (response) {
+                    alertUser('Data added successfully');
+                    self.showForm = false;
+                    self.wing_name = '';
+                    self.description = '';
+                    self.inputChangeEvent();
+
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+
+        },
+        showMore: function(id,text){
+            $('#'+id).html(text);
+        },
+        goTo: function(url){
+            window.location.href = url;
+        },
+        deleteInstance: function(url,id){
+            // open delete modal and set delete url
+            // ___________________
+            // var deleteUrl = this.deleteUrl;
+            var self = this;
+            if(url){
+                $('#modal_delete').modal();
+                self.deleteUrl = url;
+                self.deleteId = id;
+                return;
+            }
+
+            if(!self.deleteUrl){
+                $('#modal_delete').modal();
+                self.deleteUrl = url;
+                self.deleteId = id;
+                return;
+            }else{
+                axios.defaults.xsrfHeaderName = "X-CSRFToken"
+                axios.defaults.xsrfCookieName = 'csrftoken'
+                
+                axios.delete(self.deleteUrl)
+                .then(function (response) {
+                    alertUser('Data deleted successfully');
+                    // hide modal & remove item
+                    $('#modal_delete').modal('hide');
+                    // this.removeItem();
+                    console.log($('#'+self.deleteId).html());
+                    $('#'+self.deleteId).html('').remove();
+                    self.deleteUrl = false;
+                    self.deleteId = false;
+                })
+                .catch(function (error) {
+                    // display error from serializer valueError
+                    if(error.response.data[0]){
+                        alertUser(error.response.data[0], 'bg-danger','Error!');
+                        $('#modal_delete').modal('hide');
+                    }
+
+                });
+                
+            }
         },
         inputChangeEvent:function(){
             /* make api request on events filter */
@@ -64,8 +184,7 @@ var parent = new Vue({
             if(this.date == 'Select date'){
                 date = '';
             }else{ date = this.date; }
-            console.log(this.date);
-            this.$http.get($('.pageUrls').data('bookinglisturl')+'?page_size='+self.page_size+'&q='+this.search+'&status='+this.status+'&date='+date)
+            this.$http.get($('.pageUrls').data('listurl')+'?page_size='+self.page_size+'&q='+this.search+'&status='+this.status+'&month='+self.month)
                 .then(function(data){
                     data = JSON.parse(data.bodyText);
                     this.items = data.results;
@@ -79,7 +198,7 @@ var parent = new Vue({
             if(this.date == 'Select date'){
                 date = '';
             }else{ date = this.date; }
-            this.$http.get($('.pageUrls').data('bookinglisturl')+'?page='+num+'&page_size='+this.page_size+'&status='+this.status+'&date='+date)
+            this.$http.get($('.pageUrls').data('listurl')+'?page='+num+'&page_size='+this.page_size+'&status='+this.status+'&date='+date)
                 .then(function(data){
                     data = JSON.parse(data.bodyText);
                     this.items = data.results;
@@ -87,6 +206,9 @@ var parent = new Vue({
                 }, function(error){
                     console.log(error.statusText);
             });
+        },
+        removeItem(index) {
+          this.items.splice(index, 1);
         },
         exportItems:function(){
         /* take care  of excel and pdf exports on filter panel */
@@ -127,11 +249,33 @@ var parent = new Vue({
         }
     },
     mounted:function(){
-       axios.defaults.xsrfHeaderName = "X-CSRFToken";
-       axios.defaults.xsrfCookieName = 'csrftoken';
+        var self = this;
+        $('.monthpicker').datepicker({
+            format: "MM/yyyy",
+            autoclose: true,
+            minViewMode: "months"})
+        .on('changeDate', function(e){
+            var month = String(e.date.getMonth()+1).length === 1 ? 
+                        '0'+String(e.date.getMonth()+1) : 
+                        String(e.date.getMonth()+1);
+            var year  = e.date.getFullYear();
+            var date  = e.date.getFullYear()+'-'+month+'-'+'01';
 
-    /* on page load populate items with api list response */
-        this.$http.get($('.pageUrls').data('bookinglisturl'))
+            $('.monthpicker').val(date);
+            self.monthDisplay = e.date.toLocaleString('en-us', {month: "long"})+'/'+e.date.getFullYear();
+            self.month        = date;
+            var params = '?page_size='+self.page_size+'&q='+self.search+'&status='+self.status+'&month='+self.month;
+            $.get($('.pageUrls').data('listurl')+params, function(data)
+            {
+                self.items = data.results;
+                self.totalPages = data.total_pages;
+                self.pagination(data.total_pages);
+            });
+        });
+
+        $('#showForm').removeClass('hidden');
+        /* on page load populate items with api list response */
+        this.$http.get($('.pageUrls').data('listurl'))
             .then(function(data){
                 data = JSON.parse(data.bodyText);
                 this.items = data.results;

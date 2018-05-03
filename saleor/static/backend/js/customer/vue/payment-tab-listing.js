@@ -1,50 +1,27 @@
 $ = jQuery;
-var $pagination = $('.bootpag-callback');
+var $pagination = $('.pbootpag-callback');
 var $modal = $('#modal_instance');
 var date;
-function formatNumber(n, c, d, t){
-	var c = isNaN(c = Math.abs(c)) ? 2 : c,
-			d = d === undefined ? '.' : d,
-			t = t === undefined ? ',' : t,
-			s = n < 0 ? '-' : '',
-			i = String(parseInt(n = Math.abs(Number(n) || 0).toFixed(c))),
-			j = (j = i.length) > 3 ? j % 3 : 0;
-	return s + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, '$1' + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : '');
-};
-//vue filters
-Vue.filter('formatCurrency', function (value) {
-  return formatNumber(value, 2, '.', ',');
-})
+
 //vue
 var parent = new Vue({
-    el:"#vue-app",
+    el:"#vue-app-tab",
     delimiters: ['${', '}'],
     data:{
-       'name':'Book Listing',
-       items:[],
-       loader:true,
-       totalPages:1,
-       visiblePages:4,
-       page_size:10,
-       search:'',
-       status:'all',
-       exportType:'none',
-       date: 'Select date'
+        'name':'Book Listing',
+        items:[],
+        loader:true,
+        totalPages:1,
+        visiblePages:2,
+        page_size:5,
+        psearch:'',
+        pstatus:'all',
+        exportType:'none',
+        date: 'Select date',
+        pmonth:'',
+        pmonthDisplay:'',
     },
     methods:{
-        checkOut(url, instance){
-            var data = new FormData();
-            data.append('invoice_number', 'sdfsdf');
-
-            axios.put(url, data)
-            .then(function (response) {
-                console.log(response);
-                instance.active = false;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        },
         deleteBooking: function(url,id){
             /* open delete modal and populate dynamic form attributes */
             $modal.modal();
@@ -65,7 +42,7 @@ var parent = new Vue({
                 date = '';
             }else{ date = this.date; }
             console.log(this.date);
-            this.$http.get($('.pageUrls').data('bookinglisturl')+'?page_size='+self.page_size+'&q='+this.search+'&status='+this.status+'&date='+date)
+            this.$http.get($('.pageUrls').data('bookinglisturl')+'?page_size='+self.page_size+'&q='+self.psearch+'&status='+self.pstatus+'&month='+self.pmonth)
                 .then(function(data){
                     data = JSON.parse(data.bodyText);
                     this.items = data.results;
@@ -76,14 +53,15 @@ var parent = new Vue({
         },
         listItems:function(num){
         /* make api request when pagination pages are clicked */
+            var self = this;
             if(this.date == 'Select date'){
                 date = '';
             }else{ date = this.date; }
-            this.$http.get($('.pageUrls').data('bookinglisturl')+'?page='+num+'&page_size='+this.page_size+'&status='+this.status+'&date='+date)
+            this.$http.get($('.pageUrls').data('bookinglisturl')+'?page='+num+'&page_size='+this.page_size+'&q='+this.psearch+'&status='+this.pstatus+'&month='+this.pmonth)
                 .then(function(data){
                     data = JSON.parse(data.bodyText);
-                    this.items = data.results;
-                    this.loader = false;
+                    self.items = data.results;
+                    self.loader = false;
                 }, function(error){
                     console.log(error.statusText);
             });
@@ -113,7 +91,7 @@ var parent = new Vue({
         /* include twbsPagination on vue app */
             var self=this ;
             /* restructure pagination */
-            $('.bootpag-callback').twbsPagination({
+            $('.pbootpag-callback').twbsPagination({
                 totalPages: parseInt(val),
                 visiblePages: this.visiblePages,
                 prev: '<span aria-hidden="true">&laquo;</span>',
@@ -127,11 +105,31 @@ var parent = new Vue({
         }
     },
     mounted:function(){
-       axios.defaults.xsrfHeaderName = "X-CSRFToken";
-       axios.defaults.xsrfCookieName = 'csrftoken';
+        var self = this;
+        $('.pmonthpicker').datepicker({
+            format: "MM/yyyy",
+            autoclose: true,
+            minViewMode: "months"})
+        .on('changeDate', function(e){
+            var month = String(e.date.getMonth()+1).length === 1 ? 
+                        '0'+String(e.date.getMonth()+1) : 
+                        String(e.date.getMonth()+1);
+            var year  = e.date.getFullYear();
+            var date  = e.date.getFullYear()+'-'+month+'-'+'01';
 
-    /* on page load populate items with api list response */
-        this.$http.get($('.pageUrls').data('bookinglisturl'))
+            $('.pmonthpicker').val(date);
+            self.pmonthDisplay = e.date.toLocaleString('en-us', {month: "long"})+'/'+e.date.getFullYear();
+            self.pmonth        = date;
+            var params = '?page_size='+self.page_size+'&q='+self.psearch+'&status='+self.pstatus+'&month='+self.pmonth;
+            $.get($('.pageUrls').data('bookinglisturl')+params, function(data)
+            {
+                self.items = data.results;
+                self.totalPages = data.total_pages;
+                self.pagination(data.total_pages);
+            });
+        });
+        /* on page load populate items with api list response */
+        this.$http.get($('.pageUrls').data('bookinglisturl')+'?page_size='+self.page_size)
             .then(function(data){
                 data = JSON.parse(data.bodyText);
                 this.items = data.results;
@@ -151,10 +149,10 @@ var parent = new Vue({
     	'totalPages': function(val, oldVal){
             var self=this ;
             /* destroy pagination on page size change */
-            $('.bootpag-callback').twbsPagination('destroy');
+            $('.pbootpag-callback').twbsPagination('destroy');
 
             /* restructure pagination */
-            $('.bootpag-callback').twbsPagination({
+            $('.pbootpag-callback').twbsPagination({
                 totalPages: parseInt(val),
                 visiblePages: this.visiblePages,
                 prev: '<span aria-hidden="true">&laquo;</span>',

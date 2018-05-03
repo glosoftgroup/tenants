@@ -2,6 +2,20 @@ $ = jQuery;
 /* global variables */
 var dynamicData = {};
 var global_data = [];
+
+function formatNumber(n, c, d, t){
+	var c = isNaN(c = Math.abs(c)) ? 2 : c,
+			d = d === undefined ? '.' : d,
+			t = t === undefined ? ',' : t,
+			s = n < 0 ? '-' : '',
+			i = String(parseInt(n = Math.abs(Number(n) || 0).toFixed(c))),
+			j = (j = i.length) > 3 ? j % 3 : 0;
+	return s + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, '$1' + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : '');
+};
+//vue filters
+Vue.filter('formatCurrency', function (value) {
+  return formatNumber(value, 2, '.', ',');
+})
 //select2 component wrapper
 Vue.component('select2', {
   props: ['options', 'value','placeholder','url', 'data'],
@@ -79,8 +93,10 @@ Vue.component('dt-picker',{
     template: '#dt-template',
     watch: {
         value: function (value) {
+            console.log(value);
           // update value
-          $(this.$el).val(value)
+          $(this.$el).datepicker('update', value);
+          this.$emit('input', value);
         }
     },
     mounted: function () {
@@ -92,9 +108,7 @@ Vue.component('dt-picker',{
 		autoclose: true,
 		minViewMode: "months"
         }).on('changeDate', function(chosen_date){
-                console.log(chosen_date.date)
-		        vm.$emit('input', chosen_date.format('yyyy-mm-dd'));
-                console.log(chosen_date.format('yyyy-mm-dd'));
+                vm.$emit('input', chosen_date.format('yyyy-mm-dd'));
 		});
     }
 })
@@ -105,7 +119,7 @@ var parent = new Vue({
     data:{
        name:'Booking',
        roomName:'',
-       days:2,
+       days:1,
        check_in: moment().format('YYYY-MM-DD'),
        check_out: moment().add(1, 'months').format('YYYY-MM-DD'),
        in_real_date: moment().format('YYYY-MM-DD'),
@@ -253,12 +267,14 @@ var parent = new Vue({
             days = parseInt(days);
 
             var currentDate = start;
-            var futureMonth = moment(currentDate).add(days, 'M');
+            var futureMonth = moment(currentDate).hour(12).add(days, 'M');
             var futureMonthEnd = moment(futureMonth).endOf('month');
-            if(currentDate.date() != futureMonth.date() && futureMonth.isSame(futureMonthEnd.format('YYYY-MM-DD'))) {
+            console.log(Object.keys(futureMonthEnd['_d']));
+            console.log(futureMonthEnd['_d'])
+            if(currentDate != futureMonth && futureMonth.isSame(futureMonthEnd.format('YYYY-MM-DD'))) {
                 futureMonth = futureMonth.add(1, 'd');
             }
-            return futureMonth; // moment(start).add(parseInt(days), 'months').format('YYYY-MM-DD');
+            return futureMonth.format('YYYY-MM-DD');
         },
         getDays(start,end){
             var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
@@ -274,11 +290,11 @@ var parent = new Vue({
                 return 0;
             }
         },
-        computeCheckout:function(){
-            console.log('vue onchange days');
+        computeCheckout(){
+            // console.log('vue onchange days');
         },
-        computeTotalPrice:function(rooms){
-            console.log('vue change days');
+        computeTotalPrice(rooms){
+            // console.log('vue change days');
         }
     },
     watch: {
