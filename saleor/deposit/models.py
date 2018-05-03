@@ -12,7 +12,6 @@ from saleor.customer.models import Customer
 from saleor.room.models import Room
 
 
-
 class Deposit(models.Model):
     ''' invoice_number for generating invoices of that bill '''
     invoice_number = models.CharField(
@@ -27,11 +26,11 @@ class Deposit(models.Model):
     room = models.ForeignKey(
         Room, blank=True, null=True, related_name='deposit_rooms',
         verbose_name=pgettext_lazy('Deposit field', 'room'), on_delete=models.SET_NULL)
-    amount = PriceField(
-        pgettext_lazy('Deposit field', 'amount of the Deposit'),
-        currency=settings.DEFAULT_CURRENCY, max_digits=12,
-        validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
-    month = models.DateTimeField(
+    deposit_months = models.IntegerField(default=Decimal(1))
+    amount = models.DecimalField(
+        pgettext_lazy('Deposit field', 'total deposit amount'), default=Decimal(0), max_digits=19, decimal_places=5)
+
+    month = models.DateField(
         pgettext_lazy('Deposit field', 'month billed'),
         default=now)
     status = models.CharField(
