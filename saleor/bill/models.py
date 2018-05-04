@@ -24,7 +24,7 @@ class BillManager(BaseUserManager):
         """
         query = self.get_queryset().filter(customer=customer)
         if billtype:
-            query = query.filter(billtype=billtype)
+            query = query.filter(billtype__name=billtype)
         if booking:
             query = query.filter(booking=booking)
         if status == 'fully-paid':
