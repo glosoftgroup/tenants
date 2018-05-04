@@ -13,6 +13,7 @@ var parent = new Vue({
     data:{
         /* filters */
         month:'',
+        year:'',
         monthDisplay:'',
         search:'',
         status:'',
@@ -25,7 +26,7 @@ var parent = new Vue({
         paymentOptions:[],
         paymentToBeUsed:[],
         totalPages: 1,
-        visiblePages: 4,
+        visiblePages: 1,
         page_size: 10,
 
         show_balance: false,
@@ -62,8 +63,9 @@ var parent = new Vue({
 
                 $('.monthpicker').val(date);
                 self.monthDisplay = e.date.toLocaleString('en-us', {month: "long"})+'/'+e.date.getFullYear();
-                self.month        = date;
-                var params = 'page_size='+self.page_size+'&q='+self.search+'&status='+self.status+'&month='+self.month;
+                self.month        = month;
+                self.year         = year;
+                var params = 'page_size='+self.page_size+'&q='+self.search+'&status='+self.status+'&month='+self.month+'&year='+self.year;
                 $.get(billsUrl+'?'+params, function(data)
                 {
                     self.billsList = data.results;
@@ -187,7 +189,7 @@ var parent = new Vue({
         /* make api request when pagination pages are clicked */
             var self = this,
                 billsUrl = $('#billsUrl').val();
-            this.$http.get(billsUrl+'?page='+num+'&page_size='+self.page_size+'&q='+self.search+'&status='+self.status+'&month='+self.month)
+            this.$http.get(billsUrl+'?page='+num+'&page_size='+self.page_size+'&q='+self.search+'&status='+self.status+'&month='+self.month+'&year='+self.year)
                 .then(function(data){
                     data = JSON.parse(data.bodyText);
                     self.billsList = data.results;
@@ -282,7 +284,9 @@ var parent = new Vue({
                 }
             });
             return tendered;
-        },
+        }
+    },
+    watch:{
         'totalPages': function(val, oldVal){
             var self=this ;
             /* destroy pagination on page size change */
@@ -301,5 +305,5 @@ var parent = new Vue({
                 self.listItems(page);
             });
         }
-    },
+    }
 })
