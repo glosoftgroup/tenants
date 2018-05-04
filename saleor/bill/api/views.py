@@ -101,3 +101,42 @@ class TenantsListAPIView(generics.ListAPIView):
         queryset_list = Book.objects.filter(active=True, room__is_booked=True)
 
         return queryset_list.order_by('-id')
+
+
+class DepositListAPIView(generics.ListAPIView):
+    """
+        list details
+        GET /api/setting/
+    """
+    serializer_class = TableListSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    pagination_class = PostLimitOffsetPagination
+
+    def get_serializer_context(self):
+        if self.request.GET.get('date'):
+            return {"date": self.request.GET.get('date'), 'request': self.request}
+        return {"date": None, 'request': self.request}
+
+    def get_queryset(self, *args, **kwargs):
+        queryset_list = Table.objects.filter(billtype__name='Deposit')
+
+        page_size = 'page_size'
+        if self.request.GET.get(page_size):
+            pagination.PageNumberPagination.page_size = self.request.GET.get(page_size)
+        else:
+            pagination.PageNumberPagination.page_size = 10
+        if self.request.GET.get('month') and self.request.GET.get('year'):
+            queryset_list = queryset_list.filter(
+                month__month=self.request.GET.get('month'),
+                month__year=self.request.GET.get('year'))
+        if self.request.GET.get('status') and self.request.GET.get('status') != 'all':
+            queryset_list = queryset_list.filter(status=self.request.GET.get('status'))
+
+        query = self.request.GET.get('q')
+        if query:
+            queryset_list = queryset_list.filter(
+                Q(customer__name__icontains=query) |
+                Q(room__name__icontains=query) |
+                Q(billtype__name__icontains=query))
+        return queryset_list.order_by('id')
+

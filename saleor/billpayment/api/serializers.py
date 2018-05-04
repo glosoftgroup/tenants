@@ -148,8 +148,7 @@ class UpdateSerializer(serializers.ModelSerializer):
         fields = fields
 
     def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get('description', instance.description)
+        instance.deposit_refunded = True
 
         instance.save()
         return instance
