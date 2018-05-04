@@ -44,7 +44,7 @@
                   <tr class="bg-slate">
                     <th>Invoice</th>
                     <th>Property</th>
-                    <th>Bill Type</th>
+                    <th>Bill</th>
                     <th>Month</th>
                     <th>Amount</th>
                     <th>Status</th>
@@ -77,7 +77,7 @@
                             <span v-show="item.active"><mark>active</mark></span>
                         </td>
                         <td class="td" v-else @click="goTo(item.invoice_url)"><span class="text-bold">---</span></td>
-                        <td class="td">
+                        <td class="td" @click="goTo(item.invoice_url)">
                             ${item.room.name}
                         </td>
                         <td class="td" @click="goTo(item.invoice_url)">
@@ -91,6 +91,11 @@
                         </td>
                         <td class="td" @click="goTo(item.invoice_url)">
                             ${item.status}
+                        </td>
+                        <td>
+                            <a href="javascript:;" class="btn btn-sm bg-slate" @click="goTo(item.invoice_url)">
+                                INVOICE
+                            </a>
                         </td>
 
 
@@ -109,10 +114,10 @@
          </style>
          <div class="row media-none">
          <div class="col-md-12">
-          <div class="col-md-4">
+          <div class="col-md-4 pt-15">
            <div class="col-md-12">
             <div class="col-md-6 mt-10">
-             <label>display list size</label>
+             <label>list size</label>
             </div>
             <div class="col-md-6 media-none">
               <div class="form-group">
@@ -130,7 +135,7 @@
               <div class="text-center pbootpag-callback p2-pag" style="">
             </div>
            </div>
-            <div class="col-md-2">
+            <div class="col-md-2 pt-15">
              <div class="col-md-12 mt-5">
               <div class="pull-right pages-nav"></div>
              </div>

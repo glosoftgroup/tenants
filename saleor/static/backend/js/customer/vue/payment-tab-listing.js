@@ -12,7 +12,7 @@ var parent = new Vue({
         items:[],
         loader:true,
         totalPages:1,
-        visiblePages:2,
+        visiblePages:3,
         page_size:5,
         psearch:'',
         pstatus:'all',
