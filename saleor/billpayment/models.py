@@ -4,12 +4,21 @@ from django.db import models
 from django.conf import settings
 from decimal import Decimal
 from django.utils.translation import pgettext_lazy
+from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, PermissionsMixin)
 from django.core.validators import MinValueValidator, RegexValidator
 from django.utils.timezone import now
 from saleor.bill.models import Bill
 from saleor.customer.models import Customer
 from saleor.room.models import Room
 from saleor.paymentoptions.models import PaymentOptions
+
+
+class BillPaymentManager(BaseUserManager):
+    def room_total_payment(self, room, billtype=None):
+        query = self.get_queryset().filter(room=room)
+        if billtype:
+            query = query.filter(billtype__name=billtype)
+        return query.aggregate(models.Sum('amount'))['amount__sum']
 
 
 class BillPayment(models.Model):
@@ -50,6 +59,7 @@ class BillPayment(models.Model):
         pgettext_lazy('BillPayment field', 'updated at'), auto_now=True, null=True)
     created = models.DateTimeField(pgettext_lazy('BillPayment field', 'created'),
                                    default=now, editable=False)
+    objects = BillPaymentManager()
 
     class Meta:
         app_label = 'billpayment'
@@ -58,6 +68,7 @@ class BillPayment(models.Model):
 
     def __str__(self):
         return self.invoice_number
+
 
 class BillPaymentOption(models.Model):
     ''' invoice_number for generating invoices of that bill '''
