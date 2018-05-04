@@ -1,6 +1,7 @@
 $ = jQuery;
 var $pagination = $('.bootpag-callback');
 var $modal = $('#modal_instance');
+var $checkoutModal = $('#modal_checkout');
 var date;
 function formatNumber(n, c, d, t){
 	var c = isNaN(c = Math.abs(c)) ? 2 : c,
@@ -15,6 +16,13 @@ function formatNumber(n, c, d, t){
 Vue.filter('formatCurrency', function (value) {
   return formatNumber(value, 2, '.', ',');
 })
+
+// register modal component
+Vue.component('modal', {
+  props:['checkout'],
+  template: '#modal-template'
+})
+
 //vue
 var parent = new Vue({
     el:"#vue-app",
@@ -29,21 +37,33 @@ var parent = new Vue({
        search:'',
        status:'all',
        exportType:'none',
-       date: 'Select date'
+       date: 'Select date',
+       showModal: false,
+       instance: {},
+       checkout_url: ''
     },
     methods:{
         checkOut(url, instance){
+            // open checkout modal
+            this.showModal = true;
+            this.checkout_url = url;
+            this.instance = instance
+        },
+        realCheckout(){
             var data = new FormData();
+            var self = this;
             data.append('invoice_number', 'sdfsdf');
+            axios.put(this.checkout_url, data)
+                .then(function (response) {
+                    console.log(response);
+                    self.instance.active = false;
+                    self.showModal = false;
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
 
-            axios.put(url, data)
-            .then(function (response) {
-                console.log(response);
-                instance.active = false;
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
+
         },
         deleteBooking: function(url,id){
             /* open delete modal and populate dynamic form attributes */
@@ -168,6 +188,18 @@ var parent = new Vue({
         }
     }
 
+});
+
+var checkoutComp = new Vue({
+    el:"#modal_checkout",
+    delimiters: ['${', '}'],
+    data:{
+       name:'Checkout',
+    },
+    mounted(){
+        console.log('mouths compsdfe')
+        console.log(this.name)
+    }
 });
 
 $('.daterange-single').daterangepicker({

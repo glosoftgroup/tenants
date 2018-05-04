@@ -3,25 +3,27 @@
 {% load i18n %}
 
 {% block title %}
-  Deposits
+  Deposit Bills
 {% endblock %}
 
  {% block breadcrumbs %}
-     <li class="active"><a> Deposits</a></li>
+     <li class="active"><a> Deposit Bills</a></li>
  {% endblock %}
 
 
  {% block menu_deposit_class %}active{% endblock %}
  {% block custom_css %}
+ <link href="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css">
+
  <style type="text/css">
       .theme_xbox .pace_activity, .theme_xbox .pace_activity::after, .theme_xbox .pace_activity::before, .theme_xbox_sm .pace_activity, .theme_xbox_sm .pace_activity::after, .theme_xbox_sm .pace_activity::before, .theme_xbox_xs .pace_activity, .theme_xbox_xs .pace_activity::after, .theme_xbox_xs .pace_activity::before {
         border-radius: 50%;
         border: 1px solid transparent;
-            border-top-width: 1px;
-            border-right-width: 1px;
-            border-bottom-width: 1px;
-            border-left-width: 1px;
-            border-top-color: transparent;
+        border-top-width: 1px;
+        border-right-width: 1px;
+        border-bottom-width: 1px;
+        border-left-width: 1px;
+        border-top-color: transparent;
         border-top-color: #1649fc;
     }
     .pace-demo {
@@ -42,20 +44,27 @@
        }
     }
     .td { cursor:pointer }
+    .datepicker table tr td span {
+      padding:1px !important;
+    }
+    .datepicker table tr td span.active.active{
+       background-color:#1E88E5 !important;
+       background-image: linear-gradient(to bottom,#08c,#1c64fb) !important;
+    }
    </style>
  {% endblock %}
 
 {% block content %}
  <div class="row animated " id="vue-app">
 
-   <div class="col-md-12">
+   <div class="col-md-12 row">
       <div class="panel panel-flat">
 
         <div class="panel-body  search-panel" style="padding:5px;">
-            <div class="col-md-2">
+            <div class="hidden col-md-2">
               <label style="visibility: hidden;"> add</label>
               <div class="form-group">
-                    <a @click="toggleForm" id="toggle-add-form" href="javascript:;" class="btn btn-primary hvr-glow btn-raised legitRipple waves-effect waves-light">
+                    <a id="toggle-add-form" href="/bill/add/" class="btn btn-primary hvr-glow btn-raised legitRipple waves-effect waves-light">
                         <i class="icon-plus2 position-left"></i>Add
                     </a>
               </div>
@@ -63,79 +72,47 @@
             <div class="col-md-4">
              <label>Search </label>
               <div class="form-group form-group-material has-feedback">
-                <input class="form-control" v-model="search" @keyup="inputChangeEvent" placeholder="Search ..." type="text">
+                <input class="form-control" v-model="search"
+                       @keyup="inputChangeEvent"
+                       placeholder="Search :customer name :property name" type="text"
+                >
                 <div class="form-control-feedback">
                   <i class="icon-search4 text-size-base"></i>
                 </div>
               </div>
             </div>
-            <div class="col-md-2 hidden">
-              <div class="form-group">
-                 <label>Status</label>
-                 <select v-model="status" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
-                    <option value="all" selected>All</option>
-                    <option value="True">Booked</option>
-                    <option value="False">Not Booked</option>
-                  </select>
+              <div class="col-md-2">
+                <div class="form-group modal-form-group">
+                   <label>Status</label>
+                   <select class="bootstrap-select" v-model="status" @change="inputChangeEvent" style="display: none;" data-width="100%" tabindex="-98">
+                      <option value="all" selected>All</option>
+                      <option value="pending">Pending</option>
+                      <option value="fully-paid">Fully-Paid</option>
+                    </select>
+                </div>
               </div>
-            </div>
-            <div class="col-md-2">
-              <label>pick a date</label>
-              <div class="form-group">
-                <div class="input-group">
-                    <span v-datepicker></span>
-                  <input v-model="date" id="date" hello="inputChangeEvent" hi="inputChangeEvent" class="form-control daterange-single" type="text" placeholder="yyyy-mm-dd">
-                  <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+              <div class="col-md-2">
+                <div class="form-group modal-form-group">
+                    <label for="name"> Month </label>
+                    <input type="text" v-model="monthDisplay" class="form-control monthpicker"  name="monthpicker" id="monthpicker" placeholder="Month" />
+                </div>
+              </div>
+              <div class="col-md-2">
+               <label>Export</label>
+                <div class="form-group">
+                   <select v-model="exportType" @change="exportItems" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                      <option value="none" >Option</option>
+                      <option value="pdf" >export pdf</option>
+                      <option value="excel" >export excel</option>
+                    </select>
                 </div>
               </div>
             </div>
-            <div class="col-md-2">
-             <label>Export</label>
-              <div class="form-group">
-                 <select v-model="exportType" @change="exportItems" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
-                    <option value="none" >Option</option>
-                    <option value="pdf" >export pdf</option>
-                    <option value="excel" >export excel</option>
-                  </select>
-              </div>
-            </div>
 
-            <!--form-->
-            <div class="col-md-12 animated fadeIn hidden" id="showForm" v-show="showForm">
-                <table class="table table-hover">
-                <thead>
-                    <tr class="bg-primary">
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                  <tr>
-
-                  <td>
-                    <input @keyup="validate" v-model="wing_name" placeholder="name" class="form-control" id="wing_name" required="" name="wing_name" aria-required="true" type="text">
-                    <span class="help-block text-danger" v-show="errors">This field is required</span>
-                  </td>
-                  <td>
-                    <input v-model="description" placeholder="Description" class="form-control" id="description" name="description" type="text">
-                    <span class="help-block"></span>
-                  </td>
-
-                    <td>
-                      <button @click="addInstance" class="btn btn-xs btn-primary legitRipple" id="add-instance" type="submit">
-                          Submit <i class="icon-arrow-right14 position-right"></i>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-            </table>
-            </div>
-            <!--./form?-->
       </div>
    </div>
 
-<div class="row">
+    <div class="row">
 
   <div class="col-md-12">
    <div id="pagination-div">
@@ -143,14 +120,18 @@
       <div class="panel panel-flat" id="printme">
         <div class="panel-body" >
             <div class="col-md-12">
-                <h5 class="text-center text-bold">Deposits</h5>
+                <h5 class="text-center text-bold">Deposit Bills</h5>
             </div>
             <div class="">
               <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
                     <thead>
                       <tr class="bg-primary">
-                        <th>Name</th>
-                        <th>Description</th>
+                        <th>Tenant</th>
+                        <th>Property</th>
+                        <th>Bill Type</th>
+                        <th>Month</th>
+                        <th>Amount</th>
+                        <th>Status</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -174,10 +155,12 @@
                     <!--listing template-->
                     <template v-for="item in items">
                         <tr class="td " :id="item.id">
-                            <td>
-                                ${item.name}
-                            </td>
-                            <td>${item.description}</td>
+                            <td  @click="goTo(item.invoice_url)">${item.customer.name}</td>
+                            <td  @click="goTo(item.invoice_url)">${item.room.name}</td>
+                            <td  @click="goTo(item.invoice_url)">${item.billtype.name}</td>
+                            <td  @click="goTo(item.invoice_url)">${item.month}</td>
+                            <td  @click="goTo(item.invoice_url)">${item.amount}</td>
+                            <td  @click="goTo(item.invoice_url)">${item.status}</td>
 
                             <td class="text-center">
                                 <ul class="icons-list">
@@ -186,8 +169,12 @@
                                             Actions<span class="caret"></span></button>
 
                                         <ul class="dropdown-menu dropdown-menu-right">
-                                            <li><a @click="getInstance(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> EDIT</a></li>
-                                            <li><a @click="deleteInstance(item.delete_url,item.id)" href="javascript:;"><i class=" icon-trash-alt"></i> DELETE</a></li>
+                                            <li><a @click="goTo(item.invoice_url)" href="javascript:;"><i class=" icon-safe"></i> INVOICE</a></li>
+                                            <li class="hidden"><a @click="goTo(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> EDIT</a></li>
+                                            <li v-show="item.status != 'pending'">
+                                                <a @click="item.status != 'pending' ? deleteInstance(item.delete_url,item) : null " href="javascript:;">
+                                            <i class=" icon-cart-remove"></i> Refund</a>
+                                            </li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -240,24 +227,27 @@
     </div><!-- pagination -->
   </div>
 </div>
-</div>
 
-   <!--delete modal  -->
+     <!--delete modal  -->
     <div id="modal_delete" class="modal fade">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header bg-danger">
+                <div class="modal-header bg-primary">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h6 class="modal-title text-center">Confirm Delete</h6>
+                    <h6 class="modal-title text-center">Refund Deposit</h6>
                 </div>
 
                 <div class="modal-body">
-                    <h6 class="text-semibold text-center">Are you sure you want to delete ?</h6>
+                    <h6 class="text-semibold text-center">Are you sure you want to refund
+                        <span id="deposit-amount"></span>
+                        ?
+                    </h6>
                 </div>
 
                 <div class="modal-footer text-center">
                     <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-                    <button @click="deleteInstance(false,false)" type="button" class="btn btn-danger animated shake">Delete</button>
+                    <button @click="deleteInstance(false,false)" type="button"
+                            class="btn btn-primary animated shake">Refund</button>
                 </div>
             </div>
         </div>
@@ -265,13 +255,16 @@
    <!--./delete-->
  </div>
 
+
+ </div>
+
 <input type="hidden" class="pageUrls"
-  data-listurl="{% url 'bill:api-list' %}"
-        data-createurl="/deposit/api/create/"
+  data-listurl="/bill/api/list/deposit/"
+        data-createurl="/bill/api/create/"
 >
 {% endblock%}
 {% block custom_js %}
-
+  <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/js/bootstrap-datepicker.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
 
     <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
@@ -282,8 +275,10 @@
     <script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vee-validate.2.0.8.en.js' %}"></script>
     <script src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'backend/js/common/listing.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/bill/vue/listing-deposit.js' %}"></script>
+    <!-- <script type="text/javascript" src="{% static 'backend/js/common/listing.js' %}"></script> -->
     <script type="text/javascript">
       $(document).ready(function() {
         $('.bootstrap-select').selectpicker();
