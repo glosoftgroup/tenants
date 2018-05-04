@@ -202,14 +202,14 @@ def create_bill(instance, room, customer, months, check_in, deposit=0, update_de
             update_deposit_instance.month = check_in
             update_deposit_instance.invoice_number = instance.invoice_number
             update_deposit_instance.save()
-    # delete rent/service bills with months < or > check in date
-    temp_check_in = add_months(check_in, 1)
+            # delete rent/service bills with months < or > check in date
+            temp_check_in = add_months(check_in, 1)
 
-    booking_list.filter(month__lte=temp_check_in, billtype=rent_type).delete()
-    booking_list.filter(month__lte=temp_check_in, billtype=service_type).delete()
+            booking_list.filter(month__lte=temp_check_in, billtype=rent_type).delete()
+            booking_list.filter(month__lte=temp_check_in, billtype=service_type).delete()
 
-    booking_list.filter(month__gte=check_out, billtype=rent_type).delete()
-    booking_list.filter(month__gte=check_out, billtype=service_type).delete()
+            booking_list.filter(month__gte=check_out, billtype=rent_type).delete()
+            booking_list.filter(month__gte=check_out, billtype=service_type).delete()
 
     # tax calculation
     try:
