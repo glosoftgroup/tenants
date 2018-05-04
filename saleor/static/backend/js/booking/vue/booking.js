@@ -290,7 +290,6 @@ var parent = new Vue({
                     $('#deposit_period').attr('disabled','disabled');
                 }
 
-               // console.log(response.data.room);
             })
             .catch(function (error) {
                 console.log(error);
