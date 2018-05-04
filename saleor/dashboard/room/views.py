@@ -432,10 +432,11 @@ def searchs(request):
                     'q': q}
             return TemplateResponse(request, 'dashboard/room/search.html', data)
 
-'''
+"""
 ------------------
 Maintenance
-------------------'''
+------------------
+"""
 
 @staff_member_required
 def add_room_issue(request, pk=None):
@@ -485,7 +486,8 @@ def add_room_issue(request, pk=None):
                     bill.tax = (billtype.tax * Decimal(request.POST.get('cost')))/100
                     bill.is_taxable = request.POST.get('is_taxable')
                     bill.amount = Decimal(request.POST.get('cost'))
-                    bill.status = 'pending'
+                    bill.status = "pending"
+                    bill.description = "Maintenance: "+str(request.POST.get('issue'))
                     bill.save()
                 except Exception as e:
                     print ('/')*100

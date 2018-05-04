@@ -1,0 +1,216 @@
+{% extends "dashboard/base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% load prices_i18n %}
+{% load business_name %}
+{% load business_logo %}
+
+{% block title %}
+  Invoice - {{ object.bill.billtype.name|title }}
+{% endblock %}
+
+{% block menu_bill_class %}active{% endblock %}
+
+{% block breadcrumbs %}
+     <li class=""><a href="{% url 'billpayment:index'%}">Bills Payment</a></li>
+      <li class="activate">{{object.bill.billtype.name|title}} Invoice</li>
+{% endblock %}
+
+{% block custom_css %}
+<link href="{% static 'backend/js/plugins/tokenize/tokenize2.css' %}" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="{% static 'backend/js/plugins/pickers/datetimepicker/bootstrap-datetimepicker-standalone.min.css' %}" />
+<link rel="stylesheet" href="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/css/bootstrap-datepicker.min.css' %}">
+<style>
+    .ribbon-container {
+    width: 104px;
+    height: 106px;
+    overflow: hidden;
+    position: absolute;
+    top: -1px;
+    right: -1px;
+}
+.ribbon {
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.6666667;
+    font-weight: 500;
+    text-transform: uppercase;
+    position: relative;
+    padding: 5px 0;
+    left: -11px;
+    top: 25px;
+    width: 150px;
+    color: #fff;
+    letter-spacing: .25px;
+    z-index: 993;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    transform: rotate(45deg);
+    -webkit-box-shadow: 0 4px 6px rgba(0,0,0,.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,.1);
+}
+@media print {
+   #printBtn {
+      display: none;
+   }
+   #addPayment {
+      display: none;
+   }
+}
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="row" id="printme">
+    <form id="check-out-form" class="hidden">
+        {% csrf_token %}
+        <input type="hidden" name="pk" id="pk" value="{{object.pk}}">
+        <input type="hidden" name="is_booked" id="is_booked" value="0">
+    </form>
+    <form id="deactivate-form" class="hidden">
+        {% csrf_token %}
+        <input type="hidden" name="pk" value="{{object.pk}}">
+        <input type="hidden" name="active" id="active" value="0">
+    </form>
+    <div class="panel panel-white">
+        <div class="panel-heading">
+            <h6 class="panel-title text-bold">Monthly Invoice | {{object.bill.billtype.name|title}}</h6>
+            <div class="heading-elements">
+                <button type="button" class="btn btn-default btn-xs heading-btn legitRipple" id="printBtn"><i class="icon-printer position-left"></i> Print</button>
+            </div>
+        <a class="heading-elements-toggle"><i class="icon-more"></i></a></div>
+
+        <div class="panel-body no-padding-bottom" >
+            <div class="row">
+                <div class="col-sm-6 content-group">
+                    {% if business_logo %}
+                    <img src="{{business_logo}}" style="max-height:100px;width:auto;"/>
+                    {% endif %}
+
+                    <ul class="list-condensed list-unstyled">
+                        <li>{% business_name %}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 col-lg-3 content-group">
+                    <span class="text-muted">Period:</span>
+                    <ul class="list-condensed list-unstyled invoice-payment-details">
+                        <li>
+                            <h5>Month (Year):
+                                <span class="text-right text-semibold">{{object.bill.month|date:'F, Y'}}
+                                </span>
+                            </h5>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                    <table class="table table-lg">
+                        <thead>
+                            <tr class="bg-slate-800">
+                                <th class="col-sm-3s">Invoice</th>
+                                <th class="col-sm-3s">Date Paid</th>
+                                <th class="col-sm-3s">Tenant</th>
+                                <th class="col-sm-3s">Property</th>
+                                <th class="col-sm-3s">Type</th>
+                                <th class="col-sm-2s">Tax</th>
+                                <th class="col-sm-2s">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="td ">
+                              <td class="td">
+                                  <span>
+                                      <mark class="bg-slate-800">
+                                          {% if object.invoice_number %}
+                                            {{object.invoice_number}}
+                                          {% else %}
+                                            ---
+                                          {% endif %}
+                                      </mark>
+                                  </span>
+                              </td>
+                                <td class="td">{{object.date_paid}}</td>
+                              <td class="td">{{object.customer.name}}</td>
+                              <td class="td">{{object.room.name}}</td>
+                              <td class="td">{{object.bill.billtype.name}}</td>
+                              <td class="td">{{object.tax}}</td>
+                              <td class="td">{{object.amount}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+        </div>
+
+        <div class="panel-body">
+            <div class="row invoice-payment">
+                <div class="col-sm-7">
+                    <div class="content-group">
+                        <h6 class="test">Authorized person</h6>
+
+                        <ul class="list-condensed list-unstyled text-muted">
+                            <li><h5>
+                                {% if request.user.name %}
+                                    {{request.user.name}}
+                                {% endif %}
+                            </h5></li>
+                            <li>
+                                {% if request.user.mobile %}
+                                    {{request.user.mobile}}
+                                {% endif %}
+                            </li>
+                            <li>
+
+                                {% if request.user.email %}
+                                    {{request.user.email}}
+                                {% endif %}
+
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-sm-5">
+                    <div class="content-group">
+                        <h6>Total due</h6>
+                        <div class="table-responsive no-border">
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <th>Amount:</th>
+                                        <td class="text-right">
+                                            <h5 class="text-semibold">
+                                                {{object.amount}}
+                                            </h5>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Status:</th>
+                                        <td class="text-right text-grey-800">
+                                            <h5 class="text-semibold">
+                                                {{object.bill.status|title}}
+                                            </h5>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+            <h6>Other information</h6>
+            <p class="text-muted">Thank you for partnering with us. </p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

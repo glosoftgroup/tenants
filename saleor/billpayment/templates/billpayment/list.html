@@ -170,17 +170,17 @@
                     <!--listing template-->
                     <template v-for="item in items">
                         <tr class="td " :id="item.id">
-                        <td class="td">
+                        <td class="td"  @click="goTo(item.update_url)">
                             ${item.date_paid}<br>
                             <span><mark>${item.invoice_number}</mark></span>
                         </td>
-                        <td class="td">${item.customer.name}</td>
-                        <td class="td">${item.room.name}</td>
-                        <td class="td">${item.bill.name}</td>
-                        <td class="td">${item.bill.month}</td>
-                        <td class="td">${item.bill.amount}</td>
+                        <td class="td"  @click="goTo(item.invoice_url)">${item.customer.name}</td>
+                        <td class="td"  @click="goTo(item.invoice_url)">${item.room.name}</td>
+                        <td class="td"  @click="goTo(item.invoice_url)">${item.bill.name}</td>
+                        <td class="td"  @click="goTo(item.invoice_url)">${item.bill.month}</td>
+                        <td class="td"  @click="goTo(item.invoice_url)">${item.bill.amount}</td>
                         <td class="text-center">
-                          <a class="btn btn-primary btn-sm" @click="getInstance(item.update_url)" href="javascript:;">
+                          <a class="btn btn-primary btn-sm" @click="goTo(item.invoice_url)" href="javascript:;">
                             <i class="icon-pencil" style="margin-right: 5px;"></i> 
                             INVOICE
                           </a>

@@ -109,9 +109,9 @@
               <input type="text" id="issue" name="issue" class="form-control id_no">
             </div>
             <div class="form-group" id="cost_group">
-                <input class="form-control styled" type="checkbox" name="is_taxable" 
-                id="is_taxable" value="True" /> 
-                <label for="name" style="margin-left: 10px;"> Cost ( Check if Taxable)</label>
+                <input class="form-control styled" type="checkbox" name="taxable"
+                id="is_taxable" value="False" />
+                <label for="cost" style="margin-left: 10px;"> Cost ( Check if Taxable)</label>
                 <input type="text" id="cost" name="cost" class="form-control id_no">
             </div>
          </div>
@@ -211,8 +211,8 @@
 <script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/booking/vue/listing.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/booking/vue/listing.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/room/maintenance.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {

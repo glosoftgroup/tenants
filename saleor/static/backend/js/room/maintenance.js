@@ -80,7 +80,7 @@ File           : add/update.js
                 });
 
                 $('#is_taxable').change(function(){
-                     if($(this).attr('checked')){
+                     if($(this).is(':checked')){
                           $(this).val('True');
                      }else{
                           $(this).val('False');
@@ -98,11 +98,13 @@ File           : add/update.js
                     onkeyup: function(element) {$(element).valid()},
                     rules:{
                         date_reported: {required:true},
+                        cost:{required:true, digits:true},
                         issue: {required:true}
                     },
                     submitHandler: function() {
                       var form = document.getElementById('issues-form'),
                           formData = new FormData(form);
+                          formData.append('is_taxable', $('#is_taxable').val());
                       allFunctions.ajaxForms.ajaxFormHandle(formData, form);
                     }
                   });
@@ -116,7 +118,6 @@ File           : add/update.js
                     axios.defaults.xsrfCookieName = 'csrftoken';
 
                     if(allFunctions.el.updatePk == "none"){
-                       console.log('post')
                         axios.post(postUrl,formData)
                         .then(function (response) {
                            allFunctions.el.issueModal.modal('hide');
