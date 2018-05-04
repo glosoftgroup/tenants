@@ -170,7 +170,7 @@
                                 <h6>Service Charge: {{booking.service_charges.gross}}</h6>
                                 {% endif %}
                                 {% if booking.pk %}
-                                  <h6><a href="{% url 'dashboard:booking-invoice' pk=booking.pk %}">Generat Invoice</a></h6>
+                                  <h6><a href="{% url 'dashboard:booking-invoice' pk=booking.pk %}">Generate Invoice</a></h6>
                                 {% endif %}
                               </div>                 
                              
