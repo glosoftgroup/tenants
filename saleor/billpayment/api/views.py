@@ -57,7 +57,7 @@ class ListAPIView(generics.ListAPIView):
                 queryset_list = queryset_list.filter(
                     Q(room__pk=self.kwargs['rmpk']) &
                     (Q(bill__billtype__name__icontains='Rent') |
-                     Q(bill__billtype__name__icontains="Maintenance")))
+                     Q(bill__billtype__name__icontains="Service")))
             else:
                 queryset_list = queryset_list
             print ('rmpk is ' + str(self.kwargs['rmpk']))

@@ -40,6 +40,8 @@ class BillPayment(models.Model):
     tax = models.DecimalField(
         pgettext_lazy('BillPayment field', 'tax of the bill based on the amount'), max_digits=12,
         validators=[MinValueValidator(0)], default=Decimal(0), decimal_places=2)
+    tax_is_filed = models.BooleanField(
+        pgettext_lazy('BillPayment field', 'tax is filed status'), default=False)
     date_paid = models.CharField(
         pgettext_lazy('BillPayment field', 'date_paid'), null=True, max_length=36)
     total_bills_amount_paid = models.DecimalField(

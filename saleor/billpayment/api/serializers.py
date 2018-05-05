@@ -26,8 +26,8 @@ class TableListSerializer(serializers.ModelSerializer):
         model = Table
         fields = fields + (
             'invoice_number',
-            'customer', 'room', 'income', 
-            'bill', 'tax', 'amount', 'date_paid',
+            'customer', 'room',
+            'bill', 'tax', 'tax_is_filed', 'amount', 'income', 'date_paid',
             'total_bills_amount',
             'total_bills_amount_paid',
             'total_bills_balance', 'invoice_url',
@@ -39,7 +39,7 @@ class TableListSerializer(serializers.ModelSerializer):
                 "id":obj.bill.id, 
                 "name":obj.bill.billtype.name, 
                 "amount":obj.bill.amount,
-                "month":obj.bill.month.strftime('%B %Y')
+                "month":obj.bill.month.strftime('%B, %Y')
                 }
         except Exception as e:
             print (e)
@@ -107,8 +107,6 @@ class CreateListSerializer(serializers.ModelSerializer):
                 bill = Bill.objects.get(pk=i['id'])
             except Exception as e:
                 bill = None
-                print ('-')*100
-                print (e)
 
             instance.invoice_number = invoice_number
             instance.amount = bill.amount
@@ -130,11 +128,12 @@ class CreateListSerializer(serializers.ModelSerializer):
                 option = PaymentOptions.objects.get(pk=i['id'])
             except Exception as e:
                 option = None
-                print ('-')*100
-                print (e)
             paymentOption = BillPaymentOption()
             paymentOption.tendered = i['tendered']
-            paymentOption.transaction_number = i['transaction_number']
+            try:
+                paymentOption.transaction_number = i['transaction_number']
+            except:
+                paymentOption.transaction_number = ''
             paymentOption.payment_option = option
             paymentOption.bill_paymentoption_map_id = bill_paymentoption_map_id
             paymentOption.save()

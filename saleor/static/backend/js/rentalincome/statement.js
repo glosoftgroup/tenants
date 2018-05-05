@@ -33,6 +33,7 @@ var parent = new Vue({
        rent:[],
        rentAmount:'',
        billsAmount:'',
+       totalAmount:'',
        income:'',
        totalTax:'',
        month:'',
@@ -54,17 +55,19 @@ var parent = new Vue({
                         if (item.bill.name === 'Rent') {
                             self.rent.push(item)
                             rentamount+=item.bill.amount
-                            totaltax+=parseFloat(item.tax).toFixed(2)
+                            totaltax+=parseFloat(item.tax)
                             self.month = item.bill.month
                         }else{
                             self.bills.push(item)
                             billsamount+=item.bill.amount
+                            totaltax+=parseFloat(item.tax)
                         }
                     });
                     self.rentAmount = rentamount;
                     self.billsAmount = billsamount;
                     self.totalTax = totaltax;
-                    self.income = rentamount - billsamount
+                    self.totalAmount = rentamount + billsamount;
+                    self.income = (rentamount + billsamount) - totaltax
                 }, function(error){
                     console.log(error.statusText);
             });

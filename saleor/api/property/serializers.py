@@ -32,6 +32,7 @@ class TableListSerializer(serializers.ModelSerializer):
     total_tax = serializers.SerializerMethodField()
     total_rent = serializers.SerializerMethodField()
     total_maintenance = serializers.SerializerMethodField()
+    total_service = serializers.SerializerMethodField()
     total_income = serializers.SerializerMethodField()
     room_type = serializers.SerializerMethodField()
     room_wing = serializers.SerializerMethodField()
@@ -53,6 +54,7 @@ class TableListSerializer(serializers.ModelSerializer):
                   'room_images',
                   'total_tax',
                   'total_rent',
+                  'total_service',
                   'total_maintenance',
                   'total_income',
                   'update_url',
@@ -87,7 +89,15 @@ class TableListSerializer(serializers.ModelSerializer):
             for i in rents:
                 tax += i.bill.tax
         except Exception as e:
-            print(e)
+            pass
+
+        try:
+            services = BillPayment.objects.filter(bill__billtype__name='Service', room__pk=obj.id)
+            for i in services:
+                tax += i.bill.tax
+        except Exception as e:
+            pass
+
         return tax
 
     def get_total_rent(self, obj):
@@ -97,9 +107,19 @@ class TableListSerializer(serializers.ModelSerializer):
             for i in rents:
                 amount += i.bill.amount
         except Exception as e:
-            print(e)
+            pass
         return amount
 
+    def get_total_service(self, obj):
+        amount = 0
+        try:
+            services = BillPayment.objects.filter(bill__billtype__name='Service', room__pk=obj.id)
+            for i in services:
+                amount += i.bill.amount
+        except Exception as e:
+            pass
+        return amount
+    # remember to get maintenance from the expenses
     def get_total_maintenance(self, obj):
         maintenance = 0
         try:
@@ -107,13 +127,11 @@ class TableListSerializer(serializers.ModelSerializer):
             for i in rents:
                 maintenance += i.bill.amount
         except Exception as e:
-            print ('-')*100
-            print(e)
+            pass
         return maintenance
 
     def get_total_income(self, obj):
-        # return 0
-        return (self.get_total_rent(obj) - ( self.get_total_maintenance(obj) + self.get_total_tax(obj) ) )
+        return ((self.get_total_rent(obj) + self.get_total_service(obj)) - ( self.get_total_maintenance(obj) + self.get_total_tax(obj) ) )
 
 
 class WingSerializer(serializers.ModelSerializer):

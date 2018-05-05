@@ -145,7 +145,7 @@ var parent = new Vue({
             var self = this, data;
 
             var billsUrl = $('#billsUrl').val();
-            var params = 'page_size='+this.page_size+'&q='+this.search+'&status='+this.status+'&month='+this.month;
+            var params = 'page_size='+this.page_size+'&q='+this.search+'&status='+this.status+'&month='+this.month+'&year='+this.year;
             $.get(billsUrl+'?'+params, function(data)
             {
                 self.billsList = data.results;
