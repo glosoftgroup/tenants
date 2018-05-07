@@ -1,0 +1,220 @@
+{% extends "dashboard/base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+{% load prices_i18n %}
+{% load business_name %}
+{% load business_logo %}
+
+{% block title %}
+  Tax
+{% endblock %}
+
+{% block menu_tax_class %}active{% endblock %}
+
+{% block breadcrumbs %}
+     <li class=""><a href="{% url 'billpayment:tax-index'%}">Tax</a></li>
+{% endblock %}
+
+{% block custom_css %}
+<link href="{% static 'backend/js/plugins/tokenize/tokenize2.css' %}" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="{% static 'backend/js/plugins/pickers/datetimepicker/bootstrap-datetimepicker-standalone.min.css' %}" />
+<link rel="stylesheet" href="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/css/bootstrap-datepicker.min.css' %}">
+<style>
+    .ribbon-container {
+    width: 104px;
+    height: 106px;
+    overflow: hidden;
+    position: absolute;
+    top: -1px;
+    right: -1px;
+}
+.ribbon {
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.6666667;
+    font-weight: 500;
+    text-transform: uppercase;
+    position: relative;
+    padding: 5px 0;
+    left: -11px;
+    top: 25px;
+    width: 150px;
+    color: #fff;
+    letter-spacing: .25px;
+    z-index: 993;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    transform: rotate(45deg);
+    -webkit-box-shadow: 0 4px 6px rgba(0,0,0,.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,.1);
+}
+@media print {
+   #printBtn {
+      display: none;
+   }
+   #addPayment {
+      display: none;
+   }
+}
+</style>
+{% endblock %}
+{% block content %}
+<div id="vue-app">
+    <div class="row" id="printme">
+        <form id="check-out-form" class="hidden">
+            {% csrf_token %}
+            <input type="hidden" name="pk" id="pk" value="{{object.pk}}">
+            <input type="hidden" name="is_booked" id="is_booked" value="0">
+        </form>
+        <form id="deactivate-form" class="hidden">
+            {% csrf_token %}
+            <input type="hidden" name="pk" value="{{object.pk}}">
+            <input type="hidden" name="active" id="active" value="0">
+        </form>
+        <div class="panel panel-white">
+            <div class="panel-heading">
+                <h6 class="panel-title text-bold">Tax</h6>
+                <div class="heading-elements">
+                    <button type="button" class="btn btn-default btn-xs heading-btn legitRipple"
+                            id="printBtn" @click="exportItems"><i class="icon-printer position-left"></i> Print</button>
+                </div>
+            <a class="heading-elements-toggle"><i class="icon-more"></i></a></div>
+
+            <div class="panel-body no-padding-bottom" >
+                <div class="row">
+                    <div class="col-sm-6 content-group">
+                        {% if business_logo %}
+                        <img src="{{business_logo}}" style="max-height:100px;width:auto;"/>
+                        {% endif %}
+
+                        <ul class="list-condensed list-unstyled">
+                            <li>{% business_name %}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 content-group">
+                        <span class="text-muted">Period:</span>
+                        <ul class="list-condensed list-unstyled invoice-payment-details">
+                            <li>
+                                <h3 class="text-bold">${period}
+                                </h3>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                        <table class="table table-lg">
+                            <thead>
+                              <tr class="bg-slate-800">
+                                <th>Period</th>
+                                <th>Amount</th>
+                              </tr>
+                            </thead>
+                            <tbody id="tb">
+                                <!--no data template-->
+                                <template  v-else>
+                                <tr v-if="items.length == 0" class="text-center">
+                                    <td colspan="2" class="text-bold animated zoomIn">
+                                        No Data Found !
+                                    </td>
+                                </tr>
+                                </template>
+                                <!--listing template-->
+                                <template v-for="item in items">
+                                    <tr class="td " :id="item.id">
+                                    <td class="td">
+                                        ${item.period}
+                                    </td>
+                                    <td class="td">${item.tax}</td>
+
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+
+            </div>
+
+            <div class="panel-body">
+                <div class="row invoice-payment">
+                    <div class="col-sm-7">
+                        <div class="content-group">
+                            <h6 class="test">Authorized person</h6>
+
+                            <ul class="list-condensed list-unstyled text-muted">
+                                <li><h5>
+                                    {% if request.user.name %}
+                                        {{request.user.name}}
+                                    {% endif %}
+                                </h5></li>
+                                <li>
+                                    {% if request.user.mobile %}
+                                        {{request.user.mobile}}
+                                    {% endif %}
+                                </li>
+                                <li>
+
+                                    {% if request.user.email %}
+                                        {{request.user.email}}
+                                    {% endif %}
+
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-5">
+                        <div class="content-group">
+                            <div class="table-responsive no-border">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <th>Total Tax:</th>
+                                            <td class="text-right">
+                                                <h5 class="text-semibold">
+                                                    ${totalTax}
+                                                </h5>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+
+                <h6>Other information</h6>
+                <p class="text-muted">Thank you for partnering with us. </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+<input type="hidden" class="pageUrls"
+  data-listurl="{% url 'billpayment:tax-api-list' %}" />
+
+<input type="hidden" class="requestData"
+    data-month="{% if request.GET.month %}{{request.GET.month}}{% endif %}"
+    data-year="{% if request.GET.year %}{{request.GET.year}}{% endif %}"
+    data-month_from="{% if request.GET.month_from %}{{request.GET.month_from}}{% endif %}"
+    data-month_to="{% if request.GET.month_to %}{{request.GET.month_to}}{% endif %}"/>
+{% endblock%}
+{% block custom_js %}
+
+    <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/pagination/jquery.twbsPagination.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
+    <script src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/tax/vue/detail.js' %}"></script>
+<script>
+</script>
+{% endblock %}

@@ -1,9 +1,13 @@
 from django.conf.urls import url
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView
+from django.contrib.auth.decorators import login_required
 
 from .api.views import *
 from .models import BillPayment as Table
+
+#tax
+from saleor.billpayment.tax_api import views as taxViews
 
 
 urlpatterns = [
@@ -23,5 +27,11 @@ urlpatterns = [
 
     # rental income for the room
     url(r'^api/list/room/(?P<rmpk>[0-9]+)/$', ListAPIView.as_view(), name='api-list-room-income'),
+
+    #tax
+    url(r'^tax/$', login_required(login_url='/')(TemplateView.as_view(template_name="tax/list.html")), name="tax-index"),
+    url(r'^tax/api/list/$', taxViews.ListAPIView.as_view(), name='tax-api-list'),
+    url(r'^tax/detail/$', login_required(login_url='/')(TemplateView.as_view(template_name="tax/invoice.html")), name="tax-detail"),
+
 ]
 
