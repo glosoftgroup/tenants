@@ -31,7 +31,7 @@ urlpatterns = [
     #tax
     url(r'^tax/$', login_required(login_url='/')(TemplateView.as_view(template_name="tax/list.html")), name="tax-index"),
     url(r'^tax/api/list/$', taxViews.ListAPIView.as_view(), name='tax-api-list'),
-    url(r'^tax/detail/$', login_required(login_url='/')(TemplateView.as_view(template_name="tax/invoice.html")), name="tax-detail"),
+    url(r'^tax/detail/$', login_required(login_url='/')(TemplateView.as_view(template_name="tax/detail.html")), name="tax-detail"),
 
 ]
 
