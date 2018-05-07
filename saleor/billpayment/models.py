@@ -15,7 +15,9 @@ from saleor.paymentoptions.models import PaymentOptions
 
 class BillPaymentManager(BaseUserManager):
     def room_total_payment(self, room, billtype=None):
-        query = self.get_queryset().filter(room=room)
+        query = self.get_queryset()
+        if room:
+            query = query.filter(room=room)
         if billtype:
             query = query.filter(billtype__name=billtype)
         return query.aggregate(models.Sum('amount'))['amount__sum']

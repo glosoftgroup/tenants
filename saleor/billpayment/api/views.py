@@ -100,6 +100,7 @@ class UpdateAPIView(generics.RetrieveUpdateAPIView):
     queryset = Table.objects.all()
     serializer_class = UpdateSerializer
 
+
 class OptionsListAPIView(generics.ListAPIView):
     serializer_class = BillOptionsListSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)

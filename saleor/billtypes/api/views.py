@@ -28,7 +28,6 @@ class DestroyView(generics.DestroyAPIView):
         bill_types = ['Rent', 'Deposit', 'Service', 'Maintenance', 'Electricity', 'Water']
         if instance.name in bill_types:
             raise serializers.ValidationError('You cannot delete '+instance.name)
-        print ('=')*100            
         instance.delete()
 
 

@@ -17,10 +17,12 @@ function formatNumber(n, c, d, t){
 			j = (j = i.length) > 3 ? j % 3 : 0;
 	return s + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, '$1' + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : '');
 };
-//vue filters
+
+// vue filters
 Vue.filter('formatCurrency', function (value) {
   return formatNumber(value, 2, '.', ',');
 })
+
 
 Vue.filter('strLimiter', function (value) {
   if (!value) return ''
@@ -53,9 +55,13 @@ var parent = new Vue({
         errors:false,
         showForm: false,
         updateUrl: '',
+        check_in:'',
         selected_instance: {}
     },
     methods:{
+        alertPay(){
+            alertUser('This deposit need to be paid first in order to refund', 'bg-danger','Payment is pending');
+        },
         getInstance(url){
             var self = this;
             axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -139,58 +145,37 @@ var parent = new Vue({
         goTo: function(url){
             window.location.href = url;
         },
-        deleteInstance: function(url,id){
+        deleteInstance: function(url,id, isRefunded = false){
+            if(isRefunded){
+                alertUser('Deposit already refunded!', 'bg-warning','Heads up!')
+                return;
+            }
             if(id.id){
+                this.updateUrl = '/billpayment/api/update/'+url+'/';
                 $('#modal_delete').modal();
                 this.selected_instance = id;
                 $('#deposit-amount').html(formatNumber(id.amount, 2, '.', ',')+' deposit to '+id.customer.name);
-                console.log('you cant delete me');
                 return;
             }
+
+            data = new FormData();
+            data.append('deposit_refunded',1);
+
+            var vm = this;
+            axios.defaults.xsrfHeaderName = "X-CSRFToken"
+            axios.defaults.xsrfCookieName = 'csrftoken'
+
+            axios.put(vm.updateUrl, data)
+            .then(function (response) {
+                alertUser('Data updated successfully');
+                window.location.reload();
+            })
+            .catch(function(error){
+                console.log(error);
+            })
             console.log(this.selected_instance.customer.name)
             return;
 
-            // open delete modal and set delete url
-            // ___________________
-            // var deleteUrl = this.deleteUrl;
-            var self = this;
-            if(url){
-                $('#modal_delete').modal();
-                self.deleteUrl = url;
-                self.deleteId = id;
-                return;
-            }
-
-            if(!self.deleteUrl){
-                $('#modal_delete').modal();
-                self.deleteUrl = url;
-                self.deleteId = id;
-                return;
-            }else{
-                axios.defaults.xsrfHeaderName = "X-CSRFToken"
-                axios.defaults.xsrfCookieName = 'csrftoken'
-
-                axios.delete(self.deleteUrl)
-                .then(function (response) {
-                    alertUser('Data deleted successfully');
-                    // hide modal & remove item
-                    $('#modal_delete').modal('hide');
-                    // this.removeItem();
-                    console.log($('#'+self.deleteId).html());
-                    $('#'+self.deleteId).html('').remove();
-                    self.deleteUrl = false;
-                    self.deleteId = false;
-                })
-                .catch(function (error) {
-                    // display error from serializer valueError
-                    if(error.response.data[0]){
-                        alertUser(error.response.data[0], 'bg-danger','Error!');
-                        $('#modal_delete').modal('hide');
-                    }
-
-                });
-
-            }
         },
         inputChangeEvent:function(){
             /* make api request on events filter */

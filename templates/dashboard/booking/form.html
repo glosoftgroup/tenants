@@ -122,23 +122,37 @@
                                 <!--price table-->
                                 <div class="col-sm-12">
                                     <div class="content-group">
-                                        <h6 class="text-bold">Pricing Break Down</h6>
+                                        <h6 >
+                                            <span class="text-bold">
+                                                Price Break Down For
+                                            </span>
+                                            <span class="text-primary">
+                                                ${check_in| formatDate}
+                                            </span>
+                                            To
+                                            <span class="text-primary">
+                                                ${check_out| formatCheckOutDate}
+                                            </span>
+                                            <span class="text-bold">
+                                                &nbsp;Bills
+                                            </span>
+                                        </h6>
                                         <div class="table-responsive no-border">
                                             <table class="table table-xxs">
                                                 <tbody>
                                                     <tr>
                                                         <th>Rent:</th>
-                                                        <td>@${rentPrice} /m</td>
+                                                        <td>${days} Month(s)&nbsp;@${rentPrice | formatCurrency} /m</td>
                                                         <td class="text-right text-primary">${totalRentComputed | formatCurrency}</td>
                                                     </tr>
                                                     <tr>
                                                         <th>Service:</th>
-                                                        <td>@${servicePrice} /m</td>
+                                                        <td>${days} Month(s)&nbsp;@${servicePrice | formatCurrency} /m</td>
                                                         <td class="text-right text-primary">${totalServiceComputed | formatCurrency}</td>
                                                     </tr>
                                                     <tr>
                                                         <th>Deposit:</th>
-                                                        <td>@${rentPrice | formatCurrency} /m</td>
+                                                        <td>${deposit_period} Month(s)&nbsp;@${rentPrice | formatCurrency} /m</td>
                                                         <td class="text-right text-primary">${totalDeposit | formatCurrency}</td>
                                                     </tr>
                                                 </tbody>
