@@ -16,6 +16,17 @@ function formatNumber(n, c, d, t){
 Vue.filter('formatCurrency', function (value) {
   return formatNumber(value, 2, '.', ',');
 })
+
+Vue.filter('formatDate', function (value) {
+  value += '-01'
+  return moment(value, 'YYYY/MM/DD').format('MMMM/YYYY');
+})
+
+Vue.filter('formatCheckOutDate', function (value) {
+  value += '-01'
+  return moment(value, 'YYYY/MM/DD').add(-1, 'M').format('MMMM/YYYY');
+})
+
 //select2 component wrapper
 Vue.component('select2', {
   props: ['options', 'value','placeholder','url', 'data'],
@@ -103,11 +114,11 @@ Vue.component('dt-picker',{
     $(this.$el)
       // init datepicker
       .datepicker({
-        format: "yyyy-mm-dd",
+        format: "yyyy-mm",
 		autoclose: true,
 		minViewMode: "months"
         }).on('changeDate', function(chosen_date){
-                vm.$emit('input', chosen_date.format('yyyy-mm-dd'));
+                vm.$emit('input', chosen_date.format('yyyy-mm'));
 		});
     }
 })
@@ -116,14 +127,14 @@ Vue.use('vue-snotify')
 var parent = new Vue({
     el:"#vue-app",
     delimiters: ['${', '}'],
-    data:{
+    data: {
        name:'Booking',
        roomName:'',
        days:1,
-       check_in: moment().format('YYYY-MM-DD'),
-       check_out: moment().add(1, 'months').format('YYYY-MM-DD'),
-       in_real_date: moment().format('YYYY-MM-DD'),
-       out_real_date: moment().add(1, 'months').format('YYYY-MM-DD'),
+       check_in: moment().format('YYYY-MM'),
+       check_out: moment().add(1, 'months').format('YYYY-MM'),
+       in_real_date: moment().format('YYYY-MM'),
+       out_real_date: moment().add(1, 'months').format('YYYY-MM'),
        oneDay: 24*60*60*1000,
        customer: null,
        customer_name: '',
@@ -140,6 +151,8 @@ var parent = new Vue({
        errors: {},
        payment_date:'', // last paid bill month(date)
        real_days: 0, // days from booking during update
+       checkInDisplay: '',
+       checkOutDisplay: '',
        alert_user:{
            alert_type: 'alert-info',
            alert_show: false,
@@ -178,8 +191,8 @@ var parent = new Vue({
                 data.append('deposit_months', this.deposit_period);
                 data.append('child', this.child);
                 data.append('adult', this.adult);
-                data.append('check_in', this.check_in);
-                data.append('check_out', this.check_out);
+                data.append('check_in', this.check_in+'-01');
+                data.append('check_out', this.check_out+'-01');
                 if(this.customer){
                     data.append('customer', this.customer);
                 }
@@ -221,7 +234,7 @@ var parent = new Vue({
             if(!this.rentPrice) errors.rentPrice = 'Field required';
             if(!this.servicePrice) errors.servicePrice = 'Field required';
             if(!this.totalRentComputed) errors.totalRentComputed = 'Field required';
-            if(!this.totalServiceComputed) errors.totalServiceComputed = 'Field required';
+            // if(!this.totalServiceComputed) errors.totalServiceComputed = 'Field required';
             if(this.days < 1) errors.days = 'Field required';
 
             this.errors = errors;
@@ -304,7 +317,7 @@ var parent = new Vue({
             if(currentDate != futureMonth && futureMonth.isSame(futureMonthEnd.format('YYYY-MM-DD'))) {
                 futureMonth = futureMonth.add(1, 'd');
             }
-            return futureMonth.format('YYYY-MM-DD');
+            return futureMonth.format('YYYY-MM');
         },
         getDays(start,end){
             var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
@@ -366,6 +379,8 @@ var parent = new Vue({
     	'check_in': function(val, oldVal){
     	    this.days = this.getDays(this.check_in, this.check_out);
     	    this.errors.check_in = '';
+    	    this.checkInDisplay = moment(val).format('YYYY-MM-DD');
+    	    console.log(this.checkInDisplay);
     	    if(this.payment_date != ''){
     	        this.validateFromPayment(val);
     	    }

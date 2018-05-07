@@ -10,6 +10,7 @@ import random
 global fields, module
 module = 'billpayment'
 fields = ('id',
+          'deposit_refunded',
           'date_paid')
 
 
@@ -62,6 +63,7 @@ class TableListSerializer(serializers.ModelSerializer):
             return (obj.amount - obj.tax)
         except:
             return 'Not Computed'
+
 
 class BillOptionsListSerializer(serializers.ModelSerializer):
     payment_option = serializers.SerializerMethodField()
@@ -148,7 +150,11 @@ class UpdateSerializer(serializers.ModelSerializer):
         fields = fields
 
     def update(self, instance, validated_data):
-        instance.deposit_refunded = True
+        deposit_refunded = validated_data.get('deposit_refunded')
+        if deposit_refunded == 1:
+            instance.deposit_refunded = True
+        else:
+            instance.deposit_refunded = False
 
         instance.save()
         return instance

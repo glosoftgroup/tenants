@@ -160,7 +160,10 @@
                             <td  @click="goTo(item.invoice_url)">${item.billtype.name}</td>
                             <td  @click="goTo(item.invoice_url)">${item.month}</td>
                             <td  @click="goTo(item.invoice_url)">${item.amount}</td>
-                            <td  @click="goTo(item.invoice_url)">${item.status}</td>
+                            <td  @click="goTo(item.invoice_url)">
+                                ${item.status}
+                                <span v-if="item.deposit_refunded" class="text-muted text-small">: refunded</span>
+                            </td>
 
                             <td class="text-center">
                                 <ul class="icons-list">
@@ -171,10 +174,14 @@
                                         <ul class="dropdown-menu dropdown-menu-right">
                                             <li><a @click="goTo(item.invoice_url)" href="javascript:;"><i class=" icon-safe"></i> INVOICE</a></li>
                                             <li class="hidden"><a @click="goTo(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> EDIT</a></li>
-                                            <li v-show="item.status != 'pending'">
-                                                <a @click="item.status != 'pending' ? deleteInstance(item.delete_url,item) : null " href="javascript:;">
-                                            <i class=" icon-cart-remove"></i> Refund</a>
+                                            <li >
+                                                <a @click="item.status != 'pending' ? deleteInstance(item.payment_id,item, item.deposit_refunded) : alertPay() " href="javascript:;">
+                                                    <i class=" icon-cart-remove"></i>
+                                                    <span v-if="item.deposit_refunded" class="text-muted">Refunded</span>
+                                                    <span v-else> Refund</span>
+                                                </a>
                                             </li>
+
                                         </ul>
                                     </li>
                                 </ul>
@@ -270,6 +277,7 @@
     <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
 <!-- datepicker -->
   <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/daterangepicker.js' %}"></script>
+  <script type="text/javascript" src="{% static 'backend/js/pages/components_popups.js' %}"></script>
 
     <script type="text/javascript" src="{% static 'backend/js/plugins/pagination/jquery.twbsPagination.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
@@ -282,6 +290,10 @@
     <script type="text/javascript">
       $(document).ready(function() {
         $('.bootstrap-select').selectpicker();
+        // Custom color
+        $('[data-popup=tooltip-custom]').tooltip({
+            template: '<div class="tooltip"><div class="bg-teal"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div></div>'
+        });
       });
     </script>
 {% endblock %}

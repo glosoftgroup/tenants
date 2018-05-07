@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template.response import TemplateResponse
 from django.http import HttpResponse
 from django.utils.dateformat import DateFormat
+from django.db.models import Q
 
 from ..views import staff_member_required
 from saleor.booking.models import Book as Table
@@ -10,8 +11,10 @@ from saleor.room.models import Room
 from saleor.customer.models import Customer
 from saleor.sale.models import PaymentOption
 from saleor.wing.models import Wing
+from saleor.bill.models import Bill
 
 from decimal import Decimal
+from datetime import datetime
 import random
 import logging
 import json
@@ -146,9 +149,14 @@ def book(request):
 @staff_member_required
 def delete(request, pk=None):
     global table_name
+
     option = get_object_or_404(Table, pk=pk)
     if request.method == 'POST' or request.method == 'DELETE':
         try:
+            room = option.room
+            room.is_booked = False
+            room.save()
+            option.save()
             option.delete()
             data = {
                 "table_name": table_name,
@@ -202,6 +210,59 @@ def listing(request):
             "table_name": table_name,
         }
     return TemplateResponse(request, 'dashboard/'+table_name.lower()+'/list.html', data)
+
+
+@staff_member_required
+def occupied_rooms(request):
+    # filtered number of booked houses monthly
+    # get date today
+    # use related name as an object to get booking of specific room
+    # filter by month default today's month
+    # count number of bookings that month
+    check_in = request.GET.get('check_in', None)
+    check_out = request.GET.get('check_out', None)
+    if not check_in:
+        check_in = datetime.today()
+    else:
+        check_in = datetime.strptime(str(check_in), '%Y-%m-%d')
+
+    if not check_out:
+        check_out = datetime.today()
+    else:
+        check_out = datetime.strptime(str(check_out), '%Y-%m-%d')
+    # loop through all rooms
+    rooms = Room.objects.all()
+    total_occupied = 0
+    for room in rooms:
+        checker = room.bill_rooms.filter(
+            Q(month=check_in)
+        ).count()
+        if checker >= 1:
+            total_occupied += 1
+
+    # rental bills
+    pending_rent = Bill.objects.customer_bills(None, status='pending', billtype='Rent', booking=None, check_in=check_in)
+    paid_rent = Bill.objects.customer_bills(None, status='fully-paid', billtype='Rent', booking=None, check_in=check_out)
+    try:
+        paid_rent = float(paid_rent)
+    except:
+        paid_rent = 0
+    try:
+        pending_rent = float(pending_rent)
+    except:
+        pending_rent = 0
+
+    total_empty = rooms.count() - total_occupied
+
+    data = {
+        'total_empty': total_empty,
+        'total_occupied': total_occupied,
+        'pending_rent': float(pending_rent),
+        'paid_rent': float(paid_rent)
+    }
+    return HttpResponse(
+        json.dumps(
+            {"results": data}), content_type='application/json')
 
 
 @staff_member_required

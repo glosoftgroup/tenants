@@ -26,16 +26,32 @@ fields = ('id',
 class TableListSerializer(serializers.ModelSerializer):
     invoice_url = serializers.HyperlinkedIdentityField(view_name=module+':invoice')
     update_url = serializers.HyperlinkedIdentityField(view_name=module+':update')
+    payment_id = serializers.SerializerMethodField()
     delete_url = serializers.HyperlinkedIdentityField(view_name=module+':api-delete')
     customer = serializers.SerializerMethodField()
     room = serializers.SerializerMethodField()
     billtype = serializers.SerializerMethodField()
     amount = serializers.SerializerMethodField()
     month = serializers.SerializerMethodField()
+    deposit_refunded = serializers.SerializerMethodField()
 
     class Meta:
         model = Table
-        fields = fields + ('month', 'invoice_url', 'update_url', 'delete_url',)
+        fields = fields + ('month', 'deposit_refunded', 'invoice_url', 'payment_id', 'update_url', 'delete_url',)
+
+    def get_deposit_refunded(self, obj):
+        try:
+            return obj.billpayment.get(bill=obj.id).deposit_refunded
+        except Exception as e:
+            print(e)
+            return 0
+
+    def get_payment_id(self, obj):
+        try:
+            return obj.billpayment.first().id
+        except Exception as e:
+            print(e)
+            return 0
 
     def get_month(self, obj):
         try:
