@@ -1,17 +1,9 @@
-from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse,HttpResponseForbidden
-from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponseForbidden
 from .userprofile.models import UserTrail
-from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from datetime import date
-from django.utils import timezone
-from django.shortcuts import render_to_response, render
-from django.template import RequestContext
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
-from django.template.response import TemplateResponse
 import logging
 
 debug_logger = logging.getLogger('debug_logger')

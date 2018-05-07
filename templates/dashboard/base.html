@@ -511,6 +511,11 @@
                            <i class="icon-typewriter"></i>Payments
                           </a>
                       </li>
+                      <li class="{% block menu_tax_class %}{% endblock %}">
+                          <a href="{% url 'billpayment:tax-index'%}">
+                           <i class="icon-typewriter"></i>Tax
+                          </a>
+                      </li>
                       <li class="{% block menu_rental_income_class %}{% endblock %}">
                           <a href="{% url 'dashboard:rental-income'%}">
                            <i class="icon-typewriter"></i>Rental Income

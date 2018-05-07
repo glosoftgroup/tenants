@@ -46,10 +46,7 @@ class ListAPIView(generics.ListAPIView):
                 queryset_list = Table.objects.filter(customer__pk=self.kwargs['pk'])
             else:
                 queryset_list = Table.objects.all()
-            print ('pk is '+str(self.kwargs['pk']))
         except Exception as e:
-            print ('errr')*100
-            print e
             queryset_list = Table.objects.all()
 
         try:
@@ -57,12 +54,10 @@ class ListAPIView(generics.ListAPIView):
                 queryset_list = queryset_list.filter(
                     Q(room__pk=self.kwargs['rmpk']) &
                     (Q(bill__billtype__name__icontains='Rent') |
-                     Q(bill__billtype__name__icontains="Maintenance")))
+                     Q(bill__billtype__name__icontains="Service")))
             else:
                 queryset_list = queryset_list
-            print ('rmpk is ' + str(self.kwargs['rmpk']))
         except Exception as e:
-            print e
             # queryset_list = Table.objects.all()
             pass
 

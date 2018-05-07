@@ -1,0 +1,249 @@
+{% extends "dashboard/base.html" %}
+{% load staticfiles %}
+{% load i18n %}
+
+{% block title %}
+  Tax
+{% endblock %}
+
+ {% block breadcrumbs %}
+     <li class="active"><a href="{% url 'billpayment:tax-index'%}"> Tax</a></li>
+ {% endblock %}
+
+
+ {% block menu_tax_class %}active{% endblock %}
+ {% block custom_css %}
+ <link href="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css">
+ <style type="text/css">
+      .theme_xbox .pace_activity, .theme_xbox .pace_activity::after, .theme_xbox .pace_activity::before, .theme_xbox_sm .pace_activity, .theme_xbox_sm .pace_activity::after, .theme_xbox_sm .pace_activity::before, .theme_xbox_xs .pace_activity, .theme_xbox_xs .pace_activity::after, .theme_xbox_xs .pace_activity::before {
+        border-radius: 50%;
+        border: 1px solid transparent;
+            border-top-width: 1px;
+            border-right-width: 1px;
+            border-bottom-width: 1px;
+            border-left-width: 1px;
+            border-top-color: transparent;
+        border-top-color: #1649fc;
+    }
+    .pace-demo {
+        background-color:#fff;
+    }
+    @media print {
+       #printBtn {
+          display: none;
+       }
+       #addPayment {
+          display: none;
+       }
+       .media-none {
+          display: none;
+       }
+       #media-none {
+          display: none;
+       }
+    }
+    .td { cursor:pointer }
+    .datepicker table tr td span {
+      padding:1px !important;
+    }
+    .datepicker table tr td span.active.active{
+       background-color:#1E88E5 !important;
+       background-image: linear-gradient(to bottom,#08c,#1c64fb) !important;
+    }
+   </style>
+ {% endblock %}
+
+{% block content %}
+ <div class="row animated " id="vue-app">
+
+   <div class="col-md-12">
+      <div class="panel panel-flat">
+
+        <div class="panel-body  search-panel" style="padding:5px;">
+              <div class="col-md-5">
+                  <label>Filter By Month or Range </label>
+                <div class="input-group">
+                  <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        ${filter.display_name}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a href="javascript:;" @click="toggleDateFilter('MONTH')">MONTH</a></li>
+                      <li><a href="javascript:;" @click="toggleDateFilter('RANGE')">RANGE</a></li>
+                    </ul>
+                  </div><!-- /btn-group -->
+
+                    <!-- select if option is month-->
+                    <date-picker @update-date="updateDate" v-if="filter.month" type="single-month"
+                                 format="MM/yyyy" v-once></date-picker>
+
+                    <!-- select if option is range -->
+                    <div class="input-group input-daterange" v-else>
+                        <date-picker @update-date="updateDate" type="month-from"
+                                     format="MM/yyyy" v-once></date-picker>
+
+                        <div class="input-group-addon">to</div>
+
+                        <date-picker @update-date="updateDate" type="month-to"
+                                     format="MM/yyyy" v-once></date-picker>
+                    </div>
+
+                </div><!-- /input-group -->
+              </div><!-- /.col-lg-6 -->
+
+            <div class="col-md-2">
+             <label>Export</label>
+              <div class="form-group">
+                 <select v-model="exportType" @change="exportItems" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                    <option value="none" >Option</option>
+                    <option value="pdf" >export pdf</option>
+                    <option value="excel" >export excel</option>
+                  </select>
+              </div>
+            </div>
+      </div>
+   </div>
+
+<div class="row">
+
+  <div class="col-md-12">
+   <div id="pagination-div">
+      <!-- Header and footer fixed -->
+      <div class="panel panel-flat" id="printme">
+        <div class="panel-body" >
+            <div class="col-md-12">
+                <h5 class="text-center text-bold" v-if="totalTax != '0.00'">Tax : ${totalTax}</h5>
+                <h5 class="text-center text-bold" v-else>Tax</h5>
+            </div>
+            <div class="">
+              <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
+                    <thead>
+                      <tr class="bg-primary">
+                        <th>Period</th>
+                        <th>Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tb">
+                    <!--loader-->
+                    <tr v-if="loader" class="text-center">
+                        <td colspan="2">
+                            <div class="pace-demo">
+                                <div class="theme_xbox"><div class="pace_progress" data-progress-text="60%" data-progress="60"></div><div class="pace_activity"></div></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <!--no data template-->
+                    <template  v-else>
+                    <tr v-if="items.length == 0" class="text-center">
+                        <td colspan="2" class="text-bold animated zoomIn">
+                            No Data Found !
+                        </td>
+                    </tr>
+                    </template>
+                    <!--listing template-->
+                    <template v-for="item in items">
+                        <tr class="td " :id="item.id">
+                        <td class="td"  @click="goTo(item.detail_url)">
+                            ${item.period}
+                        </td>
+                        <td class="td"  @click="goTo(item.detail_url)">${item.tax}</td>
+
+                        </tr>
+                    </template>
+
+
+                    </tbody>
+               </table>
+
+            </div>
+            </div>
+
+         <style type="text/css">
+           .pagination{margin-bottom: 0px;}
+         </style>
+         <div class="row media-none">
+         <div class="col-md-12">
+          <div class="col-md-4">
+           <div class="col-md-12">
+            <div class="col-md-6 mt-10">
+             <label>display list size</label>
+            </div>
+            <div class="col-md-6 media-none">
+              <div class="form-group">
+                 <select v-model="page_size" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                    <option value="10" selected>No:</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                  </select>
+              </div>
+            </div>
+          </div>
+          </div>
+          <div class="col-md-4" id="media-none">
+              <div class="text-center bootpag-callback p2-pag" style="">
+            </div>
+           </div>
+            <div class="col-md-4">
+             <div class="col-md-12 mt-5">
+              <div class="pull-right pages-nav"></div>
+             </div>
+            </div>
+          </div>
+         </div>
+         <input type="hidden" id="page_size" val="">
+      </div>
+    </div><!-- pagination -->
+  </div>
+</div>
+</div>
+
+   <!--delete modal  -->
+    <div id="modal_delete" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h6 class="modal-title text-center">Confirm Delete</h6>
+                </div>
+
+                <div class="modal-body">
+                    <h6 class="text-semibold text-center">Are you sure you want to delete ?</h6>
+                </div>
+
+                <div class="modal-footer text-center">
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+                    <button @click="deleteInstance(false,false)" type="button" class="btn btn-danger animated shake">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+   <!--./delete-->
+ </div>
+
+<input type="hidden" class="pageUrls"
+  data-listurl="{% url 'billpayment:tax-api-list' %}"
+        data-createurl="/billpayment/api/create/"
+>
+{% endblock%}
+{% block custom_js %}
+
+    <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
+
+    <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
+<!-- datepicker -->
+  <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/js/bootstrap-datepicker.min.js' %}"></script>
+
+    <script type="text/javascript" src="{% static 'backend/js/plugins/pagination/jquery.twbsPagination.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
+    <script src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/tax/vue/listing.js' %}"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $('.bootstrap-select').selectpicker();
+      });
+    </script>
+{% endblock %}
