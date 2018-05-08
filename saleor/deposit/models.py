@@ -7,7 +7,7 @@ from django.utils.translation import pgettext_lazy
 from django.utils.timezone import now
 from django_prices.models import PriceField
 from django.core.validators import MinValueValidator, RegexValidator
-from saleor.billtypes.models import BillTypes
+from saleor.booking.models import Book
 from saleor.customer.models import Customer
 from saleor.room.models import Room
 
@@ -27,6 +27,9 @@ class Deposit(models.Model):
         Room, blank=True, null=True, related_name='deposit_rooms',
         verbose_name=pgettext_lazy('Deposit field', 'room'), on_delete=models.SET_NULL)
     deposit_months = models.IntegerField(default=Decimal(1))
+    booking = models.ForeignKey(
+        Book, blank=True, null=True, related_name='deposit_booking',
+        verbose_name=pgettext_lazy('Bill field', 'bill'))
     amount = models.DecimalField(
         pgettext_lazy('Deposit field', 'total deposit amount'), default=Decimal(0), max_digits=19, decimal_places=5)
 

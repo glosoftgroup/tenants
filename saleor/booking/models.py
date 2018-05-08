@@ -54,11 +54,11 @@ class ModelManager(models.Manager):
         for month in range(1, 13):
             amount = self.get_queryset().filter(created__year=year)\
                                        .filter(created__month=month) \
-                                       .aggregate(models.Sum('price'))['price__sum']
+                                       .aggregate(models.Sum('total_rent'))['total_rent__sum']
             if not amount:
                 amount = 0
             else:
-                amount = amount.gross
+                amount = amount
             final_data.append([str(year)+str(1)+str(month), float(str(amount))])
         return final_data
 
@@ -71,9 +71,9 @@ class ModelManager(models.Manager):
         if amount:
             total = self.get_queryset() \
                 .filter(created__icontains=DateFormat(date)
-                        .format('Y-m-d')).aggregate(models.Sum('price'))['price__sum']
+                        .format('Y-m-d')).aggregate(models.Sum('total_rent'))['total_rent__sum']
             if total:
-                total = float(str(total.gross))
+                total = float(str(total))
             else:
                 total = 0
             return total

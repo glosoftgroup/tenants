@@ -5,7 +5,7 @@ from django.conf import settings
 from decimal import Decimal
 from django.utils.translation import pgettext_lazy
 from django.utils.timezone import now
-from django_prices.models import PriceField
+from datetime import datetime
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, PermissionsMixin)
 from django.core.validators import MinValueValidator, RegexValidator
 from saleor.billtypes.models import BillTypes
@@ -15,21 +15,26 @@ from saleor.booking.models import Book
 
 
 class BillManager(BaseUserManager):
-    def customer_bills(self, customer, status='fully-paid', billtype=None, booking=None):
+    def customer_bills(self, customer, status='fully-paid', billtype=None, booking=None, check_in=None, check_out=None):
         """
         Compute customers amount paid & amount pending or total amount
         :param customer: customer model object
         :param status: pending to return pending amount.
         :return: decimal (amount either pending/full-paid or total amount
         """
-        query = self.get_queryset().filter(customer=customer)
+        query = self.get_queryset()
+        if customer:
+            query = query.filter(customer=customer)
         if billtype:
-            query = query.filter(billtype=billtype)
+            query = query.filter(billtype__name=billtype)
         if booking:
             query = query.filter(booking=booking)
         if status == 'fully-paid':
             query = query.filter(status=status)
-
+        if check_in:
+            query = query.filter(
+                models.Q(month=check_in)
+            )
         if status == 'pending':
             query = query.filter(status=status)
         return query.aggregate(models.Sum('amount'))['amount__sum']
@@ -83,3 +88,4 @@ class Bill(models.Model):
     def get_total_amount(self):
         ''' amount plus the tax '''
         return (self.amount + self.tax)
+

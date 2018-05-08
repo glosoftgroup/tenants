@@ -7,6 +7,11 @@ global fields, module
 module = 'deposit'
 fields = ('id',
           'name',
+          'amount',
+          'room',
+          'customer',
+          'deposit_month',
+          'booking',
           'description')
 
 

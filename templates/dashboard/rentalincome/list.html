@@ -90,6 +90,7 @@
                             <th width="14%">Image</th>
                             <th>Name</th>
                             <th>Total Rent</th>
+                            <th>Total Service</th>
                             <th>Total Tax</th>
                             <th>Total Maintenance</th>
                             <th>Total Income</th>
@@ -127,10 +128,11 @@
                                 <td class="cursor-pointer" @click="goTo(item.rental_income_url)">
                                     ${item.name}
                                 </td>
-                                <td class="cursor-pointer" @click="goTo(item.rental_income_url)"> ${ item.total_rent }</td>
-                                <td class="cursor-pointer" @click="goTo(item.rental_income_url)">${item.total_tax}</td>
-                                <td class="cursor-pointer" @click="goTo(item.rental_income_url)">${item.total_maintenance}</td>
-                                <td class="cursor-pointer" @click="goTo(item.rental_income_url)">${item.total_income}</td>
+                                <td class="cursor-pointer" @click="goTo(item.rental_income_url)">${ item.total_rent }</td>
+                                <td class="cursor-pointer" @click="goTo(item.rental_income_url)">${ item.total_service }</td>
+                                <td class="cursor-pointer" @click="goTo(item.rental_income_url)">${ item.total_tax }</td>
+                                <td class="cursor-pointer" @click="goTo(item.rental_income_url)">${ item.total_maintenance }</td>
+                                <td class="cursor-pointer" @click="goTo(item.rental_income_url)">${ item.total_income }</td>
 
                                 <td class="text-center">
                                     <ul class="icons-list">

@@ -14,6 +14,7 @@ urlpatterns = [
         (views.add), name='booking-add'),
     url(r'^book/$', views.book, name='booking-rooms'),
     url(r'^charts/$', views.charts, name='booking-charts'),
+    url(r'^occupied/$', views.occupied_rooms, name='room-occupied'),
     url(r'^delete/(?P<pk>[0-9]+)/$', permission_required('room.delete_room', login_url='account_login')
         (views.delete), name='booking-delete'),
     url(r'^detail/(?P<pk>[0-9]+)/$', views.detail, name='booking-detail'),

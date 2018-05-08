@@ -10,10 +10,12 @@ import random
 global fields, module
 module = 'billpayment'
 fields = ('id',
+          'deposit_refunded',
           'date_paid')
 
 
 class TableListSerializer(serializers.ModelSerializer):
+    invoice_url = serializers.HyperlinkedIdentityField(view_name=module + ':invoice')
     update_url = serializers.HyperlinkedIdentityField(view_name=module+':api-update')
     delete_url = serializers.HyperlinkedIdentityField(view_name=module+':api-delete')
     customer = serializers.SerializerMethodField()
@@ -25,11 +27,11 @@ class TableListSerializer(serializers.ModelSerializer):
         model = Table
         fields = fields + (
             'invoice_number',
-            'customer', 'room', 'income', 
-            'bill', 'tax', 'amount', 'date_paid',
+            'customer', 'room',
+            'bill', 'tax', 'tax_is_filed', 'amount', 'income', 'date_paid',
             'total_bills_amount',
             'total_bills_amount_paid',
-            'total_bills_balance',
+            'total_bills_balance', 'invoice_url',
             'update_url', 'delete_url',)
 
     def get_bill(self, obj):
@@ -38,7 +40,7 @@ class TableListSerializer(serializers.ModelSerializer):
                 "id":obj.bill.id, 
                 "name":obj.bill.billtype.name, 
                 "amount":obj.bill.amount,
-                "month":obj.bill.month.strftime('%B %Y')
+                "month":obj.bill.month.strftime('%B, %Y')
                 }
         except Exception as e:
             print (e)
@@ -61,6 +63,7 @@ class TableListSerializer(serializers.ModelSerializer):
             return (obj.amount - obj.tax)
         except:
             return 'Not Computed'
+
 
 class BillOptionsListSerializer(serializers.ModelSerializer):
     payment_option = serializers.SerializerMethodField()
@@ -106,8 +109,6 @@ class CreateListSerializer(serializers.ModelSerializer):
                 bill = Bill.objects.get(pk=i['id'])
             except Exception as e:
                 bill = None
-                print ('-')*100
-                print (e)
 
             instance.invoice_number = invoice_number
             instance.amount = bill.amount
@@ -129,11 +130,12 @@ class CreateListSerializer(serializers.ModelSerializer):
                 option = PaymentOptions.objects.get(pk=i['id'])
             except Exception as e:
                 option = None
-                print ('-')*100
-                print (e)
             paymentOption = BillPaymentOption()
             paymentOption.tendered = i['tendered']
-            paymentOption.transaction_number = i['transaction_number']
+            try:
+                paymentOption.transaction_number = i['transaction_number']
+            except:
+                paymentOption.transaction_number = ''
             paymentOption.payment_option = option
             paymentOption.bill_paymentoption_map_id = bill_paymentoption_map_id
             paymentOption.save()
@@ -147,8 +149,11 @@ class UpdateSerializer(serializers.ModelSerializer):
         fields = fields
 
     def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get('description', instance.description)
+        deposit_refunded = validated_data.get('deposit_refunded')
+        if deposit_refunded == 1:
+            instance.deposit_refunded = True
+        else:
+            instance.deposit_refunded = False
 
         instance.save()
         return instance

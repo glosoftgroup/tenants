@@ -1,40 +1,181 @@
 $ = jQuery;
-var $pagination = $('.pbootpag-callback');
+var $pagination = $('.bootpag-callback');
 var $modal = $('#modal_instance');
+var $deleteModal = $('#modal_delete');
 var date;
 
+// global functions
+function alertUser(msg,status='bg-success',header='Well done!')
+    { $.jGrowl(msg,{header: header,theme: status}); }
+
+function formatNumber(n, c, d, t){
+	var c = isNaN(c = Math.abs(c)) ? 2 : c,
+			d = d === undefined ? '.' : d,
+			t = t === undefined ? ',' : t,
+			s = n < 0 ? '-' : '',
+			i = String(parseInt(n = Math.abs(Number(n) || 0).toFixed(c))),
+			j = (j = i.length) > 3 ? j % 3 : 0;
+	return s + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, '$1' + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : '');
+};
+
+// vue filters
+Vue.filter('formatCurrency', function (value) {
+  return formatNumber(value, 2, '.', ',');
+})
+
+
+Vue.filter('strLimiter', function (value) {
+  if (!value) return ''
+  value = value.toString()
+  return value.slice(0, 55)+'...';
+})
+Vue.config.devtools = true
 //vue
 var parent = new Vue({
-    el:"#vue-app-tab",
+    el:"#vue-app",
     delimiters: ['${', '}'],
     data:{
-        'name':'Book Listing',
-        items:[],
-        loader:true,
-        totalPages:1,
-        visiblePages:3,
-        page_size:5,
-        psearch:'',
-        pstatus:'all',
-        exportType:'none',
+        name: 'Listing',
+        items: [],
+        loader: true,
+        totalPages: 1,
+        visiblePages: 4,
+        page_size: 10,
+        search: '',
+        status: 'all',
+        month:'',
+        year:'',
+        monthDisplay:'',
+        exportType: 'none',
         date: 'Select date',
-        pmonth:'',
-        pyear:'',
-        pmonthDisplay:'',
+        deleteUrl: false,
+        deleteId: false,
+        wing_name: '',
+        description: '',
+        errors:false,
+        showForm: false,
+        updateUrl: '',
+        check_in:'',
+        selected_instance: {}
     },
     methods:{
-        deleteBooking: function(url,id){
-            /* open delete modal and populate dynamic form attributes */
-            $modal.modal();
+        alertPay(){
+            alertUser('This deposit need to be paid first in order to refund', 'bg-danger','Payment is pending');
+        },
+        getInstance(url){
+            var self = this;
+            axios.defaults.xsrfHeaderName = "X-CSRFToken";
+            axios.defaults.xsrfCookieName = 'csrftoken';
 
-            /* set dynamic form data */
-            console.log(url);
-            var prompt_text = $(this).data('title');
-            $('.del').attr('data-id', id);
-            $('.del').attr('data-href', url);
-            $('.modal-title').html(prompt_text);
-            $modal.modal();
-            $('.delete_form').attr('action',url);
+            axios.get(url)
+            .then(function(response){
+                self.wing_name = response.data.name;
+                self.description = response.data.description;
+                self.updateUrl = url;
+                self.showForm = true;
+                window.scrollTo(0, 0);
+            })
+            .catch(function(error){
+                console.log(error);
+            })
+        },
+        toggleForm(){
+            this.showForm = !this.showForm;
+        },
+        validate(){
+            this.errors = false;
+        },
+        addInstance(e){
+            this.toggleForm();
+            e.preventDefault();
+            if(this.wing_name === ''){
+                this.errors = true;
+                return;
+            }
+
+            var self = this;
+            var data = new FormData();
+            data.append('name', this.wing_name);
+            data.append('description', this.description);
+
+            axios.defaults.xsrfHeaderName = "X-CSRFToken";
+            axios.defaults.xsrfCookieName = 'csrftoken';
+
+            if(this.updateUrl !== ''){
+                // update
+                axios.put(self.updateUrl, data)
+                .then(function (response) {
+                    alertUser('Data updated successfully');
+                    self.showForm = false;
+                    self.updateUrl = '';
+                    self.wing_name = '';
+                    self.description = '';
+                    self.inputChangeEvent();
+
+                })
+                .catch(function (error) {
+                    if(error.response.data[0]){
+                        alertUser(error.response.data[0], 'bg-danger','Error!');
+                        self.showForm = false;
+                        self.updateUrl = '';
+                        self.wing_name = '';
+                        self.description = '';
+                    }
+                });
+            }else{
+                // create
+                axios.post($('.pageUrls').data('createurl'), data)
+                .then(function (response) {
+                    alertUser('Data added successfully');
+                    self.showForm = false;
+                    self.wing_name = '';
+                    self.description = '';
+                    self.inputChangeEvent();
+
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            }
+
+        },
+        showMore: function(id,text){
+            $('#'+id).html(text);
+        },
+        goTo: function(url){
+            window.location.href = url;
+        },
+        deleteInstance: function(url,id, isRefunded = false){
+            if(isRefunded){
+                alertUser('Deposit already refunded!', 'bg-warning','Heads up!')
+                return;
+            }
+            if(id.id){
+                this.updateUrl = '/billpayment/api/update/'+url+'/';
+                $('#modal_delete').modal();
+                this.selected_instance = id;
+                $('#deposit-amount').html(formatNumber(id.amount, 2, '.', ',')+' deposit to '+id.customer.name);
+                return;
+            }
+
+            data = new FormData();
+            data.append('deposit_refunded',1);
+
+            var vm = this;
+            axios.defaults.xsrfHeaderName = "X-CSRFToken"
+            axios.defaults.xsrfCookieName = 'csrftoken'
+
+            axios.put(vm.updateUrl, data)
+            .then(function (response) {
+                alertUser('Data updated successfully');
+                window.location.reload();
+            })
+            .catch(function(error){
+                console.log(error);
+            })
+            console.log(this.selected_instance.customer.name)
+            return;
+
         },
         inputChangeEvent:function(){
             /* make api request on events filter */
@@ -42,8 +183,7 @@ var parent = new Vue({
             if(this.date == 'Select date'){
                 date = '';
             }else{ date = this.date; }
-            console.log(this.date);
-            this.$http.get($('.pageUrls').data('bookinglisturl')+'?page_size='+self.page_size+'&q='+self.psearch+'&status='+self.pstatus+'&month='+self.pmonth+'&year='+self.pyear)
+            this.$http.get($('.pageUrls').data('listurl')+'?page_size='+self.page_size+'&q='+this.search+'&status='+this.status+'&month='+this.month+'&year='+this.year)
                 .then(function(data){
                     data = JSON.parse(data.bodyText);
                     this.items = data.results;
@@ -52,23 +192,22 @@ var parent = new Vue({
                     console.log(error.statusText);
             });
         },
-        goTo: function(url){
-            window.location.href = url;
-        },
         listItems:function(num){
         /* make api request when pagination pages are clicked */
-            var self = this;
             if(this.date == 'Select date'){
                 date = '';
             }else{ date = this.date; }
-            this.$http.get($('.pageUrls').data('bookinglisturl')+'?page='+num+'&page_size='+this.page_size+'&q='+this.psearch+'&status='+this.pstatus+'&month='+this.month+'&year='+this.year)
+            this.$http.get($('.pageUrls').data('listurl')+'?page='+num+'&page_size='+this.page_size+'&status='+this.status+'&month='+this.month+'&year='+this.year)
                 .then(function(data){
                     data = JSON.parse(data.bodyText);
-                    self.items = data.results;
-                    self.loader = false;
+                    this.items = data.results;
+                    this.loader = false;
                 }, function(error){
                     console.log(error.statusText);
             });
+        },
+        removeItem(index) {
+          this.items.splice(index, 1);
         },
         exportItems:function(){
         /* take care  of excel and pdf exports on filter panel */
@@ -95,7 +234,7 @@ var parent = new Vue({
         /* include twbsPagination on vue app */
             var self=this ;
             /* restructure pagination */
-            $('.pbootpag-callback').twbsPagination({
+            $('.bootpag-callback').twbsPagination({
                 totalPages: parseInt(val),
                 visiblePages: this.visiblePages,
                 prev: '<span aria-hidden="true">&laquo;</span>',
@@ -110,31 +249,33 @@ var parent = new Vue({
     },
     mounted:function(){
         var self = this;
-        $('.pmonthpicker').datepicker({
+        $('.monthpicker').datepicker({
             format: "MM/yyyy",
             autoclose: true,
             minViewMode: "months"})
         .on('changeDate', function(e){
-            var month = String(e.date.getMonth()+1).length === 1 ? 
-                        '0'+String(e.date.getMonth()+1) : 
+            var month = String(e.date.getMonth()+1).length === 1 ?
+                        '0'+String(e.date.getMonth()+1) :
                         String(e.date.getMonth()+1);
             var year  = e.date.getFullYear();
             var date  = e.date.getFullYear()+'-'+month+'-'+'01';
 
-            $('.pmonthpicker').val(date);
-            self.pmonthDisplay = e.date.toLocaleString('en-us', {month: "long"})+'/'+e.date.getFullYear();
-            self.pmonth        = month;
-            self.pyear         = year;
-            var params = '?page_size='+self.page_size+'&q='+self.psearch+'&status='+self.pstatus+'&month='+self.pmonth+'&year='+self.pyear;
-            $.get($('.pageUrls').data('bookinglisturl')+params, function(data)
+            $('.monthpicker').val(date);
+            self.monthDisplay = e.date.toLocaleString('en-us', {month: "long"})+'/'+e.date.getFullYear();
+            self.month        = month;
+            self.year         = year;
+            var params = '?page_size='+self.page_size+'&q='+self.search+'&status='+self.status+'&month='+self.month+'&year='+self.year;
+            $.get($('.pageUrls').data('listurl')+params, function(data)
             {
                 self.items = data.results;
                 self.totalPages = data.total_pages;
                 self.pagination(data.total_pages);
             });
         });
+
+        $('#showForm').removeClass('hidden');
         /* on page load populate items with api list response */
-        this.$http.get($('.pageUrls').data('bookinglisturl')+'?page_size='+self.page_size)
+        this.$http.get($('.pageUrls').data('listurl'))
             .then(function(data){
                 data = JSON.parse(data.bodyText);
                 this.items = data.results;
@@ -148,18 +289,17 @@ var parent = new Vue({
     },
     watch: {
         /* listen to app data changes and restructure pagination when page size changes */
-        'pmonthDisplay': function (val, oldVal){
+        'monthDisplay': function (val, oldVal){
             var self = this;
             if(val == ''){
-                this.pmonth = '';
-                this.pyear = '';
-                this.$http.get($('.pageUrls').data('bookinglisturl')+'?page_size='+self.page_size+'&q='+self.psearch+'&status='+self.pstatus+'&month='+self.pmonth+'&year='+self.pyear)
-                    .then(function(data){
-                        data = JSON.parse(data.bodyText);
-                        this.items = data.results;
-                        this.totalPages = data.total_pages;
-                    }, function(error){
-                        console.log(error.statusText);
+                this.month = '';
+                this.year = '';
+                var params = '?page_size='+self.page_size+'&q='+self.search+'&status='+self.status+'&month='+self.month+'&year='+self.year;
+                $.get($('.pageUrls').data('listurl')+params, function(data)
+                {
+                    self.items = data.results;
+                    self.totalPages = data.total_pages;
+                    self.pagination(data.total_pages);
                 });
             }
         },
@@ -169,10 +309,10 @@ var parent = new Vue({
     	'totalPages': function(val, oldVal){
             var self=this ;
             /* destroy pagination on page size change */
-            $('.pbootpag-callback').twbsPagination('destroy');
+            $('.bootpag-callback').twbsPagination('destroy');
 
             /* restructure pagination */
-            $('.pbootpag-callback').twbsPagination({
+            $('.bootpag-callback').twbsPagination({
                 totalPages: parseInt(val),
                 visiblePages: this.visiblePages,
                 prev: '<span aria-hidden="true">&laquo;</span>',

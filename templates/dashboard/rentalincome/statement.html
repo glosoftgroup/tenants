@@ -99,10 +99,7 @@
                     <span class="text-muted">Period:</span>
                     <ul class="list-condensed list-unstyled invoice-payment-details">
                         <li>
-                            <h5>Month (Year): 
-                                <span class="text-right text-semibold">${month}
-                                </span>
-                            </h5>
+                            <h3 class="text-bold">${month}</h3>
                         </li>
 
                     </ul>
@@ -132,7 +129,11 @@
                                   </td>
                                   <td class="td">${item.bill.name}</td>
                                   <td class="td">${item.bill.amount}</td>
-                                  <td class="td">${item.tax}</td>
+                                  <td class="td">${item.tax}
+                                      <span class="text-bold">
+                                          (${item.tax_is_filed ? 'Filed': 'Not Filed'})
+                                      </span>
+                                  </td>
                                   <td class="td">${item.income}</td>
                                 </tr>
                             </template>
@@ -147,7 +148,11 @@
                                   </td>
                                   <td class="td">${item.bill.name}</td>
                                   <td class="td">${item.bill.amount}</td>
-                                  <td class="td">${item.tax}</td>
+                                  <td class="td">${item.tax}
+                                      <span class="text-bold">
+                                          (${item.tax_is_filed ? 'Filed': 'Not Filed'})
+                                      </span>
+                                  </td>
                                   <td class="td">${item.income}</td>
                                 </tr>
                             </template>
@@ -166,18 +171,18 @@
                         <ul class="list-condensed list-unstyled text-muted">
                             <li><h5>
                                 {% if request.user.name %}
-                                {{request.user.name}}
+                                    {{request.user.name}}
                                 {% endif %}
                             </h5></li>
                             <li>
-                                {% if instance.user.mobile %}
-                                {{instance.user.mobile}}
+                                {% if request.user.mobile and request.user.mobile != '******' %}
+                                    {{request.user.mobile}}
                                 {% endif %}
                             </li>
                             <li>
 
-                                {% if instance.user.email %}
-                                {{instance.user.email}}
+                                {% if request.user.email %}
+                                    {{request.user.email}}
                                 {% endif %}
 
                             </li>
@@ -199,25 +204,30 @@
                                     </tr>
                                     <tr>
                                         <th>Other Bills:</th>
-                                        <td class="text-right text-primary">
-                                            <h5 class="text-semibold">
+                                        <td class="text-right">
                                                 ${billsAmount}
-                                            </h5>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th>Income:</th>
-                                        <td class="text-right text-primary">
-                                            <h5 class="text-semibold">
-                                                ${income}
-                                            </h5>
+                                        <th>Total Amount:</th>
+                                        <td class="text-right">
+                                                ${totalAmount}
                                         </td>
                                     </tr>
                                     <tr>
                                         <th>Total Tax:</th>
-                                        <td class="text-right text-primary">
-                                            <h5 class="text-semibold">
+                                        <td class="text-right">
                                                 ${totalTax}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                            <h5 class="text-bold">Total Income:
+                                            </h5>
+                                        </th>
+                                        <td class="text-right">
+                                            <h5 class="text-bold">
+                                                ${income}
                                             </h5>
                                         </td>
                                     </tr>

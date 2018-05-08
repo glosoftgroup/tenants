@@ -45,21 +45,21 @@ class ListAPIView(generics.ListAPIView):
             if self.kwargs['pk']:
                 queryset_list = Table.objects.filter(customer__pk=self.kwargs['pk'])
             else:
-                queryset_list = Table.objects.all.select_related()
+                queryset_list = Table.objects.all()
         except Exception as e:
             queryset_list = Table.objects.all()
 
         try:
             if self.kwargs['rmpk']:
-                queryset_list = Table.objects.filter(
-                    Q(room__pk=self.kwargs['rmpk']) & 
-                    (Q(bill__billtype__name__icontains='Rent') | 
-                     Q(bill__billtype__name__icontains="Maintenance")))
+                queryset_list = queryset_list.filter(
+                    Q(room__pk=self.kwargs['rmpk']) &
+                    (Q(bill__billtype__name__icontains='Rent') |
+                     Q(bill__billtype__name__icontains="Service")))
             else:
-                queryset_list = Table.objects.all.select_related()
+                queryset_list = queryset_list
         except Exception as e:
-            print e
-            queryset_list = Table.objects.all()
+            # queryset_list = Table.objects.all()
+            pass
 
         page_size = 'page_size'
         if self.request.GET.get(page_size):
@@ -94,6 +94,7 @@ class UpdateAPIView(generics.RetrieveUpdateAPIView):
     """
     queryset = Table.objects.all()
     serializer_class = UpdateSerializer
+
 
 class OptionsListAPIView(generics.ListAPIView):
     serializer_class = BillOptionsListSerializer
