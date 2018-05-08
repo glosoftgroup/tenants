@@ -55,7 +55,7 @@ Vue.component('dt-picker',{
 })
 //vue
 var chart = new Vue({
-    el:"#vue-app",
+    el:"#summary-app",
     delimiters: ['${', '}'],
     data:{
        'name':'Book Listing',
@@ -81,11 +81,7 @@ var chart = new Vue({
     methods:{
         getOccupiedRooms(){
             var vm = this;
-            var url = '/dashboard/booking/occupied/?check_in=';
-            if(this.check_in)
-                url += this.check_in+'-01';
-            if(this.check_out)
-                url += '&check_out='+this.check_out+'-28';
+            var url = '/dashboard/customers/summary/list/'+pk+'/';
 
             api(url)
             .then(function(response){
@@ -99,132 +95,19 @@ var chart = new Vue({
                 console.error(error);
             })
         },
-        yearlyVisitsChart:function(data){
-            Highcharts.chart('yearly-visits-chart', {
-                chart: {
-                    type: 'line'
-                },
-                title: {
-                    text: 'Number of Visitors Monthly report'
-                },
-
-                xAxis: {
-                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-                },
-                yAxis: {
-                    title: {
-                        text: 'Total Visits(s)'
-                    }
-                },
-                plotOptions: {
-                    line: {
-                        dataLabels: {
-                            enabled: true
-                        },
-                        enableMouseTracking: false
-                    }
-                },
-                series: [
-                    {
-                        name: 'Property Booking',
-                        data: data
-                    },
-                ]
-            });
-
-            $('.yearly-visits-chart').css('display', 'none');
-
-        },
-        yearlyAmountChart:function(data){
-            Highcharts.chart('yearly-amount-chart', {
-                chart: {
-                    type: 'line'
-                },
-                title: {
-                    text: 'Amount Earned Monthly report'
-                },
-
-                xAxis: {
-                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-                },
-                yAxis: {
-                    title: {
-                        text: 'Total Amount(s)'
-                    }
-                },
-                plotOptions: {
-                    line: {
-                        dataLabels: {
-                            enabled: true
-                        },
-                        enableMouseTracking: false
-                    }
-                },
-                series: [
-                    {
-                        name: 'Property Booking',
-                        data: data
-                    },
-                ]
-            });
-
-            $('.container').css('display', 'none');
-
-        },
-        lastVisitsChart: function(data){
-            $('#last-visits-chart').highcharts({
-                title: {
-                  text: 'Last Property Booking Report',
-                },
-                xAxis: {
-                  type: 'datetime'
-                },
-                yAxis: {
-                    title: {
-                        text: 'Total Visits(s)'
-                    }
-                },
-                series: [{
-                  name: 'Visits',
-                  data:  data
-                  }]
-            });
-        },
-        lastAmountChart: function(data){
-            $('#last-amount-chart').highcharts({
-                title: {
-                  text: 'Latest Booking Report',
-                },
-                subtitle: {
-                    text: 'Total Amount Generated on Last Visits Report'
-                },
-                xAxis: {
-                  type: 'datetime'
-                },
-                yAxis: {
-                    title: {
-                        text: 'Total Amount(s)'
-                    }
-                },
-                series: [{
-                  name: 'Total',
-                  data:  data
-                  }]
-            });
-        },
         exportItems:function(){
         /* take care  of excel and pdf exports on filter panel */
             if(this.exportType == 'excel'){
                 JSONToCSVConvertor(this.items, "Booking Report", true);
             }
             if(this.exportType == 'pdf'){
-                $("#printme").printThis({
+                $("#summary-app").printThis({
                     debug: false, // show the iframe for debugging
                     importCSS: true, // import page CSS
                     importStyle: true, // import style tags
                     printContainer: true, // grab outer container as well as the contents of the selector
                     loadCSS: "my.css", // path to additional css file - us an array [] for multiple
-                    pageTitle: "Property Reservation Summary Report", // add title to print page
+                    pageTitle: "Tenant Reservation Summary Report", // add title to print page
                     removeInline: false, // remove all inline styles from print elements
                     printDelay: 333, // variable print delay
                     header: null, // prefix to html
@@ -239,47 +122,7 @@ var chart = new Vue({
         axios.defaults.xsrfCookieName = 'csrftoken'
 
         this.getOccupiedRooms();
-    /* initailize chart */
-        this.$http.get($('.pageUrls').data('listurl'))
-            .then(function(data){
-                /* decode json response */
-                data = JSON.parse(data.bodyText);
 
-                /* 1.1 get yearly visits */
-                this.items = data.results.yearly_visits;
-                /* render chart */
-                this.yearlyVisitsChart(this.items);
-
-                /* 1.2 get yearly visits */
-                this.items = data.results.yearly_amount;
-                /* render chart */
-                this.yearlyAmountChart(this.items);
-
-                /* 2. get last visits */
-                var obj = data.results.last_visits;
-                var temp = [];
-                 Object.keys(obj).forEach(function(key) {
-                    var temp2 = [moment.utc(obj[key].date).valueOf(),parseInt(obj[key].total)];
-                    temp.push(temp2);
-                });
-                /* render chart */
-                this.lastVisitsChart(temp);
-
-                /* 3. get last booking total prices */
-                var obj = data.results.last_amount;
-                var temp = [];
-                 Object.keys(obj).forEach(function(key) {
-                    var temp2 = [moment.utc(obj[key].date).valueOf(),parseInt(obj[key].total)];
-                    temp.push(temp2);
-                });
-                /* render chart */
-                this.lastAmountChart(temp);
-
-                this.loader = false;
-            }, function(error){
-                this.server_error = true
-                console.log(error.statusText);
-        });
 
     },
 });

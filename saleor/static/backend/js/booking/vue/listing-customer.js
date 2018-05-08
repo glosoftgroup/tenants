@@ -12,6 +12,7 @@ function formatNumber(n, c, d, t){
 			j = (j = i.length) > 3 ? j % 3 : 0;
 	return s + (j ? i.substr(0, j) + t : '') + i.substr(j).replace(/(\d{3})(?=\d)/g, '$1' + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : '');
 };
+
 //vue filters
 Vue.filter('formatCurrency', function (value) {
   return formatNumber(value, 2, '.', ',');
@@ -24,12 +25,12 @@ Vue.component('modal', {
 })
 
 //vue
-var parent = new Vue({
-    el:"#vue-app",
+var booking = new Vue({
+    el:"#my-booking-app",
     delimiters: ['${', '}'],
     data:{
        'name':'Book Listing',
-       items:[],
+       bookings:[],
        loader:true,
        totalPages:1,
        visiblePages:4,
@@ -40,7 +41,8 @@ var parent = new Vue({
        date: 'Select date',
        showModal: false,
        instance: {},
-       checkout_url: ''
+       checkout_url: '',
+       listUrl: '/api/booking/customer/'+pk+'/'
     },
     methods:{
         goTo(url){
@@ -88,10 +90,10 @@ var parent = new Vue({
                 date = '';
             }else{ date = this.date; }
             console.log(this.date);
-            this.$http.get($('.pageUrls').data('bookinglisturl')+'?page_size='+self.page_size+'&q='+this.search+'&status='+this.status+'&date='+date)
+            this.$http.get(this.listUrl+'?page_size='+self.page_size+'&q='+this.search+'&status='+this.status+'&date='+date)
                 .then(function(data){
                     data = JSON.parse(data.bodyText);
-                    this.items = data.results;
+                    this.bookings = data.results;
                     this.totalPages = data.total_pages;
                 }, function(error){
                     console.log(error.statusText);
@@ -102,10 +104,10 @@ var parent = new Vue({
             if(this.date == 'Select date'){
                 date = '';
             }else{ date = this.date; }
-            this.$http.get($('.pageUrls').data('bookinglisturl')+'?page='+num+'&page_size='+this.page_size+'&status='+this.status+'&date='+date)
+            this.$http.get(this.listUrl+'?page='+num+'&page_size='+this.page_size+'&status='+this.status+'&date='+date)
                 .then(function(data){
                     data = JSON.parse(data.bodyText);
-                    this.items = data.results;
+                    this.bookings = data.results;
                     this.loader = false;
                 }, function(error){
                     console.log(error.statusText);
@@ -123,7 +125,7 @@ var parent = new Vue({
                     importStyle: true, // import style tags
                     printContainer: true, // grab outer container as well as the contents of the selector
                     loadCSS: "my.css", // path to additional css file - us an array [] for multiple
-                    pageTitle: "Room Booking Report", // add title to print page
+                    pageTitle: "Booking Report", // add title to print page
                     removeInline: false, // remove all inline styles from print elements
                     printDelay: 333, // variable print delay
                     header: null, // prefix to html
@@ -154,10 +156,10 @@ var parent = new Vue({
        axios.defaults.xsrfCookieName = 'csrftoken';
 
     /* on page load populate items with api list response */
-        this.$http.get($('.pageUrls').data('bookinglisturl'))
+        this.$http.get(this.listUrl)
             .then(function(data){
                 data = JSON.parse(data.bodyText);
-                this.items = data.results;
+                this.bookings = data.results;
                 this.totalPages = data.total_pages;
                 this.pagination(data.total_pages);
                 this.loader = false;

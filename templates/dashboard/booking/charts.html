@@ -42,6 +42,13 @@
        #media-none {
           display: none;
        }
+
+       .panel-body-accent{
+            border-style: solid;
+            border-width: 1px;
+            border-color: #29B6F6;
+       }
+
     }
    </style>
     <link href="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css">
@@ -58,6 +65,7 @@
  {% endblock %}
 
 {% block content %}
+<div id="printme">
  <div class="row animated fadeIn" id="vue-app">
 
      <!--datepicker template-->
@@ -74,7 +82,7 @@
         </div>
     </div>
 
-     <div class="col-md-12">
+     <div class="col-md-12 hidden-print">
          <div class="breadcrumb-line breadcrumb-line-component content-group-lg"><a class="breadcrumb-elements-toggle"><i class="icon-menu-open"></i></a>
             <ul class="breadcrumb">
                 <li><a href="#" class="text-bold"> Booking Summary</a></li>
@@ -87,14 +95,24 @@
                 <li class="hidden">
                     <dt-picker id="check_out_date" v-model="check_out" :value="check_out" ></dt-picker>
                 </li>
+
+                <li class="text-bold" style="margin-top: 9px;">&nbsp;&nbsp; Export: &nbsp;&nbsp;</li>
+                <li>
+                    <div class="fsdform-grosdfup">
+                       <select v-model="exportType" @change="exportItems" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                          <option value="none" >Option</option>
+                          <option value="pdf" >export pdf</option>
+                          <option value="excel" >export excel</option>
+                        </select>
+                    </div>
+                </li>
+                <li>&nbsp;&nbsp;&nbsp;&nbsp;</li>
             </ul>
-
-
          </div>
      </div>
 
      <!--summary-->
-     <div class="row col-md-12 animated zoomIn">
+     <div class=" row col-md-12 animated zoomIn">
          <!--empty-->
         <div class="col-sm-6 col-md-3">
             <div class="panel panel-body panel-body-accent">
@@ -131,7 +149,7 @@
         </div>
         <!--total income -->
          <div class="col-sm-6 col-md-3">
-            <div class="panel panel-body">
+            <div class="panel panel-body panel-body-accent">
                 <div class="media no-margin">
                     <div class="media-body">
                         <span class="text-size-mini">${check_in | formatDate}</span>
@@ -147,7 +165,7 @@
         </div>
         <!--total tax -->
          <div class="col-sm-6 col-md-3">
-            <div class="panel panel-body">
+            <div class="panel panel-body panel-body-accent">
                 <div class="media no-margin">
                     <div class="media-body">
                         <span class="text-size-mini">${check_in | formatDate}</span>
@@ -162,35 +180,33 @@
             </div>
         </div>
      </div>
-
-
      <!--./summary-->
      <hr class="text-primary">
-   <div class="col-md-6 animated zoomIn">
+     <div class="col-md-6 animated zoomIn">
         <!--yearly amount-->
         <div id="yearly-amount-chart" style="min-width: 310px; height: 400px; margin: 0 auto">
         </div>
    </div>
-   <div class="col-md-6">
+     <div class="col-md-6">
        <!--yearly visits-->
        <div id="yearly-visits-chart" style="min-width: 310px; height: 400px; margin: 0 auto">
         </div>
-   </div>
-   <div class="col-md-12">
-       <hr class="text-primary">
-   </div>
-   <div class="col-md-6">
+     </div>
+     <div class="col-md-12">
+        <hr class="text-primary">
+     </div>
+     <div class="col-md-6">
         <!--last mount-->
         <div id="last-amount-chart" style="min-width: 310px; height: 400px; margin: 0 auto">
         </div>
    </div>
-   <div class="col-md-6">
-        <!--last visits-->
+     <div class="col-md-6">
+            <!--last visits-->
        <div id="last-visits-chart" style="min-width: 310px; height: 400px; margin: 0 auto">
-        </div>
+       </div>
+     </div>
    </div>
-   </div>
- </div>
+</div>
 <input type="hidden" class="pageUrls" data-listurl="{% url 'dashboard:booking-charts' %}">
 {% endblock%}
 

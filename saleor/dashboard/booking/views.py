@@ -194,9 +194,13 @@ def invoice(request, pk=None):
     global table_name
     if pk:
         payment_options = PaymentOption.objects.all()
-        instance = Table.objects.filter(room__pk=pk).first()
+        instance = Table.objects.get(pk=pk)
+        paid = Bill.objects.customer_bills(instance.customer, status='fully-paid', billtype=None, booking=instance)
+        pending = Bill.objects.customer_bills(instance.customer, status='pending', billtype=None, booking=instance)
+        total = Bill.objects.customer_bills(instance.customer, status='all', billtype=None, booking=instance)
         ctx = {
-            'table_name': table_name,
+            'table_name': table_name, 'paid': paid,
+            'pending': pending, 'total': total,
             'instance': instance, 'payment_options': payment_options
         }
         return TemplateResponse(request, 'dashboard/' + table_name.lower() + '/invoice.html', ctx)

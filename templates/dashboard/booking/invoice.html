@@ -4,6 +4,7 @@
 {% load prices_i18n %}
 {% load business_name %}
 {% load business_logo %}
+{% load humanize %}
 
 {% block title %}
   Invoice - {{ table_name }}
@@ -57,6 +58,11 @@
    #addPayment {
       display: none;
    }
+   .active {
+    border-style: solid;
+    border-color: red;
+    border-width: 5px;
+   }
 }
 </style>
 {% endblock %}
@@ -77,7 +83,7 @@
         <div class="panel-heading">
             <h6 class="panel-title text-bold">Invoice | {{instance.room.name}}</h6>
             <div class="heading-elements">
-                <button v-if="is_active" type="button" @click="checkOut" class="btn btn-success btn-xs heading-btn legitRipple" id="checkoutBtn"> Check-out</button>
+                <button v-if="is_active" type="button" @click="checkOut" class="hidden btn btn-success btn-xs heading-btn legitRipple" id="checkoutBtn"> Check-out</button>
 
                 <button type="button" class="btn btn-default btn-xs heading-btn legitRipple" id="printBtn"><i class="icon-printer position-left"></i> Print</button>
             </div>
@@ -114,11 +120,9 @@
                         <li><h5>{{instance.customer.name}}</h5></li>
                         <li>{{instance.customer.mobile}}</li>
                         <li>
-
                             {% if instance.customer.email %}
                             {{instance.customer.email}}
                             {% endif %}
-
                         </li>
                     </ul>
                 </div>
@@ -126,7 +130,10 @@
                 <div class="col-md-6 col-lg-3 content-group">
                     <span class="text-muted">Payment Details:</span>
                     <ul class="list-condensed list-unstyled invoice-payment-details">
-                        <li><h5>Total Due: <span class="text-right text-semibold">${balance} {{instance.balance.currency}}</span></h5></li>
+                        <li><h5>Total Due: <span class="text-right text-semibold">
+                            {% if pending %}{{pending|intcomma}} {% endif %}
+                            {{instance.balance.currency}}</span></h5>
+                        </li>
 
                     </ul>
                 </div>
@@ -137,28 +144,39 @@
             <table class="table table-lg">
                 <thead>
                     <tr>
-                        <th colspan="5" class="text-semibold active">CHARGES</th>
+                        <th colspan="5" class="text-semibold active">BILLS</th>
                     </tr>
                     <tr class="bg-primary">
                         <th class="col-sm-3">Date</th>
-                        <th class="col-sm-1">Customer</th>
-                        <th class="col-sm-2">Charge Type</th>
-                        <th class="col-sm-3">Rate</th>
-                        <th class="col-sm-2">Total</th>
+                        <th class="col-sm-2">Bill Type</th>
+                        <th class="col-sm-2">Status</th>
+                        <th class="col-sm-3 pull-right">Amount</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% for bill in instance.bill_booking.all %}
                     <tr>
                         <td>
-                            <span class="no-margin">{{instance.created}}</span>
+                            <span class="no-margin">{{bill.month}}</span>
                         </td>
-                        <td>{{instance.customer}}</td>
-                        <td>Room Charge</td>
-                        <td><span class="text-semibold">{{instance.price_type}}</span></td>
-                        <td>{{instance.price.gross}} {{instance.price.currency}}</td>
+                        <td>{{bill.billtype}}</td>
+                        <td>{{bill.status}}</td>
+                        <td><span class="text-semibold pull-right">{{bill.amount}}</span></td>
+
                     </tr>
+                    {% endfor %}
 
                 </tbody>
+                <tfoot>
+                    <tr bgcolor="white">
+                        <th colspan="4" class="">
+
+                            {% if total %}
+                            <span class="pull-right text-bold">Total: {{total|intcomma }}</span>
+                            {% endif %}
+                        </th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
 
@@ -167,41 +185,36 @@
             <table class="table table-lg">
                 <thead>
                     <tr>
-                        <th colspan="5" class="text-semibold active">PAYMENTS</th>
+                        <th colspan="5" class="text-semibold header-title active">BILL PAYMENTS</th>
                     </tr>
                     <tr class="bg-primary">
                         <th class="col-sm-3">Date</th>
-                        <th class="col-sm-1">Description</th>
-                        <th class="col-sm-1">Paid By</th>
-                        <th class="col-sm-2 hidden">Payment Type</th>
-                        <th class="col-sm-2 text-right">Amount  {{instance.price.currency}}</th>
+                        <th class="col-sm-2">Bill Type</th>
+                        <th class="col-sm-2">Status</th>
+                        <th class="col-sm-3 pull-right">Amount</th>
                     </tr>
                 </thead>
                 <tbody>
-                 <template v-for="payment in payments">
-                    <tr >
-                        <td>${ payment.date }</td>
-                        <td>${ payment.description }</td>
-                        <td>${ payment.customer_name }</td>
-                        <td class="hidden">${ payment.payment_option }</td>
-                        <td class="text-right">${ payment.amount }</td>
+                 {% for payment in instance.bill_booking.payments %}
+                    <tr>
+                        <td>
+                            <span class="no-margin">{{payment.month}}</span>
+                        </td>
+                        <td>{{payment.billtype}}</td>
+                        <td>{{payment.status}}</td>
+                        <td><span class="text-semibold pull-right">{{payment.amount}}</span></td>
+
                     </tr>
-                 </template>
+                 {% endfor %}
                     <tr>
                        <td colspan="3" class="text-right">
 
                         </td>
                         <td class="text-right text-semibold">
-                           Total: ${total_paid}
+                           Total: {% if paid %} {{ paid | intcomma }} {% endif %}
                         </td>
                     </tr>
-                    <tr>
-                        <td colspan="5" class="text-center">
-                           <button @click="openModal" class="btn btn-success hvr-glow btn-raised legitRipple" id="addPayment">
-                               Add Payment
-                           </button>
-                        </td>
-                    </tr>
+
 
                 </tbody>
             </table>
@@ -244,13 +257,19 @@
                                 <tbody>
                                     <tr>
                                         <th>Amount Paid:</th>
-                                        <td class="text-right">${total_paid} {{ instance.amount_paid.currency }}</td>
+                                        <td class="text-right">
+                                            {% if paid %}
+                                                {{paid}} {{ instance.amount_paid.currency }}
+                                            {% endif %}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <th>Balance:</th>
                                         <td class="text-right text-primary">
                                             <h5 class="text-semibold">
-                                            ${balance} {{ instance.amount_paid.currency }}
+                                                {% if pending %}
+                                                    {{pending}} {{ instance.amount_paid.currency }}
+                                                {% endif %}
                                             </h5>
                                         </td>
                                     </tr>
@@ -330,7 +349,7 @@
        data-payurl = "{% url 'dashboard:invoice-pay' %}"
        data-checkouturl = "{% url 'dashboard:room-add' %}"
        data-deactivateurl = "{% url 'dashboard:booking-add' %}"
-       data-paylisturl = "{% url 'booking-api:api-booking-payment-list' pk=instance.pk %}"
+
       >
 {% endblock %}
 

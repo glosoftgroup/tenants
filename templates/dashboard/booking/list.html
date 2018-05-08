@@ -244,6 +244,11 @@
                                 action <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu edit-dropdown" >
+                                    <li>
+                                        <a data-ta="#modal_instance" @click="goTo('/dashboard/booking/invoice/'+item.id)" data-title="" data-id="${item.id}"
+                                         class="modal-trigger del-btn"><i class="icon-file-text3" ></i> INVOICE
+                                        </a>
+                                    </li>
                                     <li v-show="item.active" class="td " @click="checkOut('/api/booking/checkout/'+item.id+'/', item)">
                                         <a onclick="return false" >
                                         <i class="icon-arrow-left52"></i>
