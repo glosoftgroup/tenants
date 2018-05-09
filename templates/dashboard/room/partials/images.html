@@ -1,0 +1,27 @@
+<!--image -->
+ <div class="panel panel-flat animated fadeIn" >
+    <div class="panel-body">
+        <div class="row">
+
+            <div class="hidden vue_component__upload--image">
+                <div class="upload_image_form__thumbnails">
+                    {% for image in room.room_images.all %}
+                    <div class="upload_image_form__thumbnail" id="delete-image{{image.pk}}"  >
+                        <span class="bg-primary text-white delete-image" data-pk="{{image.pk}}" data-href="{% url 'dashboard:room-delete-image' pk=image.pk %}">
+                        &#x2716;
+                        </span>
+                        <a href="{{ image.image.url }}" data-popup="lightbox" rel="gallery" class="">
+                          <img src="{{ image.image.url }}" style="opacity: 9;">
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+             <div class="form-group" id="vue-app2">
+                <upload-image class="form-control styled" url="" name="" max_files=""></upload-image>
+             </div>
+        </div>
+    </div>
+ </div>
+<!--./image-->

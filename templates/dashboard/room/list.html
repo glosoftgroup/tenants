@@ -165,7 +165,8 @@
                                     </span>
                                 </td>
                                 <td class="cursor-pointer" @click="goTo(item.view_url)">
-                                    ${item.name}
+                                    ${item.name}<br>
+                                    <span v-show="item.is_booked"><mark>booked</mark></span>
                                 </td>
                                 <td class="cursor-pointer" @click="goTo(item.view_url)"> ${ item.room_wing }</td>
                                 <td class="cursor-pointer" @click="goTo(item.view_url)">${item.room_type}</td>

@@ -1,0 +1,38 @@
+<div class="panel panel-flat animated fadeIn">
+                            <!--Availability-->
+                            {% if room.booking_room.first.check_in %}
+                               <div class="form-group">
+                                   <div class="col-md-6">
+                                    <label>Check-in Date: </label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                        <span>{{room.booking_room.first.check_in}}</span>
+                                    </div>
+                                       <!-- Calendar widget -->
+                                        <div class="panel has-scroll">
+                                            <div class="datepicker-check-in no-border"></div>
+                                        </div>
+                                        <!-- /calendar widget -->
+                                   </div>
+                                   <div class="col-md-6">
+                                    <label>Check-out Date: </label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="icon-calendar22"></i></span>
+                                        <span style="margin-top:6px;">{{room.booking_room.first.check_out}}</span>
+
+                                    </div>
+                                       <!-- Calendar widget -->
+                                        <div class="panel has-scroll">
+                                            <div class="datepicker no-border"></div>
+                                        </div>
+                                        <!-- /calendar widget -->
+                                   </div>
+                                </div>
+                            {% else %}
+                            <div class="alert alert-primary no-border text-center animated fadeIn text-bold">
+                                <button type="button" class="close" data-dismiss="alert"><span>×</span><span class="sr-only">Close</span></button>
+                                No booking details
+                            </div>
+                            {% endif %}
+                            <!--./avalibilty-->
+                        </div>
