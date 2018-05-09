@@ -28,27 +28,18 @@
 
 			<div class="panel panel-body no-border-top no-border-radius-top" style="padding: 0px !important;">
 				<ul class="customer-details">
-					<li class="text-semibold"><span class="text-bold">Property :</span> <span class="pull-right">
-					{% if room.name %}
-						{{room.name}}
-					{% else %}
-						---
-					{% endif %}
+					{% for book in booking %}
+					 	<li class="text-semibold">
+							<h6 class="text-bold">{{book.check_in}}</h6>
+							<span class="text-bold">Property :</span>
+							<span class="pull-right">{{book.room}}</span>
+						</li>
+					   <li class="text-semibold">
+						   <span class="text-bold">Street :</span>
+						   <span class="pull-right">{{book.room.room_type}}</span>
+					   </li>
+					{% endfor %}
 
-					({% if room.room_type %}
-						{{room.room_type}}
-					{% else %}
-						---
-					{% endif %})
-					
-				</span></li>
-				<li class="text-semibold"><span class="text-bold">Wing :</span> <span class="pull-right">
-					{% if room.room_wing %}
-						{{room.room_wing}}
-					{% else %}
-						---
-					{% endif %}
-				</span></li>
 				</ul>
 			</div>
 		</div>

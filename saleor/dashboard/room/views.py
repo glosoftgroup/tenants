@@ -432,6 +432,63 @@ def searchs(request):
                     'q': q}
             return TemplateResponse(request, 'dashboard/room/search.html', data)
 
+
+def decimal_to_float(num):
+    """
+    Convert Decimal to float
+    :param num: decimal type
+    :return: float format or 0
+    """
+    try:
+        return float(num)
+    except:
+        return 0
+
+
+@staff_member_required
+def summary(request, pk):
+    room = Table.objects.get(pk=pk)
+
+    start_date = request.GET.get('start_date', datetime.datetime.today())
+    end_date = request.GET.get('end_date', datetime.datetime.today())
+
+    start_date = datetime.datetime.strptime(str(start_date), '%Y-%m-%d')
+    end_date = datetime.datetime.strptime(str(end_date), '%Y-%m-%d')
+
+    pending_rent = room.bill_rooms.customer_summary(
+        status='pending', billtype=None, start_date=start_date, end_date=end_date
+    )
+    paid_rent = room.bill_rooms.customer_summary(
+        status='fully-paid', billtype=None,  start_date=start_date, end_date=end_date
+    )
+
+    bill_types_summary = []
+    bill_types = room.bill_rooms.bill_types()
+    for billtype in bill_types:
+        paid = room.bill_rooms.customer_summary(
+            status='fully-paid', billtype=billtype, start_date=start_date, end_date=end_date
+        )
+        pending = room.bill_rooms.customer_summary(
+            status='pending', billtype=billtype, start_date=start_date, end_date=end_date
+        )
+        data = {
+            'type': billtype, 'paid': decimal_to_float(paid),
+            'pending': decimal_to_float(pending)
+        }
+
+        bill_types_summary.append(data)
+
+    data = {
+        'pending_rent': decimal_to_float(pending_rent),
+        'paid_rent': decimal_to_float(paid_rent),
+        'bill_types_summary': bill_types_summary
+    }
+    return HttpResponse(
+        json.dumps(
+            {"results": data}), content_type='application/json')
+
+
+
 """
 ------------------
 Maintenance

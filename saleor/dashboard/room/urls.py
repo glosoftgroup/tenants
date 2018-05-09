@@ -19,6 +19,7 @@ urlpatterns = [
         (views.delete_image), name='room-delete-image'),
     url(r'add/amenities/$', views.add_amenities, name="add-amenities"),
     url(r'clone/(?P<pk>[0-9]+)/$', views.clone, name="clone-room"),
+    url(r'summary/(?P<pk>[0-9]+)/$', views.summary, name="room-summary"),
     url(r'^delete/(?P<pk>[0-9]+)/$', permission_required('room.delete_room', login_url='account_login')
         (views.delete), name='room-delete'),
     url(r'^detail/(?P<pk>[0-9]+)/$', views.detail, name='room-detail'),

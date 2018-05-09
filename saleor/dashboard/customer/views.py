@@ -17,6 +17,8 @@ from ...credit.models import Credit
 from ...decorators import permission_decorator, user_trail
 from saleor.booking.models import Book, RentPayment
 from saleor.room.models import Maintenance
+
+from datetime import datetime
 import logging
 import json
 import random
@@ -46,6 +48,7 @@ def user_add(request):
     except TypeError as e:
         error_logger.error(e)
         return HttpResponse('error accessing add users page')
+
 
 @staff_member_required
 def user_process(request):
@@ -84,21 +87,78 @@ def user_process(request):
         return HttpResponse(json.dumps(data), content_type='application/json')
 
 
+def decimal_to_float(num):
+    """
+    Convert Decimal to float
+    :param num: decimal type
+    :return: float format or 0
+    """
+    try:
+        return float(num)
+    except:
+        return 0
+
+
+@staff_member_required
+def summary(request, pk):
+    customer = Customer.objects.get(pk=pk)
+
+    start_date = request.GET.get('start_date', datetime.today())
+    end_date = request.GET.get('end_date', datetime.today())
+
+    start_date = datetime.strptime(str(start_date), '%Y-%m-%d')
+    end_date = datetime.strptime(str(end_date), '%Y-%m-%d')
+
+    pending_rent = customer.bill_customers.customer_summary(
+        status='pending', billtype=None, start_date=start_date, end_date=end_date
+    )
+    paid_rent = customer.bill_customers.customer_summary(
+        status='fully-paid', billtype=None,  start_date=start_date, end_date=end_date
+    )
+
+    bill_types_summary = []
+    bill_types = customer.bill_customers.bill_types()
+    for billtype in bill_types:
+        paid = customer.bill_customers.customer_summary(
+            status='fully-paid', billtype=billtype, start_date=start_date, end_date=end_date
+        )
+        pending = customer.bill_customers.customer_summary(
+            status='pending', billtype=billtype, start_date=start_date, end_date=end_date
+        )
+        data = {
+            'type': billtype, 'paid': decimal_to_float(paid),
+            'pending': decimal_to_float(pending)
+        }
+
+        bill_types_summary.append(data)
+
+    data = {
+        'pending_rent': decimal_to_float(pending_rent),
+        'paid_rent': decimal_to_float(paid_rent),
+        'bill_types_summary': bill_types_summary
+    }
+    return HttpResponse(
+        json.dumps(
+            {"results": data}), content_type='application/json')
+
+
+
+@staff_member_required
 def user_detail(request, pk):
     try:
         user = Customer.objects.get(pk=pk)
+        booking = Book.objects.filter(customer=user)
         try:
-            booking = Book.objects.get(customer__pk=user.pk, active=True, room__is_booked=True)
+
             room = Book.objects.get(customer=user, active=True).room
             balance_with_charges = booking.balance_with_charges.gross + booking.service_charges.gross
         except:
-            booking = None
             room = None
             balance_with_charges = 0
 
-        ctx = {'user': user, 'table_name': 
-                'Customer', 'room':room, 'booking':booking, 
-                'balance_with_charges':balance_with_charges}
+        ctx = {'user': user, 'table_name':
+               'Customer', 'room': room, 'booking': booking,
+               'balance_with_charges': balance_with_charges}
         user_trail(request.user.name, 'accessed detail page to view customer: ' + str(user.name), 'view')
         info_logger.info('User: ' + str(request.user.name) + ' accessed detail page to view customer:' + str(user.name))
         return TemplateResponse(request, 'dashboard/customer/detail.html', ctx)

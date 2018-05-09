@@ -41,6 +41,11 @@
        #media-none {
           display: none;
        }
+       .panel-body-accent{
+            border-style: solid;
+            border-width: 1px;
+            border-color: #29B6F6;
+       }
     }
     .customer-details{
       list-style-type: none;
@@ -115,6 +120,12 @@
 {% endblock %}
 
 {% block custom_js %}
+<script>
+  var pk;
+  {% if user.pk %}
+  pk = "{{ user.pk }}";
+  {% endif %}
+</script>
   <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
   <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/js/bootstrap-datepicker.min.js' %}"></script>
@@ -126,11 +137,16 @@
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vee-validate.2.0.8.en.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/loader.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/Chart.bundle.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-chartkick.js' %}"></script>
 
-<!-- <script type="text/javascript" src="{% static 'backend/js/booking/vue/listing.js' %}"></script> -->
+ <script type="text/javascript" src="{% static 'backend/js/booking/vue/listing.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/customer/vue/payment-tab-listing.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/customer/payment.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/customer/vue/summary.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/pay/payment.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/booking/vue/listing-customer.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     $('.bootstrap-select').selectpicker();

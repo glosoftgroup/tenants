@@ -13,6 +13,7 @@ urlpatterns = [
             (views.user_add), name='customer-add'),
         url(r'^customer_process/$', views.user_process, name='customer_process'),
         url(r'^d/(?P<pk>[0-9]+)/$', views.user_detail, name='customer-detail'),
+        url(r'^summary/list/(?P<pk>[0-9]+)/$', views.summary, name='customer-detail-summary'),
         url(r'^sd/(?P<pk>[0-9]+)/$', views.sales_detail, name='customer-sales-detail'),
         url(r'^cst/pdf/detail/(?P<pk>[0-9]+)/$', sales.sales_detail, name='cust-pdf-sale-detail'),
         url(r'^std/(?P<pk>[0-9]+)/(?P<ck>[0-9]+)/$', views.sales_items_detail, name='customer-sales-items-detail'),

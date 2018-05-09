@@ -55,11 +55,12 @@ Vue.component('dt-picker',{
 })
 //vue
 var chart = new Vue({
-    el:"#vue-app",
+    el:"#summary-app",
     delimiters: ['${', '}'],
     data:{
-       'name':'Book Listing',
-       items:[],
+       name: 'Book Listing',
+       items: [],
+       bill_type_summary: [],
        loader:true,
        check_in: moment().format('YYYY-MM'),
        check_out: moment().add(2, 'M').format('YYYY-MM'),
@@ -68,149 +69,52 @@ var chart = new Vue({
        total_occupied: 0,
        total_empty: 0,
        pending_rent: 0,
-       paid_rent: 0
+       paid_rent: 0,
+       chartData: []
     },
     watch:{
         'check_in': function(value, oldVal){
             this.getOccupiedRooms();
         },
         'check_out': function(value, oldVal){
+
             this.getOccupiedRooms();
         }
     },
     methods:{
         getOccupiedRooms(){
             var vm = this;
-            var url = '/dashboard/booking/occupied/?check_in=';
+            var url = '/dashboard/room/summary/'+pk+'/';
             if(this.check_in)
-                url += this.check_in+'-01';
+                url += '?start_date='+this.check_in+'-01';
             if(this.check_out)
-                url += '&check_out='+this.check_out+'-28';
-
+                url += '&end_date='+this.check_out+'-28';
             api(url)
             .then(function(response){
                 response = response.data.results;
+                vm.bill_type_summary = response.bill_types_summary;
                 vm.total_empty = response.total_empty;
                 vm.total_occupied  = response.total_occupied;
                 vm.pending_rent = response.pending_rent;
                 vm.paid_rent = response.paid_rent;
+
+                var data = []; // [['X-Small', 5], ['Small', 27]]
+                vm.bill_type_summary.map((value, key)=>{
+
+                data.push(
+                [vm.bill_type_summary[key].type+' paid',
+                 vm.bill_type_summary[key].paid],
+                [vm.bill_type_summary[key].type+' pending', vm.bill_type_summary[key].pending]
+                )
+            })
+            console.log(data)
+            vm.chartData = data;
+
+
             })
             .catch(function(error){
                 console.error(error);
             })
-        },
-        yearlyVisitsChart:function(data){
-            Highcharts.chart('yearly-visits-chart', {
-                chart: {
-                    type: 'line'
-                },
-                title: {
-                    text: 'Number of Visitors Monthly report'
-                },
-
-                xAxis: {
-                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-                },
-                yAxis: {
-                    title: {
-                        text: 'Total Visits(s)'
-                    }
-                },
-                plotOptions: {
-                    line: {
-                        dataLabels: {
-                            enabled: true
-                        },
-                        enableMouseTracking: false
-                    }
-                },
-                series: [
-                    {
-                        name: 'Property Booking',
-                        data: data
-                    },
-                ]
-            });
-
-            $('.yearly-visits-chart').css('display', 'none');
-
-        },
-        yearlyAmountChart:function(data){
-            Highcharts.chart('yearly-amount-chart', {
-                chart: {
-                    type: 'line'
-                },
-                title: {
-                    text: 'Amount Earned Monthly report'
-                },
-
-                xAxis: {
-                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-                },
-                yAxis: {
-                    title: {
-                        text: 'Total Amount(s)'
-                    }
-                },
-                plotOptions: {
-                    line: {
-                        dataLabels: {
-                            enabled: true
-                        },
-                        enableMouseTracking: false
-                    }
-                },
-                series: [
-                    {
-                        name: 'Property Booking',
-                        data: data
-                    },
-                ]
-            });
-
-            $('.container').css('display', 'none');
-
-        },
-        lastVisitsChart: function(data){
-            $('#last-visits-chart').highcharts({
-                title: {
-                  text: 'Last Property Booking Report',
-                },
-                xAxis: {
-                  type: 'datetime'
-                },
-                yAxis: {
-                    title: {
-                        text: 'Total Visits(s)'
-                    }
-                },
-                series: [{
-                  name: 'Visits',
-                  data:  data
-                  }]
-            });
-        },
-        lastAmountChart: function(data){
-            $('#last-amount-chart').highcharts({
-                title: {
-                  text: 'Latest Booking Report',
-                },
-                subtitle: {
-                    text: 'Total Amount Generated on Last Visits Report'
-                },
-                xAxis: {
-                  type: 'datetime'
-                },
-                yAxis: {
-                    title: {
-                        text: 'Total Amount(s)'
-                    }
-                },
-                series: [{
-                  name: 'Total',
-                  data:  data
-                  }]
-            });
         },
         exportItems:function(){
         /* take care  of excel and pdf exports on filter panel */
@@ -218,13 +122,13 @@ var chart = new Vue({
                 JSONToCSVConvertor(this.items, "Booking Report", true);
             }
             if(this.exportType == 'pdf'){
-                $("#printme").printThis({
+                $("#summary-app").printThis({
                     debug: false, // show the iframe for debugging
                     importCSS: true, // import page CSS
                     importStyle: true, // import style tags
                     printContainer: true, // grab outer container as well as the contents of the selector
                     loadCSS: "my.css", // path to additional css file - us an array [] for multiple
-                    pageTitle: "Property Reservation Summary Report", // add title to print page
+                    pageTitle: "Tenant Reservation Summary Report", // add title to print page
                     removeInline: false, // remove all inline styles from print elements
                     printDelay: 333, // variable print delay
                     header: null, // prefix to html
@@ -239,47 +143,7 @@ var chart = new Vue({
         axios.defaults.xsrfCookieName = 'csrftoken'
 
         this.getOccupiedRooms();
-    /* initailize chart */
-        this.$http.get($('.pageUrls').data('listurl'))
-            .then(function(data){
-                /* decode json response */
-                data = JSON.parse(data.bodyText);
 
-                /* 1.1 get yearly visits */
-                this.items = data.results.yearly_visits;
-                /* render chart */
-                this.yearlyVisitsChart(this.items);
-
-                /* 1.2 get yearly visits */
-                this.items = data.results.yearly_amount;
-                /* render chart */
-                this.yearlyAmountChart(this.items);
-
-                /* 2. get last visits */
-                var obj = data.results.last_visits;
-                var temp = [];
-                 Object.keys(obj).forEach(function(key) {
-                    var temp2 = [moment.utc(obj[key].date).valueOf(),parseInt(obj[key].total)];
-                    temp.push(temp2);
-                });
-                /* render chart */
-                this.lastVisitsChart(temp);
-
-                /* 3. get last booking total prices */
-                var obj = data.results.last_amount;
-                var temp = [];
-                 Object.keys(obj).forEach(function(key) {
-                    var temp2 = [moment.utc(obj[key].date).valueOf(),parseInt(obj[key].total)];
-                    temp.push(temp2);
-                });
-                /* render chart */
-                this.lastAmountChart(temp);
-
-                this.loader = false;
-            }, function(error){
-                this.server_error = true
-                console.log(error.statusText);
-        });
 
     },
 });

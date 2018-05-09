@@ -1,0 +1,109 @@
+<div class="row" id="summary-app">
+    <!--datepicker template-->
+     <script type="text/x-template" id="dt-template">
+        <input type="text" style="width:58%" class="form-control" :value="value">
+     </script>
+    <div class="col-md-12">
+         <div class="breadcrumb-line breadcrumb-line-component content-group-lg"><a class="breadcrumb-elements-toggle"><i class="icon-menu-open"></i></a>
+            <ul class="breadcrumb">
+                <li><a href="#" class="text-bold">Booking Summary</a></li>
+            </ul>
+            <ul class="breadcrumb-elements">
+                <li class="text-bold " style="margin-top: 9px;"> Date(Range): &nbsp;&nbsp;</li>
+                <li style="width: 100px;">
+                    <dt-picker id="check_in_date" v-model="check_in" :value="check_in" ></dt-picker>
+                </li>
+                <li class="text-bold" style="margin-top: 9px;">To: &nbsp;&nbsp;</li>
+                <li style="width: 100px;">
+                    <dt-picker id="check_out_date" v-model="check_out" :value="check_out" ></dt-picker>
+                </li>
+
+                <li class="text-bold" style="margin-top: 9px;">&nbsp;&nbsp; Export: &nbsp;&nbsp;</li>
+                <li>
+                    <div class="fsdform-grosdfup">
+                       <select v-model="exportType" @change="exportItems" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                          <option value="none" >Option</option>
+                          <option value="pdf" >export pdf</option>
+                        </select>
+                    </div>
+                </li>
+                <li>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+            </ul>
+         </div>
+     </div>
+
+     <!--summary-->
+     <div class=" row col-md-12 animated zoomIn">
+
+        <!-- total bills paid -->
+         <div class="col-sm-6 col-md-6">
+            <div class="panel panel-body panel-body-accent">
+                <div class="media no-margin">
+                    <div class="media-body">
+                        <span class="text-size-mini">${check_in | formatDate} <b>to</b> ${check_out | formatDate}</span>
+                        <h3 class="no-margin text-semibold animated fadeIn">${paid_rent | formatCurrency}</h3>
+                        <span class="text-uppercase text-size-mini text-muted">Paid bills</span>
+                    </div>
+
+                    <div class="media-right media-middle">
+                        <i class="icon-stats-dots icon-3x text-blue-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- arrears -->
+         <div class="col-sm-6 col-md-6">
+            <div class="panel panel-body panel-body-accent">
+                <div class="media no-margin">
+                    <div class="media-body">
+                        <span class="text-size-mini">${check_in | formatDate} <b>to</b> ${check_out | formatDate}</span>
+                        <h3 class="no-margin text-semibold">${pending_rent | formatCurrency}</h3>
+                        <span class="text-uppercase text-size-mini text-muted">total bills arrears</span>
+                    </div>
+
+                    <div class="media-right media-middle">
+                        <i class=" icon-stats-bars2 icon-3x text-blue-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+     </div>
+     <!--./summary-->
+
+     <!--bill breakdown-->
+     <div class=" col-md-12 animated zoomIn">
+         <table class="table table-sm table-hover">
+             <thead>
+                <tr>
+                    <th colspan="5" class="text-semibold text-center active">
+                        ${check_in | formatDate}
+                        <b>TO</b> ${check_out | formatDate} BILLS SUMMARY
+                    </th>
+                </tr>
+                <tr class="bg-primary">
+                    <th>Bill Type</th>
+                    <th>Paid</th>
+                    <th>Pending</th>
+                </tr>
+             </thead>
+             <tbody>
+                <template>
+                    <tr v-for="summary in bill_type_summary">
+                        <td>${summary.type}</td>
+                        <td>${summary.paid | formatCurrency}</td>
+                        <td>${summary.pending | formatCurrency}</td>
+                    </tr>
+                </template>
+             </tbody>
+         </table>
+     </div>
+     <!--./bill break down-->
+
+     <!--charts-->
+     <div class="row col-md-12 animated zoomIn mt-15">
+         <bar-chart :data="chartData" ytitle="Bill Type" xtitle="Amount"></bar-chart>
+
+     </div>
+     <!--./chart-->
+     <hr class="text-primary">
+</div>
