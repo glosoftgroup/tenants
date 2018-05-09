@@ -20,6 +20,7 @@
 {% block menu_rooms_class %}active{% endblock %}
 
 {% block custom_css %}
+<link href="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css">
 <link href="{% static 'backend/js/plugins/tokenize/tokenize2.css' %}" rel="stylesheet" type="text/css">
 <style lang="css" scoped>
     .vue_component__upload--image{
@@ -156,8 +157,16 @@
      background-size: cover;
      }
 </style>
+<!--.ui-datepicker-header { display:none }-->
 <style>
-    .ui-datepicker-header { display:none }
+
+     .datepicker table tr td span {
+      padding:1px !important;
+    }
+    .datepicker table tr td span.active.active{
+       background-color:#1E88E5 !important;
+       background-image: linear-gradient(to bottom,#08c,#1c64fb) !important;
+    }
 </style>
 {% endblock %}
 {% block content %}
@@ -229,6 +238,7 @@
                     <li class=""><a id="tab-availability" {% if room.pk %} href="#room-availability" data-toggle="tab"  class="legitRipple" {% else %} class="disabled" {% endif %} aria-expanded="false"><i class="icon-watch2 position-left"></i> Availability</a></li>
                     <li class=""><a id="tab-booking" {% if room.pk %} href="#room-booking" data-toggle="tab"  class="legitRipple" {% else %} class="disabled" {% endif %} aria-expanded="false"><i class="icon-history position-left"></i> History</a></li>
                     <li class=""><a id="tab-images" {% if room.pk %} href="#room-images" data-toggle="tab"  class="legitRipple" {% else %} class="disabled" {% endif %} aria-expanded="false"><i class="icon-images3 position-left"></i> Images</a></li>
+                    <li class=""><a id="tab-summary" {% if room.pk %} href="#room-summary" data-toggle="tab"  class="legitRipple" {% else %} class="disabled" {% endif %} aria-expanded="false"><i class="icon-stats-dots position-left"></i> Summary</a></li>
                 </ul>
 
                 <div class="tab-content">
@@ -383,173 +393,21 @@
                     <!--./room details-->
                     <!--availability-->
                     <div class="tab-pane" id="room-availability">
-                        <div class="panel panel-flat animated fadeIn">
-                            <!--Availability-->
-                            {% if room.booking_room.first.check_in %}
-                               <div class="form-group">
-                                   <div class="col-md-6">
-                                    <label>Check-in Date: </label>
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><i class="icon-calendar22"></i></span>
-                                        <span>{{room.booking_room.first.check_in}}</span>
-                                    </div>
-                                       <!-- Calendar widget -->
-                                        <div class="panel has-scroll">
-                                            <div class="datepicker-check-in no-border"></div>
-                                        </div>
-                                        <!-- /calendar widget -->
-                                   </div>
-                                   <div class="col-md-6">
-                                    <label>Check-out Date: </label>
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><i class="icon-calendar22"></i></span>
-                                        <span style="margin-top:6px;">{{room.booking_room.first.check_out}}</span>
-
-                                    </div>
-                                       <!-- Calendar widget -->
-                                        <div class="panel has-scroll">
-                                            <div class="datepicker no-border"></div>
-                                        </div>
-                                        <!-- /calendar widget -->
-                                   </div>
-                                </div>
-                            {% else %}
-                            <div class="alert alert-primary no-border text-center animated fadeIn text-bold">
-                                <button type="button" class="close" data-dismiss="alert"><span>×</span><span class="sr-only">Close</span></button>
-                                No booking details
-                            </div>
-                            {% endif %}
-                            <!--./avalibilty-->
-                        </div>
+                      {% include 'dashboard/room/partials/availability.html' with room=room %}
                     </div>
                     <!--./availability-->
                     <!--booking tab-->
                     <div class="tab-pane " id="room-booking">
-                        <!--listbooks-->
-                        <div class="panel panel-flat" id="vue-list">
-                            <div class="panel-body no-padding">
-
-                                <div class="">
-                                  <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
-                                        <thead>
-                                          <tr class="bg-primary">
-                                            <th>Invoice</th>
-                                            <th>Room</th>
-                                            <th>Days</th>
-                                            <th>Check-in</th>
-                                            <th>Check-out</th>
-                                            <th>Customer</th>
-                                            <th>Cost</th>
-                                          </tr>
-                                        </thead>
-                                        <tbody id="tb">
-                                        <!--loader-->
-                                        <tr v-if="loader" class="text-center">
-                                            <td colspan="8">
-                                                <div class="pace-demo">
-                                                    <div class="theme_xbox"><div class="pace_progress" data-progress-text="60%" data-progress="60"></div><div class="pace_activity"></div></div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <!--no data template-->
-                                        <template  v-else>
-                                        <tr v-if="items.length == 0" class="text-center">
-                                            <td colspan="8" class="text-bold animated zoomIn">
-                                                No Data Found !
-                                            </td>
-                                        </tr>
-                                        </template>
-                                        <!--listing template-->
-                                        <template v-for="item in items">
-                                            <tr>
-                                                <td>
-                                                    ${item.invoice_number}<br>
-                                                    <span v-show="item.active"><mark>active</mark></span>
-                                                </td>
-                                                <td>${item.room_name}</td>
-                                                <td>${item.days}</td>
-                                                <td>${item.date_in}</td>
-                                                <td>${item.date_out}</td>
-                                                <td>${item.customer_name}</td>
-                                                <td>${item.total_booking_amount}</td>
-
-                                            </tr>
-                                        </template>
-
-
-                                        </tbody>
-                                   </table>
-                                </div>
-                            </div>
-
-                             <style type="text/css">
-                               .pagination{margin-bottom: 0px;}
-                             </style>
-                             <div class="row mt-15 media-none">
-                             <div class="col-md-12">
-                              <div class="col-md-4">
-                               <div class="col-md-12">
-                                <div class="col-md-6 mt-10">
-                                 <label>display list size</label>
-                                </div>
-                                <div class="col-md-6 media-none">
-                                  <div class="form-group">
-                                     <select v-model="page_size" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
-                                        <option value="10" selected>No:</option>
-                                        <option value="5">5</option>
-                                        <option value="10">10</option>
-                                        <option value="20">20</option>
-                                      </select>
-                                  </div>
-                                </div>
-                              </div>
-                              </div>
-                              <div class="col-md-4" id="media-none">
-                                  <div class="text-center bootpag-callback p2-pag" style="">
-                                </div>
-                               </div>
-                                <div class="col-md-4">
-                                 <div class="col-md-12 mt-5">
-                                  <div class="pull-right pages-nav"></div>
-                                 </div>
-                                </div>
-                              </div>
-                             </div>
-                             <input type="hidden" id="page_size" val="">
-                        </div>
-                        <!--./list books-->
+                        {% include 'dashboard/room/partials/booking.html' %}
                     </div>
 
                     <!--image tab-->
                     <div class="tab-pane has-padding" id="room-images">
-                        <!--image -->
-                         <div class="panel panel-flat animated fadeIn" >
-                            <div class="panel-body">
-                                <div class="row">
-
-                                    <div class="hidden vue_component__upload--image">
-                                        <div class="upload_image_form__thumbnails">
-                                            {% for image in room.room_images.all %}
-                                            <div class="upload_image_form__thumbnail" id="delete-image{{image.pk}}"  >
-                                                <span class="bg-primary text-white delete-image" data-pk="{{image.pk}}" data-href="{% url 'dashboard:room-delete-image' pk=image.pk %}">
-                                                &#x2716;
-                                                </span>
-                                                <a href="{{ image.image.url }}" data-popup="lightbox" rel="gallery" class="">
-                                                  <img src="{{ image.image.url }}" style="opacity: 9;">
-                                                </a>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-
-                                     <div class="form-group" id="vue-app2">
-                                        <upload-image class="form-control styled" url="" name="" max_files=""></upload-image>
-                                     </div>
-                                </div>
-                            </div>
-                         </div>
-                        <!--./image-->
-
+                        {% include 'dashboard/room/partials/images.html' with room=room %}
+                    </div>
+                    <!--summary-->
+                    <div class="tab-pane has-padding" id="room-summary">
+                        {% include 'dashboard/customer/partials/summary.html' with room=room %}
                     </div>
 
                 </div>
@@ -632,12 +490,16 @@
 </script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/media/fancybox.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/core/libraries/jquery_ui_widgets.min.js' %}"></script>
+<!--<script type="text/javascript" src="{% static 'backend/js/core/libraries/jquery_ui_widgets.min.js' %}"></script>-->
+<script type="text/javascript" src="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/js/bootstrap-datepicker.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/datetimepicker/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/pagination/jquery.twbsPagination.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/room/add-room.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/Chart.bundle.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-chartkick.js' %}"></script>
+
 <script type="text/javascript" src="{% static 'backend/js/plugins/tokenize/tokenize2.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
@@ -688,33 +550,17 @@
 
     });
 
-
-    $('.daterange-basic').daterangepicker({
-        applyClass: 'bg-slate-600',
-        cancelClass: 'btn-default',
-    });
-
     // Date picker
     // ------------------------------
 
     // Default functionality
-    var check_out = "{{room.booking_room.first.check_out|date:'Y-m-d'}}";
-    var check_in = "{{room.booking_room.first.check_in|date:'Y-m-d'}}";
+    var check_out = "{{room.booking_room.first.check_out|date:'Y-m'}}";
+    var check_in = "{{room.booking_room.first.check_in|date:'Y-m'}}";
 
-    $(".datepicker").datepicker({
-        changeMonth: true,
-        changeYear: true,
-        dateFormat : 'dd-mm-yy',
-        defaultDate: new Date(new Date(moment(check_out)))
-        }).datepicker( "option", "disabled", true );
-    $(".datepicker-check-in").datepicker({
-        changeMonth: true,
-        changeYear: true,
-        dateFormat : 'dd-mm-yy',
-        defaultDate: new Date(new Date(moment(check_in)))
-        }).datepicker( "option", "disabled", true );
 
 
 </script>
+<script type="text/javascript" src="{% static 'backend/js/room/vue/summary.js' %}"></script>
+
 
 {% endblock %}

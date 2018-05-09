@@ -19,6 +19,38 @@ class BillManager(BaseUserManager):
         query = self.get_queryset().filter(status='fully-paid')
         return query
 
+    def bill_types(self):
+        billtypes = []
+        query = self.get_queryset()
+        for bill in query:
+            if bill.billtype.name not in billtypes:
+                billtypes.append(bill.billtype.name)
+        return billtypes
+
+    def customer_summary(self, status='fully-paid', billtype=None, start_date=None, end_date=None):
+        """
+        Get bills query set based on query filters
+        :param status: payment status
+        :param billtype: type of bill (e.g Rent, Service ...)
+        :param start_date: filter between date range
+        :param end_date:  filter between date range
+        :return: bill model query set
+        """
+        query = self.get_queryset()
+        if status == 'fully-paid':
+            query = query.filter(status=status)
+        if status == 'pending':
+            query = query.filter(status=status)
+        if billtype:
+            query = query.filter(billtype__name=billtype)
+        if start_date and end_date:
+            query = query.filter(
+                models.Q(month__gte=start_date) &
+                models.Q(month__lte=end_date)
+            )
+
+        return query.aggregate(models.Sum('amount'))['amount__sum']
+
     def customer_bills(self, customer, status='fully-paid', billtype=None, booking=None, check_in=None, check_out=None):
         """
         Compute customers amount paid & amount pending or total amount

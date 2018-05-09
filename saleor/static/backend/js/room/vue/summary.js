@@ -84,7 +84,7 @@ var chart = new Vue({
     methods:{
         getOccupiedRooms(){
             var vm = this;
-            var url = '/dashboard/customers/summary/list/'+pk+'/';
+            var url = '/dashboard/room/summary/'+pk+'/';
             if(this.check_in)
                 url += '?start_date='+this.check_in+'-01';
             if(this.check_out)

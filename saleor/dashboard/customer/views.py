@@ -17,7 +17,8 @@ from ...credit.models import Credit
 from ...decorators import permission_decorator, user_trail
 from saleor.booking.models import Book, RentPayment
 from saleor.room.models import Maintenance
-from saleor.bill.models import Bill
+
+from datetime import datetime
 import logging
 import json
 import random
@@ -85,22 +86,57 @@ def user_process(request):
 
         return HttpResponse(json.dumps(data), content_type='application/json')
 
+
+def decimal_to_float(num):
+    """
+    Convert Decimal to float
+    :param num: decimal type
+    :return: float format or 0
+    """
+    try:
+        return float(num)
+    except:
+        return 0
+
+
 @staff_member_required
 def summary(request, pk):
     customer = Customer.objects.get(pk=pk)
-    pending_rent = Bill.objects.customer_bills(customer, status='pending')
-    paid_rent = Bill.objects.customer_bills(customer, status='fully-paid')
 
-    try:
-        pending_rent = float(pending_rent)
-    except:
-        pending_rent = 0
-    try:
-        paid_rent = float(paid_rent)
-    except:
-        paid_rent = 0
+    start_date = request.GET.get('start_date', datetime.today())
+    end_date = request.GET.get('end_date', datetime.today())
 
-    data = {'pending_rent': pending_rent, 'paid_rent': paid_rent}
+    start_date = datetime.strptime(str(start_date), '%Y-%m-%d')
+    end_date = datetime.strptime(str(end_date), '%Y-%m-%d')
+
+    pending_rent = customer.bill_customers.customer_summary(
+        status='pending', billtype=None, start_date=start_date, end_date=end_date
+    )
+    paid_rent = customer.bill_customers.customer_summary(
+        status='fully-paid', billtype=None,  start_date=start_date, end_date=end_date
+    )
+
+    bill_types_summary = []
+    bill_types = customer.bill_customers.bill_types()
+    for billtype in bill_types:
+        paid = customer.bill_customers.customer_summary(
+            status='fully-paid', billtype=billtype, start_date=start_date, end_date=end_date
+        )
+        pending = customer.bill_customers.customer_summary(
+            status='pending', billtype=billtype, start_date=start_date, end_date=end_date
+        )
+        data = {
+            'type': billtype, 'paid': decimal_to_float(paid),
+            'pending': decimal_to_float(pending)
+        }
+
+        bill_types_summary.append(data)
+
+    data = {
+        'pending_rent': decimal_to_float(pending_rent),
+        'paid_rent': decimal_to_float(paid_rent),
+        'bill_types_summary': bill_types_summary
+    }
     return HttpResponse(
         json.dumps(
             {"results": data}), content_type='application/json')
