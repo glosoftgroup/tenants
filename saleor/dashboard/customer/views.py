@@ -17,6 +17,7 @@ from ...credit.models import Credit
 from ...decorators import permission_decorator, user_trail
 from saleor.booking.models import Book, RentPayment
 from saleor.room.models import Maintenance
+from saleor.bill.models import Bill
 import logging
 import json
 import random
@@ -46,6 +47,7 @@ def user_add(request):
     except TypeError as e:
         error_logger.error(e)
         return HttpResponse('error accessing add users page')
+
 
 @staff_member_required
 def user_process(request):
@@ -83,22 +85,44 @@ def user_process(request):
 
         return HttpResponse(json.dumps(data), content_type='application/json')
 
+@staff_member_required
+def summary(request, pk):
+    customer = Customer.objects.get(pk=pk)
+    pending_rent = Bill.objects.customer_bills(customer, status='pending')
+    paid_rent = Bill.objects.customer_bills(customer, status='fully-paid')
 
+    try:
+        pending_rent = float(pending_rent)
+    except:
+        pending_rent = 0
+    try:
+        paid_rent = float(paid_rent)
+    except:
+        paid_rent = 0
+
+    data = {'pending_rent': pending_rent, 'paid_rent': paid_rent}
+    return HttpResponse(
+        json.dumps(
+            {"results": data}), content_type='application/json')
+
+
+
+@staff_member_required
 def user_detail(request, pk):
     try:
         user = Customer.objects.get(pk=pk)
+        booking = Book.objects.filter(customer=user)
         try:
-            booking = Book.objects.get(customer__pk=user.pk, active=True, room__is_booked=True)
+
             room = Book.objects.get(customer=user, active=True).room
             balance_with_charges = booking.balance_with_charges.gross + booking.service_charges.gross
         except:
-            booking = None
             room = None
             balance_with_charges = 0
 
-        ctx = {'user': user, 'table_name': 
-                'Customer', 'room':room, 'booking':booking, 
-                'balance_with_charges':balance_with_charges}
+        ctx = {'user': user, 'table_name':
+               'Customer', 'room': room, 'booking': booking,
+               'balance_with_charges': balance_with_charges}
         user_trail(request.user.name, 'accessed detail page to view customer: ' + str(user.name), 'view')
         info_logger.info('User: ' + str(request.user.name) + ' accessed detail page to view customer:' + str(user.name))
         return TemplateResponse(request, 'dashboard/customer/detail.html', ctx)

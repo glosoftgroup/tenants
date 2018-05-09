@@ -15,6 +15,10 @@ from saleor.booking.models import Book
 
 
 class BillManager(BaseUserManager):
+    def payments(self):
+        query = self.get_queryset().filter(status='fully-paid')
+        return query
+
     def customer_bills(self, customer, status='fully-paid', billtype=None, booking=None, check_in=None, check_out=None):
         """
         Compute customers amount paid & amount pending or total amount

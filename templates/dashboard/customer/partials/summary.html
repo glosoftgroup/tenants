@@ -1,0 +1,71 @@
+<div class="row" id="summary-app">
+    <!--datepicker template-->
+     <script type="text/x-template" id="dt-template">
+        <input type="text" class="form-control" :value="value">
+     </script>
+    <div class="col-md-12 hidden-print">
+         <div class="breadcrumb-line breadcrumb-line-component content-group-lg"><a class="breadcrumb-elements-toggle"><i class="icon-menu-open"></i></a>
+            <ul class="breadcrumb">
+                <li><a href="#" class="text-bold">Booking Summary</a></li>
+            </ul>
+            <ul class="breadcrumb-elements">
+                <li class="text-bold hidden" style="margin-top: 9px;"> Select Date: &nbsp;&nbsp;</li>
+                <li class="hidden">
+                    <dt-picker id="check_in_date" v-model="check_in" :value="check_in" ></dt-picker>
+                </li>
+                <li class="hidden">
+                    <dt-picker id="check_out_date" v-model="check_out" :value="check_out" ></dt-picker>
+                </li>
+
+                <li class="text-bold" style="margin-top: 9px;">&nbsp;&nbsp; Export: &nbsp;&nbsp;</li>
+                <li>
+                    <div class="fsdform-grosdfup">
+                       <select v-model="exportType" @change="exportItems" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                          <option value="none" >Option</option>
+                          <option value="pdf" >export pdf</option>
+                          <option value="excel" >export excel</option>
+                        </select>
+                    </div>
+                </li>
+                <li>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+            </ul>
+         </div>
+     </div>
+
+     <!--summary-->
+     <div class=" row col-md-12 animated zoomIn">
+
+        <!--total income -->
+         <div class="col-sm-6 col-md-6">
+            <div class="panel panel-body panel-body-accent">
+                <div class="media no-margin">
+                    <div class="media-body">
+                        <h3 class="no-margin text-semibold animated fadeIn">${paid_rent | formatCurrency}</h3>
+                        <span class="text-uppercase text-size-mini text-muted">Paid bills</span>
+                    </div>
+
+                    <div class="media-right media-middle">
+                        <i class="icon-stats-dots icon-3x text-blue-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--total tax -->
+         <div class="col-sm-6 col-md-6">
+            <div class="panel panel-body panel-body-accent">
+                <div class="media no-margin">
+                    <div class="media-body">
+                        <h3 class="no-margin text-semibold">${pending_rent | formatCurrency}</h3>
+                        <span class="text-uppercase text-size-mini text-muted">total bills arrears</span>
+                    </div>
+
+                    <div class="media-right media-middle">
+                        <i class=" icon-stats-bars2 icon-3x text-blue-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+     </div>
+     <!--./summary-->
+     <hr class="text-primary">
+</div>

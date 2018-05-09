@@ -1,0 +1,127 @@
+<div class="row" id="my-booking-app">
+    <div id="pagination-div">
+      <!-- Header and footer fixed -->
+      <div class="panelpanel-flat" id="printme">
+        <div class="panel-body">
+            <div class="">
+              <table class="table room-striped room-hover dataroom-header-footer" style="border-bottom:1px solid #ddd;">
+                    <thead>
+                      <tr class="bg-primary">
+                        <th>Property</th>
+                        <th>Months</th>
+                        <th>In</th>
+                        <th>Out</th>
+                        <th>Cost</th>
+                        <th>Pending</th>
+
+                        {% if perms.room.delete_room %}
+                        <th class="text-center">Options</th>
+                        {% endif %}
+                      </tr>
+                    </thead>
+                    <tbody id="tb">
+                    <!--loader-->
+                    <tr v-if="loader" class="text-center">
+                        <td colspan="8">
+                            <div class="pace-demo">
+                                <div class="theme_xbox"><div class="pace_progress" data-progress-text="60%" data-progress="60"></div><div class="pace_activity"></div></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <!--no data template-->
+                    <template  v-else>
+                    <tr v-if="bookings.length == 0" class="text-center">
+                        <td colspan="8" class="text-bold animated zoomIn">
+                            No Data Found !
+                        </td>
+                    </tr>
+                    </template>
+                    <!--listing template-->
+                    <template v-for="book in bookings">
+                        <tr>
+                            <td>${book.room_name}<br>
+                                <span v-show="book.active"><mark>active</mark></span>
+                            </td>
+                            <td>${book.days}</td>
+                            <td>${book.date_in}</td>
+                            <td>${book.date_out}</td>
+                            <td>${book.total_booking_amount | formatCurrency}</td>
+                            <td>${book.bill_pending | formatCurrency}</td>
+
+                            <!-- actions -->
+                            <style>
+                            .is-open {
+                                z-index: 100 !important;
+                                }
+                             .input-group .btn-group .form-control, .input-group-btn .btn { z-index: inherit !important; }</style>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                <button  type="button" class="btn btn-primary dropdown-toggle legitRipple" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                action <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu edit-dropdown" >
+                                    <li v-show="book.active" class="td " @click="checkOut('/api/booking/checkout/'+book.id+'/', book)">
+                                        <a onclick="return false" >
+                                        <i class="icon-arrow-left52"></i>
+                                        Checkout</a>
+                                    </li>
+                                    <li class="td">
+                                        <a :href="book.booking_edit">
+                                        <i class="icon-pencil7"></i>
+                                        EDIT</a>
+                                    </li>
+                                    <li>
+                                        <a data-ta="#modal_instance" @click="goTo('/dashboard/booking/invoice/'+book.id)" data-title="" :data-href="book.booking_edit" data-id="${book.id}"
+                                         class="modal-trigger del-btn"><i class="icon-file-text3" ></i> INVOICE
+                                        </a>
+                                    </li>
+
+                                </ul>
+                              </div>
+                            </td>
+
+                        </tr>
+                    </template>
+                    </tbody>
+               </table>
+            </div>
+        </div>
+
+         <style type="text/css">
+           .pagination{margin-bottom: 0px;}
+         </style>
+         <div class="row media-none">
+         <div class="col-md-12">
+          <div class="col-md-4">
+           <div class="col-md-12">
+            <div class="col-md-6 mt-10">
+             <label>display list size</label>
+            </div>
+            <div class="col-md-6 media-none">
+              <div class="form-group">
+                 <select v-model="page_size" @change="inputChangeEvent" class="bootstrap-select" style="display: none;" data-width="100%" tabindex="-98">
+                    <option value="10" selected>No:</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                  </select>
+              </div>
+            </div>
+          </div>
+          </div>
+          <div class="col-md-4" id="media-none">
+              <div class="text-center bootpag-callback p2-pag" style="">
+            </div>
+           </div>
+            <div class="col-md-4">
+             <div class="col-md-12 mt-5">
+              <div class="pull-right pages-nav"></div>
+             </div>
+            </div>
+          </div>
+         </div>
+         <input type="hidden" id="page_size" val="">
+
+      </div>
+    </div><!-- pagination -->
+</div>
