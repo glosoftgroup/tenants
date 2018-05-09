@@ -104,7 +104,7 @@
   {% include 'dashboard/customer/partials/modal_add_payment.html' with customer=user room=room %}
   {% if user %}
   <input type="hidden" name="tenantPk" id="tenantPk" value="{{user.pk}}" />
-  <input type="hidden" name="postUrl" id="postUrl" value="{% url 'dashboard:rent-payment' pk=user.pk %}"/>
+  <input type="hidden" name="postUrl" id="postUrl" value=""/>
   <input type="hidden" name="billsUrl" id="billsUrl" value="{% url 'bill:tenant-bill-api-list' pk=user.pk %}"/>
   <input type="hidden" name="paymentOptionsUrl" id="paymentOptionsUrl" 
   value="{% url 'paymentoptions:api-list' %}"/>

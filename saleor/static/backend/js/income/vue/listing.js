@@ -61,6 +61,8 @@ var parent = new Vue({
        period:'',
        property:'',
        totalTax:'0.00',
+       totalAmount:'0.00',
+       totalIncome:'0.00',
        detailUrl: '',
        filter:{
            month:true,
@@ -98,6 +100,8 @@ var parent = new Vue({
             self.totalPages = data.total_pages;
             self.pagination(data.total_pages);
             self.totalTax = (parseFloat(data.totalTax)).toFixed(2);
+            self.totalAmount = (parseFloat(data.totalAmount)).toFixed(2);
+            self.totalIncome = (parseFloat(data.totalAmount) - parseFloat(data.totalTax)).toFixed(2);
             self.period = data.period;
             self.property = data.property;
             self.detailUrl = data.results.length >= 1 ? data.results[0].detail_url : '';
@@ -105,6 +109,8 @@ var parent = new Vue({
             self.loader = false;
             self.items = '';
             self.totalTax = '';
+            self.totalAmount = '';
+            self.totalIncome = '';
             self.alert("!Oops, "+ 
                 "please reload the page to get data! "+
                 "if problem persists contact the admin", "bg-danger")
@@ -176,12 +182,16 @@ var parent = new Vue({
                     self.totalPages = data.total_pages;
                     self.pagination(data.total_pages);
                     self.totalTax = (parseFloat(data.totalTax)).toFixed(2);
+                    self.totalAmount = (parseFloat(data.totalAmount)).toFixed(2);
+                    self.totalIncome = (parseFloat(data.totalAmount) - parseFloat(data.totalTax)).toFixed(2);
                     self.detailUrl = data.results.length >= 1 ? data.results[0].detail_url : '';
                 }).fail(function(data) {
                     self.period = '';
                     self.loader = false;
                     self.items = '';
                     self.totalTax = '';
+                    self.totalAmount = '';
+                    self.totalIncome = '';
                     self.alert("!Oops, "+ 
                         "please reload the page to get data! "+
                         "if problem persists contact the admin", "bg-danger")
@@ -214,12 +224,16 @@ var parent = new Vue({
                         self.totalPages = data.total_pages;
                         self.pagination(data.total_pages);
                         self.totalTax = (parseFloat(data.totalTax)).toFixed(2);
+                        self.totalAmount = (parseFloat(data.totalAmount)).toFixed(2);
+                        self.totalIncome = (parseFloat(data.totalAmount) - parseFloat(data.totalTax)).toFixed(2);
                         self.detailUrl = data.results.length >= 1 ? data.results[0].detail_url : '';
                     }).fail(function(data) {
                         self.period = '';
                         self.loader = false;
                         self.items = '';
                         self.totalTax = '';
+                        self.totalAmount = '';
+                        self.totalIncome = '';
                         self.alert("!Oops, "+ 
                             "please reload the page to get data! "+
                             "if problem persists contact the admin", "bg-danger")
@@ -311,6 +325,8 @@ var parent = new Vue({
                 self.totalPages = data.total_pages;
                 self.pagination(data.total_pages);
                 self.totalTax = (parseFloat(data.totalTax)).toFixed(2);
+                self.totalAmount = (parseFloat(data.totalAmount)).toFixed(2);
+                self.totalIncome = (parseFloat(data.totalAmount) - parseFloat(data.totalTax)).toFixed(2);
                 self.detailUrl = data.results.length >= 1 ? data.results[0].detail_url : '';
             }).fail(function(error) {
                 console.log(error)
@@ -318,6 +334,8 @@ var parent = new Vue({
                 self.loader = false;
                 self.items = '';
                 self.totalTax = '';
+                self.totalAmount = '';
+                self.totalIncome = '';
                 self.alert("!Oops, "+ 
                     "please reload the page to get data! "+
                     "if problem persists contact the admin", "bg-danger")
@@ -404,12 +422,16 @@ var parent = new Vue({
                 self.totalPages = data.total_pages;
                 self.pagination(data.total_pages);
                 self.totalTax = (parseFloat(data.totalTax)).toFixed(2);
+                self.totalAmount = (parseFloat(data.totalAmount)).toFixed(2);
+                self.totalIncome = (parseFloat(data.totalAmount) - parseFloat(data.totalTax)).toFixed(2);
                 self.detailUrl = data.results.length >= 1 ? data.results[0].detail_url : '';
             }).fail(function(error) {
                 self.period = '';
                 self.loader = false;
                 self.items = '';
                 self.totalTax = '';
+                self.totalAmount = '';
+                self.totalIncome = '';
                 self.alert("!Oops, "+ 
                     "please reload the page to get data! "+
                     "if problem persists contact the admin", "bg-danger")
@@ -425,10 +447,14 @@ var parent = new Vue({
                     self.totalPages = data.total_pages;
                     self.pagination(data.total_pages);
                     self.totalTax = (parseFloat(data.totalTax)).toFixed(2);
+                    self.totalAmount = (parseFloat(data.totalAmount)).toFixed(2);
+                    self.totalIncome = (parseFloat(data.totalAmount) - parseFloat(data.totalTax)).toFixed(2);
                 }).fail(function(data) {
                     self.loader = false;
                     self.items = '';
                     self.totalTax = '';
+                    self.totalAmount = ''
+                    self.totalIncome = '';
                     self.alert("!Oops, "+ 
                         "please reload the page to get data! "+
                         "if problem persists contact the admin", "bg-danger")

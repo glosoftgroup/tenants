@@ -12,6 +12,8 @@ var parent = new Vue({
         /* filters */
         items:'',
         totalTax:'',
+        totalAmount:'',
+        totalIncome:'',
         period:'',
         property:'',
         months:[
@@ -33,8 +35,8 @@ var parent = new Vue({
             date = month ? String(self.months[parseInt(month)-1 ])+' '+String(year) : '';
 
             url = year != '' ? 
-                '/billpayment/tax/api/list/?month='+month+'&year='+year+'&property='+property : 
-                '/billpayment/tax/api/list/?month_from='+month_from+'&month_to='+month_to+'&property='+property;
+                '/billpayment/income/api/list/?month='+month+'&year='+year+'&property='+property : 
+                '/billpayment/income/api/list/?month_from='+month_from+'&month_to='+month_to+'&property='+property;
             console.log(url);
             var date_period = month_from ? date_from+' \xa0\xa0\xa0\xa0\xa0\ - \xa0\xa0\xa0\xa0\xa0'+date_to : (date ? date : '');
             self.period = date_period;
@@ -43,6 +45,8 @@ var parent = new Vue({
         {
             self.items = data.results;
             self.totalTax = (parseFloat(data.totalTax)).toFixed(2);
+            self.totalAmount = (parseFloat(data.totalAmount)).toFixed(2);
+            self.totalIncome = (parseFloat(data.totalAmount) - parseFloat(data.totalTax)).toFixed(2);
             if(data.results.length > 1){
                 var period = String(data.results[0].period)+' - '+ String(data.results[data.results.length - 1].period);
                 self.period = (self.period == '') ? (period) : (self.period);

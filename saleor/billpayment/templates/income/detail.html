@@ -6,13 +6,13 @@
 {% load business_logo %}
 
 {% block title %}
-  Tax
+  Rental Income
 {% endblock %}
 
-{% block menu_tax_class %}active{% endblock %}
+{% block menu_income_class %}active{% endblock %}
 
 {% block breadcrumbs %}
-     <li class=""><a href="{% url 'billpayment:tax-index'%}">Tax</a></li>
+     <li class=""><a href="{% url 'billpayment:income-index'%}">Rental Income</a></li>
 {% endblock %}
 
 {% block custom_css %}
@@ -74,7 +74,7 @@
         </form>
         <div class="panel panel-white">
             <div class="panel-heading">
-                <h6 class="panel-title text-bold">Tax</h6>
+                <h6 class="panel-title text-bold">Rental Income</h6>
                 <div class="heading-elements">
                     <button type="button" class="btn btn-default btn-xs heading-btn legitRipple"
                             id="printBtn" @click="exportItems"><i class="icon-printer position-left"></i> Print</button>
@@ -113,14 +113,17 @@
                               <tr class="bg-slate-800">
                                 <th>Period</th>
                                 <th>Property</th>
-                                <th>Amount</th>
+                                <th>Rent</th>
+                                <th>Service</th>
+                                <th>Total Amount</th>
+                                <th>Tax</th>
                               </tr>
                             </thead>
                             <tbody id="tb">
                                 <!--no data template-->
                                 <template  v-else>
                                 <tr v-if="items.length == 0" class="text-center">
-                                    <td colspan="2" class="text-bold animated zoomIn">
+                                    <td colspan="4" class="text-bold animated zoomIn">
                                         No Data Found !
                                     </td>
                                 </tr>
@@ -135,6 +138,19 @@
                                     </td>
                                     <td class="td">
                                         <h5 class="text-bold">${item.property}</h5>
+                                    </td>
+                                    <td class="td">
+                                        <h5 class="text-bold">${item.rent}</h5>
+                                    </td>
+                                    <td class="td">
+                                        <h5 class="text-bold">
+                                            ${item.services}
+                                        </h5>
+                                    </td>
+                                    <td class="td">
+                                        <h5 class="text-bold">
+                                            ${item.amount}
+                                        </h5>
                                     </td>
                                     <td class="td">
                                         <h5 class="text-bold">
@@ -174,14 +190,38 @@
                                 <table class="table table-bordered">
                                     <tbody>
                                         <tr>
-                                            <th>
-                                                <h3 class="text-bold">
-                                                    Total Tax:
-                                                </h3>
-                                            </th>
+                                            <td>
+                                                <h5 class="text-bold">
+                                                    Total Amount:
+                                                </h5>
+                                            </td>
                                             <td class="text-right">
-                                               <h3 class="text-bold">
+                                                <h5 class="text-bold">
+                                                    ${totalAmount}
+                                                </h5>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <h5 class="text-bold">
+                                                    Total Tax:
+                                                </h5>
+                                            </td>
+                                            <td class="text-right">
+                                                <h5 class="text-bold">
                                                     ${totalTax}
+                                                </h5>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <h3 class="text-bold">
+                                                    Income:
+                                                </h3>
+                                            </td>
+                                            <td class="text-right">
+                                                <h3 class="text-bold">
+                                                    ${totalIncome}
                                                 </h3>
                                             </td>
                                         </tr>
@@ -202,7 +242,7 @@
     </div>
 </div>
 <input type="hidden" class="pageUrls"
-  data-listurl="{% url 'billpayment:tax-api-list' %}" />
+  data-listurl="{% url 'billpayment:income-api-list' %}" />
 
 <input type="hidden" class="requestData"
     data-month="{% if request.GET.month %}{{request.GET.month}}{% endif %}"
@@ -218,8 +258,8 @@
     <script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
-    <script src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'backend/js/tax/vue/detail.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/income/vue/detail.js' %}"></script>
 <script>
 </script>
 {% endblock %}
