@@ -8,6 +8,7 @@ from .models import BillPayment as Table
 
 #tax
 from saleor.billpayment.tax_api import views as taxViews
+from saleor.billpayment.income_api import views as incomeViews
 
 
 urlpatterns = [
@@ -28,10 +29,15 @@ urlpatterns = [
     # rental income for the room
     url(r'^api/list/room/(?P<rmpk>[0-9]+)/$', ListAPIView.as_view(), name='api-list-room-income'),
 
-    #tax
+    # tax
     url(r'^tax/$', login_required(login_url='/')(TemplateView.as_view(template_name="tax/list.html")), name="tax-index"),
     url(r'^tax/api/list/$', taxViews.ListAPIView.as_view(), name='tax-api-list'),
     url(r'^tax/detail/$', login_required(login_url='/')(TemplateView.as_view(template_name="tax/detail.html")), name="tax-detail"),
+
+    # rental income
+    url(r'^income/$', login_required(login_url='/')(TemplateView.as_view(template_name="income/list.html")), name="income-index"),
+    url(r'^income/api/list/$', incomeViews.ListAPIView.as_view(), name='income-api-list'),
+    url(r'^income/detail/$', login_required(login_url='/')(TemplateView.as_view(template_name="income/detail.html")), name="income-detail"),
 
 ]
 

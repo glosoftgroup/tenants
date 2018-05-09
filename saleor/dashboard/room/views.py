@@ -577,19 +577,6 @@ def delete_issue(request, pk=None):
     else:
         return HttpResponse('Invalid method or PK')
 
-
-def view_room_rental_income(request, pk=None):
-    room = Table.objects.get(pk=pk)
-    return TemplateResponse(request, 
-        'dashboard/rentalincome/room-rental.html', 
-        {'pk':pk, 'room':room})
-
-def view_room_rental_income_detail(request, pk=None):
-    room = Table.objects.get(pk=pk)
-    return TemplateResponse(request, 
-        'dashboard/rentalincome/statement.html', 
-        {'pk':pk, 'room':room})
-
    
 
 

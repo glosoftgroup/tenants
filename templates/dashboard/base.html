@@ -506,18 +506,13 @@
                   </a>
 
                   <ul>
-                      <li class="{% block menu_payments %}{% endblock %}">
-                          <a href="{% url 'dashboard:rent-payments'%}">
-                           <i class="icon-typewriter"></i>Payments
-                          </a>
-                      </li>
                       <li class="{% block menu_tax_class %}{% endblock %}">
                           <a href="{% url 'billpayment:tax-index'%}">
                            <i class="icon-typewriter"></i>Tax
                           </a>
                       </li>
-                      <li class="{% block menu_rental_income_class %}{% endblock %}">
-                          <a href="{% url 'dashboard:rental-income'%}">
+                      <li class="{% block menu_income_class %}{% endblock %}">
+                          <a href="{% url 'billpayment:income-index'%}">
                            <i class="icon-typewriter"></i>Rental Income
                           </a>
                       </li>

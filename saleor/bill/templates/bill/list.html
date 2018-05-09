@@ -170,7 +170,20 @@
                                         <ul class="dropdown-menu dropdown-menu-right">
                                             <li><a @click="goTo(item.invoice_url)" href="javascript:;"><i class=" icon-safe"></i> INVOICE</a></li>
                                             <li><a @click="goTo(item.update_url)" href="javascript:;"><i class="icon-pencil"></i> EDIT</a></li>
-                                            <li v-bind:class="{ disabled: item.status == 'fully-paid' }"><a @click="item.status == 'pending' ? deleteInstance(item.delete_url,item.id) : null " href="javascript:;"><i class=" icon-trash-alt"></i> DELETE</a></li>
+                                            <li v-bind:class="{
+                                            disabled: item.status == 'fully-paid' ||
+                                            (   item.billtype.name == 'Rent' ||
+                                                item.billtype.name == 'Service' ||
+                                                item.billtype.name == 'Deposit'
+                                            ) }">
+                                                <a @click="item.status == 'fully-paid' ||
+                                            (   item.billtype.name == 'Rent' ||
+                                                item.billtype.name == 'Service' ||
+                                                item.billtype.name == 'Deposit'
+                                            ) ? null : deleteInstance(item.delete_url,item.id) " href="javascript:;"><i class=" icon-trash-alt"></i>
+                                                    DELETE
+                                                </a>
+                                            </li>
                                         </ul>
                                     </li>
                                 </ul>

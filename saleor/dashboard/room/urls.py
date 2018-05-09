@@ -35,11 +35,6 @@ urlpatterns = [
     url(r'^maintenance/fix/invoice/(?P<pk>[0-9]+)/$', views.fix_issue_invoice, name='fix-issue-invoice'),
     url(r'^maintenance/delete/(?P<pk>[0-9]+)/$', views.delete_issue, name='delete-issue'),
 
-    #rentalincome
-    url(r'^rental/income/$', TemplateView.as_view(template_name="dashboard/rentalincome/list.html"), name="rental-income"),
-    url(r'^rental/income/(?P<pk>[0-9]+)/$', views.view_room_rental_income, name='room-rental-income'),
-    url(r'^rental/income/detail/(?P<pk>[0-9]+)/$', views.view_room_rental_income_detail, name='room-rental-income-detail'),
-
     ]
 
 if settings.DEBUG:

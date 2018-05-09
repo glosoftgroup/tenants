@@ -56,16 +56,17 @@ class ListAPIView(generics.ListAPIView):
         queryset = query_set.\
             filter(bill__month__year=str(current_year)).\
             exclude(tax__exact='0').annotate(month=TruncMonth('bill__month')).\
-            values('month').annotate(amount=Sum('tax')).values('month', 'amount', 'room__name')
+            values('month').annotate(total_amount=Sum('amount')).annotate(total_tax=Sum('tax')).values('month', 'total_amount', 'total_tax', 'room__name')
 
-        totalTax = queryset.aggregate(Sum('amount'))["amount__sum"]
-
+        totalTax = queryset.aggregate(Sum('total_tax'))["total_tax__sum"]
         response.data['totalTax'] = totalTax
+        totalAmount = queryset.aggregate(Sum('total_amount'))["total_amount__sum"]
+        response.data['totalAmount'] = totalAmount
 
 
         queryset_all = query_set.exclude(tax__exact='0').\
             annotate(month=TruncMonth('bill__month'))\
-            .values('month').annotate(amount=Sum('tax')).values('month', 'amount', 'room__name')
+            .values('month').annotate(total_amount=Sum('amount')).annotate(total_tax=Sum('tax')).values('month', 'total_amount', 'total_tax', 'room__name')
 
 
         if self.request.GET.get('month_from') and self.request.GET.get('month_to'):
@@ -73,8 +74,10 @@ class ListAPIView(generics.ListAPIView):
             month_to = self.request.GET.get('month_to')
             queryset = queryset_all.filter(bill__month__range=[str(month_from), str(month_to)])
 
-            totalTax = queryset.aggregate(Sum('amount'))["amount__sum"]
+            totalTax = queryset.aggregate(Sum('total_tax'))["total_tax__sum"]
             response.data['totalTax'] = totalTax
+            totalAmount = queryset.aggregate(Sum('total_amount'))["total_amount__sum"]
+            response.data['totalAmount'] = totalAmount
 
 
         if self.request.GET.get('month') and self.request.GET.get('year'):
@@ -83,15 +86,19 @@ class ListAPIView(generics.ListAPIView):
             queryset = queryset_all.filter(bill__month__month=str(month),
                                            bill__month__year=str(year))
 
-            totalTax = queryset.aggregate(Sum('amount'))["amount__sum"]
+            totalTax = queryset.aggregate(Sum('total_tax'))["total_tax__sum"]
             response.data['totalTax'] = totalTax
+            totalAmount = queryset.aggregate(Sum('total_amount'))["total_amount__sum"]
+            response.data['totalAmount'] = totalAmount
 
         if self.request.GET.get('year') and not self.request.GET.get('month'):
             year = self.request.GET.get('year')
             queryset = queryset_all.filter(bill__month__year=str(year))
 
-            totalTax = queryset.aggregate(Sum('amount'))["amount__sum"]
+            totalTax = queryset.aggregate(Sum('total_tax'))["total_tax__sum"]
             response.data['totalTax'] = totalTax
+            totalAmount = queryset.aggregate(Sum('total_amount'))["total_amount__sum"]
+            response.data['totalAmount'] = totalAmount
 
         page_size = 'page_size'
         if self.request.GET.get(page_size):
@@ -101,6 +108,8 @@ class ListAPIView(generics.ListAPIView):
 
         if not totalTax:
             response.data['totalTax'] = '0.00'
+        if not totalTax:
+            response.data['totalAmount'] = '0.00'
 
         return response
 
@@ -120,11 +129,15 @@ class ListAPIView(generics.ListAPIView):
         current_year_queryset = query_set.\
             filter(bill__month__year=str(current_year)).\
             exclude(tax__exact='0').annotate(month=TruncMonth('bill__month')).\
-            values('month').annotate(amount=Sum('tax')).values('month', 'amount', 'room__name')
+            values('month').annotate(total_amount=Sum('amount')).\
+            annotate(total_tax=Sum('tax')).\
+            values('month', 'total_amount', 'total_tax', 'room__name')
 
         queryset_all = query_set.exclude(tax__exact='0').\
             annotate(month=TruncMonth('bill__month'))\
-            .values('month').annotate(amount=Sum('tax')).values('month', 'amount', 'room__name')
+            .values('month').annotate(total_amount=Sum('amount')).\
+            annotate(total_tax=Sum('tax')).\
+            values('month', 'total_amount', 'total_tax', 'room__name')
 
         queryset = current_year_queryset
 
@@ -148,4 +161,15 @@ class ListAPIView(generics.ListAPIView):
         else:
             pagination.PageNumberPagination.page_size = 10
 
-        return queryset.order_by('month')
+        finalqueryset = queryset.values('month', 'total_amount', 'total_tax', 'room__name', 'bill__billtype__name')
+
+        for i in queryset:
+            i['service'] = 0
+
+            for j in finalqueryset:
+                if j['room__name'] == i['room__name'] and j['bill__billtype__name'] == 'Service':
+                    i['service'] += j['total_amount']
+
+            i['rents'] = i['total_amount'] - i['service']
+
+        return queryset
