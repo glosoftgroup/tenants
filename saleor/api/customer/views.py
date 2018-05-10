@@ -82,38 +82,3 @@ class CustomerPagListAPIView(generics.ListAPIView):
                 Q(email__icontains=query)
                 ).distinct()
         return queryset_list
-
-class PaymentListAPIView(generics.ListAPIView):
-    serializer_class = PaymentListSerializer
-    pagination_class = CustomPagination
-    queryset = RentPayment.objects.all()
-
-    def get_queryset(self, *args, **kwargs):
-        try:
-            if self.kwargs['pk']:
-                queryset = RentPayment.objects.filter(customer__pk=self.kwargs['pk'])
-            else:
-                queryset = RentPayment.objects.all()
-        except Exception as e:
-            queryset = RentPayment.objects.all().select_related()
-
-        queryset_list = RentPayment.objects.all().select_related()
-        query = self.request.GET.get('q')
-        page_size = 'page_size'
-        if self.request.GET.get(page_size):
-            pagination.PageNumberPagination.page_size = self.request.GET.get(page_size)
-        else:
-            pagination.PageNumberPagination.page_size = 10
-        if self.request.GET.get('date'):
-            queryset = queryset.filter(date_paid__icontains=self.request.GET.get('date'))
-        if query:
-            queryset = queryset.filter(
-                Q(invoice_number__icontains=query) |
-                Q(customer__name__icontains=query) |
-                Q(room__name__icontains=query)
-                )
-        return queryset
-
-    def filter_queryset(self, queryset):
-        queryset = super(PaymentListAPIView, self).filter_queryset(queryset)
-        return queryset.order_by('-id')

@@ -17,7 +17,8 @@ from ...credit.models import Credit
 from ...decorators import permission_decorator, user_trail
 from saleor.booking.models import Book, RentPayment
 from saleor.room.models import Maintenance
-from saleor.bill.models import Bill
+
+from datetime import datetime
 import logging
 import json
 import random
@@ -85,22 +86,57 @@ def user_process(request):
 
         return HttpResponse(json.dumps(data), content_type='application/json')
 
+
+def decimal_to_float(num):
+    """
+    Convert Decimal to float
+    :param num: decimal type
+    :return: float format or 0
+    """
+    try:
+        return float(num)
+    except:
+        return 0
+
+
 @staff_member_required
 def summary(request, pk):
     customer = Customer.objects.get(pk=pk)
-    pending_rent = Bill.objects.customer_bills(customer, status='pending')
-    paid_rent = Bill.objects.customer_bills(customer, status='fully-paid')
 
-    try:
-        pending_rent = float(pending_rent)
-    except:
-        pending_rent = 0
-    try:
-        paid_rent = float(paid_rent)
-    except:
-        paid_rent = 0
+    start_date = request.GET.get('start_date', datetime.today())
+    end_date = request.GET.get('end_date', datetime.today())
 
-    data = {'pending_rent': pending_rent, 'paid_rent': paid_rent}
+    start_date = datetime.strptime(str(start_date), '%Y-%m-%d')
+    end_date = datetime.strptime(str(end_date), '%Y-%m-%d')
+
+    pending_rent = customer.bill_customers.customer_summary(
+        status='pending', billtype=None, start_date=start_date, end_date=end_date
+    )
+    paid_rent = customer.bill_customers.customer_summary(
+        status='fully-paid', billtype=None,  start_date=start_date, end_date=end_date
+    )
+
+    bill_types_summary = []
+    bill_types = customer.bill_customers.bill_types()
+    for billtype in bill_types:
+        paid = customer.bill_customers.customer_summary(
+            status='fully-paid', billtype=billtype, start_date=start_date, end_date=end_date
+        )
+        pending = customer.bill_customers.customer_summary(
+            status='pending', billtype=billtype, start_date=start_date, end_date=end_date
+        )
+        data = {
+            'type': billtype, 'paid': decimal_to_float(paid),
+            'pending': decimal_to_float(pending)
+        }
+
+        bill_types_summary.append(data)
+
+    data = {
+        'pending_rent': decimal_to_float(pending_rent),
+        'paid_rent': decimal_to_float(paid_rent),
+        'bill_types_summary': bill_types_summary
+    }
     return HttpResponse(
         json.dumps(
             {"results": data}), content_type='application/json')
@@ -552,98 +588,6 @@ def dependency_delete(request, pk):
     return TemplateResponse(request,
                             'dashboard/customer/modal_delete.html',
                             ctx)
-
-@staff_member_required
-def pay(request, pk=None):
-    try:
-        customer = Customer.objects.get(pk=pk)
-    except:
-        customer = none
-
-    # create payment instance
-    if request.method == 'POST':
-        instance = RentPayment()
-        try:
-            instance.invoice_number = 'inv/fx/0'+str(RentPayment.objects.latest('id').id)
-            instance.invoice_number += ''.join(random.choice('0123456789ABCDEF') for i in range(4))
-        except Exception as e:
-            instance.invoice_number = 'inv/fx/1'+''.join(random.choice('0123456789ABCDEF') for i in range(4))
-
-        instance.customer = customer
-        if request.POST.get('date_paid'):
-            instance.date_paid = request.POST.get('date_paid')
-        if request.POST.get('amount_paid'):
-            instance.amount_paid = request.POST.get('amount_paid')
-        print instance.amount_paid
-
-        book = Book.objects.get(customer__pk=customer.pk, active=True, room__is_booked=True)
-        instance.room = book.room
-        instance.book = book
-
-        try:
-            book = Book.objects.get(customer__pk=customer.pk, active=True, room__is_booked=True)
-            instance.room = book.room
-            book_amount = book.amount_paid.gross
-            book_balance = book.balance.gross
-            if  book_amount== 0:
-                try:
-                    instance.total_amount = book_balance
-                    # add all the amount paid so far
-                    book.amount_paid = book_amount + instance.amount_paid.gross
-                    # calculate the balance
-                    bookBalance = book_balance - instance.amount_paid.gross
-                    book.balance = bookBalance
-                    #calculate the balance with the charges
-                    book.balance_with_charges = bookBalance + book.maintenance_charges.gross + book.room.service_charges
-                    #record the balance and the service charges in the RentPayment model
-                    instance.balance = bookBalance
-                    instance.maintenance_charges = book.maintenance_charges.gross + book.room.service_charges
-                    book.maintenance_charges = 0
-                    instance.total_balance = instance.maintenance_charges.gross + instance.balance.gross
-                    instance.save()
-                    book.save()
-                except Exception as e:
-                    print (e)
-            else:
-                try:
-                    #total amount remaining
-                    instance.total_amount = book.balance_with_charges.gross
-                    #the total amount paid
-                    book.amount_paid = book_amount + instance.amount_paid.gross
-                    #calculate the balance with the charges
-                    bookBalanceWitharges = book.balance_with_charges.gross - instance.amount_paid.gross
-                    book.balance_with_charges = bookBalanceWitharges
-                    # calculate the balance without the charges
-                    bookBalance = book_balance - instance.amount_paid.gross
-                    book.balance = bookBalance
-                    # assign the total to the to the payment instance
-                    instance.balance = bookBalanceWitharges
-                    instance.maintenance_charges = book.maintenance_charges.gross + book.room.service_charges
-                    instance.total_balance = instance.maintenance_charges.gross + instance.balance.gross
-
-                    book.balance_with_charges = bookBalanceWitharges + book.maintenance_charges.gross + book.room.service_charges
-                    book.maintenance_charges = 0
-                    instance.save()
-                    book.save()
-                except Exception as e:
-                    print (e)
-
-            data = {'success': 'success'}
-            return HttpResponse(json.dumps(data), content_type='application/json')
-
-        except Exception as e:
-            print e
-            return HttpResponse('Invalid request method')
-        return HttpResponse('Invalid request method')
-
-    return HttpResponse('Invalid request method')
-
-@staff_member_required
-def payments(request):
-    global table_name
-
-    ctx = {'table_name': table_name}
-    return TemplateResponse(request, 'dashboard/customer/reports/payments.html', ctx)
 
 @staff_member_required
 def booking_invoice(request, pk=None):

@@ -19,6 +19,7 @@ urlpatterns = [
         (views.delete_image), name='room-delete-image'),
     url(r'add/amenities/$', views.add_amenities, name="add-amenities"),
     url(r'clone/(?P<pk>[0-9]+)/$', views.clone, name="clone-room"),
+    url(r'summary/(?P<pk>[0-9]+)/$', views.summary, name="room-summary"),
     url(r'^delete/(?P<pk>[0-9]+)/$', permission_required('room.delete_room', login_url='account_login')
         (views.delete), name='room-delete'),
     url(r'^detail/(?P<pk>[0-9]+)/$', views.detail, name='room-detail'),
@@ -34,11 +35,6 @@ urlpatterns = [
     url(r'^maintenance/fix/(?P<pk>[0-9]+)/$', views.fix_issue, name='fix-issue'),
     url(r'^maintenance/fix/invoice/(?P<pk>[0-9]+)/$', views.fix_issue_invoice, name='fix-issue-invoice'),
     url(r'^maintenance/delete/(?P<pk>[0-9]+)/$', views.delete_issue, name='delete-issue'),
-
-    #rentalincome
-    url(r'^rental/income/$', TemplateView.as_view(template_name="dashboard/rentalincome/list.html"), name="rental-income"),
-    url(r'^rental/income/(?P<pk>[0-9]+)/$', views.view_room_rental_income, name='room-rental-income'),
-    url(r'^rental/income/detail/(?P<pk>[0-9]+)/$', views.view_room_rental_income_detail, name='room-rental-income-detail'),
 
     ]
 

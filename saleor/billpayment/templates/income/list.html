@@ -3,15 +3,15 @@
 {% load i18n %}
 
 {% block title %}
-  Tax
+  Rental Income
 {% endblock %}
 
  {% block breadcrumbs %}
-     <li class="active"><a href="{% url 'billpayment:tax-index'%}"> Tax</a></li>
+     <li class="active"><a href="{% url 'billpayment:income-index'%}">Rental Income</a></li>
  {% endblock %}
 
 
- {% block menu_tax_class %}active{% endblock %}
+ {% block menu_income_class %}active{% endblock %}
  {% block custom_css %}
  <link href="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css">
  <style type="text/css">
@@ -135,6 +135,7 @@
                                   <tr class="bg-slate-700">
                                     <th>Period</th>
                                     <th v-if="property!= '' ">Property</th>
+                                    <th>Tax</th>
                                     <th>Amount</th>
                                   </tr>
                                 </thead>
@@ -148,6 +149,9 @@
                                         </td>
                                         <td class="td">
                                             <h5 class="text-bold">${totalTax}</h5>
+                                        </td>
+                                        <td class="td">
+                                            <h5 class="text-bold">${totalAmount}</h5>
                                         </td>
 
                                     </tr>
@@ -176,13 +180,37 @@
                                                     <tbody>
                                                         <tr>
                                                             <td>
-                                                                <h3 class="text-bold">
+                                                                <h5 class="text-bold">
+                                                                    Total Amount:
+                                                                </h5>
+                                                            </td>
+                                                            <td class="text-right">
+                                                                <h5 class="text-bold">
+                                                                    ${totalAmount}
+                                                                </h5>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <h5 class="text-bold">
                                                                     Total Tax:
+                                                                </h5>
+                                                            </td>
+                                                            <td class="text-right">
+                                                                <h5 class="text-bold">
+                                                                    ${totalTax}
+                                                                </h5>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <h3 class="text-bold">
+                                                                    Income:
                                                                 </h3>
                                                             </td>
                                                             <td class="text-right">
                                                                 <h3 class="text-bold">
-                                                                    ${totalTax}
+                                                                    ${totalIncome}
                                                                 </h3>
                                                             </td>
                                                         </tr>
@@ -206,9 +234,7 @@
  </div>
 
 <input type="hidden" class="pageUrls"
-  data-listurl="{% url 'billpayment:tax-api-list' %}"
-        data-createurl="/billpayment/api/create/"
->
+  data-listurl="{% url 'billpayment:income-api-list' %}" />
 {% endblock%}
 {% block custom_js %}
 
@@ -220,7 +246,7 @@
     <script type="text/javascript" src="{% static 'backend/js/plugins/loaders/progressbar.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
-    <script src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'backend/js/tax/vue/selectComponent.js' %}"></script>
-    <script type="text/javascript" src="{% static 'backend/js/tax/vue/listing.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/income/vue/selectComponent.js' %}"></script>
+    <script type="text/javascript" src="{% static 'backend/js/income/vue/listing.js' %}"></script>
 {% endblock %}
