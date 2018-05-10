@@ -60,7 +60,7 @@
                                 action <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu edit-dropdown" >
-                                    <li v-show="book.active" class="td " @click="checkOut('/api/booking/checkout/'+book.id+'/', book)">
+                                    <li v-show="book.active" class="td hidden " @click="checkOut('/api/booking/checkout/'+book.id+'/', book)">
                                         <a onclick="return false" >
                                         <i class="icon-arrow-left52"></i>
                                         Checkout</a>

@@ -174,6 +174,13 @@ var parent = new Vue({
 
     },
     methods:{
+        reformatDate(date){
+            if(date.length < 10){
+                 return date+'-01';
+            }else{
+                return date;
+            }
+        },
         bookProperty(e){
             e.preventDefault();
             var self = this;
@@ -191,8 +198,8 @@ var parent = new Vue({
                 data.append('deposit_months', this.deposit_period);
                 data.append('child', this.child);
                 data.append('adult', this.adult);
-                data.append('check_in', this.check_in+'-01');
-                data.append('check_out', this.check_out+'-01');
+                data.append('check_in', this.reformatDate(this.check_in));
+                data.append('check_out', this.reformatDate(this.check_out));
                 if(this.customer){
                     data.append('customer', this.customer);
                 }

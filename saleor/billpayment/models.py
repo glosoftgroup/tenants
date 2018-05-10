@@ -59,7 +59,7 @@ class BillPayment(models.Model):
         pgettext_lazy('BillPayment field', 'id to map to bill payment options'), 
         null=True, max_length=200)
     deposit_refunded = models.BooleanField(
-        pgettext_lazy('BillPayment field', 'is refunded'), default=True)
+        pgettext_lazy('BillPayment field', 'is refunded'), default=False)
     updated_at = models.DateTimeField(
         pgettext_lazy('BillPayment field', 'updated at'), auto_now=True, null=True)
     created = models.DateTimeField(pgettext_lazy('BillPayment field', 'created'),

@@ -3,6 +3,7 @@
 from rest_framework import serializers
 from saleor.bill.models import Bill as Table
 from saleor.booking.models import Book
+from saleor.billpayment.models import BillPayment
 from decimal import Decimal
 from django.utils.translation import ugettext_lazy as _
 import random
@@ -41,7 +42,7 @@ class TableListSerializer(serializers.ModelSerializer):
 
     def get_deposit_refunded(self, obj):
         try:
-            return obj.billpayment.get(bill=obj.id).deposit_refunded
+            return BillPayment.objects.get(bill=obj).deposit_refunded
         except Exception as e:
             print(e)
             return 0
