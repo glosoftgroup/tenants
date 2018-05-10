@@ -57,7 +57,7 @@
   <!-- ./customer -->
   {% endif %}
     {% if perms.customer.view_customer %}
-  <!-- customer management -->
+  <!-- property management -->
   <div class="col-md-3 col-xs-6 hvr-float-shadow ">
   <a href="{% url 'dashboard:booking-rooms' %}">
  <div class="thumbnail no-padding">
@@ -70,7 +70,7 @@
      </div>
     </a>
   </div>
-  <!-- ./customer -->
+  <!-- ./property -->
   {% endif %}
   {% if perms.product.view_product or perms.product.view_stock or perms.product.view_category or perms.product.view_productclass or perms.product.view_productattribute or perms.product.view_stocklocation %}
   <!-- Inventory -->
@@ -89,7 +89,7 @@
   <!-- ./inventory -->
   {% endif %}
       {% if perms.customer.view_customer %}
-  <!-- customer management -->
+  <!-- sale point management -->
   <div class="col-md-3 hvr-float-shadow hidden">
   <a href="{% url 'salepoints:salepoints' %}">
  <div class="thumbnail no-padding">
@@ -102,10 +102,10 @@
      </div>
     </a>
   </div>
-  <!-- ./customer -->
+  <!-- ./points -->
   {% endif %}
   {% if perms.customer.view_customer %}
-  <!-- customer management -->
+  <!-- tables management -->
   <div class="col-md-3 hvr-float-shadow hidden">
   <a href="{% url 'dashboard:table-list' %}">
  <div class="thumbnail no-padding">
@@ -118,7 +118,7 @@
      </div>
     </a>
   </div>
-  <!-- ./customer -->
+  <!-- ./tables -->
   {% endif %}
   {% if perms.supplier.view_room %}
   <!-- supplier management -->
@@ -168,14 +168,14 @@
   <!-- ./communication -->
   {% if perms.discount.add_voucher %}
   <!-- customer Reward -->
-  <div class="col-md-3 hvr-float-shadow hidden">
-  <a href="{% url 'dashboard:sale-list' %}">
+  <div class="col-md-3 hvr-float-shadow">
+  <a href="{% url 'bill:index' %}">
   <div class="thumbnail no-padding">
         <div class="thumb bg-blue">
-          <img src="{% static 'backend/images/landingpage/customer-rewards.png' %}" alt="">       
+          <img src="{% static 'backend/images/landingpage/bills.png' %}" alt="">
         </div>              
         <div class="caption text-center no-padding">
-          <h6 class="text-semibold no-margin">Customer Reward </h6>          
+          <h6 class="text-semibold no-margin">Bills Management</h6>
         </div>
      </div>
     </a>
@@ -184,14 +184,14 @@
   {% endif %}
   {% if perms.sale.view_terminal or perms.sale.view_paymentoption or perms.sale.view_drawercash %}
   <!-- Drawer cash -->
-  <div class="col-md-3 hvr-float-shadow hidden">
-  <a href="{% url 'dashboard:terminals' %}">
+  <div class="col-md-3 hvr-float-shadow">
+  <a href="{% url 'billpayment:index' %}">
  <div class="thumbnail no-padding">
         <div class="thumb bg-blue">
           <img src="{% static 'backend/images/landingpage/drawer-cash.png' %}" alt="">       
         </div>              
         <div class="caption text-center no-padding">
-          <h6 class="text-semibold no-margin">Cash Drawer</h6>
+          <h6 class="text-semibold no-margin">Payments</h6>
         </div>
      </div>
     </a>
@@ -200,7 +200,7 @@
   {% endif %}
   {% if perms.accounts.view_expenses %}
   <!-- accounting -->
-   <div class="col-md-3 hvr-float-shadow hidden">
+   <div class="col-md-3 hvr-float-shadow">
   <a href="{% url 'accounts:personal_expenses' %}">
   <div class="thumbnail no-padding">
         <div class="thumb bg-blue">
@@ -216,8 +216,8 @@
   {% endif %}
   {% if perms.reports.view_sale_reports or perms.reports.view_products_reports or perms.reports.view_purchase_reports or perms.reports.view_balancesheet %}
   <!-- reports -->
-   <div class="col-md-3 hvr-float-shadow hidden">
-  <a href="{% url 'dashboard:sales_list' %}">
+   <div class="col-md-3 hvr-float-shadow">
+  <a href="{% url 'billpayment:income-index' %}">
   <div class="thumbnail no-padding">
         <div class="thumb bg-blue">
           <img src="{% static 'backend/images/landingpage/reports.png' %}" alt="">      
@@ -232,7 +232,7 @@
   {% endif %}
   {% if request.user.is_active %}
   <!-- configuration -->
-   <div class="col-md-3 hvr-float-shadow hidden">
+   <div class="col-md-3 hvr-float-shadow">
   <a href="{% url 'dashboard:site-index' %}">
   <div class="thumbnail no-padding">
         <div class="thumb bg-blue">

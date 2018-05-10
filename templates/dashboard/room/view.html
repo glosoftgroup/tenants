@@ -20,17 +20,27 @@
 {% block menu_rooms_class %}active{% endblock %}
 
 {% block custom_css %}
+<link href="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/css/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css">
 <link href="{% static 'backend/js/plugins/tokenize/tokenize2.css' %}" rel="stylesheet" type="text/css">
 <style lang="css" scoped>
     .vue_component__upload--image{
         padding: 5px;
         min-height: 80px;
         border-radius: 5px;
+        border: 2px;
     }
     .vue_component__upload--image.dragover{}
-
+    .vue_component__upload--image form {
+        background-color: #eeeded;
+        border-style: dotted;
+        border-radius: 5px;
+        color: white;
+        padding:12px;
+        cursor: pointer;
+    }
     .vue_component__upload--image form > div{
         text-align: center;
+
     }
 
     .vue_component__upload--image .upload_image_form__thumbnails{
@@ -71,37 +81,14 @@
     }
     .vue_component__upload--image .upload_image_form__thumbnail span{
         position: absolute;
-        top: -5px;
+        top: 0px;
         left: 0px;
         z-index: 100;
         padding: 0px 1px;
         border-radius: 2px;
-        background-color: grey;
     }
     textarea.form-control {
         height: 68px;
-    }
-    .customer-details{
-      list-style-type: none;
-      padding-left:0px !important;
-    }
-    .customer-details li {
-        padding: 10px 15px;
-        border-top: 1px solid #efefef;
-    }
-    .customer-details li span{
-      padding-bottom: 15px;
-    }
-    .display_label{font-size: 15px !important;text-decoration: underline;}
-    .house_span{
-      padding: 6px 12px;
-      border-radius: 20px;
-      margin: 7px 3px 5px 0px;
-      float: left;
-    }
-    .pagination > .active > a, .pagination > .active > a:hover, .pagination > .active > a:active, .pagination > .active > a:focus{
-      background-color: #607D8B;
-      border-color: #607D8B;
     }
 </style>
 <style type="text/css">
@@ -132,13 +119,56 @@
           display: none;
        }
     }
+    .customer-details{
+      list-style-type: none;
+      padding-left:0px !important;
+    }
+    .customer-details li {
+        padding: 10px 15px;
+        border-top: 1px solid #efefef;
+    }
+    .customer-details li span{
+      padding-bottom: 15px;
+    }
+    .display_label{font-size: 15px !important;text-decoration: underline;}
+    .house_span{
+      padding: 6px 12px;
+      border-radius: 20px;
+      margin: 7px 3px 5px 0px;
+      float: left;
+    }
+    .pagination > .active > a, .pagination > .active > a:hover, .pagination > .active > a:active, .pagination > .active > a:focus{
+      background-color: #607D8B;
+      border-color: #607D8B;
+    }
    </style>
 <style>
     .error{color:red;}
+    .room-bg{
+     border-radius:5px 5px 0px 0px;
+     box-shadow: 0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24);
+     {% if room.room_images.first.image %}
+      background-image: url('{{ room.room_images.first.image.crop.300x250 }}');
+     {% else %}
+      background-image: url('/static/backend/images/bg.png');
+     {% endif %}
+     background-position: center;
+     background-repeat: no-repeat;
+     background-size: cover;
+     }
 </style>
+<!--.ui-datepicker-header { display:none }-->
 <style>
-    .ui-datepicker-header { display:none }
+
+     .datepicker table tr td span {
+      padding:1px !important;
+    }
+    .datepicker table tr td span.active.active{
+       background-color:#1E88E5 !important;
+       background-image: linear-gradient(to bottom,#08c,#1c64fb) !important;
+    }
 </style>
+
 {% endblock %}
 {% block content %}
 
@@ -213,6 +243,7 @@
                         <li class=""><a id="tab-availability" {% if room.pk %} href="#room-availability" data-toggle="tab"  class="legitRipple" {% else %} class="disabled" {% endif %} aria-expanded="false"><i class="icon-watch2 position-left"></i> Availability</a></li>
                         <li class=""><a id="tab-booking" {% if room.pk %} href="#room-booking" data-toggle="tab"  class="legitRipple" {% else %} class="disabled" {% endif %} aria-expanded="false"><i class="icon-history position-left"></i> History</a></li>
                         <li class=""><a id="tab-images" {% if room.pk %} href="#room-images" data-toggle="tab"  class="legitRipple" {% else %} class="disabled" {% endif %} aria-expanded="false"><i class="icon-images3 position-left"></i> Images</a></li>
+                        <li class=""><a id="tab-summary" {% if room.pk %} href="#room-summary" data-toggle="tab"  class="legitRipple" {% else %} class="disabled" {% endif %} aria-expanded="false"><i class="icon-stats-dots position-left"></i> Summary</a></li>
                     </ul>
 
                     <div class="tab-content">
@@ -493,7 +524,11 @@
                                 </div>
                              </div>
                             <!--./image-->
+                        </div>
 
+                         <!--summary-->
+                        <div class="tab-pane has-padding" id="room-summary">
+                            {% include 'dashboard/customer/partials/summary.html' with room=room %}
                         </div>
 
 
@@ -546,26 +581,35 @@
 </template>
 {% endblock%}
 {% block custom_js %}
+<script>
+    var pk;
+    {% if room.pk %}
+        pk = {{room.pk}};
+        console.log(pk);
+    {% endif %}
+</script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/media/fancybox.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'backend/js/core/libraries/jquery_ui_widgets.min.js' %}"></script>
+<!--<script type="text/javascript" src="{% static 'backend/js/core/libraries/jquery_ui_widgets.min.js' %}"></script>-->
+<script type="text/javascript" src="{% static 'backend/js/plugins/pickers/bootstrap_datepicker/js/bootstrap-datepicker.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/pages/form_multiselect.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/pickers/datetimepicker/bootstrap-datetimepicker.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/pagination/jquery.twbsPagination.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/forms/selects/bootstrap_select.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/room/add-room.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/Chart.bundle.js' %}"></script>
+<script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-chartkick.js' %}"></script>
+
 <script type="text/javascript" src="{% static 'backend/js/plugins/tokenize/tokenize2.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'backend/js/plugins/vue/vue-resource.js' %}"></script>
 <script src="{% static 'backend/js/plugins/vue/axios.min.js' %}"></script>
 
-<!--<script type="text/javascript" src="{% static 'backend/js/room/vue/add_app.js' %}"></script>-->
+<script type="text/javascript" src="{% static 'backend/js/room/vue/add_app.js' %}"></script>
 <!--<script type="text/javascript" src="{% static 'backend/js/booking/vue/booking.js' %}"></script>-->
 <!--<script type="text/javascript" src="{% static 'backend/js/room/book-room.js' %}"></script>-->
 <script type="text/javascript" src="{% static 'backend/js/booking/vue/listing-single.js' %}"></script>
 <script>
-
-
      // Checkboxes/radios (Uniform)
     // ------------------------------
 
@@ -593,7 +637,7 @@
     var tabImages = $('#tab-images');
     {% if not room.pk %}
         tabImages.on('click',function(){
-            alertUser('To enable this tab, add room first','bg-warning','Add room first');
+            alertUser('To enable this tab, add property first','bg-warning','Add property first');
         });
     {% endif %}
 
@@ -606,33 +650,18 @@
 
     });
 
-
-    $('.daterange-basic').daterangepicker({
-        applyClass: 'bg-slate-600',
-        cancelClass: 'btn-default',
-    });
-
     // Date picker
     // ------------------------------
 
     // Default functionality
-    var check_out = "{{room.booking_room.first.check_out|date:'Y-m-d'}}";
-    var check_in = "{{room.booking_room.first.check_in|date:'Y-m-d'}}";
+    var check_out = "{{room.booking_room.first.check_out|date:'Y-m'}}";
+    var check_in = "{{room.booking_room.first.check_in|date:'Y-m'}}";
 
-    $(".datepicker").datepicker({
-        changeMonth: true,
-        changeYear: true,
-        dateFormat : 'dd-mm-yy',
-        defaultDate: new Date(new Date(moment(check_out)))
-        }).datepicker( "option", "disabled", true );
-    $(".datepicker-check-in").datepicker({
-        changeMonth: true,
-        changeYear: true,
-        dateFormat : 'dd-mm-yy',
-        defaultDate: new Date(new Date(moment(check_in)))
-        }).datepicker( "option", "disabled", true );
 
 
 </script>
+<script type="text/javascript" src="{% static 'backend/js/room/vue/summary.js' %}"></script>
+
+
 
 {% endblock %}

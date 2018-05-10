@@ -55,9 +55,10 @@ class ListAPIView(generics.ListAPIView):
         else:
             pagination.PageNumberPagination.page_size = 10
         if self.request.GET.get('month') and self.request.GET.get('year'):
-            queryset_list = queryset_list.filter(
-                month__month=self.request.GET.get('month'),
-                month__year=self.request.GET.get('year'))
+            if self.request.GET.get('year') != 'undefined' and self.request.GET.get('month') != 'undefined':
+                queryset_list = queryset_list.filter(
+                    month__month=self.request.GET.get('month'),
+                    month__year=self.request.GET.get('year'))
         if self.request.GET.get('status') and self.request.GET.get('status') != 'all':
             queryset_list = queryset_list.filter(status=self.request.GET.get('status'))
 

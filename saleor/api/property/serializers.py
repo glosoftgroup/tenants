@@ -23,7 +23,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class TableListSerializer(serializers.ModelSerializer):
-    rental_income_url = serializers.HyperlinkedIdentityField(view_name='dashboard:room-rental-income')
+    # rental_income_url = serializers.HyperlinkedIdentityField(view_name='dashboard:room-rental-income')
     maintenance_url = serializers.HyperlinkedIdentityField(view_name='dashboard:add_room_issue')
     update_url = serializers.HyperlinkedIdentityField(view_name='dashboard:room-edit')
     view_url = serializers.HyperlinkedIdentityField(view_name='dashboard:room-view')
@@ -61,7 +61,6 @@ class TableListSerializer(serializers.ModelSerializer):
                   'view_url',
                   'delete_url',
                   'maintenance_url',
-                  'rental_income_url'
                  )
 
     def get_price(self, obj):
