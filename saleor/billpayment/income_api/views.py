@@ -55,7 +55,7 @@ class ListAPIView(generics.ListAPIView):
 
         queryset = query_set.\
             filter(bill__month__year=str(current_year)).\
-            exclude(tax__exact='0').annotate(month=TruncMonth('bill__month')).\
+            exclude(tax__exact='-1').annotate(month=TruncMonth('bill__month')).\
             values('month').annotate(total_amount=Sum('amount')).annotate(total_tax=Sum('tax')).values('month', 'total_amount', 'total_tax', 'room__name')
 
         totalTax = queryset.aggregate(Sum('total_tax'))["total_tax__sum"]
@@ -63,11 +63,9 @@ class ListAPIView(generics.ListAPIView):
         totalAmount = queryset.aggregate(Sum('total_amount'))["total_amount__sum"]
         response.data['totalAmount'] = totalAmount
 
-
-        queryset_all = query_set.exclude(tax__exact='0').\
+        queryset_all = query_set.exclude(tax__exact='-1').\
             annotate(month=TruncMonth('bill__month'))\
             .values('month').annotate(total_amount=Sum('amount')).annotate(total_tax=Sum('tax')).values('month', 'total_amount', 'total_tax', 'room__name')
-
 
         if self.request.GET.get('month_from') and self.request.GET.get('month_to'):
             month_from = self.request.GET.get('month_from')
@@ -108,7 +106,7 @@ class ListAPIView(generics.ListAPIView):
 
         if not totalTax:
             response.data['totalTax'] = '0.00'
-        if not totalTax:
+        if not totalAmount:
             response.data['totalAmount'] = '0.00'
 
         return response
